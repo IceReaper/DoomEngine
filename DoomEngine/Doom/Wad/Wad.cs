@@ -65,7 +65,7 @@ namespace DoomEngine.Doom.Wad
 		{
 			this.names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
 
-			var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+			var stream = DoomApplication.FileSystem.Read(fileName);
 			this.streams.Add(stream);
 
 			string identification;

@@ -20,7 +20,6 @@ namespace DoomEngine.Doom.Game
 	using Info;
 	using Intermission;
 	using System;
-	using System.IO;
 	using World;
 
 	public sealed class DoomGame
@@ -341,8 +340,7 @@ namespace DoomEngine.Doom.Game
 		{
 			this.gameAction = GameAction.Nothing;
 
-			var directory = ConfigUtilities.GetExeDirectory();
-			var path = Path.Combine(directory, "doomsav" + this.loadGameSlotNumber + ".dsg");
+			var path = "doomsav" + this.loadGameSlotNumber + ".dsg";
 			SaveAndLoad.Load(this, path);
 		}
 
@@ -350,8 +348,7 @@ namespace DoomEngine.Doom.Game
 		{
 			this.gameAction = GameAction.Nothing;
 
-			var directory = ConfigUtilities.GetExeDirectory();
-			var path = Path.Combine(directory, "doomsav" + this.saveGameSlotNumber + ".dsg");
+			var path = "doomsav" + this.saveGameSlotNumber + ".dsg";
 			SaveAndLoad.Save(this, this.saveGameDescription, path);
 			this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.GGSAVED);
 		}

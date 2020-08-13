@@ -68,8 +68,11 @@ namespace DoomEngine
 
 			var data = new List<string>();
 			var last = Block.None;
+			
+			using var reader = new StreamReader(DoomApplication.FileSystem.Read(fileName));
+			var lines = reader.ReadToEnd().Split('\n');
 
-			foreach (var line in File.ReadLines(fileName))
+			foreach (var line in lines)
 			{
 				var split = line.Split(' ');
 				var blockType = DeHackEd.GetBlockType(split);

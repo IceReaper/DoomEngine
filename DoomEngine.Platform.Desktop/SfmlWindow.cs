@@ -1,6 +1,5 @@
 ﻿namespace DoomEngine.Platform.Desktop
 {
-	using Doom.Game;
 	using SFML.Graphics;
 	using SFML.Window;
 	using System;

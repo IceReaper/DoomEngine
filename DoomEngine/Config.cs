@@ -91,7 +91,10 @@ namespace DoomEngine
 
 				var dic = new Dictionary<string, string>();
 
-				foreach (var line in File.ReadLines(path))
+				using var reader = new StreamReader(DoomApplication.FileSystem.Read(path));
+				var lines = reader.ReadToEnd().Split('\n');
+
+				foreach (var line in lines)
 				{
 					var split = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
 
@@ -140,7 +143,7 @@ namespace DoomEngine
 		{
 			try
 			{
-				using (var writer = new StreamWriter(path))
+				using (var writer = new StreamWriter(DoomApplication.FileSystem.Write(path)))
 				{
 					writer.WriteLine(nameof(this.key_forward) + " = " + this.key_forward);
 					writer.WriteLine(nameof(this.key_strafeleft) + " = " + this.key_strafeleft);

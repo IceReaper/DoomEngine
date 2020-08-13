@@ -22,6 +22,7 @@ namespace DoomEngine
 	using Doom.Game;
 	using Doom.Info;
 	using Doom.Menu;
+	using FileSystem;
 	using Platform;
 	using SoftwareRendering;
 	using System;
@@ -33,6 +34,8 @@ namespace DoomEngine
 
 	public sealed class DoomApplication : IDisposable
 	{
+		public static IWritableFileSystem FileSystem;
+
 		private Config config;
 
 		private IWindow window;
@@ -70,7 +73,8 @@ namespace DoomEngine
 
 		public DoomApplication(IPlatform platform, CommandLineArgs args)
 		{
-			this.config = new Config(platform, ConfigUtilities.GetConfigPath());
+			DoomApplication.FileSystem = new VirtualFileSystem();
+			this.config = new Config(platform, "managed-doom.cfg");
 
 			try
 			{
@@ -248,7 +252,7 @@ namespace DoomEngine
 
 				if (this.Update() == UpdateResult.Completed)
 				{
-					this.config.Save(ConfigUtilities.GetConfigPath());
+					this.config.Save("managed-doom.cfg");
 
 					return;
 				}

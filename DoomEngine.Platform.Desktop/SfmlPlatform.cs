@@ -2,7 +2,6 @@
 {
 	using Doom.Common;
 	using Doom.Wad;
-	using Null;
 	using SFML.Window;
 	using System.IO;
 
@@ -20,7 +19,7 @@
 
 		public IMusic CreateMusic(Config config, Wad wad)
 		{
-			var sfPath = Path.Combine(ConfigUtilities.GetExeDirectory(), "TimGM6mb.sf2");
+			var sfPath = "TimGM6mb.sf2";
 
 			if (File.Exists(sfPath))
 			{

@@ -16,7 +16,6 @@
 namespace DoomEngine.Doom.Menu
 {
 	using Common;
-	using System.IO;
 
 	public sealed class SaveSlots
 	{
@@ -29,16 +28,15 @@ namespace DoomEngine.Doom.Menu
 		{
 			this.slots = new string[SaveSlots.slotCount];
 
-			var directory = ConfigUtilities.GetExeDirectory();
 			var buffer = new byte[SaveSlots.descriptionSize];
 
 			for (var i = 0; i < this.slots.Length; i++)
 			{
-				var path = Path.Combine(directory, "doomsav" + i + ".dsg");
+				var path = "doomsav" + i + ".dsg";
 
-				if (File.Exists(path))
+				if (DoomApplication.FileSystem.Exists(path))
 				{
-					using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
+					using (var reader = DoomApplication.FileSystem.Read(path))
 					{
 						reader.Read(buffer, 0, buffer.Length);
 						this.slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);

@@ -16,7 +16,6 @@
 namespace DoomEngine.Doom.Game
 {
 	using System;
-	using System.IO;
 
 	public sealed class Demo
 	{
@@ -69,11 +68,6 @@ namespace DoomEngine.Doom.Game
 			{
 				this.options.NetGame = true;
 			}
-		}
-
-		public Demo(string fileName)
-			: this(File.ReadAllBytes(fileName))
-		{
 		}
 
 		public bool ReadCmd(TicCmd[] cmds)

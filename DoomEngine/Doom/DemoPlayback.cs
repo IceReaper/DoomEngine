@@ -33,13 +33,15 @@ namespace DoomEngine.Doom
 
 		public DemoPlayback(CommonResource resource, GameOptions options, string demoName)
 		{
-			if (File.Exists(demoName))
+			if (DoomApplication.FileSystem.Exists(demoName))
 			{
-				this.demo = new Demo(demoName);
+				using var reader = new BinaryReader(DoomApplication.FileSystem.Read(demoName));
+				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
 			}
-			else if (File.Exists(demoName + ".lmp"))
+			else if (DoomApplication.FileSystem.Exists(demoName + ".lmp"))
 			{
-				this.demo = new Demo(demoName + ".lmp");
+				using var reader = new BinaryReader(DoomApplication.FileSystem.Read(demoName + ".lmp"));
+				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
 			}
 			else
 			{
