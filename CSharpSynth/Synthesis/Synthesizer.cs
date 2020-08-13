@@ -22,7 +22,7 @@ namespace AudioSynthesis.Synthesis
     {
         #region Fields
         //synth variables
-        internal float[] sampleBuffer;
+        public float[] sampleBuffer;
         private VoiceManager voiceManager;
         private int audioChannels;
         private bool littleEndian;

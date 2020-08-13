@@ -10,4 +10,8 @@
     <PackageReference Include="SFML.Net" Version="2.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpSynth\CSharpSynth.csproj" />
+  </ItemGroup>
+
 </Project>
