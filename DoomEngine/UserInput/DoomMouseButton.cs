@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.UserInput
 {
-    public enum DoomMouseButton
+	public enum DoomMouseButton
     {
         Unknown = -1,
         Mouse1 = 0,

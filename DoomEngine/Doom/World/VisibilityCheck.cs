@@ -13,12 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Map;
+	using Math;
+
 	public sealed class VisibilityCheck
 	{
 		private World world;
@@ -39,9 +38,9 @@ namespace ManagedDoom
 		{
 			this.world = world;
 
-			trace = new DivLine();
+			this.trace = new DivLine();
 
-			occluder = new DivLine();
+			this.occluder = new DivLine();
 		}
 
 		/// <summary>
@@ -69,7 +68,7 @@ namespace ManagedDoom
 		/// </summary>
 		private bool CrossSubsector(int subsectorNumber, int validCount)
 		{
-			var map = world.Map;
+			var map = this.world.Map;
 			var subsector = map.Subsectors[subsectorNumber];
 			var count = subsector.SegCount;
 
@@ -89,8 +88,8 @@ namespace ManagedDoom
 
 				var v1 = line.Vertex1;
 				var v2 = line.Vertex2;
-				var s1 = Geometry.DivLineSide(v1.X, v1.Y, trace);
-				var s2 = Geometry.DivLineSide(v2.X, v2.Y, trace);
+				var s1 = Geometry.DivLineSide(v1.X, v1.Y, this.trace);
+				var s2 = Geometry.DivLineSide(v2.X, v2.Y, this.trace);
 
 				// Line isn't crossed?
 				if (s1 == s2)
@@ -98,9 +97,9 @@ namespace ManagedDoom
 					continue;
 				}
 
-				occluder.MakeFrom(line);
-				s1 = Geometry.DivLineSide(trace.X, trace.Y, occluder);
-				s2 = Geometry.DivLineSide(targetX, targetY, occluder);
+				this.occluder.MakeFrom(line);
+				s1 = Geometry.DivLineSide(this.trace.X, this.trace.Y, this.occluder);
+				s2 = Geometry.DivLineSide(this.targetX, this.targetY, this.occluder);
 
 				// Line isn't crossed?
 				if (s1 == s2)
@@ -155,27 +154,27 @@ namespace ManagedDoom
 					return false;
 				}
 
-				var frac = InterceptVector(trace, occluder);
+				var frac = this.InterceptVector(this.trace, this.occluder);
 
 				if (front.FloorHeight != back.FloorHeight)
 				{
-					var slope = (openBottom - sightZStart) / frac;
-					if (slope > bottomSlope)
+					var slope = (openBottom - this.sightZStart) / frac;
+					if (slope > this.bottomSlope)
 					{
-						bottomSlope = slope;
+						this.bottomSlope = slope;
 					}
 				}
 
 				if (front.CeilingHeight != back.CeilingHeight)
 				{
-					var slope = (openTop - sightZStart) / frac;
-					if (slope < topSlope)
+					var slope = (openTop - this.sightZStart) / frac;
+					if (slope < this.topSlope)
 					{
-						topSlope = slope;
+						this.topSlope = slope;
 					}
 				}
 
-				if (topSlope <= bottomSlope)
+				if (this.topSlope <= this.bottomSlope)
 				{
 					// Stop.
 					return false;
@@ -195,18 +194,18 @@ namespace ManagedDoom
 			{
 				if (nodeNumber == -1)
 				{
-					return CrossSubsector(0, validCount);
+					return this.CrossSubsector(0, validCount);
 				}
 				else
 				{
-					return CrossSubsector(Node.GetSubsector(nodeNumber), validCount);
+					return this.CrossSubsector(Node.GetSubsector(nodeNumber), validCount);
 				}
 			}
 
-			var node = world.Map.Nodes[nodeNumber];
+			var node = this.world.Map.Nodes[nodeNumber];
 
 			// Decide which side the start point is on.
-			var side = Geometry.DivLineSide(trace.X, trace.Y, node);
+			var side = Geometry.DivLineSide(this.trace.X, this.trace.Y, node);
 			if (side == 2)
 			{
 				// An "on" should cross both sides.
@@ -214,20 +213,20 @@ namespace ManagedDoom
 			}
 
 			// cross the starting side
-			if (!CrossBspNode(node.Children[side], validCount))
+			if (!this.CrossBspNode(node.Children[side], validCount))
 			{
 				return false;
 			}
 
 			// The partition plane is crossed here.
-			if (side == Geometry.DivLineSide(targetX, targetY, node))
+			if (side == Geometry.DivLineSide(this.targetX, this.targetY, node))
 			{
 				// The line doesn't touch the other side.
 				return true;
 			}
 
 			// Cross the ending side.
-			return CrossBspNode(node.Children[side ^ 1], validCount);
+			return this.CrossBspNode(node.Children[side ^ 1], validCount);
 		}
 
 		/// <summary>
@@ -235,7 +234,7 @@ namespace ManagedDoom
 		/// </summary>
 		public bool CheckSight(Mobj looker, Mobj target)
 		{
-			var map = world.Map;
+			var map = this.world.Map;
 
 			// First check for trivial rejection.
 			// Check in REJECT table.
@@ -248,20 +247,20 @@ namespace ManagedDoom
 			// An unobstructed LOS is possible.
 			// Now look from eyes of t1 to any part of t2.
 
-			sightZStart = looker.Z + looker.Height - (looker.Height >> 2);
-			topSlope = (target.Z + target.Height) - sightZStart;
-			bottomSlope = (target.Z) - sightZStart;
+			this.sightZStart = looker.Z + looker.Height - (looker.Height >> 2);
+			this.topSlope = (target.Z + target.Height) - this.sightZStart;
+			this.bottomSlope = (target.Z) - this.sightZStart;
 
-			trace.X = looker.X;
-			trace.Y = looker.Y;
-			trace.Dx = target.X - looker.X;
-			trace.Dy = target.Y - looker.Y;
+			this.trace.X = looker.X;
+			this.trace.Y = looker.Y;
+			this.trace.Dx = target.X - looker.X;
+			this.trace.Dy = target.Y - looker.Y;
 
-			targetX = target.X;
-			targetY = target.Y;
+			this.targetX = target.X;
+			this.targetY = target.Y;
 
 			// The head node is the last node output.
-			return CrossBspNode(map.Nodes.Length - 1, world.GetNewValidCount());
+			return this.CrossBspNode(map.Nodes.Length - 1, this.world.GetNewValidCount());
 		}
 	}
 }

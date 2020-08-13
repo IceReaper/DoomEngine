@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Map;
+	using Math;
+
 	public sealed class FloorMove : Thinker
 	{
 		private World world;
@@ -41,98 +41,98 @@ namespace ManagedDoom
 		{
 			SectorActionResult result;
 
-			var sa = world.SectorAction;
+			var sa = this.world.SectorAction;
 
 			result = sa.MovePlane(
-				sector,
-				speed,
-				floorDestHeight,
-				crush,
+				this.sector,
+				this.speed,
+				this.floorDestHeight,
+				this.crush,
 				0,
-				direction);
+				this.direction);
 
-			if (((world.LevelTime + sector.Number) & 7) == 0)
+			if (((this.world.LevelTime + this.sector.Number) & 7) == 0)
 			{
-				world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+				this.world.StartSound(this.sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
 			}
 
 			if (result == SectorActionResult.PastDestination)
 			{
-				sector.SpecialData = null;
+				this.sector.SpecialData = null;
 
-				if (direction == 1)
+				if (this.direction == 1)
 				{
-					switch (type)
+					switch (this.type)
 					{
 						case FloorMoveType.DonutRaise:
-							sector.Special = newSpecial;
-							sector.FloorFlat = texture;
+							this.sector.Special = this.newSpecial;
+							this.sector.FloorFlat = this.texture;
 							break;
 					}
 				}
-				else if (direction == -1)
+				else if (this.direction == -1)
 				{
-					switch (type)
+					switch (this.type)
 					{
 						case FloorMoveType.LowerAndChange:
-							sector.Special = newSpecial;
-							sector.FloorFlat = texture;
+							this.sector.Special = this.newSpecial;
+							this.sector.FloorFlat = this.texture;
 							break;
 					}
 				}
 
-				world.Thinkers.Remove(this);
+				this.world.Thinkers.Remove(this);
 
-				world.StartSound(sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
+				this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
 			}
 		}
 
 		public FloorMoveType Type
 		{
-			get => type;
-			set => type = value;
+			get => this.type;
+			set => this.type = value;
 		}
 
 		public bool Crush
 		{
-			get => crush;
-			set => crush = value;
+			get => this.crush;
+			set => this.crush = value;
 		}
 
 		public Sector Sector
 		{
-			get => sector;
-			set => sector = value;
+			get => this.sector;
+			set => this.sector = value;
 		}
 
 		public int Direction
 		{
-			get => direction;
-			set => direction = value;
+			get => this.direction;
+			set => this.direction = value;
 		}
 
 		public SectorSpecial NewSpecial
 		{
-			get => newSpecial;
-			set => newSpecial = value;
+			get => this.newSpecial;
+			set => this.newSpecial = value;
 		}
 
 		public int Texture
 		{
-			get => texture;
-			set => texture = value;
+			get => this.texture;
+			set => this.texture = value;
 		}
 
 		public Fixed FloorDestHeight
 		{
-			get => floorDestHeight;
-			set => floorDestHeight = value;
+			get => this.floorDestHeight;
+			set => this.floorDestHeight = value;
 		}
 
 		public Fixed Speed
 		{
-			get => speed;
-			set => speed = value;
+			get => this.speed;
+			set => this.speed = value;
 		}
 	}
 }

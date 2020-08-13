@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class WeaponInfo
+	public sealed class WeaponInfo
     {
         private AmmoType ammo;
         private MobjState upState;
@@ -46,38 +42,38 @@ namespace ManagedDoom
 
         public AmmoType Ammo
         {
-            get => ammo;
-            set => ammo = value;
+            get => this.ammo;
+            set => this.ammo = value;
         }
 
         public MobjState UpState
         {
-            get => upState;
-            set => upState = value;
+            get => this.upState;
+            set => this.upState = value;
         }
 
         public MobjState DownState
         {
-            get => downState;
-            set => downState = value;
+            get => this.downState;
+            set => this.downState = value;
         }
 
         public MobjState ReadyState
         {
-            get => readyState;
-            set => readyState = value;
+            get => this.readyState;
+            set => this.readyState = value;
         }
 
         public MobjState AttackState
         {
-            get => attackState;
-            set => attackState = value;
+            get => this.attackState;
+            set => this.attackState = value;
         }
 
         public MobjState FlashState
         {
-            get => flashState;
-            set => flashState = value;
+            get => this.flashState;
+            set => this.flashState = value;
         }
     }
 }

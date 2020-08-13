@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Subsector
+	using System;
+	using Wad;
+
+	public sealed class Subsector
     {
         private static readonly int dataSize = 4;
 
@@ -66,8 +65,8 @@ namespace ManagedDoom
             return subsectors;
         }
 
-        public Sector Sector => sector;
-        public int SegCount => segCount;
-        public int FirstSeg => firstSeg;
+        public Sector Sector => this.sector;
+        public int SegCount => this.segCount;
+        public int FirstSeg => this.firstSeg;
     }
 }

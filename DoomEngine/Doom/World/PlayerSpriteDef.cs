@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class PlayerSpriteDef
+	using Math;
+
+	public sealed class PlayerSpriteDef
     {
         private MobjStateDef state;
         private int tics;
@@ -28,34 +26,34 @@ namespace ManagedDoom
 
         public void Clear()
         {
-            state = null;
-            tics = 0;
-            sx = Fixed.Zero;
-            sy = Fixed.Zero;
+            this.state = null;
+            this.tics = 0;
+            this.sx = Fixed.Zero;
+            this.sy = Fixed.Zero;
         }
 
         public MobjStateDef State
         {
-            get => state;
-            set => state = value;
+            get => this.state;
+            set => this.state = value;
         }
 
         public int Tics
         {
-            get => tics;
-            set => tics = value;
+            get => this.tics;
+            set => this.tics = value;
         }
 
         public Fixed Sx
         {
-            get => sx;
-            set => sx = value;
+            get => this.sx;
+            set => this.sx = value;
         }
 
         public Fixed Sy
         {
-            get => sy;
-            set => sy = value;
+            get => this.sy;
+            set => this.sy = value;
         }
     }
 }

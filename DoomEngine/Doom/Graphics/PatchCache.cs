@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class PatchCache
+	using System.Collections.Generic;
+	using Wad;
+
+	public sealed class PatchCache
     {
         private Wad wad;
         private Dictionary<string, Patch> cache;
@@ -29,7 +27,7 @@ namespace ManagedDoom
         {
             this.wad = wad;
 
-            cache = new Dictionary<string, Patch>();
+            this.cache = new Dictionary<string, Patch>();
         }
 
         public Patch this[string name]
@@ -37,10 +35,10 @@ namespace ManagedDoom
             get
             {
                 Patch patch;
-                if (!cache.TryGetValue(name, out patch))
+                if (!this.cache.TryGetValue(name, out patch))
                 {
-                    patch = Patch.FromWad(wad, name);
-                    cache.Add(name, patch);
+                    patch = Patch.FromWad(this.wad, name);
+                    this.cache.Add(name, patch);
                 }
                 return patch;
             }

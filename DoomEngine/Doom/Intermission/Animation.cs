@@ -13,14 +13,10 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
+	using System.Collections.Generic;
+
 	public sealed class Animation
 	{
 		private Intermission im;
@@ -38,98 +34,98 @@ namespace ManagedDoom
 
 		public Animation(Intermission intermission, AnimationInfo info, int number)
 		{
-			im = intermission;
+			this.im = intermission;
 			this.number = number;
 
-			type = info.Type;
-			period = info.Period;
-			frameCount = info.Count;
-			locationX = info.X;
-			locationY = info.Y;
-			data = info.Data;
+			this.type = info.Type;
+			this.period = info.Period;
+			this.frameCount = info.Count;
+			this.locationX = info.X;
+			this.locationY = info.Y;
+			this.data = info.Data;
 
-			patches = new string[frameCount];
-			for (var i = 0; i < frameCount; i++)
+			this.patches = new string[this.frameCount];
+			for (var i = 0; i < this.frameCount; i++)
 			{
 				// MONDO HACK!
-				if (im.Info.Episode != 1 || number != 8)
+				if (this.im.Info.Episode != 1 || number != 8)
 				{
-					patches[i] = "WIA" + im.Info.Episode + number.ToString("00") + i.ToString("00");
+					this.patches[i] = "WIA" + this.im.Info.Episode + number.ToString("00") + i.ToString("00");
 				}
 				else
 				{
 					// HACK ALERT!
-					patches[i] = "WIA104" + i.ToString("00");
+					this.patches[i] = "WIA104" + i.ToString("00");
 				}
 			}
 		}
 
 		public void Reset(int bgCount)
 		{
-			patchNumber = -1;
+			this.patchNumber = -1;
 
 			// Specify the next time to draw it.
-			if (type == AnimationType.Always)
+			if (this.type == AnimationType.Always)
 			{
-				nextTic = bgCount + 1 + (im.Random.Next() % period);
+				this.nextTic = bgCount + 1 + (this.im.Random.Next() % this.period);
 			}
-			else if (type == AnimationType.Random)
+			else if (this.type == AnimationType.Random)
 			{
-				nextTic = bgCount + 1 + (im.Random.Next() % data);
+				this.nextTic = bgCount + 1 + (this.im.Random.Next() % this.data);
 			}
-			else if (type == AnimationType.Level)
+			else if (this.type == AnimationType.Level)
 			{
-				nextTic = bgCount + 1;
+				this.nextTic = bgCount + 1;
 			}
 		}
 
 		public void Update(int bgCount)
 		{
-			if (bgCount == nextTic)
+			if (bgCount == this.nextTic)
 			{
-				switch (type)
+				switch (this.type)
 				{
 					case AnimationType.Always:
-						if (++patchNumber >= frameCount)
+						if (++this.patchNumber >= this.frameCount)
 						{
-							patchNumber = 0;
+							this.patchNumber = 0;
 						}
-						nextTic = bgCount + period;
+						this.nextTic = bgCount + this.period;
 						break;
 
 					case AnimationType.Random:
-						patchNumber++;
-						if (patchNumber == frameCount)
+						this.patchNumber++;
+						if (this.patchNumber == this.frameCount)
 						{
-							patchNumber = -1;
-							nextTic = bgCount + (im.Random.Next() % data);
+							this.patchNumber = -1;
+							this.nextTic = bgCount + (this.im.Random.Next() % this.data);
 						}
 						else
 						{
-							nextTic = bgCount + period;
+							this.nextTic = bgCount + this.period;
 						}
 						break;
 
 					case AnimationType.Level:
 						// Gawd-awful hack for level anims.
-						if (!(im.State == IntermissionState.StatCount && number == 7) && im.Info.NextLevel == Data)
+						if (!(this.im.State == IntermissionState.StatCount && this.number == 7) && this.im.Info.NextLevel == this.Data)
 						{
-							patchNumber++;
-							if (patchNumber == frameCount)
+							this.patchNumber++;
+							if (this.patchNumber == this.frameCount)
 							{
-								patchNumber--;
+								this.patchNumber--;
 							}
-							nextTic = bgCount + period;
+							this.nextTic = bgCount + this.period;
 						}
 						break;
 				}
 			}
 		}
 
-		public int LocationX => locationX;
-		public int LocationY => locationY;
-		public int Data => data;
-		public IReadOnlyList<string> Patches => patches;
-		public int PatchNumber => patchNumber;
+		public int LocationX => this.locationX;
+		public int LocationY => this.locationY;
+		public int Data => this.data;
+		public IReadOnlyList<string> Patches => this.patches;
+		public int PatchNumber => this.patchNumber;
 	}
 }

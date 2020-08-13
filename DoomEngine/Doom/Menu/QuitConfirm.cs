@@ -13,15 +13,18 @@
 // GNU General Public License for more details.
 //
 
-
-
-using SFML.System;
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class QuitConfirm : MenuDef
+	using Audio;
+	using Common;
+	using Event;
+	using Game;
+	using Info;
+	using System;
+	using System.Collections.Generic;
+	using UserInput;
+
+	public sealed class QuitConfirm : MenuDef
     {
         private static readonly Sfx[] doomQuitSoundList = new Sfx[]
         {
@@ -56,16 +59,16 @@ namespace ManagedDoom
         public QuitConfirm(DoomMenu menu, DoomApplication app) : base(menu)
         {
             this.app = app;
-            random = new DoomRandom(DateTime.Now.Millisecond);
-            endCount = -1;
+            this.random = new DoomRandom(DateTime.Now.Millisecond);
+            this.endCount = -1;
         }
 
         public override void Open()
         {
             IReadOnlyList<DoomString> list;
-            if (app.Options.GameMode == GameMode.Commercial)
+            if (this.app.Options.GameMode == GameMode.Commercial)
             {
-                if (app.Options.MissionPack == MissionPack.Doom2)
+                if (this.app.Options.MissionPack == MissionPack.Doom2)
                 {
                     list = DoomInfo.QuitMessages.Doom2;
                 }
@@ -79,12 +82,12 @@ namespace ManagedDoom
                 list = DoomInfo.QuitMessages.Doom;
             }
 
-            text = (list[random.Next() % list.Count] + "\n\n" + DoomInfo.Strings.PRESSYN).Split('\n');
+            this.text = (list[this.random.Next() % list.Count] + "\n\n" + DoomInfo.Strings.PRESSYN).Split('\n');
         }
 
         public override bool DoEvent(DoomEvent e)
         {
-            if (endCount != -1)
+            if (this.endCount != -1)
             {
                 return true;
             }
@@ -98,25 +101,25 @@ namespace ManagedDoom
                 e.Key == DoomKey.Enter ||
                 e.Key == DoomKey.Space)
             {
-                endCount = 0;
+                this.endCount = 0;
 
                 Sfx sfx;
-                if (Menu.Options.GameMode == GameMode.Commercial)
+                if (this.Menu.Options.GameMode == GameMode.Commercial)
                 {
-                    sfx = doom2QuitSoundList[random.Next() % doom2QuitSoundList.Length];
+                    sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
                 }
                 else
                 {
-                    sfx = doomQuitSoundList[random.Next() % doomQuitSoundList.Length];
+                    sfx = QuitConfirm.doomQuitSoundList[this.random.Next() % QuitConfirm.doomQuitSoundList.Length];
                 }
-                Menu.StartSound(sfx);
+                this.Menu.StartSound(sfx);
             }
 
             if (e.Key == DoomKey.N ||
                 e.Key == DoomKey.Escape)
             {
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
             }
 
             return true;
@@ -124,17 +127,17 @@ namespace ManagedDoom
 
         public override void Update()
         {
-            if (endCount != -1)
+            if (this.endCount != -1)
             {
-                endCount++;
+                this.endCount++;
             }
 
-            if (endCount == 50)
+            if (this.endCount == 50)
             {
-                app.Quit();
+                this.app.Quit();
             }
         }
 
-        public IReadOnlyList<string> Text => text;
+        public IReadOnlyList<string> Text => this.text;
     }
 }

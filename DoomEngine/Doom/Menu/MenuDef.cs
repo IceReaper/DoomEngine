@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public abstract class MenuDef
+	using Event;
+
+	public abstract class MenuDef
     {
         private DoomMenu menu;
 
@@ -38,6 +36,6 @@ namespace ManagedDoom
 
         public abstract bool DoEvent(DoomEvent e);
 
-        public DoomMenu Menu => menu;
+        public DoomMenu Menu => this.menu;
     }
 }

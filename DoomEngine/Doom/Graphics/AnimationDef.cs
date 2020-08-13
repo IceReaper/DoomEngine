@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class AnimationDef
+	public sealed class AnimationDef
     {
         private bool isTexture;
         private string endName;
@@ -34,9 +30,9 @@ namespace ManagedDoom
             this.speed = speed;
         }
 
-        public bool IsTexture => isTexture;
-        public string EndName => endName;
-        public string StartName => startName;
-        public int Speed => speed;
+        public bool IsTexture => this.isTexture;
+        public string EndName => this.endName;
+        public string StartName => this.startName;
+        public int Speed => this.speed;
     }
 }

@@ -13,16 +13,17 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class TextureLookup : IReadOnlyList<Texture>
+	using Common;
+	using Info;
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class TextureLookup : IReadOnlyList<Texture>
     {
         private List<Texture> textures;
         private Dictionary<string, Texture> nameToTexture;
@@ -38,14 +39,14 @@ namespace ManagedDoom
         {
             if (!useDummy)
             {
-                Init(wad);
+                this.Init(wad);
             }
             else
             {
-                InitDummy(wad);
+                this.InitDummy(wad);
             }
 
-            InitSwitchList();
+            this.InitSwitchList();
         }
 
         private void Init(Wad wad)
@@ -54,11 +55,11 @@ namespace ManagedDoom
             {
                 Console.Write("Load textures: ");
 
-                textures = new List<Texture>();
-                nameToTexture = new Dictionary<string, Texture>();
-                nameToNumber = new Dictionary<string, int>();
+                this.textures = new List<Texture>();
+                this.nameToTexture = new Dictionary<string, Texture>();
+                this.nameToNumber = new Dictionary<string, int>();
 
-                var patches = LoadPatches(wad);
+                var patches = TextureLookup.LoadPatches(wad);
 
                 for (var n = 1; n <= 2; n++)
                 {
@@ -74,13 +75,13 @@ namespace ManagedDoom
                     {
                         var offset = BitConverter.ToInt32(data, 4 + 4 * i);
                         var texture = Texture.FromData(data, offset, patches);
-                        nameToNumber.Add(texture.Name, textures.Count);
-                        textures.Add(texture);
-                        nameToTexture.Add(texture.Name, texture);
+                        this.nameToNumber.Add(texture.Name, this.textures.Count);
+                        this.textures.Add(texture);
+                        this.nameToTexture.Add(texture.Name, texture);
                     }
                 }
 
-                Console.WriteLine("OK (" + nameToTexture.Count + " textures)");
+                Console.WriteLine("OK (" + this.nameToTexture.Count + " textures)");
             }
             catch (Exception e)
             {
@@ -91,9 +92,9 @@ namespace ManagedDoom
 
         private void InitDummy(Wad wad)
         {
-            textures = new List<Texture>();
-            nameToTexture = new Dictionary<string, Texture>();
-            nameToNumber = new Dictionary<string, int>();
+            this.textures = new List<Texture>();
+            this.nameToTexture = new Dictionary<string, Texture>();
+            this.nameToNumber = new Dictionary<string, int>();
 
             for (var n = 1; n <= 2; n++)
             {
@@ -111,9 +112,9 @@ namespace ManagedDoom
                     var name = Texture.GetName(data, offset);
                     var height = Texture.GetHeight(data, offset);
                     var texture = Dummy.GetTexture(height);
-                    nameToNumber.Add(name, textures.Count);
-                    textures.Add(texture);
-                    nameToTexture.Add(name, texture);
+                    this.nameToNumber.Add(name, this.textures.Count);
+                    this.textures.Add(texture);
+                    this.nameToTexture.Add(name, texture);
                 }
             }
         }
@@ -123,15 +124,15 @@ namespace ManagedDoom
             var list = new List<int>();
             foreach (var tuple in DoomInfo.SwitchNames)
             {
-                var texNum1 = GetNumber(tuple.Item1);
-                var texNum2 = GetNumber(tuple.Item2);
+                var texNum1 = this.GetNumber(tuple.Item1);
+                var texNum2 = this.GetNumber(tuple.Item2);
                 if (texNum1 != -1 && texNum2 != -1)
                 {
                     list.Add(texNum1);
                     list.Add(texNum2);
                 }
             }
-            switchList = list.ToArray();
+            this.switchList = list.ToArray();
         }
 
         public int GetNumber(string name)
@@ -142,7 +143,7 @@ namespace ManagedDoom
             }
 
             int number;
-            if (nameToNumber.TryGetValue(name, out number))
+            if (this.nameToNumber.TryGetValue(name, out number))
             {
                 return number;
             }
@@ -154,7 +155,7 @@ namespace ManagedDoom
 
         private static Patch[] LoadPatches(Wad wad)
         {
-            var patchNames = LoadPatchNames(wad);
+            var patchNames = TextureLookup.LoadPatchNames(wad);
             var patches = new Patch[patchNames.Length];
             for (var i = 0; i < patches.Length; i++)
             {
@@ -186,17 +187,17 @@ namespace ManagedDoom
 
         public IEnumerator<Texture> GetEnumerator()
         {
-            return textures.GetEnumerator();
+            return this.textures.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return textures.GetEnumerator();
+            return this.textures.GetEnumerator();
         }
 
-        public int Count => textures.Count;
-        public Texture this[int num] => textures[num];
-        public Texture this[string name] => nameToTexture[name];
-        public int[] SwitchList => switchList;
+        public int Count => this.textures.Count;
+        public Texture this[int num] => this.textures[num];
+        public Texture this[string name] => this.nameToTexture[name];
+        public int[] SwitchList => this.switchList;
     }
 }

@@ -13,22 +13,19 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public static class Dummy
+	using System.Collections.Generic;
+
+	public static class Dummy
     {
         private static Patch dummyPatch;
 
         public static Patch GetPatch()
         {
-            if (dummyPatch != null)
+            if (Dummy.dummyPatch != null)
             {
-                return dummyPatch;
+                return Dummy.dummyPatch;
             }
             else
             {
@@ -49,9 +46,9 @@ namespace ManagedDoom
                     columns[x] = x / 32 % 2 == 0 ? c1 : c2;
                 }
 
-                dummyPatch = new Patch("DUMMY", width, height, 32, 128, columns);
+                Dummy.dummyPatch = new Patch("DUMMY", width, height, 32, 128, columns);
 
-                return dummyPatch;
+                return Dummy.dummyPatch;
             }
         }
 
@@ -61,17 +58,17 @@ namespace ManagedDoom
 
         public static Texture GetTexture(int height)
         {
-            if (dummyTextures.ContainsKey(height))
+            if (Dummy.dummyTextures.ContainsKey(height))
             {
-                return dummyTextures[height];
+                return Dummy.dummyTextures[height];
             }
             else
             {
-                var patch = new TexturePatch[] { new TexturePatch(0, 0, GetPatch()) };
+                var patch = new TexturePatch[] { new TexturePatch(0, 0, Dummy.GetPatch()) };
 
-                dummyTextures.Add(height, new Texture("DUMMY", false, 64, height, patch));
+                Dummy.dummyTextures.Add(height, new Texture("DUMMY", false, 64, height, patch));
 
-                return dummyTextures[height];
+                return Dummy.dummyTextures[height];
             }
         }
 
@@ -81,9 +78,9 @@ namespace ManagedDoom
 
         public static Flat GetFlat()
         {
-            if (dummyFlat != null)
+            if (Dummy.dummyFlat != null)
             {
-                return dummyFlat;
+                return Dummy.dummyFlat;
             }
             else
             {
@@ -98,9 +95,9 @@ namespace ManagedDoom
                     }
                 }
 
-                dummyFlat = new Flat("DUMMY", data);
+                Dummy.dummyFlat = new Flat("DUMMY", data);
 
-                return dummyFlat;
+                return Dummy.dummyFlat;
             }
         }
 
@@ -110,15 +107,15 @@ namespace ManagedDoom
 
         public static Flat GetSkyFlat()
         {
-            if (dummySkyFlat != null)
+            if (Dummy.dummySkyFlat != null)
             {
-                return dummySkyFlat;
+                return Dummy.dummySkyFlat;
             }
             else
             {
-                dummySkyFlat = new Flat("DUMMY", GetFlat().Data);
+                Dummy.dummySkyFlat = new Flat("DUMMY", Dummy.GetFlat().Data);
 
-                return dummySkyFlat;
+                return Dummy.dummySkyFlat;
             }
         }
     }

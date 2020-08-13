@@ -13,24 +13,22 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.UserInput
+namespace DoomEngine.UserInput
 {
-    public sealed class NullUserInput : IUserInput
+	using Doom.Game;
+
+	public sealed class NullUserInput : IUserInput
     {
         private static NullUserInput instance;
 
         public static NullUserInput GetInstance()
         {
-            if (instance == null)
+            if (NullUserInput.instance == null)
             {
-                instance = new NullUserInput();
+                NullUserInput.instance = new NullUserInput();
             }
 
-            return instance;
+            return NullUserInput.instance;
         }
 
         public void BuildTicCmd(TicCmd cmd)

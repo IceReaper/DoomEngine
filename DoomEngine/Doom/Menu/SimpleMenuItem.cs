@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public class SimpleMenuItem : MenuItem
+	using System;
+
+	public class SimpleMenuItem : MenuItem
     {
         private string name;
         private int itemX;
@@ -55,22 +53,22 @@ namespace ManagedDoom
             this.selectable = selectable;
         }
 
-        public string Name => name;
-        public int ItemX => itemX;
-        public int ItemY => itemY;
-        public Action Action => action;
+        public string Name => this.name;
+        public int ItemX => this.itemX;
+        public int ItemY => this.itemY;
+        public Action Action => this.action;
 
         public bool Selectable
         {
             get
             {
-                if (selectable == null)
+                if (this.selectable == null)
                 {
                     return true;
                 }
                 else
                 {
-                    return selectable();
+                    return this.selectable();
                 }
             }
         }

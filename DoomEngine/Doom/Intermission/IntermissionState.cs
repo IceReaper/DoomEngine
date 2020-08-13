@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
-    public enum IntermissionState
+	public enum IntermissionState
     {
         NoState = -1,
         StatCount,

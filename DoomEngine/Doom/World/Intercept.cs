@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class Intercept
+	using Map;
+	using Math;
+
+	public sealed class Intercept
     {
         private Fixed frac;
         private Mobj thing;
@@ -41,11 +40,11 @@ namespace ManagedDoom
 
         public Fixed Frac
         {
-            get => frac;
-            set => frac = value;
+            get => this.frac;
+            set => this.frac = value;
         }
 
-        public Mobj Thing => thing;
-        public LineDef Line => line;
+        public Mobj Thing => this.thing;
+        public LineDef Line => this.line;
     }
 }

@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public enum GameMode
+	public enum GameMode
     {
         Shareware,  // DOOM 1 shareware, E1, M9
         Registered, // DOOM 1 registered, E3, M27

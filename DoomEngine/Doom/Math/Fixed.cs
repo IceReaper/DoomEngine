@@ -13,27 +13,25 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.CompilerServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Math
 {
-    public struct Fixed
+	using System;
+	using System.Runtime.CompilerServices;
+
+	public struct Fixed
     {
         public const int FracBits = 16;
-        public const int FracUnit = 1 << FracBits;
+        public const int FracUnit = 1 << Fixed.FracBits;
 
         public static readonly Fixed Zero = new Fixed(0);
-        public static readonly Fixed One = new Fixed(FracUnit);
+        public static readonly Fixed One = new Fixed(Fixed.FracUnit);
 
         public static readonly Fixed MaxValue = new Fixed(int.MaxValue);
         public static readonly Fixed MinValue = new Fixed(int.MinValue);
 
         public static readonly Fixed Epsilon = new Fixed(1);
-        public static readonly Fixed OnePlusEpsilon = new Fixed(FracUnit + 1);
-        public static readonly Fixed OneMinusEpsilon = new Fixed(FracUnit - 1);
+        public static readonly Fixed OnePlusEpsilon = new Fixed(Fixed.FracUnit + 1);
+        public static readonly Fixed OneMinusEpsilon = new Fixed(Fixed.FracUnit - 1);
 
         private int data;
 
@@ -46,31 +44,31 @@ namespace ManagedDoom
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Fixed FromInt(int value)
         {
-            return new Fixed(value << FracBits);
+            return new Fixed(value << Fixed.FracBits);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Fixed FromFloat(float value)
         {
-            return new Fixed((int)(FracUnit * value));
+            return new Fixed((int)(Fixed.FracUnit * value));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Fixed FromDouble(double value)
         {
-            return new Fixed((int)(FracUnit * value));
+            return new Fixed((int)(Fixed.FracUnit * value));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float ToFloat()
         {
-            return (float)data / FracUnit;
+            return (float)this.data / Fixed.FracUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double ToDouble()
         {
-            return (double)data / FracUnit;
+            return (double)this.data / Fixed.FracUnit;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -113,7 +111,7 @@ namespace ManagedDoom
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Fixed operator *(Fixed a, Fixed b)
         {
-            return new Fixed((int)(((long)a.data * (long)b.data) >> FracBits));
+            return new Fixed((int)(((long)a.data * (long)b.data) >> Fixed.FracBits));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -135,12 +133,12 @@ namespace ManagedDoom
                 return new Fixed((a.data ^ b.data) < 0 ? int.MinValue : int.MaxValue);
             }
 
-            return FixedDiv2(a, b);
+            return Fixed.FixedDiv2(a, b);
         }
 
         private static Fixed FixedDiv2(Fixed a, Fixed b)
         {
-            var c = ((double)a.data) / ((double)b.data) * FracUnit;
+            var c = ((double)a.data) / ((double)b.data) * Fixed.FracUnit;
 
             if (c >= 2147483648.0 || c < -2147483648.0)
             {
@@ -239,13 +237,13 @@ namespace ManagedDoom
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ToIntFloor()
         {
-            return data >> FracBits;
+            return this.data >> Fixed.FracBits;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ToIntCeiling()
         {
-            return (data + FracUnit - 1) >> FracBits;
+            return (this.data + Fixed.FracUnit - 1) >> Fixed.FracBits;
         }
 
         public override bool Equals(object obj)
@@ -255,18 +253,18 @@ namespace ManagedDoom
 
         public override int GetHashCode()
         {
-            return data.GetHashCode();
+            return this.data.GetHashCode();
         }
 
         public override string ToString()
         {
-            return ((double)data / FracUnit).ToString();
+            return ((double)this.data / Fixed.FracUnit).ToString();
         }
 
         public int Data
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => data;
+            get => this.data;
         }
     }
 }

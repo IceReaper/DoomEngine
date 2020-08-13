@@ -13,15 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class SaveMenu : MenuDef
+	using Audio;
+	using Event;
+	using Game;
+	using System.Collections.Generic;
+	using System.Linq;
+	using UserInput;
+
+	public sealed class SaveMenu : MenuDef
     {
         private string[] name;
         private int[] titleX;
@@ -46,47 +47,47 @@ namespace ManagedDoom
             this.titleY = new[] { titleY };
             this.items = items;
 
-            index = firstChoice;
-            choice = items[index];
+            this.index = firstChoice;
+            this.choice = items[this.index];
 
-            lastSaveSlot = -1;
+            this.lastSaveSlot = -1;
         }
 
         public override void Open()
         {
-            if (Menu.Application.State != ApplicationState.Game ||
-                Menu.Application.Game.State != GameState.Level)
+            if (this.Menu.Application.State != ApplicationState.Game ||
+                this.Menu.Application.Game.State != GameState.Level)
             {
-                Menu.NotifySaveFailed();
+                this.Menu.NotifySaveFailed();
                 return;
             }
 
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < this.items.Length; i++)
             {
-                items[i].SetText(Menu.SaveSlots[i]);
+                this.items[i].SetText(this.Menu.SaveSlots[i]);
             }
         }
 
         private void Up()
         {
-            index--;
-            if (index < 0)
+            this.index--;
+            if (this.index < 0)
             {
-                index = items.Length - 1;
+                this.index = this.items.Length - 1;
             }
 
-            choice = items[index];
+            this.choice = this.items[this.index];
         }
 
         private void Down()
         {
-            index++;
-            if (index >= items.Length)
+            this.index++;
+            if (this.index >= this.items.Length)
             {
-                index = 0;
+                this.index = 0;
             }
 
-            choice = items[index];
+            this.choice = this.items[this.index];
         }
 
         public override bool DoEvent(DoomEvent e)
@@ -96,17 +97,17 @@ namespace ManagedDoom
                 return true;
             }
 
-            if (textInput != null)
+            if (this.textInput != null)
             {
-                var result = textInput.DoEvent(e);
+                var result = this.textInput.DoEvent(e);
 
-                if (textInput.State == TextInputState.Canceled)
+                if (this.textInput.State == TextInputState.Canceled)
                 {
-                    textInput = null;
+                    this.textInput = null;
                 }
-                else if (textInput.State == TextInputState.Finished)
+                else if (this.textInput.State == TextInputState.Finished)
                 {
-                    textInput = null;
+                    this.textInput = null;
                 }
 
                 if (result)
@@ -117,26 +118,26 @@ namespace ManagedDoom
 
             if (e.Key == DoomKey.Up)
             {
-                Up();
-                Menu.StartSound(Sfx.PSTOP);
+                this.Up();
+                this.Menu.StartSound(Sfx.PSTOP);
             }
 
             if (e.Key == DoomKey.Down)
             {
-                Down();
-                Menu.StartSound(Sfx.PSTOP);
+                this.Down();
+                this.Menu.StartSound(Sfx.PSTOP);
             }
 
             if (e.Key == DoomKey.Enter)
             {
-                textInput = choice.Edit(() => DoSave(index));
-                Menu.StartSound(Sfx.PISTOL);
+                this.textInput = this.choice.Edit(() => this.DoSave(this.index));
+                this.Menu.StartSound(Sfx.PISTOL);
             }
 
             if (e.Key == DoomKey.Escape)
             {
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
             }
 
             return true;
@@ -144,24 +145,24 @@ namespace ManagedDoom
 
         public void DoSave(int slotNumber)
         {
-            Menu.SaveSlots[slotNumber] = new string(items[slotNumber].Text.ToArray());
-            if (Menu.Application.SaveGame(slotNumber, Menu.SaveSlots[slotNumber]))
+            this.Menu.SaveSlots[slotNumber] = new string(this.items[slotNumber].Text.ToArray());
+            if (this.Menu.Application.SaveGame(slotNumber, this.Menu.SaveSlots[slotNumber]))
             {
-                Menu.Close();
-                lastSaveSlot = slotNumber;
+                this.Menu.Close();
+                this.lastSaveSlot = slotNumber;
             }
             else
             {
-                Menu.NotifySaveFailed();
+                this.Menu.NotifySaveFailed();
             }
-            Menu.StartSound(Sfx.PISTOL);
+            this.Menu.StartSound(Sfx.PISTOL);
         }
 
-        public IReadOnlyList<string> Name => name;
-        public IReadOnlyList<int> TitleX => titleX;
-        public IReadOnlyList<int> TitleY => titleY;
-        public IReadOnlyList<MenuItem> Items => items;
-        public MenuItem Choice => choice;
-        public int LastSaveSlot => lastSaveSlot;
+        public IReadOnlyList<string> Name => this.name;
+        public IReadOnlyList<int> TitleX => this.titleX;
+        public IReadOnlyList<int> TitleY => this.titleY;
+        public IReadOnlyList<MenuItem> Items => this.items;
+        public MenuItem Choice => this.choice;
+        public int LastSaveSlot => this.lastSaveSlot;
     }
 }

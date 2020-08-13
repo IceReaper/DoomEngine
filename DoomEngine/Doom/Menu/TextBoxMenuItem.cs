@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public class TextBoxMenuItem : MenuItem
+	using System;
+	using System.Collections.Generic;
+
+	public class TextBoxMenuItem : MenuItem
     {
         private int itemX;
         private int itemY;
@@ -37,13 +35,13 @@ namespace ManagedDoom
 
         public TextInput Edit(Action finished)
         {
-            edit = new TextInput(
-                text != null ? text : new char[0],
+            this.edit = new TextInput(
+                this.text != null ? this.text : new char[0],
                 cs => { },
-                cs => { text = cs; edit = null; finished(); },
-                () => { edit = null; });
+                cs => { this.text = cs; this.edit = null; finished(); },
+                () => { this.edit = null; });
 
-            return edit;
+            return this.edit;
         }
 
         public void SetText(string text)
@@ -58,19 +56,19 @@ namespace ManagedDoom
         {
             get
             {
-                if (edit == null)
+                if (this.edit == null)
                 {
-                    return text;
+                    return this.text;
                 }
                 else
                 {
-                    return edit.Text;
+                    return this.edit.Text;
                 }
             }
         }
 
-        public int ItemX => itemX;
-        public int ItemY => itemY;
-        public bool Editing => edit != null;
+        public int ItemX => this.itemX;
+        public int ItemY => this.itemY;
+        public bool Editing => this.edit != null;
     }
 }

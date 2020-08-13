@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public enum LineSpecial
+	public enum LineSpecial
     {
         Normal = 0
     }

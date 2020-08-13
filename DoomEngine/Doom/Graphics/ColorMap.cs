@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class ColorMap
+	using System;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class ColorMap
     {
         public static readonly int Inverse = 32;
 
@@ -34,14 +33,14 @@ namespace ManagedDoom
 
                 var raw = wad.ReadLump("COLORMAP");
                 var num = raw.Length / 256;
-                data = new byte[num][];
+                this.data = new byte[num][];
                 for (var i = 0; i < num; i++)
                 {
-                    data[i] = new byte[256];
+                    this.data[i] = new byte[256];
                     var offset = 256 * i;
                     for (var c = 0; c < 256; c++)
                     {
-                        data[i][c] = raw[offset + c];
+                        this.data[i][c] = raw[offset + c];
                     }
                 }
 
@@ -58,7 +57,7 @@ namespace ManagedDoom
         {
             get
             {
-                return data[index];
+                return this.data[index];
             }
         }
 
@@ -66,7 +65,7 @@ namespace ManagedDoom
         {
             get
             {
-                return data[0];
+                return this.data[0];
             }
         }
     }

@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public static class Program
+	using System;
+
+	public static class Program
     {
         public static void Main(string[] args)
         {
@@ -29,7 +27,7 @@ namespace ManagedDoom
             Console.ResetColor();
 
 #if DEBUG
-            Main_Debug(args);
+            Program.Main_Debug(args);
 #else
             Main_Release(args);
 #endif

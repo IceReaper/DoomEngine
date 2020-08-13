@@ -13,14 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class DrawScreen
+	using Doom.Graphics;
+	using Doom.Math;
+	using Doom.Wad;
+	using System;
+	using System.Collections.Generic;
+
+	public sealed class DrawScreen
     {
         private int width;
         private int height;
@@ -32,16 +33,16 @@ namespace ManagedDoom.SoftwareRendering
         {
             this.width = width;
             this.height = height;
-            data = new byte[width * height];
+            this.data = new byte[width * height];
 
-            chars = new Patch[128];
-            for (var i = 0; i < chars.Length; i++)
+            this.chars = new Patch[128];
+            for (var i = 0; i < this.chars.Length; i++)
             {
                 var name = "STCFN" + i.ToString("000");
                 var lump = wad.GetLumpNumber(name);
                 if (lump != -1)
                 {
-                    chars[i] = Patch.FromData(name, wad.ReadLump(lump));
+                    this.chars[i] = Patch.FromData(name, wad.ReadLump(lump));
                 }
             }
         }
@@ -63,15 +64,15 @@ namespace ManagedDoom.SoftwareRendering
                 i += exceed;
             }
 
-            if (drawX + drawWidth > width)
+            if (drawX + drawWidth > this.width)
             {
-                var exceed = drawX + drawWidth - width;
+                var exceed = drawX + drawWidth - this.width;
                 drawWidth -= exceed;
             }
 
             for (; i < drawWidth; i++)
             {
-                DrawColumn(patch.Columns[frac.ToIntFloor()], drawX + i, drawY, scale);
+                this.DrawColumn(patch.Columns[frac.ToIntFloor()], drawX + i, drawY, scale);
                 frac += step;
             }
         }
@@ -93,16 +94,16 @@ namespace ManagedDoom.SoftwareRendering
                 i += exceed;
             }
 
-            if (drawX + drawWidth > width)
+            if (drawX + drawWidth > this.width)
             {
-                var exceed = drawX + drawWidth - width;
+                var exceed = drawX + drawWidth - this.width;
                 drawWidth -= exceed;
             }
 
             for (; i < drawWidth; i++)
             {
                 var col = patch.Width - frac.ToIntFloor() - 1;
-                DrawColumn(patch.Columns[col], drawX + i, drawY, scale);
+                this.DrawColumn(patch.Columns[col], drawX + i, drawY, scale);
                 frac += step;
             }
         }
@@ -121,7 +122,7 @@ namespace ManagedDoom.SoftwareRendering
                 var drawLength = exLength;
 
                 var i = 0;
-                var p = height * x + drawY;
+                var p = this.height * x + drawY;
                 var frac = Fixed.One / scale - Fixed.Epsilon;
 
                 if (drawY < 0)
@@ -132,15 +133,15 @@ namespace ManagedDoom.SoftwareRendering
                     i += exceed;
                 }
 
-                if (drawY + drawLength > height)
+                if (drawY + drawLength > this.height)
                 {
-                    var exceed = drawY + drawLength - height;
+                    var exceed = drawY + drawLength - this.height;
                     drawLength -= exceed;
                 }
 
                 for (; i < drawLength; i++)
                 {
-                    data[p] = column.Data[sourceIndex + frac.ToIntFloor()];
+                    this.data[p] = column.Data[sourceIndex + frac.ToIntFloor()];
                     p++;
                     frac += step;
                 }
@@ -153,7 +154,7 @@ namespace ManagedDoom.SoftwareRendering
             var drawY = y - 7 * scale;
             foreach (var ch in text)
             {
-                if (ch >= chars.Length)
+                if (ch >= this.chars.Length)
                 {
                     continue;
                 }
@@ -170,13 +171,13 @@ namespace ManagedDoom.SoftwareRendering
                     index = index - 'a' + 'A';
                 }
 
-                var patch = chars[index];
+                var patch = this.chars[index];
                 if (patch == null)
                 {
                     continue;
                 }
 
-                DrawPatch(patch, drawX, drawY, scale);
+                this.DrawPatch(patch, drawX, drawY, scale);
 
                 drawX += scale * patch.Width;
             }
@@ -187,7 +188,7 @@ namespace ManagedDoom.SoftwareRendering
             var drawX = x;
             var drawY = y - 7 * scale;
 
-            if (ch >= chars.Length)
+            if (ch >= this.chars.Length)
             {
                 return;
             }
@@ -203,13 +204,13 @@ namespace ManagedDoom.SoftwareRendering
                 index = index - 'a' + 'A';
             }
 
-            var patch = chars[index];
+            var patch = this.chars[index];
             if (patch == null)
             {
                 return;
             }
 
-            DrawPatch(patch, drawX, drawY, scale);
+            this.DrawPatch(patch, drawX, drawY, scale);
         }
 
         public void DrawText(string text, int x, int y, int scale)
@@ -218,7 +219,7 @@ namespace ManagedDoom.SoftwareRendering
             var drawY = y - 7 * scale;
             foreach (var ch in text)
             {
-                if (ch >= chars.Length)
+                if (ch >= this.chars.Length)
                 {
                     continue;
                 }
@@ -235,13 +236,13 @@ namespace ManagedDoom.SoftwareRendering
                     index = index - 'a' + 'A';
                 }
 
-                var patch = chars[index];
+                var patch = this.chars[index];
                 if (patch == null)
                 {
                     continue;
                 }
 
-                DrawPatch(patch, drawX, drawY, scale);
+                this.DrawPatch(patch, drawX, drawY, scale);
 
                 drawX += scale * patch.Width;
             }
@@ -249,7 +250,7 @@ namespace ManagedDoom.SoftwareRendering
 
         public int MeasureChar(char ch, int scale)
         {
-            if (ch >= chars.Length)
+            if (ch >= this.chars.Length)
             {
                 return 0;
             }
@@ -265,7 +266,7 @@ namespace ManagedDoom.SoftwareRendering
                 index = index - 'a' + 'A';
             }
 
-            var patch = chars[index];
+            var patch = this.chars[index];
             if (patch == null)
             {
                 return 0;
@@ -280,7 +281,7 @@ namespace ManagedDoom.SoftwareRendering
 
             foreach (var ch in text)
             {
-                if (ch >= chars.Length)
+                if (ch >= this.chars.Length)
                 {
                     continue;
                 }
@@ -297,7 +298,7 @@ namespace ManagedDoom.SoftwareRendering
                     index = index - 'a' + 'A';
                 }
 
-                var patch = chars[index];
+                var patch = this.chars[index];
                 if (patch == null)
                 {
                     continue;
@@ -315,7 +316,7 @@ namespace ManagedDoom.SoftwareRendering
 
             foreach (var ch in text)
             {
-                if (ch >= chars.Length)
+                if (ch >= this.chars.Length)
                 {
                     continue;
                 }
@@ -332,7 +333,7 @@ namespace ManagedDoom.SoftwareRendering
                     index = index - 'a' + 'A';
                 }
 
-                var patch = chars[index];
+                var patch = this.chars[index];
                 if (patch == null)
                 {
                     continue;
@@ -350,10 +351,10 @@ namespace ManagedDoom.SoftwareRendering
             var x2 = x + w;
             for (var drawX = x1; drawX < x2; drawX++)
             {
-                var pos = height * drawX + y;
+                var pos = this.height * drawX + y;
                 for (var i = 0; i < h; i++)
                 {
-                    data[pos] = (byte)color;
+                    this.data[pos] = (byte)color;
                     pos++;
                 }
             }
@@ -379,7 +380,7 @@ namespace ManagedDoom.SoftwareRendering
             {
                 code |= OutCode.Left;
             }
-            else if (x > width)
+            else if (x > this.width)
             {
                 code |= OutCode.Right;
             }
@@ -388,7 +389,7 @@ namespace ManagedDoom.SoftwareRendering
             {
                 code |= OutCode.Bottom;
             }
-            else if (y > height)
+            else if (y > this.height)
             {
                 code |= OutCode.Top;
             }
@@ -398,8 +399,8 @@ namespace ManagedDoom.SoftwareRendering
 
         public void DrawLine(float x1, float y1, float x2, float y2, int color)
         {
-            var outCode1 = ComputeOutCode(x1, y1);
-            var outCode2 = ComputeOutCode(x2, y2);
+            var outCode1 = this.ComputeOutCode(x1, y1);
+            var outCode2 = this.ComputeOutCode(x2, y2);
 
             var accept = false;
 
@@ -423,8 +424,8 @@ namespace ManagedDoom.SoftwareRendering
 
                     if ((outcodeOut & OutCode.Top) != 0)
                     {
-                        x = x1 + (x2 - x1) * (height - y1) / (y2 - y1);
-                        y = height;
+                        x = x1 + (x2 - x1) * (this.height - y1) / (y2 - y1);
+                        y = this.height;
                     }
                     else if ((outcodeOut & OutCode.Bottom) != 0)
                     {
@@ -433,8 +434,8 @@ namespace ManagedDoom.SoftwareRendering
                     }
                     else if ((outcodeOut & OutCode.Right) != 0)
                     {
-                        y = y1 + (y2 - y1) * (width - x1) / (x2 - x1);
-                        x = width;
+                        y = y1 + (y2 - y1) * (this.width - x1) / (x2 - x1);
+                        x = this.width;
                     }
                     else if ((outcodeOut & OutCode.Left) != 0)
                     {
@@ -446,24 +447,24 @@ namespace ManagedDoom.SoftwareRendering
                     {
                         x1 = x;
                         y1 = y;
-                        outCode1 = ComputeOutCode(x1, y1);
+                        outCode1 = this.ComputeOutCode(x1, y1);
                     }
                     else
                     {
                         x2 = x;
                         y2 = y;
-                        outCode2 = ComputeOutCode(x2, y2);
+                        outCode2 = this.ComputeOutCode(x2, y2);
                     }
                 }
             }
 
             if (accept)
             {
-                var bx1 = Math.Clamp((int)x1, 0, width - 1);
-                var by1 = Math.Clamp((int)y1, 0, height - 1);
-                var bx2 = Math.Clamp((int)x2, 0, width - 1);
-                var by2 = Math.Clamp((int)y2, 0, height - 1);
-                Bresenham(bx1, by1, bx2, by2, color);
+                var bx1 = Math.Clamp((int)x1, 0, this.width - 1);
+                var by1 = Math.Clamp((int)y1, 0, this.height - 1);
+                var bx2 = Math.Clamp((int)x2, 0, this.width - 1);
+                var by2 = Math.Clamp((int)y2, 0, this.height - 1);
+                this.Bresenham(bx1, by1, bx2, by2, color);
             }
         }
 
@@ -486,7 +487,7 @@ namespace ManagedDoom.SoftwareRendering
 
                 while (true)
                 {
-                    data[height * x + y] = (byte)color;
+                    this.data[this.height * x + y] = (byte)color;
 
                     if (x == x2)
                     {
@@ -508,7 +509,7 @@ namespace ManagedDoom.SoftwareRendering
                 var d = ax - ay / 2;
                 while (true)
                 {
-                    data[height * x + y] = (byte)color;
+                    this.data[this.height * x + y] = (byte)color;
 
                     if (y == y2)
                     {
@@ -527,8 +528,8 @@ namespace ManagedDoom.SoftwareRendering
             }
         }
 
-        public int Width => width;
-        public int Height => height;
-        public byte[] Data => data;
+        public int Width => this.width;
+        public int Height => this.height;
+        public byte[] Data => this.data;
     }
 }

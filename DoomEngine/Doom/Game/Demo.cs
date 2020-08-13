@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public sealed class Demo
+	using System;
+	using System.IO;
+
+	public sealed class Demo
     {
         private int p;
         private byte[] data;
@@ -31,43 +29,43 @@ namespace ManagedDoom
 
         public Demo(byte[] data)
         {
-            p = 0;
+            this.p = 0;
 
-            if (data[p++] != 109)
+            if (data[this.p++] != 109)
             {
                 throw new Exception("Demo is from a different game version!");
             }
 
             this.data = data;
 
-            options = new GameOptions();
-            options.Skill = (GameSkill)data[p++];
-            options.Episode = data[p++];
-            options.Map = data[p++];
-            options.Deathmatch = data[p++];
-            options.RespawnMonsters = data[p++] != 0;
-            options.FastMonsters = data[p++] != 0;
-            options.NoMonsters = data[p++] != 0;
-            options.ConsolePlayer = data[p++];
+            this.options = new GameOptions();
+            this.options.Skill = (GameSkill)data[this.p++];
+            this.options.Episode = data[this.p++];
+            this.options.Map = data[this.p++];
+            this.options.Deathmatch = data[this.p++];
+            this.options.RespawnMonsters = data[this.p++] != 0;
+            this.options.FastMonsters = data[this.p++] != 0;
+            this.options.NoMonsters = data[this.p++] != 0;
+            this.options.ConsolePlayer = data[this.p++];
 
-            options.Players[0].InGame = data[p++] != 0;
-            options.Players[1].InGame = data[p++] != 0;
-            options.Players[2].InGame = data[p++] != 0;
-            options.Players[3].InGame = data[p++] != 0;
+            this.options.Players[0].InGame = data[this.p++] != 0;
+            this.options.Players[1].InGame = data[this.p++] != 0;
+            this.options.Players[2].InGame = data[this.p++] != 0;
+            this.options.Players[3].InGame = data[this.p++] != 0;
 
-            options.DemoPlayback = true;
+            this.options.DemoPlayback = true;
 
-            playerCount = 0;
+            this.playerCount = 0;
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
-                if (options.Players[i].InGame)
+                if (this.options.Players[i].InGame)
                 {
-                    playerCount++;
+                    this.playerCount++;
                 }
             }
-            if (playerCount >= 2)
+            if (this.playerCount >= 2)
             {
-                options.NetGame = true;
+                this.options.NetGame = true;
             }
         }
 
@@ -77,37 +75,37 @@ namespace ManagedDoom
 
         public bool ReadCmd(TicCmd[] cmds)
         {
-            if (p == data.Length)
+            if (this.p == this.data.Length)
             {
                 return false;
             }
 
-            if (data[p] == 0x80)
+            if (this.data[this.p] == 0x80)
             {
                 return false;
             }
 
-            if (p + 4 * playerCount > data.Length)
+            if (this.p + 4 * this.playerCount > this.data.Length)
             {
                 return false;
             }
 
-            var players = options.Players;
+            var players = this.options.Players;
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
                 if (players[i].InGame)
                 {
                     var cmd = cmds[i];
-                    cmd.ForwardMove = (sbyte)data[p++];
-                    cmd.SideMove = (sbyte)data[p++];
-                    cmd.AngleTurn = (short)(data[p++] << 8);
-                    cmd.Buttons = data[p++];
+                    cmd.ForwardMove = (sbyte)this.data[this.p++];
+                    cmd.SideMove = (sbyte)this.data[this.p++];
+                    cmd.AngleTurn = (short)(this.data[this.p++] << 8);
+                    cmd.Buttons = this.data[this.p++];
                 }
             }
 
             return true;
         }
 
-        public GameOptions Options => options;
+        public GameOptions Options => this.options;
     }
 }

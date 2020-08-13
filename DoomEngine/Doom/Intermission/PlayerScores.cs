@@ -13,14 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
-    public class PlayerScores
+	using Game;
+
+	public class PlayerScores
     {
         // Whether the player is in game.
         private bool inGame;
@@ -34,42 +31,42 @@ namespace ManagedDoom
 
         public PlayerScores()
         {
-            frags = new int[Player.MaxPlayerCount];
+            this.frags = new int[Player.MaxPlayerCount];
         }
 
         public bool InGame
         {
-            get => inGame;
-            set => inGame = value;
+            get => this.inGame;
+            set => this.inGame = value;
         }
 
         public int KillCount
         {
-            get => killCount;
-            set => killCount = value;
+            get => this.killCount;
+            set => this.killCount = value;
         }
 
         public int ItemCount
         {
-            get => itemCount;
-            set => itemCount = value;
+            get => this.itemCount;
+            set => this.itemCount = value;
         }
 
         public int SecretCount
         {
-            get => secretCount;
-            set => secretCount = value;
+            get => this.secretCount;
+            set => this.secretCount = value;
         }
 
         public int Time
         {
-            get => time;
-            set => time = value;
+            get => this.time;
+            set => this.time = value;
         }
 
         public int[] Frags
         {
-            get => frags;
+            get => this.frags;
         }
     }
 }

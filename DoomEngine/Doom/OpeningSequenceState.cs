@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom
 {
-    public enum OpeningSequenceState
+	public enum OpeningSequenceState
     {
         Title,
         Credit,

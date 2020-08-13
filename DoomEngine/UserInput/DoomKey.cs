@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.UserInput
 {
-    public enum DoomKey
+	public enum DoomKey
     {
         Unknown = -1,
         A = 0,

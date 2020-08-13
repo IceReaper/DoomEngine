@@ -13,13 +13,18 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class AutoMapRenderer
+	using Doom.Game;
+	using Doom.Graphics;
+	using Doom.Info;
+	using Doom.Map;
+	using Doom.Math;
+	using Doom.Wad;
+	using Doom.World;
+	using System;
+
+	public sealed class AutoMapRenderer
     {
         private static readonly float pr = 8 * DoomInfo.MobjInfos[(int)MobjType.Player].Radius.ToFloat() / 7;
 
@@ -27,22 +32,22 @@ namespace ManagedDoom.SoftwareRendering
         // A line drawing of the player pointing right, starting from the middle.
         private static readonly float[] playerArrow = new float[]
         {
-            -pr + pr / 8, 0, pr, 0, // -----
-            pr, 0, pr - pr / 2, pr / 4, // ----->
-            pr, 0, pr - pr / 2, -pr / 4,
-            -pr + pr / 8, 0, -pr - pr / 8, pr / 4, // >---->
-            -pr + pr / 8, 0, -pr - pr / 8, -pr / 4,
-            -pr + 3 * pr / 8, 0, -pr + pr / 8, pr / 4, // >>--->
-            -pr + 3 * pr / 8, 0, -pr + pr / 8, -pr / 4
+            -AutoMapRenderer.pr + AutoMapRenderer.pr / 8, 0, AutoMapRenderer.pr, 0, // -----
+            AutoMapRenderer.pr, 0, AutoMapRenderer.pr - AutoMapRenderer.pr / 2, AutoMapRenderer.pr / 4, // ----->
+            AutoMapRenderer.pr, 0, AutoMapRenderer.pr - AutoMapRenderer.pr / 2, -AutoMapRenderer.pr / 4,
+            -AutoMapRenderer.pr + AutoMapRenderer.pr / 8, 0, -AutoMapRenderer.pr - AutoMapRenderer.pr / 8, AutoMapRenderer.pr / 4, // >---->
+            -AutoMapRenderer.pr + AutoMapRenderer.pr / 8, 0, -AutoMapRenderer.pr - AutoMapRenderer.pr / 8, -AutoMapRenderer.pr / 4,
+            -AutoMapRenderer.pr + 3 * AutoMapRenderer.pr / 8, 0, -AutoMapRenderer.pr + AutoMapRenderer.pr / 8, AutoMapRenderer.pr / 4, // >>--->
+            -AutoMapRenderer.pr + 3 * AutoMapRenderer.pr / 8, 0, -AutoMapRenderer.pr + AutoMapRenderer.pr / 8, -AutoMapRenderer.pr / 4
         };
 
         private static readonly float tr = 16;
 
         private static readonly float[] thingTriangle = new float[]
         {
-            -0.5F * tr, -0.7F * tr, tr, 0F,
-            tr, 0F, -0.5F * tr, 0.7F * tr,
-            -0.5F * tr, 0.7F * tr, -0.5F * tr, -0.7F * tr
+            -0.5F * AutoMapRenderer.tr, -0.7F * AutoMapRenderer.tr, AutoMapRenderer.tr, 0F,
+            AutoMapRenderer.tr, 0F, -0.5F * AutoMapRenderer.tr, 0.7F * AutoMapRenderer.tr,
+            -0.5F * AutoMapRenderer.tr, 0.7F * AutoMapRenderer.tr, -0.5F * AutoMapRenderer.tr, -0.7F * AutoMapRenderer.tr
         };
 
         // For use if I do walls with outsides / insides.
@@ -60,26 +65,26 @@ namespace ManagedDoom.SoftwareRendering
         private static readonly int white = (256 - 47);
 
         // Automap colors.
-        private static readonly int background = black;
-        private static readonly int wallColors = reds;
-        private static readonly int wallRange = redRange;
-        private static readonly int tsWallColors = grays;
-        private static readonly int tsWallRange = grayRange;
-        private static readonly int fdWallColors = browns;
-        private static readonly int fdWallRange = brownRange;
-        private static readonly int cdWallColors = yellows;
-        private static readonly int cdWallRange = yellowRange;
-        private static readonly int thingColors = greens;
-        private static readonly int thingRange = greenRange;
-        private static readonly int secretWallColors = wallColors;
-        private static readonly int secretWallRange = wallRange;
+        private static readonly int background = AutoMapRenderer.black;
+        private static readonly int wallColors = AutoMapRenderer.reds;
+        private static readonly int wallRange = AutoMapRenderer.redRange;
+        private static readonly int tsWallColors = AutoMapRenderer.grays;
+        private static readonly int tsWallRange = AutoMapRenderer.grayRange;
+        private static readonly int fdWallColors = AutoMapRenderer.browns;
+        private static readonly int fdWallRange = AutoMapRenderer.brownRange;
+        private static readonly int cdWallColors = AutoMapRenderer.yellows;
+        private static readonly int cdWallRange = AutoMapRenderer.yellowRange;
+        private static readonly int thingColors = AutoMapRenderer.greens;
+        private static readonly int thingRange = AutoMapRenderer.greenRange;
+        private static readonly int secretWallColors = AutoMapRenderer.wallColors;
+        private static readonly int secretWallRange = AutoMapRenderer.wallRange;
 
         private static readonly int[] playerColors = new int[]
         {
-            greens,
-            grays,
-            browns,
-            reds
+            AutoMapRenderer.greens,
+            AutoMapRenderer.grays,
+            AutoMapRenderer.browns,
+            AutoMapRenderer.reds
         };
 
         private DrawScreen screen;
@@ -106,40 +111,40 @@ namespace ManagedDoom.SoftwareRendering
         {
             this.screen = screen;
 
-            scale = screen.Width / 320;
-            amWidth = screen.Width;
-            amHeight = screen.Height - scale * StatusBarRenderer.Height;
-            ppu = (float)scale / 16;
+            this.scale = screen.Width / 320;
+            this.amWidth = screen.Width;
+            this.amHeight = screen.Height - this.scale * StatusBarRenderer.Height;
+            this.ppu = (float)this.scale / 16;
 
-            markNumbers = new Patch[10];
-            for (var i = 0; i < markNumbers.Length; i++)
+            this.markNumbers = new Patch[10];
+            for (var i = 0; i < this.markNumbers.Length; i++)
             {
-                markNumbers[i] = Patch.FromWad(wad, "AMMNUM" + i);
+                this.markNumbers[i] = Patch.FromWad(wad, "AMMNUM" + i);
             }
         }
 
         public void Render(Player player)
         {
-            screen.FillRect(0, 0, amWidth, amHeight, background);
+            this.screen.FillRect(0, 0, this.amWidth, this.amHeight, AutoMapRenderer.background);
 
             var world = player.Mobj.World;
             var am = world.AutoMap;
 
-            minX = am.MinX.ToFloat();
-            maxX = am.MaxX.ToFloat();
-            width = maxX - minX;
-            minY = am.MinY.ToFloat();
-            maxY = am.MaxY.ToFloat();
-            height = maxY - minY;
+            this.minX = am.MinX.ToFloat();
+            this.maxX = am.MaxX.ToFloat();
+            this.width = this.maxX - this.minX;
+            this.minY = am.MinY.ToFloat();
+            this.maxY = am.MaxY.ToFloat();
+            this.height = this.maxY - this.minY;
 
-            viewX = am.ViewX.ToFloat();
-            viewY = am.ViewY.ToFloat();
-            zoom = am.Zoom.ToFloat();
+            this.viewX = am.ViewX.ToFloat();
+            this.viewY = am.ViewY.ToFloat();
+            this.zoom = am.Zoom.ToFloat();
 
             foreach (var line in world.Map.Lines)
             {
-                var v1 = ToScreenPos(line.Vertex1);
-                var v2 = ToScreenPos(line.Vertex2);
+                var v1 = this.ToScreenPos(line.Vertex1);
+                var v2 = this.ToScreenPos(line.Vertex2);
 
                 var cheating = am.State != AutoMapState.None;
 
@@ -152,40 +157,40 @@ namespace ManagedDoom.SoftwareRendering
 
                     if (line.BackSector == null)
                     {
-                        screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, wallColors);
+                        this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.wallColors);
                     }
                     else
                     {
                         if (line.Special == (LineSpecial)39)
                         {
                             // Teleporters.
-                            screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, wallColors + wallRange / 2);
+                            this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.wallColors + AutoMapRenderer.wallRange / 2);
                         }
                         else if ((line.Flags & LineFlags.Secret) != 0)
                         {
                             // Secret door.
                             if (cheating)
                             {
-                                screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, secretWallColors);
+                                this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.secretWallColors);
                             }
                             else
                             {
-                                screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, wallColors);
+                                this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.wallColors);
                             }
                         }
                         else if (line.BackSector.FloorHeight != line.FrontSector.FloorHeight)
                         {
                             // Floor level change.
-                            screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, fdWallColors);
+                            this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.fdWallColors);
                         }
                         else if (line.BackSector.CeilingHeight != line.FrontSector.CeilingHeight)
                         {
                             // Ceiling level change.
-                            screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, cdWallColors);
+                            this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.cdWallColors);
                         }
                         else if (cheating)
                         {
-                            screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, tsWallColors);
+                            this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.tsWallColors);
                         }
                     }
                 }
@@ -193,46 +198,46 @@ namespace ManagedDoom.SoftwareRendering
                 {
                     if ((line.Flags & LineFlags.DontDraw) == 0)
                     {
-                        screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, grays + 3);
+                        this.screen.DrawLine(v1.X, v1.Y, v2.X, v2.Y, AutoMapRenderer.grays + 3);
                     }
                 }
             }
 
             for (var i = 0; i < am.Marks.Count; i++)
             {
-                var pos = ToScreenPos(am.Marks[i]);
-                screen.DrawPatch(
-                    markNumbers[i],
+                var pos = this.ToScreenPos(am.Marks[i]);
+                this.screen.DrawPatch(
+                    this.markNumbers[i],
                     (int)MathF.Round(pos.X),
                     (int)MathF.Round(pos.Y),
-                    scale);
+                    this.scale);
             }
 
             if (am.State == AutoMapState.AllThings)
             {
-                DrawThings(world);
+                this.DrawThings(world);
             }
 
-            DrawPlayers(world);
+            this.DrawPlayers(world);
 
             if (!am.Follow)
             {
-                screen.DrawLine(
-                    amWidth / 2 - 2 * scale, amHeight / 2,
-                    amWidth / 2 + 2 * scale, amHeight / 2,
-                    grays);
+                this.screen.DrawLine(
+                    this.amWidth / 2 - 2 * this.scale, this.amHeight / 2,
+                    this.amWidth / 2 + 2 * this.scale, this.amHeight / 2,
+                    AutoMapRenderer.grays);
 
-                screen.DrawLine(
-                    amWidth / 2, amHeight / 2 - 2 * scale,
-                    amWidth / 2, amHeight / 2 + 2 * scale,
-                    grays);
+                this.screen.DrawLine(
+                    this.amWidth / 2, this.amHeight / 2 - 2 * this.scale,
+                    this.amWidth / 2, this.amHeight / 2 + 2 * this.scale,
+                    AutoMapRenderer.grays);
             }
 
-            screen.DrawText(
+            this.screen.DrawText(
                 world.Map.Title,
                 0,
-                amHeight - scale,
-                scale);
+                this.amHeight - this.scale,
+                this.scale);
         }
 
         private void DrawPlayers(World world)
@@ -244,7 +249,7 @@ namespace ManagedDoom.SoftwareRendering
 
             if (!options.NetGame)
             {
-                DrawCharacter(consolePlayer.Mobj, playerArrow, white);
+                this.DrawCharacter(consolePlayer.Mobj, AutoMapRenderer.playerArrow, AutoMapRenderer.white);
                 return;
             }
 
@@ -269,10 +274,10 @@ namespace ManagedDoom.SoftwareRendering
                 }
                 else
                 {
-                    color = playerColors[i];
+                    color = AutoMapRenderer.playerColors[i];
                 }
 
-                DrawCharacter(player.Mobj, playerArrow, color);
+                this.DrawCharacter(player.Mobj, AutoMapRenderer.playerArrow, color);
             }
         }
 
@@ -283,37 +288,37 @@ namespace ManagedDoom.SoftwareRendering
                 var mobj = thinker as Mobj;
                 if (mobj != null)
                 {
-                    DrawCharacter(mobj, thingTriangle, greens);
+                    this.DrawCharacter(mobj, AutoMapRenderer.thingTriangle, AutoMapRenderer.greens);
                 }
             }
         }
 
         private void DrawCharacter(Mobj mobj, float[] data, int color)
         {
-            var pos = ToScreenPos(mobj.X, mobj.Y);
+            var pos = this.ToScreenPos(mobj.X, mobj.Y);
             var sin = (float)Math.Sin(mobj.Angle.ToRadian());
             var cos = (float)Math.Cos(mobj.Angle.ToRadian());
             for (var i = 0; i < data.Length; i += 4)
             {
-                var x1 = pos.X + zoom * ppu * (cos * data[i + 0] - sin * data[i + 1]);
-                var y1 = pos.Y - zoom * ppu * (sin * data[i + 0] + cos * data[i + 1]);
-                var x2 = pos.X + zoom * ppu * (cos * data[i + 2] - sin * data[i + 3]);
-                var y2 = pos.Y - zoom * ppu * (sin * data[i + 2] + cos * data[i + 3]);
-                screen.DrawLine(x1, y1, x2, y2, color);
+                var x1 = pos.X + this.zoom * this.ppu * (cos * data[i + 0] - sin * data[i + 1]);
+                var y1 = pos.Y - this.zoom * this.ppu * (sin * data[i + 0] + cos * data[i + 1]);
+                var x2 = pos.X + this.zoom * this.ppu * (cos * data[i + 2] - sin * data[i + 3]);
+                var y2 = pos.Y - this.zoom * this.ppu * (sin * data[i + 2] + cos * data[i + 3]);
+                this.screen.DrawLine(x1, y1, x2, y2, color);
             }
         }
 
         private DrawPos ToScreenPos(Fixed x, Fixed y)
         {
-            var posX = zoom * ppu * (x.ToFloat() - viewX) + amWidth / 2;
-            var posY = -zoom * ppu * (y.ToFloat() - viewY) + amHeight / 2;
+            var posX = this.zoom * this.ppu * (x.ToFloat() - this.viewX) + this.amWidth / 2;
+            var posY = -this.zoom * this.ppu * (y.ToFloat() - this.viewY) + this.amHeight / 2;
             return new DrawPos(posX, posY);
         }
 
         private DrawPos ToScreenPos(Vertex v)
         {
-            var posX = zoom * ppu * (v.X.ToFloat() - viewX) + amWidth / 2;
-            var posY = -zoom * ppu * (v.Y.ToFloat() - viewY) + amHeight / 2;
+            var posX = this.zoom * this.ppu * (v.X.ToFloat() - this.viewX) + this.amWidth / 2;
+            var posY = -this.zoom * this.ppu * (v.Y.ToFloat() - this.viewY) + this.amHeight / 2;
             return new DrawPos(posX, posY);
         }
 
@@ -326,8 +331,8 @@ namespace ManagedDoom.SoftwareRendering
 
             public DrawPos(float x, float y)
             {
-                X = x;
-                Y = y;
+                this.X = x;
+                this.Y = y;
             }
         }
     }

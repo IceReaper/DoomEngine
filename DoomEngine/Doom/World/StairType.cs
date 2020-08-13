@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public enum StairType
+	public enum StairType
     {
         // Slowly build by 8.
         Build8,

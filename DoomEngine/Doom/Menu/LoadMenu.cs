@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class LoadMenu : MenuDef
+	using Audio;
+	using Event;
+	using System.Collections.Generic;
+	using UserInput;
+
+	public sealed class LoadMenu : MenuDef
     {
         private string[] name;
         private int[] titleX;
@@ -41,38 +41,38 @@ namespace ManagedDoom
             this.titleY = new[] { titleY };
             this.items = items;
 
-            index = firstChoice;
-            choice = items[index];
+            this.index = firstChoice;
+            this.choice = items[this.index];
         }
 
         public override void Open()
         {
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < this.items.Length; i++)
             {
-                items[i].SetText(Menu.SaveSlots[i]);
+                this.items[i].SetText(this.Menu.SaveSlots[i]);
             }
         }
 
         private void Up()
         {
-            index--;
-            if (index < 0)
+            this.index--;
+            if (this.index < 0)
             {
-                index = items.Length - 1;
+                this.index = this.items.Length - 1;
             }
 
-            choice = items[index];
+            this.choice = this.items[this.index];
         }
 
         private void Down()
         {
-            index++;
-            if (index >= items.Length)
+            this.index++;
+            if (this.index >= this.items.Length)
             {
-                index = 0;
+                this.index = 0;
             }
 
-            choice = items[index];
+            this.choice = this.items[this.index];
         }
 
         public override bool DoEvent(DoomEvent e)
@@ -84,29 +84,29 @@ namespace ManagedDoom
 
             if (e.Key == DoomKey.Up)
             {
-                Up();
-                Menu.StartSound(Sfx.PSTOP);
+                this.Up();
+                this.Menu.StartSound(Sfx.PSTOP);
             }
 
             if (e.Key == DoomKey.Down)
             {
-                Down();
-                Menu.StartSound(Sfx.PSTOP);
+                this.Down();
+                this.Menu.StartSound(Sfx.PSTOP);
             }
 
             if (e.Key == DoomKey.Enter)
             {
-                if (DoLoad(index))
+                if (this.DoLoad(this.index))
                 {
-                    Menu.Close();
+                    this.Menu.Close();
                 }
-                Menu.StartSound(Sfx.PISTOL);
+                this.Menu.StartSound(Sfx.PISTOL);
             }
 
             if (e.Key == DoomKey.Escape)
             {
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
             }
 
             return true;
@@ -114,9 +114,9 @@ namespace ManagedDoom
 
         public bool DoLoad(int slotNumber)
         {
-            if (Menu.SaveSlots[slotNumber] != null)
+            if (this.Menu.SaveSlots[slotNumber] != null)
             {
-                Menu.Application.LoadGame(slotNumber);
+                this.Menu.Application.LoadGame(slotNumber);
                 return true;
             }
             else
@@ -125,10 +125,10 @@ namespace ManagedDoom
             }
         }
 
-        public IReadOnlyList<string> Name => name;
-        public IReadOnlyList<int> TitleX => titleX;
-        public IReadOnlyList<int> TitleY => titleY;
-        public IReadOnlyList<MenuItem> Items => items;
-        public MenuItem Choice => choice;
+        public IReadOnlyList<string> Name => this.name;
+        public IReadOnlyList<int> TitleX => this.titleX;
+        public IReadOnlyList<int> TitleY => this.titleY;
+        public IReadOnlyList<MenuItem> Items => this.items;
+        public MenuItem Choice => this.choice;
     }
 }

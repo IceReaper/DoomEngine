@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class Flat
+	public sealed class Flat
     {
         private string name;
         private byte[] data;
@@ -37,10 +33,10 @@ namespace ManagedDoom
 
         public override string ToString()
         {
-            return name;
+            return this.name;
         }
 
-        public string Name => name;
-        public byte[] Data => data;
+        public string Name => this.name;
+        public byte[] Data => this.data;
     }
 }

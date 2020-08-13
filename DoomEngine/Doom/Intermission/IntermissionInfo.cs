@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
-    public class IntermissionInfo
+	using Game;
+	using System;
+
+	public class IntermissionInfo
     {
         // Episode number (0-2).
         private int episode;
@@ -43,70 +42,70 @@ namespace ManagedDoom
 
         public IntermissionInfo()
         {
-            players = new PlayerScores[Player.MaxPlayerCount];
+            this.players = new PlayerScores[Player.MaxPlayerCount];
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
-                players[i] = new PlayerScores();
+                this.players[i] = new PlayerScores();
             }
         }
 
         public int Episode
         {
-            get => episode;
-            set => episode = value;
+            get => this.episode;
+            set => this.episode = value;
         }
 
         public bool DidSecret
         {
-            get => didSecret;
-            set => didSecret = value;
+            get => this.didSecret;
+            set => this.didSecret = value;
         }
 
         public int LastLevel
         {
-            get => lastLevel;
-            set => lastLevel = value;
+            get => this.lastLevel;
+            set => this.lastLevel = value;
         }
 
         public int NextLevel
         {
-            get => nextLevel;
-            set => nextLevel = value;
+            get => this.nextLevel;
+            set => this.nextLevel = value;
         }
 
         public int MaxKillCount
         {
-            get => Math.Max(maxKillCount, 1);
-            set => maxKillCount = value;
+            get => Math.Max(this.maxKillCount, 1);
+            set => this.maxKillCount = value;
         }
 
         public int MaxItemCount
         {
-            get => Math.Max(maxItemCount, 1);
-            set => maxItemCount = value;
+            get => Math.Max(this.maxItemCount, 1);
+            set => this.maxItemCount = value;
         }
 
         public int MaxSecretCount
         {
-            get => Math.Max(maxSecretCount, 1);
-            set => maxSecretCount = value;
+            get => Math.Max(this.maxSecretCount, 1);
+            set => this.maxSecretCount = value;
         }
 
         public int TotalFrags
         {
-            get => Math.Max(totalFrags, 1);
-            set => totalFrags = value;
+            get => Math.Max(this.totalFrags, 1);
+            set => this.totalFrags = value;
         }
 
         public int ParTime
         {
-            get => parTime;
-            set => parTime = value;
+            get => this.parTime;
+            set => this.parTime = value;
         }
 
         public PlayerScores[] Players
         {
-            get => players;
+            get => this.players;
         }
     }
 }

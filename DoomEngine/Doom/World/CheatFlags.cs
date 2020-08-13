@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public enum CheatFlags
+	public enum CheatFlags
     {
         // No clipping, walk through barriers.
         NoClip = 1,

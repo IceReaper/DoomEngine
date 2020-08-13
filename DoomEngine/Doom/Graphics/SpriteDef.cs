@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class SpriteDef
+	public sealed class SpriteDef
     {
         private SpriteFrame[] frames;
 
@@ -28,6 +24,6 @@ namespace ManagedDoom
             this.frames = frames;
         }
 
-        public SpriteFrame[] Frames => frames;
+        public SpriteFrame[] Frames => this.frames;
     }
 }

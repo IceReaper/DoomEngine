@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public class ToggleMenuItem : MenuItem
+	using System;
+
+	public class ToggleMenuItem : MenuItem
     {
         private string name;
         private int itemX;
@@ -50,7 +48,7 @@ namespace ManagedDoom
             this.states = new[] { state1, state2 };
             this.stateX = stateX;
 
-            stateNumber = 0;
+            this.stateNumber = 0;
 
             this.action = action;
             this.reset = reset;
@@ -58,45 +56,45 @@ namespace ManagedDoom
 
         public void Reset()
         {
-            if (reset != null)
+            if (this.reset != null)
             {
-                stateNumber = reset();
+                this.stateNumber = this.reset();
             }
         }
 
         public void Up()
         {
-            stateNumber++;
-            if (stateNumber == states.Length)
+            this.stateNumber++;
+            if (this.stateNumber == this.states.Length)
             {
-                stateNumber = 0;
+                this.stateNumber = 0;
             }
 
-            if (action != null)
+            if (this.action != null)
             {
-                action(stateNumber);
+                this.action(this.stateNumber);
             }
         }
 
         public void Down()
         {
-            stateNumber--;
-            if (stateNumber == -1)
+            this.stateNumber--;
+            if (this.stateNumber == -1)
             {
-                stateNumber = states.Length - 1;
+                this.stateNumber = this.states.Length - 1;
             }
 
-            if (action != null)
+            if (this.action != null)
             {
-                action(stateNumber);
+                this.action(this.stateNumber);
             }
         }
 
-        public string Name => name;
-        public int ItemX => itemX;
-        public int ItemY => itemY;
+        public string Name => this.name;
+        public int ItemX => this.itemX;
+        public int ItemY => this.itemY;
 
-        public string State => states[stateNumber];
-        public int StateX => stateX;
+        public string State => this.states[this.stateNumber];
+        public int StateX => this.stateX;
     }
 }

@@ -13,42 +13,40 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using Common;
+
+	public static partial class DoomInfo
     {
         public static class Strings
         {
             public static readonly DoomString PRESSKEY = new DoomString("press a key.");
             public static readonly DoomString PRESSYN = new DoomString("press y or n.");
             public static readonly DoomString QUITMSG = new DoomString("are you sure you want to\nquit this great game?");
-            public static readonly DoomString LOADNET = new DoomString("you can't do load while in a net game!\n\n" + PRESSKEY);
-            public static readonly DoomString QLOADNET = new DoomString("you can't quickload during a netgame!\n\n" + PRESSKEY);
-            public static readonly DoomString QSAVESPOT = new DoomString("you haven't picked a quicksave slot yet!\n\n" + PRESSKEY);
-            public static readonly DoomString SAVEDEAD = new DoomString("you can't save if you aren't playing!\n\n" + PRESSKEY);
-            public static readonly DoomString QSPROMPT = new DoomString("quicksave over your game named\n\n'%s'?\n\n" + PRESSYN);
-            public static readonly DoomString QLPROMPT = new DoomString("do you want to quickload the game named\n\n'%s'?\n\n" + PRESSYN);
+            public static readonly DoomString LOADNET = new DoomString("you can't do load while in a net game!\n\n" + Strings.PRESSKEY);
+            public static readonly DoomString QLOADNET = new DoomString("you can't quickload during a netgame!\n\n" + Strings.PRESSKEY);
+            public static readonly DoomString QSAVESPOT = new DoomString("you haven't picked a quicksave slot yet!\n\n" + Strings.PRESSKEY);
+            public static readonly DoomString SAVEDEAD = new DoomString("you can't save if you aren't playing!\n\n" + Strings.PRESSKEY);
+            public static readonly DoomString QSPROMPT = new DoomString("quicksave over your game named\n\n'%s'?\n\n" + Strings.PRESSYN);
+            public static readonly DoomString QLPROMPT = new DoomString("do you want to quickload the game named\n\n'%s'?\n\n" + Strings.PRESSYN);
 
             public static readonly DoomString NEWGAME = new DoomString(
                 "you can't start a new game\n" +
-                "while in a network game.\n\n" + PRESSKEY);
+                "while in a network game.\n\n" + Strings.PRESSKEY);
 
             public static readonly DoomString NIGHTMARE = new DoomString(
                 "are you sure? this skill level\n" +
-                "isn't even remotely fair.\n\n" + PRESSYN);
+                "isn't even remotely fair.\n\n" + Strings.PRESSYN);
 
             public static readonly DoomString SWSTRING = new DoomString(
                 "this is the shareware version of doom.\n\n" +
-                "you need to order the entire trilogy.\n\n" + PRESSKEY);
+                "you need to order the entire trilogy.\n\n" + Strings.PRESSKEY);
 
             public static readonly DoomString MSGOFF = new DoomString("Messages OFF");
             public static readonly DoomString MSGON = new DoomString("Messages ON");
-            public static readonly DoomString NETEND = new DoomString("you can't end a netgame!\n\n" + PRESSKEY);
-            public static readonly DoomString ENDGAME = new DoomString("are you sure you want to end the game?\n\n" + PRESSYN);
+            public static readonly DoomString NETEND = new DoomString("you can't end a netgame!\n\n" + Strings.PRESSKEY);
+            public static readonly DoomString ENDGAME = new DoomString("are you sure you want to end the game?\n\n" + Strings.PRESSYN);
             public static readonly DoomString DOSY = new DoomString("(press y to quit)");
             public static readonly DoomString GAMMALVL0 = new DoomString("Gamma correction OFF");
             public static readonly DoomString GAMMALVL1 = new DoomString("Gamma correction level 1");

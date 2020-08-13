@@ -13,14 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class YesNoConfirm : MenuDef
+	using Audio;
+	using Event;
+	using System;
+	using System.Collections.Generic;
+	using UserInput;
+
+	public sealed class YesNoConfirm : MenuDef
     {
         private string[] text;
         private Action action;
@@ -42,21 +43,21 @@ namespace ManagedDoom
                 e.Key == DoomKey.Enter ||
                 e.Key == DoomKey.Space)
             {
-                action();
-                Menu.Close();
-                Menu.StartSound(Sfx.PISTOL);
+                this.action();
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.PISTOL);
             }
 
             if (e.Key == DoomKey.N ||
                 e.Key == DoomKey.Escape)
             {
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
             }
 
             return true;
         }
 
-        public IReadOnlyList<string> Text => text;
+        public IReadOnlyList<string> Text => this.text;
     }
 }

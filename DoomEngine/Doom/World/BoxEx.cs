@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.CompilerServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public static class BoxEx
+	using Math;
+	using System.Runtime.CompilerServices;
+
+	public static class BoxEx
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Fixed Top(this Fixed[] box)

@@ -13,14 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public class Specials
+	using Audio;
+	using Map;
+	using Math;
+	using System;
+	using System.Collections.Generic;
+
+	public class Specials
     {
         private static readonly int maxButtonCount = 32;
         private static readonly int buttonTime = 35;
@@ -41,24 +42,24 @@ namespace ManagedDoom
         {
             this.world = world;
 
-            levelTimer = false;
+            this.levelTimer = false;
 
-            buttonList = new Button[maxButtonCount];
-            for (var i = 0; i < buttonList.Length; i++)
+            this.buttonList = new Button[Specials.maxButtonCount];
+            for (var i = 0; i < this.buttonList.Length; i++)
             {
-                buttonList[i] = new Button();
+                this.buttonList[i] = new Button();
             }
 
-            textureTranslation = new int[world.Map.Textures.Count];
-            for (var i = 0; i < textureTranslation.Length; i++)
+            this.textureTranslation = new int[world.Map.Textures.Count];
+            for (var i = 0; i < this.textureTranslation.Length; i++)
             {
-                textureTranslation[i] = i;
+                this.textureTranslation[i] = i;
             }
 
-            flatTranslation = new int[world.Map.Flats.Count];
-            for (var i = 0; i < flatTranslation.Length; i++)
+            this.flatTranslation = new int[world.Map.Flats.Count];
+            for (var i = 0; i < this.flatTranslation.Length; i++)
             {
-                flatTranslation[i] = i;
+                this.flatTranslation[i] = i;
             }
         }
 
@@ -67,9 +68,9 @@ namespace ManagedDoom
         /// </summary>
         public void SpawnSpecials(int levelTimeCount)
         {
-            levelTimer = true;
+            this.levelTimer = true;
             this.levelTimeCount = levelTimeCount;
-            SpawnSpecials();
+            this.SpawnSpecials();
         }
 
         /// <summary>
@@ -78,9 +79,9 @@ namespace ManagedDoom
         public void SpawnSpecials()
         {
             // Init special sectors.
-            var lc = world.LightingChange;
-            var sa = world.SectorAction;
-            foreach (var sector in world.Map.Sectors)
+            var lc = this.world.LightingChange;
+            var sa = this.world.SectorAction;
+            foreach (var sector in this.world.Map.Sectors)
             {
                 if (sector.Special == 0)
                 {
@@ -116,7 +117,7 @@ namespace ManagedDoom
                         break;
                     case 9:
                         // Secret sector.
-                        world.TotalSecrets++;
+                        this.world.TotalSecrets++;
                         break;
 
                     case 10:
@@ -146,7 +147,7 @@ namespace ManagedDoom
             }
 
             var scrollList = new List<LineDef>();
-            foreach (var line in world.Map.Lines)
+            foreach (var line in this.world.Map.Lines)
             {
                 switch ((int)line.Special)
                 {
@@ -156,7 +157,7 @@ namespace ManagedDoom
                         break;
                 }
             }
-            scrollLines = scrollList.ToArray();
+            this.scrollLines = scrollList.ToArray();
         }
 
         public void ChangeSwitchTexture(LineDef line, bool useAgain)
@@ -179,18 +180,18 @@ namespace ManagedDoom
                 sound = Sfx.SWTCHX;
             }
 
-            var switchList = world.Map.Textures.SwitchList;
+            var switchList = this.world.Map.Textures.SwitchList;
 
             for (var i = 0; i < switchList.Length; i++)
             {
                 if (switchList[i] == topTexture)
                 {
-                    world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
+                    this.world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
                     frontSide.TopTexture = switchList[i ^ 1];
 
                     if (useAgain)
                     {
-                        StartButton(line, ButtonPosition.Top, switchList[i], buttonTime);
+                        this.StartButton(line, ButtonPosition.Top, switchList[i], Specials.buttonTime);
                     }
 
                     return;
@@ -199,12 +200,12 @@ namespace ManagedDoom
                 {
                     if (switchList[i] == middleTexture)
                     {
-                        world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
+                        this.world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
                         frontSide.MiddleTexture = switchList[i ^ 1];
 
                         if (useAgain)
                         {
-                            StartButton(line, ButtonPosition.Middle, switchList[i], buttonTime);
+                            this.StartButton(line, ButtonPosition.Middle, switchList[i], Specials.buttonTime);
                         }
 
                         return;
@@ -213,12 +214,12 @@ namespace ManagedDoom
                     {
                         if (switchList[i] == bottomTexture)
                         {
-                            world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
+                            this.world.StartSound(line.SoundOrigin, sound, SfxType.Misc);
                             frontSide.BottomTexture = switchList[i ^ 1];
 
                             if (useAgain)
                             {
-                                StartButton(line, ButtonPosition.Bottom, switchList[i], buttonTime);
+                                this.StartButton(line, ButtonPosition.Bottom, switchList[i], Specials.buttonTime);
                             }
 
                             return;
@@ -231,23 +232,23 @@ namespace ManagedDoom
         private void StartButton(LineDef line, ButtonPosition w, int texture, int time)
         {
             // See if button is already pressed.
-            for (var i = 0; i < maxButtonCount; i++)
+            for (var i = 0; i < Specials.maxButtonCount; i++)
             {
-                if (buttonList[i].Timer != 0 && buttonList[i].Line == line)
+                if (this.buttonList[i].Timer != 0 && this.buttonList[i].Line == line)
                 {
                     return;
                 }
             }
 
-            for (var i = 0; i < maxButtonCount; i++)
+            for (var i = 0; i < Specials.maxButtonCount; i++)
             {
-                if (buttonList[i].Timer == 0)
+                if (this.buttonList[i].Timer == 0)
                 {
-                    buttonList[i].Line = line;
-                    buttonList[i].Position = w;
-                    buttonList[i].Texture = texture;
-                    buttonList[i].Timer = time;
-                    buttonList[i].SoundOrigin = line.SoundOrigin;
+                    this.buttonList[i].Line = line;
+                    this.buttonList[i].Position = w;
+                    this.buttonList[i].Texture = texture;
+                    this.buttonList[i].Timer = time;
+                    this.buttonList[i].SoundOrigin = line.SoundOrigin;
                     return;
                 }
             }
@@ -261,72 +262,72 @@ namespace ManagedDoom
         public void Update()
         {
             // Level timer.
-            if (levelTimer)
+            if (this.levelTimer)
             {
-                levelTimeCount--;
-                if (levelTimeCount == 0)
+                this.levelTimeCount--;
+                if (this.levelTimeCount == 0)
                 {
-                    world.ExitLevel();
+                    this.world.ExitLevel();
                 }
             }
 
             // Animate flats and textures globally.
-            var animations = world.Map.Animation.Animations;
+            var animations = this.world.Map.Animation.Animations;
             for (var k = 0; k < animations.Length; k++)
             {
                 var anim = animations[k];
                 for (var i = anim.BasePic; i < anim.BasePic + anim.NumPics; i++)
                 {
-                    var pic = anim.BasePic + ((world.LevelTime / anim.Speed + i) % anim.NumPics);
+                    var pic = anim.BasePic + ((this.world.LevelTime / anim.Speed + i) % anim.NumPics);
                     if (anim.IsTexture)
                     {
-                        textureTranslation[i] = pic;
+                        this.textureTranslation[i] = pic;
                     }
                     else
                     {
-                        flatTranslation[i] = pic;
+                        this.flatTranslation[i] = pic;
                     }
                 }
             }
 
             // Animate line specials.
-            foreach (var line in scrollLines)
+            foreach (var line in this.scrollLines)
             {
                 line.FrontSide.TextureOffset += Fixed.One;
             }
 
             // Do buttons.
-            for (var i = 0; i < maxButtonCount; i++)
+            for (var i = 0; i < Specials.maxButtonCount; i++)
             {
-                if (buttonList[i].Timer > 0)
+                if (this.buttonList[i].Timer > 0)
                 {
-                    buttonList[i].Timer--;
+                    this.buttonList[i].Timer--;
 
-                    if (buttonList[i].Timer == 0)
+                    if (this.buttonList[i].Timer == 0)
                     {
-                        switch (buttonList[i].Position)
+                        switch (this.buttonList[i].Position)
                         {
                             case ButtonPosition.Top:
-                                buttonList[i].Line.FrontSide.TopTexture = buttonList[i].Texture;
+                                this.buttonList[i].Line.FrontSide.TopTexture = this.buttonList[i].Texture;
                                 break;
 
                             case ButtonPosition.Middle:
-                                buttonList[i].Line.FrontSide.MiddleTexture = buttonList[i].Texture;
+                                this.buttonList[i].Line.FrontSide.MiddleTexture = this.buttonList[i].Texture;
                                 break;
 
                             case ButtonPosition.Bottom:
-                                buttonList[i].Line.FrontSide.BottomTexture = buttonList[i].Texture;
+                                this.buttonList[i].Line.FrontSide.BottomTexture = this.buttonList[i].Texture;
                                 break;
                         }
 
-                        world.StartSound(buttonList[i].SoundOrigin, Sfx.SWTCHN, SfxType.Misc, 50);
-                        buttonList[i].Clear();
+                        this.world.StartSound(this.buttonList[i].SoundOrigin, Sfx.SWTCHN, SfxType.Misc, 50);
+                        this.buttonList[i].Clear();
                     }
                 }
             }
         }
 
-        public int[] TextureTranslation => textureTranslation;
-        public int[] FlatTranslation => flatTranslation;
+        public int[] TextureTranslation => this.textureTranslation;
+        public int[] FlatTranslation => this.flatTranslation;
     }
 }

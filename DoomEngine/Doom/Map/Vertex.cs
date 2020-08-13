@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Vertex
+	using Math;
+	using System;
+	using Wad;
+
+	public sealed class Vertex
     {
         private static readonly int dataSize = 4;
 
@@ -43,25 +43,25 @@ namespace ManagedDoom
         public static Vertex[] FromWad(Wad wad, int lump)
         {
             var length = wad.GetLumpSize(lump);
-            if (length % dataSize != 0)
+            if (length % Vertex.dataSize != 0)
             {
                 throw new Exception();
             }
 
             var data = wad.ReadLump(lump);
-            var count = length / dataSize;
+            var count = length / Vertex.dataSize;
             var vertices = new Vertex[count]; ;
 
             for (var i = 0; i < count; i++)
             {
-                var offset = dataSize * i;
-                vertices[i] = FromData(data, offset);
+                var offset = Vertex.dataSize * i;
+                vertices[i] = Vertex.FromData(data, offset);
             }
 
             return vertices;
         }
 
-        public Fixed X => x;
-        public Fixed Y => y;
+        public Fixed X => this.x;
+        public Fixed Y => this.y;
     }
 }

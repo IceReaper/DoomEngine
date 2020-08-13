@@ -13,15 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class TextInput
+	using Event;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using UserInput;
+
+	public sealed class TextInput
     {
         private List<char> text;
         private Action<IReadOnlyList<char>> typed;
@@ -41,7 +41,7 @@ namespace ManagedDoom
             this.finished = finished;
             this.canceled = canceled;
 
-            state = TextInputState.Typing;
+            this.state = TextInputState.Typing;
         }
 
         public bool DoEvent(DoomEvent e)
@@ -49,39 +49,39 @@ namespace ManagedDoom
             var ch = e.Key.GetChar();
             if (ch != 0)
             {
-                text.Add(ch);
-                typed(text);
+                this.text.Add(ch);
+                this.typed(this.text);
                 return true;
             }
 
             if (e.Key == DoomKey.Backspace && e.Type == EventType.KeyDown)
             {
-                if (text.Count > 0)
+                if (this.text.Count > 0)
                 {
-                    text.RemoveAt(text.Count - 1);
+                    this.text.RemoveAt(this.text.Count - 1);
                 }
-                typed(text);
+                this.typed(this.text);
                 return true;
             }
 
             if (e.Key == DoomKey.Enter && e.Type == EventType.KeyDown)
             {
-                finished(text);
-                state = TextInputState.Finished;
+                this.finished(this.text);
+                this.state = TextInputState.Finished;
                 return true;
             }
 
             if (e.Key == DoomKey.Escape && e.Type == EventType.KeyDown)
             {
-                canceled();
-                state = TextInputState.Canceled;
+                this.canceled();
+                this.state = TextInputState.Canceled;
                 return true;
             }
 
             return true;
         }
 
-        public IReadOnlyList<char> Text => text;
-        public TextInputState State => state;
+        public IReadOnlyList<char> Text => this.text;
+        public TextInputState State => this.state;
     }
 }

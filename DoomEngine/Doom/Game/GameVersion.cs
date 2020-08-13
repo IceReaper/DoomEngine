@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public enum GameVersion
+	public enum GameVersion
     {
         Version109,
         Ultimate,

@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class StrobeFlash : Thinker
+	using Map;
+
+	public sealed class StrobeFlash : Thinker
     {
         public static readonly int StrobeBright = 5;
         public static readonly int FastDark = 15;
@@ -41,57 +39,57 @@ namespace ManagedDoom
 
         public override void Run()
         {
-            if (--count > 0)
+            if (--this.count > 0)
             {
                 return;
             }
 
-            if (sector.LightLevel == minLight)
+            if (this.sector.LightLevel == this.minLight)
             {
-                sector.LightLevel = maxLight;
-                count = brightTime;
+                this.sector.LightLevel = this.maxLight;
+                this.count = this.brightTime;
             }
             else
             {
-                sector.LightLevel = minLight;
-                count = darkTime;
+                this.sector.LightLevel = this.minLight;
+                this.count = this.darkTime;
             }
         }
 
         public Sector Sector
         {
-            get => sector;
-            set => sector = value;
+            get => this.sector;
+            set => this.sector = value;
         }
 
         public int Count
         {
-            get => count;
-            set => count = value;
+            get => this.count;
+            set => this.count = value;
         }
 
         public int MinLight
         {
-            get => minLight;
-            set => minLight = value;
+            get => this.minLight;
+            set => this.minLight = value;
         }
 
         public int MaxLight
         {
-            get => maxLight;
-            set => maxLight = value;
+            get => this.maxLight;
+            set => this.maxLight = value;
         }
 
         public int DarkTime
         {
-            get => darkTime;
-            set => darkTime = value;
+            get => this.darkTime;
+            set => this.darkTime = value;
         }
 
         public int BrightTime
         {
-            get => brightTime;
-            set => brightTime = value;
+            get => this.brightTime;
+            set => this.brightTime = value;
         }
     }
 }

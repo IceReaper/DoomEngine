@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.UserInput
 {
-    public static class DoomMouseButtonEx
+	public static class DoomMouseButtonEx
     {
         public static string ToString(DoomMouseButton button)
         {

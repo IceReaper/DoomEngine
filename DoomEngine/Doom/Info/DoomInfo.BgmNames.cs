@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using Common;
+
+	public static partial class DoomInfo
     {
         public static readonly DoomString[] BgmNames = new DoomString[]
         {

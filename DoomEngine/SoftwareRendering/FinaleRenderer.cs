@@ -13,13 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class FinaleRenderer
+	using Doom.Common;
+	using Doom.Graphics;
+	using Doom.Intermission;
+	using Doom.Math;
+	using Doom.Wad;
+
+	public sealed class FinaleRenderer
     {
         private Wad wad;
         private FlatLookup flats;
@@ -32,46 +34,46 @@ namespace ManagedDoom.SoftwareRendering
 
         public FinaleRenderer(CommonResource resource, DrawScreen screen)
         {
-            wad = resource.Wad;
-            flats = resource.Flats;
-            sprites = resource.Sprites;
+            this.wad = resource.Wad;
+            this.flats = resource.Flats;
+            this.sprites = resource.Sprites;
 
             this.screen = screen;
-            scale = screen.Width / 320;
+            this.scale = screen.Width / 320;
 
-            cache = new PatchCache(wad);
+            this.cache = new PatchCache(this.wad);
         }
 
         public void Render(Finale finale)
         {
             if (finale.Stage == 2)
             {
-                RenderCast(finale);
+                this.RenderCast(finale);
                 return;
             }
 
             if (finale.Stage == 0)
             {
-                RenderTextScreen(finale);
+                this.RenderTextScreen(finale);
             }
             else
             {
                 switch (finale.Options.Episode)
                 {
                     case 1:
-                        DrawPatch("CREDIT", 0, 0);
+                        this.DrawPatch("CREDIT", 0, 0);
                         break;
 
                     case 2:
-                        DrawPatch("VICTORY2", 0, 0);
+                        this.DrawPatch("VICTORY2", 0, 0);
                         break;
 
                     case 3:
-                        BunnyScroll(finale);
+                        this.BunnyScroll(finale);
                         break;
 
                     case 4:
-                        DrawPatch("ENDPIC", 0, 0);
+                        this.DrawPatch("ENDPIC", 0, 0);
                         break;
                 }
             }
@@ -79,11 +81,11 @@ namespace ManagedDoom.SoftwareRendering
 
         private void RenderTextScreen(Finale finale)
         {
-            FillFlat(flats[finale.Flat]);
+            this.FillFlat(this.flats[finale.Flat]);
 
             // Draw some of the text onto the screen.
-            var cx = 10 * scale;
-            var cy = 17 * scale;
+            var cx = 10 * this.scale;
+            var cy = 17 * this.scale;
             var ch = 0;
 
             var count = (finale.Count - 10) / Finale.TextSpeed;
@@ -103,22 +105,22 @@ namespace ManagedDoom.SoftwareRendering
 
                 if (c == '\n')
                 {
-                    cx = 10 * scale;
-                    cy += 11 * scale;
+                    cx = 10 * this.scale;
+                    cy += 11 * this.scale;
                     continue;
                 }
 
-                screen.DrawChar(c, cx, cy, scale);
+                this.screen.DrawChar(c, cx, cy, this.scale);
 
-                cx += screen.MeasureChar(c, scale);
+                cx += this.screen.MeasureChar(c, this.scale);
             }
         }
 
         private void BunnyScroll(Finale finale)
         {
             var scroll = 320 - finale.Scrolled;
-            DrawPatch("PFUB2", scroll - 320, 0);
-            DrawPatch("PFUB1", scroll, 0);
+            this.DrawPatch("PFUB2", scroll - 320, 0);
+            this.DrawPatch("PFUB1", scroll, 0);
 
             if (finale.ShowTheEnd)
             {
@@ -145,7 +147,7 @@ namespace ManagedDoom.SoftwareRendering
                         break;
                 }
 
-                DrawPatch(
+                this.DrawPatch(
                     patch,
                     (320 - 13 * 8) / 2,
                     (240 - 8 * 8) / 2);
@@ -155,15 +157,15 @@ namespace ManagedDoom.SoftwareRendering
         private void FillFlat(Flat flat)
         {
             var src = flat.Data;
-            var dst = screen.Data;
-            var scale = screen.Width / 320;
+            var dst = this.screen.Data;
+            var scale = this.screen.Width / 320;
             var xFrac = Fixed.One / scale - Fixed.Epsilon;
             var step = Fixed.One / scale;
-            for (var x = 0; x < screen.Width; x++)
+            for (var x = 0; x < this.screen.Width; x++)
             {
                 var yFrac = Fixed.One / scale - Fixed.Epsilon;
-                var p = screen.Height * x;
-                for (var y = 0; y < screen.Height; y++)
+                var p = this.screen.Height * x;
+                for (var y = 0; y < this.screen.Height; y++)
                 {
                     var spotX = xFrac.ToIntFloor() & 0x3F;
                     var spotY = yFrac.ToIntFloor() & 0x3F;
@@ -177,39 +179,39 @@ namespace ManagedDoom.SoftwareRendering
 
         private void DrawPatch(string name, int x, int y)
         {
-            var scale = screen.Width / 320;
-            screen.DrawPatch(cache[name], scale * x, scale * y, scale);
+            var scale = this.screen.Width / 320;
+            this.screen.DrawPatch(this.cache[name], scale * x, scale * y, scale);
         }
 
         private void RenderCast(Finale finale)
         {
-            DrawPatch("BOSSBACK", 0, 0);
+            this.DrawPatch("BOSSBACK", 0, 0);
 
             var frame = finale.CastState.Frame & 0x7fff;
-            var patch = sprites[finale.CastState.Sprite].Frames[frame].Patches[0];
-            if (sprites[finale.CastState.Sprite].Frames[frame].Flip[0])
+            var patch = this.sprites[finale.CastState.Sprite].Frames[frame].Patches[0];
+            if (this.sprites[finale.CastState.Sprite].Frames[frame].Flip[0])
             {
-                screen.DrawPatchFlip(
+                this.screen.DrawPatchFlip(
                     patch,
-                    screen.Width / 2,
-                    screen.Height - scale * 30,
-                    scale);
+                    this.screen.Width / 2,
+                    this.screen.Height - this.scale * 30,
+                    this.scale);
             }
             else
             {
-                screen.DrawPatch(
+                this.screen.DrawPatch(
                     patch,
-                    screen.Width / 2,
-                    screen.Height - scale * 30,
-                    scale);
+                    this.screen.Width / 2,
+                    this.screen.Height - this.scale * 30,
+                    this.scale);
             }
 
-            var width = screen.MeasureText(finale.CastName, scale);
-            screen.DrawText(
+            var width = this.screen.MeasureText(finale.CastName, this.scale);
+            this.screen.DrawText(
                 finale.CastName,
-                (screen.Width - width) / 2,
-                screen.Height - scale * 13,
-                scale);
+                (this.screen.Width - width) / 2,
+                this.screen.Height - this.scale * 13,
+                this.scale);
         }
     }
 }

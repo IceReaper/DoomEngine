@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public enum VerticalDoorType
+	public enum VerticalDoorType
     {
         Normal,
         Close30ThenOpen,

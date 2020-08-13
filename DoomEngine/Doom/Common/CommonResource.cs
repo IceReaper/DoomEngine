@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Common
 {
-    public sealed class CommonResource : IDisposable
+	using Graphics;
+	using System;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class CommonResource : IDisposable
     {
         private Wad wad;
         private Palette palette;
@@ -38,13 +38,13 @@ namespace ManagedDoom
         {
             try
             {
-                wad = new Wad(wadPaths);
-                palette = new Palette(wad);
-                colorMap = new ColorMap(wad);
-                textures = new TextureLookup(wad);
-                flats = new FlatLookup(wad);
-                sprites = new SpriteLookup(wad);
-                animation = new TextureAnimation(textures, flats);
+                this.wad = new Wad(wadPaths);
+                this.palette = new Palette(this.wad);
+                this.colorMap = new ColorMap(this.wad);
+                this.textures = new TextureLookup(this.wad);
+                this.flats = new FlatLookup(this.wad);
+                this.sprites = new SpriteLookup(this.wad);
+                this.animation = new TextureAnimation(this.textures, this.flats);
             }
             catch (Exception e)
             {
@@ -67,19 +67,19 @@ namespace ManagedDoom
 
         public void Dispose()
         {
-            if (wad != null)
+            if (this.wad != null)
             {
-                wad.Dispose();
-                wad = null;
+                this.wad.Dispose();
+                this.wad = null;
             }
         }
 
-        public Wad Wad => wad;
-        public Palette Palette => palette;
-        public ColorMap ColorMap => colorMap;
-        public TextureLookup Textures => textures;
-        public FlatLookup Flats => flats;
-        public SpriteLookup Sprites => sprites;
-        public TextureAnimation Animation => animation;
+        public Wad Wad => this.wad;
+        public Palette Palette => this.palette;
+        public ColorMap ColorMap => this.colorMap;
+        public TextureLookup Textures => this.textures;
+        public FlatLookup Flats => this.flats;
+        public SpriteLookup Sprites => this.sprites;
+        public TextureAnimation Animation => this.animation;
     }
 }

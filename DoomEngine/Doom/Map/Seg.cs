@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Seg
+	using Math;
+	using System;
+	using Wad;
+
+	public sealed class Seg
     {
         private static readonly int dataSize = 12;
 
@@ -97,13 +97,13 @@ namespace ManagedDoom
             return segs;
         }
 
-        public Vertex Vertex1 => vertex1;
-        public Vertex Vertex2 => vertex2;
-        public Fixed Offset => offset;
-        public Angle Angle => angle;
-        public SideDef SideDef => sideDef;
-        public LineDef LineDef => lineDef;
-        public Sector FrontSector => frontSector;
-        public Sector BackSector => backSector;
+        public Vertex Vertex1 => this.vertex1;
+        public Vertex Vertex2 => this.vertex2;
+        public Fixed Offset => this.offset;
+        public Angle Angle => this.angle;
+        public SideDef SideDef => this.sideDef;
+        public LineDef LineDef => this.lineDef;
+        public Sector FrontSector => this.frontSector;
+        public Sector BackSector => this.backSector;
     }
 }

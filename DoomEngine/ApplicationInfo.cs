@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public static class ApplicationInfo
+	public static class ApplicationInfo
     {
         public static readonly string Title = "Managed Doom v1.1a";
     }

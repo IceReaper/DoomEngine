@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    [Flags]
+	using System;
+
+	[Flags]
     public enum ThingFlags
     {
         Easy = 1,

@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class TextureAnimationInfo
+	public sealed class TextureAnimationInfo
     {
         private bool isTexture;
         private int picNum;
@@ -36,10 +32,10 @@ namespace ManagedDoom
             this.speed = speed;
         }
 
-        public bool IsTexture => isTexture;
-        public int PicNum => picNum;
-        public int BasePic => basePic;
-        public int NumPics => numPics;
-        public int Speed => speed;
+        public bool IsTexture => this.isTexture;
+        public int PicNum => this.picNum;
+        public int BasePic => this.basePic;
+        public int NumPics => this.numPics;
+        public int Speed => this.speed;
     }
 }

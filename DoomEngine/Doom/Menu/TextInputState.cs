@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public enum TextInputState
+	public enum TextInputState
     {
         Typing,
         Finished,

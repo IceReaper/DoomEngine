@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Audio
 {
-    public enum SfxType
+	public enum SfxType
     {
         Diffuse,
         Weapon,

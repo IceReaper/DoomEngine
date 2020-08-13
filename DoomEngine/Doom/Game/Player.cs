@@ -13,13 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public sealed class Player
+	using Info;
+	using Math;
+	using System;
+	using World;
+
+	public sealed class Player
     {
         public static readonly int MaxPlayerCount = 4;
 
@@ -127,398 +128,398 @@ namespace ManagedDoom
         {
             this.number = number;
 
-            name = defaultPlayerNames[number];
+            this.name = Player.defaultPlayerNames[number];
 
-            cmd = new TicCmd();
+            this.cmd = new TicCmd();
 
-            powers = new int[(int)PowerType.Count];
-            cards = new bool[(int)CardType.Count];
+            this.powers = new int[(int)PowerType.Count];
+            this.cards = new bool[(int)CardType.Count];
 
-            frags = new int[MaxPlayerCount];
+            this.frags = new int[Player.MaxPlayerCount];
 
-            weaponOwned = new bool[(int)WeaponType.Count];
-            ammo = new int[(int)AmmoType.Count];
-            maxAmmo = new int[(int)AmmoType.Count];
+            this.weaponOwned = new bool[(int)WeaponType.Count];
+            this.ammo = new int[(int)AmmoType.Count];
+            this.maxAmmo = new int[(int)AmmoType.Count];
 
-            playerSprites = new PlayerSpriteDef[(int)PlayerSprite.Count];
-            for (var i = 0; i < playerSprites.Length; i++)
+            this.playerSprites = new PlayerSpriteDef[(int)PlayerSprite.Count];
+            for (var i = 0; i < this.playerSprites.Length; i++)
             {
-                playerSprites[i] = new PlayerSpriteDef();
+                this.playerSprites[i] = new PlayerSpriteDef();
             }
         }
 
         public void Clear()
         {
-            mobj = null;
-            playerState = 0;
-            cmd.Clear();
+            this.mobj = null;
+            this.playerState = 0;
+            this.cmd.Clear();
 
-            viewZ = Fixed.Zero;
-            viewHeight = Fixed.Zero;
-            deltaViewHeight = Fixed.Zero;
-            bob = Fixed.Zero;
+            this.viewZ = Fixed.Zero;
+            this.viewHeight = Fixed.Zero;
+            this.deltaViewHeight = Fixed.Zero;
+            this.bob = Fixed.Zero;
 
-            health = 0;
-            armorPoints = 0;
-            armorType = 0;
+            this.health = 0;
+            this.armorPoints = 0;
+            this.armorType = 0;
 
-            Array.Clear(powers, 0, powers.Length);
-            Array.Clear(cards, 0, cards.Length);
-            backpack = false;
+            Array.Clear(this.powers, 0, this.powers.Length);
+            Array.Clear(this.cards, 0, this.cards.Length);
+            this.backpack = false;
 
-            Array.Clear(frags, 0, frags.Length);
+            Array.Clear(this.frags, 0, this.frags.Length);
 
-            readyWeapon = 0;
-            pendingWeapon = 0;
+            this.readyWeapon = 0;
+            this.pendingWeapon = 0;
 
-            Array.Clear(weaponOwned, 0, weaponOwned.Length);
-            Array.Clear(ammo, 0, ammo.Length);
-            Array.Clear(maxAmmo, 0, maxAmmo.Length);
+            Array.Clear(this.weaponOwned, 0, this.weaponOwned.Length);
+            Array.Clear(this.ammo, 0, this.ammo.Length);
+            Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
 
-            useDown = false;
-            attackDown = false;
+            this.useDown = false;
+            this.attackDown = false;
 
-            cheats = 0;
+            this.cheats = 0;
 
-            refire = 0;
+            this.refire = 0;
 
-            killCount = 0;
-            itemCount = 0;
-            secretCount = 0;
+            this.killCount = 0;
+            this.itemCount = 0;
+            this.secretCount = 0;
 
-            message = null;
-            messageTime = 0;
+            this.message = null;
+            this.messageTime = 0;
 
-            damageCount = 0;
-            bonusCount = 0;
+            this.damageCount = 0;
+            this.bonusCount = 0;
 
-            attacker = null;
+            this.attacker = null;
 
-            extraLight = 0;
+            this.extraLight = 0;
 
-            fixedColorMap = 0;
+            this.fixedColorMap = 0;
 
-            colorMap = 0;
+            this.colorMap = 0;
 
-            foreach (var psp in playerSprites)
+            foreach (var psp in this.playerSprites)
             {
                 psp.Clear();
             }
 
-            didSecret = false;
+            this.didSecret = false;
         }
 
         public void Reborn()
         {
-            mobj = null;
-            playerState = PlayerState.Live;
-            cmd.Clear();
+            this.mobj = null;
+            this.playerState = PlayerState.Live;
+            this.cmd.Clear();
 
-            viewZ = Fixed.Zero;
-            viewHeight = Fixed.Zero;
-            deltaViewHeight = Fixed.Zero;
-            bob = Fixed.Zero;
+            this.viewZ = Fixed.Zero;
+            this.viewHeight = Fixed.Zero;
+            this.deltaViewHeight = Fixed.Zero;
+            this.bob = Fixed.Zero;
 
-            health = MaxHealth;
-            armorPoints = 0;
-            armorType = 0;
+            this.health = Player.MaxHealth;
+            this.armorPoints = 0;
+            this.armorType = 0;
 
-            Array.Clear(powers, 0, powers.Length);
-            Array.Clear(cards, 0, cards.Length);
-            backpack = false;
+            Array.Clear(this.powers, 0, this.powers.Length);
+            Array.Clear(this.cards, 0, this.cards.Length);
+            this.backpack = false;
 
-            readyWeapon = WeaponType.Pistol;
-            pendingWeapon = WeaponType.Pistol;
+            this.readyWeapon = WeaponType.Pistol;
+            this.pendingWeapon = WeaponType.Pistol;
 
-            Array.Clear(weaponOwned, 0, weaponOwned.Length);
-            Array.Clear(ammo, 0, ammo.Length);
-            Array.Clear(maxAmmo, 0, maxAmmo.Length);
+            Array.Clear(this.weaponOwned, 0, this.weaponOwned.Length);
+            Array.Clear(this.ammo, 0, this.ammo.Length);
+            Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
 
-            weaponOwned[(int)WeaponType.Fist] = true;
-            weaponOwned[(int)WeaponType.Pistol] = true;
-            ammo[(int)AmmoType.Clip] = 50;
+            this.weaponOwned[(int)WeaponType.Fist] = true;
+            this.weaponOwned[(int)WeaponType.Pistol] = true;
+            this.ammo[(int)AmmoType.Clip] = 50;
             for (var i = 0; i < (int)AmmoType.Count; i++)
             {
-                maxAmmo[i] = DoomInfo.AmmoInfos.Max[i];
+                this.maxAmmo[i] = DoomInfo.AmmoInfos.Max[i];
             }
 
             // Don't do anything immediately.
-            useDown = true;
-            attackDown = true;
+            this.useDown = true;
+            this.attackDown = true;
 
-            cheats = 0;
+            this.cheats = 0;
 
-            refire = 0;
+            this.refire = 0;
 
-            message = null;
-            messageTime = 0;
+            this.message = null;
+            this.messageTime = 0;
 
-            damageCount = 0;
-            bonusCount = 0;
+            this.damageCount = 0;
+            this.bonusCount = 0;
 
-            attacker = null;
+            this.attacker = null;
 
-            extraLight = 0;
+            this.extraLight = 0;
 
-            fixedColorMap = 0;
+            this.fixedColorMap = 0;
 
-            colorMap = 0;
+            this.colorMap = 0;
 
-            foreach (var psp in playerSprites)
+            foreach (var psp in this.playerSprites)
             {
                 psp.Clear();
             }
 
-            didSecret = false;
+            this.didSecret = false;
         }
 
         public void FinishLevel()
         {
-            Array.Clear(powers, 0, powers.Length);
-            Array.Clear(cards, 0, cards.Length);
+            Array.Clear(this.powers, 0, this.powers.Length);
+            Array.Clear(this.cards, 0, this.cards.Length);
 
             // Cancel invisibility.
-            mobj.Flags &= ~MobjFlags.Shadow;
+            this.mobj.Flags &= ~MobjFlags.Shadow;
 
             // Cancel gun flashes.
-            extraLight = 0;
+            this.extraLight = 0;
 
             // Cancel ir gogles.
-            fixedColorMap = 0;
+            this.fixedColorMap = 0;
 
             // No palette changes.
-            damageCount = 0;
-            bonusCount = 0;
+            this.damageCount = 0;
+            this.bonusCount = 0;
         }
 
         public void SendMessage(string message)
         {
-            if (ReferenceEquals(this.message, (string)DoomInfo.Strings.MSGOFF) &&
-                !ReferenceEquals(message, (string)DoomInfo.Strings.MSGON))
+            if (object.ReferenceEquals(this.message, (string)DoomInfo.Strings.MSGOFF) &&
+                !object.ReferenceEquals(message, (string)DoomInfo.Strings.MSGON))
             {
                 return;
             }
 
             this.message = message;
-            messageTime = 4 * GameConst.TicRate;
+            this.messageTime = 4 * GameConst.TicRate;
         }
 
-        public int Number => number;
+        public int Number => this.number;
 
-        public string Name => name;
+        public string Name => this.name;
 
         public bool InGame
         {
-            get => inGame;
-            set => inGame = value;
+            get => this.inGame;
+            set => this.inGame = value;
         }
 
         public Mobj Mobj
         {
-            get => mobj;
-            set => mobj = value;
+            get => this.mobj;
+            set => this.mobj = value;
         }
 
         public PlayerState PlayerState
         {
-            get => playerState;
-            set => playerState = value;
+            get => this.playerState;
+            set => this.playerState = value;
         }
 
         public TicCmd Cmd
         {
-            get => cmd;
+            get => this.cmd;
         }
 
         public Fixed ViewZ
         {
-            get => viewZ;
-            set => viewZ = value;
+            get => this.viewZ;
+            set => this.viewZ = value;
         }
 
         public Fixed ViewHeight
         {
-            get => viewHeight;
-            set => viewHeight = value;
+            get => this.viewHeight;
+            set => this.viewHeight = value;
         }
 
         public Fixed DeltaViewHeight
         {
-            get => deltaViewHeight;
-            set => deltaViewHeight = value;
+            get => this.deltaViewHeight;
+            set => this.deltaViewHeight = value;
         }
 
         public Fixed Bob
         {
-            get => bob;
-            set => bob = value;
+            get => this.bob;
+            set => this.bob = value;
         }
 
         public int Health
         {
-            get => health;
-            set => health = value;
+            get => this.health;
+            set => this.health = value;
         }
 
         public int ArmorPoints
         {
-            get => armorPoints;
-            set => armorPoints = value;
+            get => this.armorPoints;
+            set => this.armorPoints = value;
         }
 
         public int ArmorType
         {
-            get => armorType;
-            set => armorType = value;
+            get => this.armorType;
+            set => this.armorType = value;
         }
 
         public int[] Powers
         {
-            get => powers;
+            get => this.powers;
         }
 
         public bool[] Cards
         {
-            get => cards;
+            get => this.cards;
         }
 
         public bool Backpack
         {
-            get => backpack;
-            set => backpack = value;
+            get => this.backpack;
+            set => this.backpack = value;
         }
 
         public int[] Frags
         {
-            get => frags;
+            get => this.frags;
         }
 
         public WeaponType ReadyWeapon
         {
-            get => readyWeapon;
-            set => readyWeapon = value;
+            get => this.readyWeapon;
+            set => this.readyWeapon = value;
         }
 
         public WeaponType PendingWeapon
         {
-            get => pendingWeapon;
-            set => pendingWeapon = value;
+            get => this.pendingWeapon;
+            set => this.pendingWeapon = value;
         }
 
         public bool[] WeaponOwned
         {
-            get => weaponOwned;
+            get => this.weaponOwned;
         }
 
         public int[] Ammo
         {
-            get => ammo;
+            get => this.ammo;
         }
 
         public int[] MaxAmmo
         {
-            get => maxAmmo;
+            get => this.maxAmmo;
         }
 
         public bool AttackDown
         {
-            get => attackDown;
-            set => attackDown = value;
+            get => this.attackDown;
+            set => this.attackDown = value;
         }
 
         public bool UseDown
         {
-            get => useDown;
-            set => useDown = value;
+            get => this.useDown;
+            set => this.useDown = value;
         }
 
         public CheatFlags Cheats
         {
-            get => cheats;
-            set => cheats = value;
+            get => this.cheats;
+            set => this.cheats = value;
         }
 
         public int Refire
         {
-            get => refire;
-            set => refire = value;
+            get => this.refire;
+            set => this.refire = value;
         }
 
         public int KillCount
         {
-            get => killCount;
-            set => killCount = value;
+            get => this.killCount;
+            set => this.killCount = value;
         }
 
         public int ItemCount
         {
-            get => itemCount;
-            set => itemCount = value;
+            get => this.itemCount;
+            set => this.itemCount = value;
         }
 
         public int SecretCount
         {
-            get => secretCount;
-            set => secretCount = value;
+            get => this.secretCount;
+            set => this.secretCount = value;
         }
 
         public string Message
         {
-            get => message;
-            set => message = value;
+            get => this.message;
+            set => this.message = value;
         }
 
         public int MessageTime
         {
-            get => messageTime;
-            set => messageTime = value;
+            get => this.messageTime;
+            set => this.messageTime = value;
         }
 
         public int DamageCount
         {
-            get => damageCount;
-            set => damageCount = value;
+            get => this.damageCount;
+            set => this.damageCount = value;
         }
 
         public int BonusCount
         {
-            get => bonusCount;
-            set => bonusCount = value;
+            get => this.bonusCount;
+            set => this.bonusCount = value;
         }
 
         public Mobj Attacker
         {
-            get => attacker;
-            set => attacker = value;
+            get => this.attacker;
+            set => this.attacker = value;
         }
 
         public int ExtraLight
         {
-            get => extraLight;
-            set => extraLight = value;
+            get => this.extraLight;
+            set => this.extraLight = value;
         }
 
         public int FixedColorMap
         {
-            get => fixedColorMap;
-            set => fixedColorMap = value;
+            get => this.fixedColorMap;
+            set => this.fixedColorMap = value;
         }
 
         public int ColorMap
         {
-            get => colorMap;
-            set => colorMap = value;
+            get => this.colorMap;
+            set => this.colorMap = value;
         }
 
         public PlayerSpriteDef[] PlayerSprites
         {
-            get => playerSprites;
+            get => this.playerSprites;
         }
 
         public bool DidSecret
         {
-            get => didSecret;
-            set => didSecret = value;
+            get => this.didSecret;
+            set => this.didSecret = value;
         }
     }
 }

@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Reject
+	using Wad;
+
+	public sealed class Reject
     {
         private byte[] data;
         private int sectorCount;
@@ -40,11 +38,11 @@ namespace ManagedDoom
             var s1 = sector1.Number;
             var s2 = sector2.Number;
 
-            var p = s1 * sectorCount + s2;
+            var p = s1 * this.sectorCount + s2;
             var byteIndex = p >> 3;
             var bitIndex = 1 << (p & 7);
 
-            return (data[byteIndex] & bitIndex) != 0;
+            return (this.data[byteIndex] & bitIndex) != 0;
         }
     }
 }

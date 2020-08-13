@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Common
 {
-    public static class DoomInterop
+	public static class DoomInterop
     {
         public static string ToString(byte[] data, int offset, int maxLength)
         {

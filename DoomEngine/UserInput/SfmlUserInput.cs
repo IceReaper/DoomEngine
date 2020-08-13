@@ -13,17 +13,17 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.ExceptionServices;
-using SFML.Graphics;
-using SFML.System;
-using SFML.Window;
-
-namespace ManagedDoom.UserInput
+namespace DoomEngine.UserInput
 {
-    public sealed class SfmlUserInput : IUserInput, IDisposable
+	using Doom.Game;
+	using Doom.World;
+	using SFML.Graphics;
+	using SFML.System;
+	using SFML.Window;
+	using System;
+	using System.Runtime.ExceptionServices;
+
+	public sealed class SfmlUserInput : IUserInput, IDisposable
     {
         private Config config;
 
@@ -54,14 +54,14 @@ namespace ManagedDoom.UserInput
 
                 this.useMouse = useMouse;
 
-                weaponKeys = new bool[7];
-                turnHeld = 0;
+                this.weaponKeys = new bool[7];
+                this.turnHeld = 0;
 
-                windowCenterX = (int)window.Size.X / 2;
-                windowCenterY = (int)window.Size.Y / 2;
-                mouseX = 0;
-                mouseY = 0;
-                cursorCentered = false;
+                this.windowCenterX = (int)window.Size.X / 2;
+                this.windowCenterY = (int)window.Size.Y / 2;
+                this.mouseX = 0;
+                this.mouseY = 0;
+                this.cursorCentered = false;
 
                 if (useMouse)
                 {
@@ -74,31 +74,31 @@ namespace ManagedDoom.UserInput
             catch (Exception e)
             {
                 Console.WriteLine("Failed");
-                Dispose();
+                this.Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
         }
 
         public void BuildTicCmd(TicCmd cmd)
         {
-            var keyForward = IsPressed(config.key_forward);
-            var keyBackward = IsPressed(config.key_backward);
-            var keyStrafeLeft = IsPressed(config.key_strafeleft);
-            var keyStrafeRight = IsPressed(config.key_straferight);
-            var keyTurnLeft = IsPressed(config.key_turnleft);
-            var keyTurnRight = IsPressed(config.key_turnright);
-            var keyFire = IsPressed(config.key_fire);
-            var keyUse = IsPressed(config.key_use);
-            var keyRun = IsPressed(config.key_run);
-            var keyStrafe = IsPressed(config.key_strafe);
+            var keyForward = SfmlUserInput.IsPressed(this.config.key_forward);
+            var keyBackward = SfmlUserInput.IsPressed(this.config.key_backward);
+            var keyStrafeLeft = SfmlUserInput.IsPressed(this.config.key_strafeleft);
+            var keyStrafeRight = SfmlUserInput.IsPressed(this.config.key_straferight);
+            var keyTurnLeft = SfmlUserInput.IsPressed(this.config.key_turnleft);
+            var keyTurnRight = SfmlUserInput.IsPressed(this.config.key_turnright);
+            var keyFire = SfmlUserInput.IsPressed(this.config.key_fire);
+            var keyUse = SfmlUserInput.IsPressed(this.config.key_use);
+            var keyRun = SfmlUserInput.IsPressed(this.config.key_run);
+            var keyStrafe = SfmlUserInput.IsPressed(this.config.key_strafe);
 
-            weaponKeys[0] = Keyboard.IsKeyPressed(Keyboard.Key.Num1);
-            weaponKeys[1] = Keyboard.IsKeyPressed(Keyboard.Key.Num2);
-            weaponKeys[2] = Keyboard.IsKeyPressed(Keyboard.Key.Num3);
-            weaponKeys[3] = Keyboard.IsKeyPressed(Keyboard.Key.Num4);
-            weaponKeys[4] = Keyboard.IsKeyPressed(Keyboard.Key.Num5);
-            weaponKeys[5] = Keyboard.IsKeyPressed(Keyboard.Key.Num6);
-            weaponKeys[6] = Keyboard.IsKeyPressed(Keyboard.Key.Num7);
+            this.weaponKeys[0] = Keyboard.IsKeyPressed(Keyboard.Key.Num1);
+            this.weaponKeys[1] = Keyboard.IsKeyPressed(Keyboard.Key.Num2);
+            this.weaponKeys[2] = Keyboard.IsKeyPressed(Keyboard.Key.Num3);
+            this.weaponKeys[3] = Keyboard.IsKeyPressed(Keyboard.Key.Num4);
+            this.weaponKeys[4] = Keyboard.IsKeyPressed(Keyboard.Key.Num5);
+            this.weaponKeys[5] = Keyboard.IsKeyPressed(Keyboard.Key.Num6);
+            this.weaponKeys[6] = Keyboard.IsKeyPressed(Keyboard.Key.Num7);
 
             cmd.Clear();
 
@@ -107,22 +107,22 @@ namespace ManagedDoom.UserInput
             var forward = 0;
             var side = 0;
 
-            if (config.game_alwaysrun)
+            if (this.config.game_alwaysrun)
             {
                 speed = 1 - speed;
             }
 
             if (keyTurnLeft || keyTurnRight)
             {
-                turnHeld++;
+                this.turnHeld++;
             }
             else
             {
-                turnHeld = 0;
+                this.turnHeld = 0;
             }
 
             int turnSpeed;
-            if (turnHeld < PlayerBehavior.SlowTurnTics)
+            if (this.turnHeld < PlayerBehavior.SlowTurnTics)
             {
                 turnSpeed = 2;
             }
@@ -183,9 +183,9 @@ namespace ManagedDoom.UserInput
             }
 
             // Check weapon keys.
-            for (var i = 0; i < weaponKeys.Length; i++)
+            for (var i = 0; i < this.weaponKeys.Length; i++)
             {
-                if (weaponKeys[i])
+                if (this.weaponKeys[i])
                 {
                     cmd.Buttons |= TicCmdButtons.Change;
                     cmd.Buttons |= (byte)(i << TicCmdButtons.WeaponShift);
@@ -193,12 +193,12 @@ namespace ManagedDoom.UserInput
                 }
             }
 
-            if (useMouse)
+            if (this.useMouse)
             {
-                UpdateMouse();
-                var ms = 0.5F * config.mouse_sensitivity;
-                var mx = (int)MathF.Round(ms * mouseX);
-                var my = (int)MathF.Round(ms * mouseY);
+                this.UpdateMouse();
+                var ms = 0.5F * this.config.mouse_sensitivity;
+                var mx = (int)MathF.Round(ms * this.mouseX);
+                var my = (int)MathF.Round(ms * this.mouseY);
                 forward += my;
                 if (strafe)
                 {
@@ -254,47 +254,47 @@ namespace ManagedDoom.UserInput
 
         public void Reset()
         {
-            mouseX = 0;
-            mouseY = 0;
-            cursorCentered = false;
+            this.mouseX = 0;
+            this.mouseY = 0;
+            this.cursorCentered = false;
         }
 
         private void UpdateMouse()
         {
-            if (cursorCentered)
+            if (this.cursorCentered)
             {
-                var current = Mouse.GetPosition(window);
+                var current = Mouse.GetPosition(this.window);
 
-                mouseX = current.X - windowCenterX;
+                this.mouseX = current.X - this.windowCenterX;
 
-                if (config.mouse_disableyaxis)
+                if (this.config.mouse_disableyaxis)
                 {
-                    mouseY = 0;
+                    this.mouseY = 0;
                 }
                 else
                 {
-                    mouseY = -(current.Y - windowCenterY);
+                    this.mouseY = -(current.Y - this.windowCenterY);
                 }
             }
             else
             {
-                mouseX = 0;
-                mouseY = 0;
+                this.mouseX = 0;
+                this.mouseY = 0;
             }
 
-            Mouse.SetPosition(new Vector2i(windowCenterX, windowCenterY), window);
-            var pos = Mouse.GetPosition(window);
-            cursorCentered = (pos.X == windowCenterX && pos.Y == windowCenterY);
+            Mouse.SetPosition(new Vector2i(this.windowCenterX, this.windowCenterY), this.window);
+            var pos = Mouse.GetPosition(this.window);
+            this.cursorCentered = (pos.X == this.windowCenterX && pos.Y == this.windowCenterY);
         }
 
         public void Dispose()
         {
             Console.WriteLine("Shutdown user input.");
 
-            if (useMouse)
+            if (this.useMouse)
             {
-                window.SetMouseCursorVisible(true);
-                window.SetMouseCursorGrabbed(false);
+                this.window.SetMouseCursorVisible(true);
+                this.window.SetMouseCursorGrabbed(false);
             }
         }
 
@@ -310,12 +310,12 @@ namespace ManagedDoom.UserInput
         {
             get
             {
-                return config.mouse_sensitivity;
+                return this.config.mouse_sensitivity;
             }
 
             set
             {
-                config.mouse_sensitivity = value;
+                this.config.mouse_sensitivity = value;
             }
         }
     }

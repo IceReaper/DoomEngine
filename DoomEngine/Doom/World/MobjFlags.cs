@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    [Flags]
+	using System;
+
+	[Flags]
     public enum MobjFlags
     {
         // Call P_SpecialThing when touched.

@@ -13,12 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Common;
+	using Game;
+	using Info;
+	using Math;
+	using System;
+
 	public sealed class StatusBar
 	{
 		private World world;
@@ -49,59 +51,59 @@ namespace ManagedDoom
 		{
 			this.world = world;
 
-			oldHealth = -1;
-			oldWeaponsOwned = new bool[DoomInfo.WeaponInfos.Length];
+			this.oldHealth = -1;
+			this.oldWeaponsOwned = new bool[DoomInfo.WeaponInfos.Length];
 			Array.Copy(
 				world.ConsolePlayer.WeaponOwned,
-				oldWeaponsOwned,
+				this.oldWeaponsOwned,
 				DoomInfo.WeaponInfos.Length);
-			faceCount = 0;
-			faceIndex = 0;
-			randomNumber = 0;
-			priority = 0;
-			lastAttackDown = -1;
-			lastPainOffset = 0;
+			this.faceCount = 0;
+			this.faceIndex = 0;
+			this.randomNumber = 0;
+			this.priority = 0;
+			this.lastAttackDown = -1;
+			this.lastPainOffset = 0;
 
-			random = new DoomRandom();
+			this.random = new DoomRandom();
 		}
 
 		public void Reset()
 		{
-			oldHealth = -1;
+			this.oldHealth = -1;
 			Array.Copy(
-				world.ConsolePlayer.WeaponOwned,
-				oldWeaponsOwned,
+				this.world.ConsolePlayer.WeaponOwned,
+				this.oldWeaponsOwned,
 				DoomInfo.WeaponInfos.Length);
-			faceCount = 0;
-			faceIndex = 0;
-			randomNumber = 0;
-			priority = 0;
-			lastAttackDown = -1;
-			lastPainOffset = 0;
+			this.faceCount = 0;
+			this.faceIndex = 0;
+			this.randomNumber = 0;
+			this.priority = 0;
+			this.lastAttackDown = -1;
+			this.lastPainOffset = 0;
 		}
 
 		public void Update()
 		{
-			randomNumber = random.Next();
-			UpdateFace();
+			this.randomNumber = this.random.Next();
+			this.UpdateFace();
 		}
 
 		private void UpdateFace()
 		{
-			var player = world.ConsolePlayer;
+			var player = this.world.ConsolePlayer;
 
-			if (priority < 10)
+			if (this.priority < 10)
 			{
 				// Dead.
 				if (player.Health == 0)
 				{
-					priority = 9;
-					faceIndex = Face.DeadIndex;
-					faceCount = 1;
+					this.priority = 9;
+					this.faceIndex = Face.DeadIndex;
+					this.faceCount = 1;
 				}
 			}
 
-			if (priority < 9)
+			if (this.priority < 9)
 			{
 				if (player.BonusCount != 0)
 				{
@@ -110,36 +112,36 @@ namespace ManagedDoom
 
 					for (var i = 0; i < DoomInfo.WeaponInfos.Length; i++)
 					{
-						if (oldWeaponsOwned[i] != player.WeaponOwned[i])
+						if (this.oldWeaponsOwned[i] != player.WeaponOwned[i])
 						{
 							doEvilGrin = true;
-							oldWeaponsOwned[i] = player.WeaponOwned[i];
+							this.oldWeaponsOwned[i] = player.WeaponOwned[i];
 						}
 					}
 
 					if (doEvilGrin)
 					{
 						// Evil grin if just picked up weapon.
-						priority = 8;
-						faceCount = Face.EvilGrinDuration;
-						faceIndex = CalcPainOffset() + Face.EvilGrinOffset;
+						this.priority = 8;
+						this.faceCount = Face.EvilGrinDuration;
+						this.faceIndex = this.CalcPainOffset() + Face.EvilGrinOffset;
 					}
 				}
 			}
 
-			if (priority < 8)
+			if (this.priority < 8)
 			{
 				if (player.DamageCount != 0 &&
 					player.Attacker != null &&
 					player.Attacker != player.Mobj)
 				{
 					// Being attacked.
-					priority = 7;
+					this.priority = 7;
 
-					if (player.Health - oldHealth > Face.MuchPain)
+					if (player.Health - this.oldHealth > Face.MuchPain)
 					{
-						faceCount = Face.TurnDuration;
-						faceIndex = CalcPainOffset() + Face.OuchOffset;
+						this.faceCount = Face.TurnDuration;
+						this.faceIndex = this.CalcPainOffset() + Face.OuchOffset;
 					}
 					else
 					{
@@ -162,112 +164,112 @@ namespace ManagedDoom
 							right = diff <= Angle.Ang180;
 						}
 
-						faceCount = Face.TurnDuration;
-						faceIndex = CalcPainOffset();
+						this.faceCount = Face.TurnDuration;
+						this.faceIndex = this.CalcPainOffset();
 
 						if (diff < Angle.Ang45)
 						{
 							// Head-on.
-							faceIndex += Face.RampageOffset;
+							this.faceIndex += Face.RampageOffset;
 						}
 						else if (right)
 						{
 							// Turn face right.
-							faceIndex += Face.TurnOffset;
+							this.faceIndex += Face.TurnOffset;
 						}
 						else
 						{
 							// Turn face left.
-							faceIndex += Face.TurnOffset + 1;
+							this.faceIndex += Face.TurnOffset + 1;
 						}
 					}
 				}
 			}
 
-			if (priority < 7)
+			if (this.priority < 7)
 			{
 				// Getting hurt because of your own damn stupidity.
 				if (player.DamageCount != 0)
 				{
-					if (player.Health - oldHealth > Face.MuchPain)
+					if (player.Health - this.oldHealth > Face.MuchPain)
 					{
-						priority = 7;
-						faceCount = Face.TurnDuration;
-						faceIndex = CalcPainOffset() + Face.OuchOffset;
+						this.priority = 7;
+						this.faceCount = Face.TurnDuration;
+						this.faceIndex = this.CalcPainOffset() + Face.OuchOffset;
 					}
 					else
 					{
-						priority = 6;
-						faceCount = Face.TurnDuration;
-						faceIndex = CalcPainOffset() + Face.RampageOffset;
+						this.priority = 6;
+						this.faceCount = Face.TurnDuration;
+						this.faceIndex = this.CalcPainOffset() + Face.RampageOffset;
 					}
 				}
 			}
 
-			if (priority < 6)
+			if (this.priority < 6)
 			{
 				// Rapid firing.
 				if (player.AttackDown)
 				{
-					if (lastAttackDown == -1)
+					if (this.lastAttackDown == -1)
 					{
-						lastAttackDown = Face.RampageDelay;
+						this.lastAttackDown = Face.RampageDelay;
 					}
-					else if (--lastAttackDown == 0)
+					else if (--this.lastAttackDown == 0)
 					{
-						priority = 5;
-						faceIndex = CalcPainOffset() + Face.RampageOffset;
-						faceCount = 1;
-						lastAttackDown = 1;
+						this.priority = 5;
+						this.faceIndex = this.CalcPainOffset() + Face.RampageOffset;
+						this.faceCount = 1;
+						this.lastAttackDown = 1;
 					}
 				}
 				else
 				{
-					lastAttackDown = -1;
+					this.lastAttackDown = -1;
 				}
 			}
 
-			if (priority < 5)
+			if (this.priority < 5)
 			{
 				// Invulnerability.
 				if ((player.Cheats & CheatFlags.GodMode) != 0 ||
 					player.Powers[(int)PowerType.Invulnerability] != 0)
 				{
-					priority = 4;
+					this.priority = 4;
 
-					faceIndex = Face.GodIndex;
-					faceCount = 1;
+					this.faceIndex = Face.GodIndex;
+					this.faceCount = 1;
 				}
 			}
 
 			// Look left or look right if the facecount has timed out.
-			if (faceCount == 0)
+			if (this.faceCount == 0)
 			{
-				faceIndex = CalcPainOffset() + (randomNumber % 3);
-				faceCount = Face.StraightFaceDuration;
-				priority = 0;
+				this.faceIndex = this.CalcPainOffset() + (this.randomNumber % 3);
+				this.faceCount = Face.StraightFaceDuration;
+				this.priority = 0;
 			}
 
-			faceCount--;
+			this.faceCount--;
 		}
 
 		private int CalcPainOffset()
 		{
-			var player = world.Options.Players[world.Options.ConsolePlayer];
+			var player = this.world.Options.Players[this.world.Options.ConsolePlayer];
 
 			var health = player.Health > 100 ? 100 : player.Health;
 
-			if (health != oldHealth)
+			if (health != this.oldHealth)
 			{
-				lastPainOffset = Face.Stride *
+				this.lastPainOffset = Face.Stride *
 					(((100 - health) * Face.PainFaceCount) / 101);
-				oldHealth = health;
+				this.oldHealth = health;
 			}
 
-			return lastPainOffset;
+			return this.lastPainOffset;
 		}
 
-		public int FaceIndex => faceIndex;
+		public int FaceIndex => this.faceIndex;
 
 
 
@@ -278,16 +280,16 @@ namespace ManagedDoom
 			public static readonly int TurnFaceCount = 2;
 			public static readonly int SpecialFaceCount = 3;
 
-			public static readonly int Stride = StraightFaceCount + TurnFaceCount + SpecialFaceCount;
+			public static readonly int Stride = Face.StraightFaceCount + Face.TurnFaceCount + Face.SpecialFaceCount;
 			public static readonly int ExtraFaceCount = 2;
-			public static readonly int FaceCount = Stride * PainFaceCount + ExtraFaceCount;
+			public static readonly int FaceCount = Face.Stride * Face.PainFaceCount + Face.ExtraFaceCount;
 
-			public static readonly int TurnOffset = StraightFaceCount;
-			public static readonly int OuchOffset = TurnOffset + TurnFaceCount;
-			public static readonly int EvilGrinOffset = OuchOffset + 1;
-			public static readonly int RampageOffset = EvilGrinOffset + 1;
-			public static readonly int GodIndex = PainFaceCount * Stride;
-			public static readonly int DeadIndex = GodIndex + 1;
+			public static readonly int TurnOffset = Face.StraightFaceCount;
+			public static readonly int OuchOffset = Face.TurnOffset + Face.TurnFaceCount;
+			public static readonly int EvilGrinOffset = Face.OuchOffset + 1;
+			public static readonly int RampageOffset = Face.EvilGrinOffset + 1;
+			public static readonly int GodIndex = Face.PainFaceCount * Face.Stride;
+			public static readonly int DeadIndex = Face.GodIndex + 1;
 
 			public static readonly int EvilGrinDuration = (2 * GameConst.TicRate);
 			public static readonly int StraightFaceDuration = (GameConst.TicRate / 2);

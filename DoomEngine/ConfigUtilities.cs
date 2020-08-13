@@ -13,17 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Diagnostics;
-using System.IO;
-using ManagedDoom.Audio;
-using SFML.Window;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public static class ConfigUtilities
+	using Audio;
+	using Doom.Wad;
+	using SFML.Window;
+	using System;
+	using System.Diagnostics;
+	using System.IO;
+
+	public static class ConfigUtilities
     {
         public static string GetExeDirectory()
         {
@@ -32,7 +31,7 @@ namespace ManagedDoom
 
         public static string GetConfigPath()
         {
-            return Path.Combine(GetExeDirectory(), "managed-doom.cfg");
+            return Path.Combine(ConfigUtilities.GetExeDirectory(), "managed-doom.cfg");
         }
 
         public static VideoMode GetDefaultVideoMode()
@@ -74,7 +73,7 @@ namespace ManagedDoom
                 "DOOM1.WAD"
             };
 
-            var exeDirectory = GetExeDirectory();
+            var exeDirectory = ConfigUtilities.GetExeDirectory();
             foreach (var name in names)
             {
                 var path = Path.Combine(exeDirectory, name);
@@ -99,7 +98,7 @@ namespace ManagedDoom
 
         public static SfmlMusic GetSfmlMusicInstance(Config config, Wad wad)
         {
-            var sfPath = Path.Combine(GetExeDirectory(), "TimGM6mb.sf2");
+            var sfPath = Path.Combine(ConfigUtilities.GetExeDirectory(), "TimGM6mb.sf2");
             if (File.Exists(sfPath))
             {
                 return new SfmlMusic(config, wad, sfPath);

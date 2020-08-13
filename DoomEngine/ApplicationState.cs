@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public enum ApplicationState
+	public enum ApplicationState
     {
         None,
         Opening,

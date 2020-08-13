@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public interface IRenderer
+	public interface IRenderer
     {
         public int MaxWindowSize { get; }
         public int WindowSize { get; set; }

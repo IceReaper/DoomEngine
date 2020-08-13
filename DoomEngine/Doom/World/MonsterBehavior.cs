@@ -13,13 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class MonsterBehavior
+	using Audio;
+	using Game;
+	using Info;
+	using Map;
+	using Math;
+	using System;
+
+	public sealed class MonsterBehavior
     {
         private World world;
 
@@ -27,9 +30,9 @@ namespace ManagedDoom
         {
             this.world = world;
 
-            InitVile();
-            InitBossDeath();
-            InitBrain();
+            this.InitVile();
+            this.InitBossDeath();
+            this.InitBrain();
         }
 
 
@@ -40,7 +43,7 @@ namespace ManagedDoom
 
         private bool LookForPlayers(Mobj actor, bool allAround)
         {
-            var players = world.Options.Players;
+            var players = this.world.Options.Players;
 
             var count = 0;
             var stop = (actor.LastLook - 1) & 3;
@@ -66,7 +69,7 @@ namespace ManagedDoom
                     continue;
                 }
 
-                if (!world.VisibilityCheck.CheckSight(actor, player.Mobj))
+                if (!this.world.VisibilityCheck.CheckSight(actor, player.Mobj))
                 {
                     // Out of sight.
                     continue;
@@ -113,7 +116,7 @@ namespace ManagedDoom
 
                 if ((actor.Flags & MobjFlags.Ambush) != 0)
                 {
-                    if (world.VisibilityCheck.CheckSight(actor, actor.Target))
+                    if (this.world.VisibilityCheck.CheckSight(actor, actor.Target))
                     {
                         goto seeYou;
                     }
@@ -124,7 +127,7 @@ namespace ManagedDoom
                 }
             }
 
-            if (!LookForPlayers(actor, false))
+            if (!this.LookForPlayers(actor, false))
             {
                 return;
             }
@@ -140,12 +143,12 @@ namespace ManagedDoom
                     case Sfx.POSIT1:
                     case Sfx.POSIT2:
                     case Sfx.POSIT3:
-                        sound = (int)Sfx.POSIT1 + world.Random.Next() % 3;
+                        sound = (int)Sfx.POSIT1 + this.world.Random.Next() % 3;
                         break;
 
                     case Sfx.BGSIT1:
                     case Sfx.BGSIT2:
-                        sound = (int)Sfx.BGSIT1 + world.Random.Next() % 2;
+                        sound = (int)Sfx.BGSIT1 + this.world.Random.Next() % 2;
                         break;
 
                     default:
@@ -156,11 +159,11 @@ namespace ManagedDoom
                 if (actor.Type == MobjType.Spider || actor.Type == MobjType.Cyborg)
                 {
                     // Full volume for boss monsters.
-                    world.StartSound(actor, (Sfx)sound, SfxType.Diffuse);
+                    this.world.StartSound(actor, (Sfx)sound, SfxType.Diffuse);
                 }
                 else
                 {
-                    world.StartSound(actor, (Sfx)sound, SfxType.Voice);
+                    this.world.StartSound(actor, (Sfx)sound, SfxType.Voice);
                 }
             }
 
@@ -209,10 +212,10 @@ namespace ManagedDoom
                 throw new Exception("Weird actor->movedir!");
             }
 
-            var tryX = actor.X + actor.Info.Speed * xSpeed[(int)actor.MoveDir];
-            var tryY = actor.Y + actor.Info.Speed * ySpeed[(int)actor.MoveDir];
+            var tryX = actor.X + actor.Info.Speed * MonsterBehavior.xSpeed[(int)actor.MoveDir];
+            var tryY = actor.Y + actor.Info.Speed * MonsterBehavior.ySpeed[(int)actor.MoveDir];
 
-            var tm = world.ThingMovement;
+            var tm = this.world.ThingMovement;
 
             var tryOk = tm.TryMove(actor, tryX, tryY);
 
@@ -248,7 +251,7 @@ namespace ManagedDoom
                     var line = tm.crossedSpecials[tm.crossedSpecialCount];
                     // If the special is not a door that can be opened,
                     // return false.
-                    if (world.MapInteraction.UseSpecialLine(actor, line, 0))
+                    if (this.world.MapInteraction.UseSpecialLine(actor, line, 0))
                     {
                         good = true;
                     }
@@ -271,12 +274,12 @@ namespace ManagedDoom
 
         private bool TryWalk(Mobj actor)
         {
-            if (!Move(actor))
+            if (!this.Move(actor))
             {
                 return false;
             }
 
-            actor.MoveCount = world.Random.Next() & 15;
+            actor.MoveCount = this.world.Random.Next() & 15;
 
             return true;
         }
@@ -313,84 +316,84 @@ namespace ManagedDoom
             }
 
             var oldDir = actor.MoveDir;
-            var turnAround = opposite[(int)oldDir];
+            var turnAround = MonsterBehavior.opposite[(int)oldDir];
 
             var deltaX = actor.Target.X - actor.X;
             var deltaY = actor.Target.Y - actor.Y;
 
             if (deltaX > Fixed.FromInt(10))
             {
-                choices[1] = Direction.East;
+                this.choices[1] = Direction.East;
             }
             else if (deltaX < Fixed.FromInt(-10))
             {
-                choices[1] = Direction.west;
+                this.choices[1] = Direction.west;
             }
             else
             {
-                choices[1] = Direction.None;
+                this.choices[1] = Direction.None;
             }
 
             if (deltaY < Fixed.FromInt(-10))
             {
-                choices[2] = Direction.South;
+                this.choices[2] = Direction.South;
             }
             else if (deltaY > Fixed.FromInt(10))
             {
-                choices[2] = Direction.North;
+                this.choices[2] = Direction.North;
             }
             else
             {
-                choices[2] = Direction.None;
+                this.choices[2] = Direction.None;
             }
 
             // Try direct route.
-            if (choices[1] != Direction.None && choices[2] != Direction.None)
+            if (this.choices[1] != Direction.None && this.choices[2] != Direction.None)
             {
                 var a = (deltaY < Fixed.Zero) ? 1 : 0;
                 var b = (deltaX > Fixed.Zero) ? 1 : 0;
-                actor.MoveDir = diags[(a << 1) + b];
+                actor.MoveDir = MonsterBehavior.diags[(a << 1) + b];
 
-                if (actor.MoveDir != turnAround && TryWalk(actor))
+                if (actor.MoveDir != turnAround && this.TryWalk(actor))
                 {
                     return;
                 }
             }
 
             // Try other directions.
-            if (world.Random.Next() > 200 || Fixed.Abs(deltaY) > Fixed.Abs(deltaX))
+            if (this.world.Random.Next() > 200 || Fixed.Abs(deltaY) > Fixed.Abs(deltaX))
             {
-                var temp = choices[1];
-                choices[1] = choices[2];
-                choices[2] = temp;
+                var temp = this.choices[1];
+                this.choices[1] = this.choices[2];
+                this.choices[2] = temp;
             }
 
-            if (choices[1] == turnAround)
+            if (this.choices[1] == turnAround)
             {
-                choices[1] = Direction.None;
+                this.choices[1] = Direction.None;
             }
 
-            if (choices[2] == turnAround)
+            if (this.choices[2] == turnAround)
             {
-                choices[2] = Direction.None;
+                this.choices[2] = Direction.None;
             }
 
-            if (choices[1] != Direction.None)
+            if (this.choices[1] != Direction.None)
             {
-                actor.MoveDir = choices[1];
+                actor.MoveDir = this.choices[1];
 
-                if (TryWalk(actor))
+                if (this.TryWalk(actor))
                 {
                     // Either moved forward or attacked.
                     return;
                 }
             }
 
-            if (choices[2] != Direction.None)
+            if (this.choices[2] != Direction.None)
             {
-                actor.MoveDir = choices[2];
+                actor.MoveDir = this.choices[2];
 
-                if (TryWalk(actor))
+                if (this.TryWalk(actor))
                 {
                     return;
                 }
@@ -401,14 +404,14 @@ namespace ManagedDoom
             {
                 actor.MoveDir = oldDir;
 
-                if (TryWalk(actor))
+                if (this.TryWalk(actor))
                 {
                     return;
                 }
             }
 
             // Randomly determine direction of search.
-            if ((world.Random.Next() & 1) != 0)
+            if ((this.world.Random.Next() & 1) != 0)
             {
                 for (var dir = (int)Direction.East; dir <= (int)Direction.Southeast; dir++)
                 {
@@ -416,7 +419,7 @@ namespace ManagedDoom
                     {
                         actor.MoveDir = (Direction)dir;
 
-                        if (TryWalk(actor))
+                        if (this.TryWalk(actor))
                         {
                             return;
                         }
@@ -431,7 +434,7 @@ namespace ManagedDoom
                     {
                         actor.MoveDir = (Direction)dir;
 
-                        if (TryWalk(actor))
+                        if (this.TryWalk(actor))
                         {
                             return;
                         }
@@ -443,7 +446,7 @@ namespace ManagedDoom
             {
                 actor.MoveDir = turnAround;
 
-                if (TryWalk(actor))
+                if (this.TryWalk(actor))
                 {
                     return;
                 }
@@ -470,7 +473,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!world.VisibilityCheck.CheckSight(actor, actor.Target))
+            if (!this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
                 return false;
             }
@@ -481,7 +484,7 @@ namespace ManagedDoom
 
         private bool CheckMissileRange(Mobj actor)
         {
-            if (!world.VisibilityCheck.CheckSight(actor, actor.Target))
+            if (!this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
                 return false;
             }
@@ -552,7 +555,7 @@ namespace ManagedDoom
                 attackDist = 160;
             }
 
-            if (world.Random.Next() < attackDist)
+            if (this.world.Random.Next() < attackDist)
             {
                 return false;
             }
@@ -601,7 +604,7 @@ namespace ManagedDoom
             if (actor.Target == null || (actor.Target.Flags & MobjFlags.Shootable) == 0)
             {
                 // Look for a new target.
-                if (LookForPlayers(actor, true))
+                if (this.LookForPlayers(actor, true))
                 {
                     // Got a new target.
                     return;
@@ -617,21 +620,21 @@ namespace ManagedDoom
             {
                 actor.Flags &= ~MobjFlags.JustAttacked;
 
-                if (world.Options.Skill != GameSkill.Nightmare &&
-                    !world.Options.FastMonsters)
+                if (this.world.Options.Skill != GameSkill.Nightmare &&
+                    !this.world.Options.FastMonsters)
                 {
-                    NewChaseDir(actor);
+                    this.NewChaseDir(actor);
                 }
 
                 return;
             }
 
             // Check for melee attack.
-            if (actor.Info.MeleeState != 0 && CheckMeleeRange(actor))
+            if (actor.Info.MeleeState != 0 && this.CheckMeleeRange(actor))
             {
                 if (actor.Info.AttackSound != 0)
                 {
-                    world.StartSound(actor, actor.Info.AttackSound, SfxType.Weapon);
+                    this.world.StartSound(actor, actor.Info.AttackSound, SfxType.Weapon);
                 }
 
                 actor.SetState(actor.Info.MeleeState);
@@ -642,14 +645,14 @@ namespace ManagedDoom
             // Check for missile attack.
             if (actor.Info.MissileState != 0)
             {
-                if (world.Options.Skill < GameSkill.Nightmare &&
-                    !world.Options.FastMonsters &&
+                if (this.world.Options.Skill < GameSkill.Nightmare &&
+                    !this.world.Options.FastMonsters &&
                     actor.MoveCount != 0)
                 {
                     goto noMissile;
                 }
 
-                if (!CheckMissileRange(actor))
+                if (!this.CheckMissileRange(actor))
                 {
                     goto noMissile;
                 }
@@ -662,11 +665,11 @@ namespace ManagedDoom
 
             noMissile:
             // Possibly choose another target.
-            if (world.Options.NetGame &&
+            if (this.world.Options.NetGame &&
                 actor.Threshold == 0 &&
-                !world.VisibilityCheck.CheckSight(actor, actor.Target))
+                !this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
-                if (LookForPlayers(actor, true))
+                if (this.LookForPlayers(actor, true))
                 {
                     // Got a new target.
                     return;
@@ -674,15 +677,15 @@ namespace ManagedDoom
             }
 
             // Chase towards player.
-            if (--actor.MoveCount < 0 || !Move(actor))
+            if (--actor.MoveCount < 0 || !this.Move(actor))
             {
-                NewChaseDir(actor);
+                this.NewChaseDir(actor);
             }
 
             // Make active sound.
-            if (actor.Info.ActiveSound != 0 && world.Random.Next() < 3)
+            if (actor.Info.ActiveSound != 0 && this.world.Random.Next() < 3)
             {
-                world.StartSound(actor, actor.Info.ActiveSound, SfxType.Voice);
+                this.world.StartSound(actor, actor.Info.ActiveSound, SfxType.Voice);
             }
         }
 
@@ -696,7 +699,7 @@ namespace ManagedDoom
         {
             if (actor.Info.PainSound != 0)
             {
-                world.StartSound(actor, actor.Info.PainSound, SfxType.Voice);
+                this.world.StartSound(actor, actor.Info.PainSound, SfxType.Voice);
             }
         }
 
@@ -712,12 +715,12 @@ namespace ManagedDoom
                 case Sfx.PODTH1:
                 case Sfx.PODTH2:
                 case Sfx.PODTH3:
-                    sound = (int)Sfx.PODTH1 + world.Random.Next() % 3;
+                    sound = (int)Sfx.PODTH1 + this.world.Random.Next() % 3;
                     break;
 
                 case Sfx.BGDTH1:
                 case Sfx.BGDTH2:
-                    sound = (int)Sfx.BGDTH1 + world.Random.Next() % 2;
+                    sound = (int)Sfx.BGDTH1 + this.world.Random.Next() % 2;
                     break;
 
                 default:
@@ -729,17 +732,17 @@ namespace ManagedDoom
             if (actor.Type == MobjType.Spider || actor.Type == MobjType.Cyborg)
             {
                 // Full volume.
-                world.StartSound(actor, (Sfx)sound, SfxType.Diffuse);
+                this.world.StartSound(actor, (Sfx)sound, SfxType.Diffuse);
             }
             else
             {
-                world.StartSound(actor, (Sfx)sound, SfxType.Voice);
+                this.world.StartSound(actor, (Sfx)sound, SfxType.Voice);
             }
         }
 
         public void XScream(Mobj actor)
         {
-            world.StartSound(actor, Sfx.SLOP, SfxType.Voice);
+            this.world.StartSound(actor, Sfx.SLOP, SfxType.Voice);
         }
 
         public void Fall(Mobj actor)
@@ -767,7 +770,7 @@ namespace ManagedDoom
                 actor.X, actor.Y,
                 actor.Target.X, actor.Target.Y);
 
-            var random = world.Random;
+            var random = this.world.Random;
 
             if ((actor.Target.Flags & MobjFlags.Shadow) != 0)
             {
@@ -783,18 +786,18 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             var angle = actor.Angle;
-            var slope = world.Hitscan.AimLineAttack(actor, angle, WeaponBehavior.MissileRange);
+            var slope = this.world.Hitscan.AimLineAttack(actor, angle, WeaponBehavior.MissileRange);
 
-            world.StartSound(actor, Sfx.PISTOL, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.PISTOL, SfxType.Weapon);
 
-            var random = world.Random;
+            var random = this.world.Random;
             angle += new Angle((random.Next() - random.Next()) << 20);
             var damage = ((random.Next() % 5) + 1) * 3;
 
-            world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
+            this.world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
         }
 
 
@@ -805,21 +808,21 @@ namespace ManagedDoom
                 return;
             }
 
-            world.StartSound(actor, Sfx.SHOTGN, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.SHOTGN, SfxType.Weapon);
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             var center = actor.Angle;
-            var slope = world.Hitscan.AimLineAttack(actor, center, WeaponBehavior.MissileRange);
+            var slope = this.world.Hitscan.AimLineAttack(actor, center, WeaponBehavior.MissileRange);
 
-            var random = world.Random;
+            var random = this.world.Random;
 
             for (var i = 0; i < 3; i++)
             {
                 var angle = center + new Angle((random.Next() - random.Next()) << 20);
                 var damage = ((random.Next() % 5) + 1) * 3;
 
-                world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
+                this.world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
             }
         }
 
@@ -831,34 +834,34 @@ namespace ManagedDoom
                 return;
             }
 
-            world.StartSound(actor, Sfx.SHOTGN, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.SHOTGN, SfxType.Weapon);
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             var center = actor.Angle;
-            var slope = world.Hitscan.AimLineAttack(actor, center, WeaponBehavior.MissileRange);
+            var slope = this.world.Hitscan.AimLineAttack(actor, center, WeaponBehavior.MissileRange);
 
-            var random = world.Random;
+            var random = this.world.Random;
             var angle = center + new Angle((random.Next() - random.Next()) << 20);
             var damage = ((random.Next() % 5) + 1) * 3;
 
-            world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
+            this.world.Hitscan.LineAttack(actor, angle, WeaponBehavior.MissileRange, slope, damage);
         }
 
 
         public void CPosRefire(Mobj actor)
         {
             // Keep firing unless target got out of sight.
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (world.Random.Next() < 40)
+            if (this.world.Random.Next() < 40)
             {
                 return;
             }
 
             if (actor.Target == null ||
                 actor.Target.Health <= 0 ||
-                !world.VisibilityCheck.CheckSight(actor, actor.Target))
+                !this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
                 actor.SetState(actor.Info.SeeState);
             }
@@ -872,20 +875,20 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (CheckMeleeRange(actor))
+            if (this.CheckMeleeRange(actor))
             {
-                world.StartSound(actor, Sfx.CLAW, SfxType.Weapon);
+                this.world.StartSound(actor, Sfx.CLAW, SfxType.Weapon);
 
-                var damage = (world.Random.Next() % 8 + 1) * 3;
-                world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
+                var damage = (this.world.Random.Next() % 8 + 1) * 3;
+                this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
 
                 return;
             }
 
             // Launch a missile.
-            world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Troopshot);
+            this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Troopshot);
         }
 
 
@@ -896,12 +899,12 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (CheckMeleeRange(actor))
+            if (this.CheckMeleeRange(actor))
             {
-                var damage = ((world.Random.Next() % 10) + 1) * 4;
-                world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
+                var damage = ((this.world.Random.Next() % 10) + 1) * 4;
+                this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
             }
         }
 
@@ -913,18 +916,18 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (CheckMeleeRange(actor))
+            if (this.CheckMeleeRange(actor))
             {
-                var damage = (world.Random.Next() % 6 + 1) * 10;
-                world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
+                var damage = (this.world.Random.Next() % 6 + 1) * 10;
+                this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
 
                 return;
             }
 
             // Launch a missile.
-            world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Headshot);
+            this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Headshot);
         }
 
 
@@ -935,18 +938,18 @@ namespace ManagedDoom
                 return;
             }
 
-            if (CheckMeleeRange(actor))
+            if (this.CheckMeleeRange(actor))
             {
-                world.StartSound(actor, Sfx.CLAW, SfxType.Weapon);
+                this.world.StartSound(actor, Sfx.CLAW, SfxType.Weapon);
 
-                var damage = (world.Random.Next() % 8 + 1) * 10;
-                world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
+                var damage = (this.world.Random.Next() % 8 + 1) * 10;
+                this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
 
                 return;
             }
 
             // Launch a missile.
-            world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Bruisershot);
+            this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Bruisershot);
         }
 
 
@@ -963,18 +966,18 @@ namespace ManagedDoom
 
             actor.Flags |= MobjFlags.SkullFly;
 
-            world.StartSound(actor, actor.Info.AttackSound, SfxType.Voice);
+            this.world.StartSound(actor, actor.Info.AttackSound, SfxType.Voice);
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             var angle = actor.Angle;
-            actor.MomX = skullSpeed * Trig.Cos(angle);
-            actor.MomY = skullSpeed * Trig.Sin(angle);
+            actor.MomX = MonsterBehavior.skullSpeed * Trig.Cos(angle);
+            actor.MomY = MonsterBehavior.skullSpeed * Trig.Sin(angle);
 
             var dist = Geometry.AproxDistance(dest.X - actor.X, dest.Y - actor.Y);
 
             var num = (dest.Z + (dest.Height >> 1) - actor.Z).Data;
-            var den = dist.Data / skullSpeed.Data;
+            var den = dist.Data / MonsterBehavior.skullSpeed.Data;
             if (den < 1)
             {
                 den = 1;
@@ -986,9 +989,9 @@ namespace ManagedDoom
 
         public void FatRaise(Mobj actor)
         {
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            world.StartSound(actor, Sfx.MANATK, SfxType.Voice);
+            this.world.StartSound(actor, Sfx.MANATK, SfxType.Voice);
         }
 
 
@@ -1001,16 +1004,16 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            var ta = world.ThingAllocation;
+            var ta = this.world.ThingAllocation;
 
             // Change direction to...
-            actor.Angle += fatSpread;
+            actor.Angle += MonsterBehavior.fatSpread;
             ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
 
             var missile = ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
-            missile.Angle += fatSpread;
+            missile.Angle += MonsterBehavior.fatSpread;
             var angle = missile.Angle;
             missile.MomX = new Fixed(missile.Info.Speed) * Trig.Cos(angle);
             missile.MomY = new Fixed(missile.Info.Speed) * Trig.Sin(angle);
@@ -1023,16 +1026,16 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            var ta = world.ThingAllocation;
+            var ta = this.world.ThingAllocation;
 
             // Now here choose opposite deviation.
-            actor.Angle -= fatSpread;
+            actor.Angle -= MonsterBehavior.fatSpread;
             ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
 
             var missile = ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
-            missile.Angle -= fatSpread * 2;
+            missile.Angle -= MonsterBehavior.fatSpread * 2;
             var angle = missile.Angle;
             missile.MomX = new Fixed(missile.Info.Speed) * Trig.Cos(angle);
             missile.MomY = new Fixed(missile.Info.Speed) * Trig.Sin(angle);
@@ -1045,18 +1048,18 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            var ta = world.ThingAllocation;
+            var ta = this.world.ThingAllocation;
 
             var missile1 = ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
-            missile1.Angle -= fatSpread / 2;
+            missile1.Angle -= MonsterBehavior.fatSpread / 2;
             var angle1 = missile1.Angle;
             missile1.MomX = new Fixed(missile1.Info.Speed) * Trig.Cos(angle1);
             missile1.MomY = new Fixed(missile1.Info.Speed) * Trig.Sin(angle1);
 
             var missile2 = ta.SpawnMissile(actor, actor.Target, MobjType.Fatshot);
-            missile2.Angle += fatSpread / 2;
+            missile2.Angle += MonsterBehavior.fatSpread / 2;
             var angle2 = missile2.Angle;
             missile2.MomX = new Fixed(missile2.Info.Speed) * Trig.Cos(angle2);
             missile2.MomY = new Fixed(missile2.Info.Speed) * Trig.Sin(angle2);
@@ -1070,26 +1073,26 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             // Launch a missile.
-            world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Arachplaz);
+            this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Arachplaz);
         }
 
 
         public void SpidRefire(Mobj actor)
         {
             // Keep firing unless target got out of sight.
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (world.Random.Next() < 10)
+            if (this.world.Random.Next() < 10)
             {
                 return;
             }
 
             if (actor.Target == null ||
                 actor.Target.Health <= 0 ||
-                !world.VisibilityCheck.CheckSight(actor, actor.Target))
+                !this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
                 actor.SetState(actor.Info.SeeState);
             }
@@ -1103,9 +1106,9 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Rocket);
+            this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Rocket);
         }
 
 
@@ -1116,31 +1119,31 @@ namespace ManagedDoom
 
         public void Explode(Mobj actor)
         {
-            world.ThingInteraction.RadiusAttack(actor, actor.Target, 128);
+            this.world.ThingInteraction.RadiusAttack(actor, actor.Target, 128);
         }
 
 
         public void Metal(Mobj actor)
         {
-            world.StartSound(actor, Sfx.METAL, SfxType.Footstep);
+            this.world.StartSound(actor, Sfx.METAL, SfxType.Footstep);
 
-            Chase(actor);
+            this.Chase(actor);
         }
 
 
         public void BabyMetal(Mobj actor)
         {
-            world.StartSound(actor, Sfx.BSPWLK, SfxType.Footstep);
+            this.world.StartSound(actor, Sfx.BSPWLK, SfxType.Footstep);
 
-            Chase(actor);
+            this.Chase(actor);
         }
 
 
         public void Hoof(Mobj actor)
         {
-            world.StartSound(actor, Sfx.HOOF, SfxType.Footstep);
+            this.world.StartSound(actor, Sfx.HOOF, SfxType.Footstep);
 
-            Chase(actor);
+            this.Chase(actor);
         }
 
 
@@ -1156,7 +1159,7 @@ namespace ManagedDoom
 
         private void InitVile()
         {
-            vileCheckFunc = VileCheck;
+            this.vileCheckFunc = this.VileCheck;
         }
 
 
@@ -1182,23 +1185,23 @@ namespace ManagedDoom
 
             var maxDist = thing.Info.Radius + DoomInfo.MobjInfos[(int)MobjType.Vile].Radius;
 
-            if (Fixed.Abs(thing.X - vileTryX) > maxDist ||
-                Fixed.Abs(thing.Y - vileTryY) > maxDist)
+            if (Fixed.Abs(thing.X - this.vileTryX) > maxDist ||
+                Fixed.Abs(thing.Y - this.vileTryY) > maxDist)
             {
                 // Not actually touching.
                 return true;
             }
 
-            vileTargetCorpse = thing;
-            vileTargetCorpse.MomX = vileTargetCorpse.MomY = Fixed.Zero;
-            vileTargetCorpse.Height <<= 2;
+            this.vileTargetCorpse = thing;
+            this.vileTargetCorpse.MomX = this.vileTargetCorpse.MomY = Fixed.Zero;
+            this.vileTargetCorpse.Height <<= 2;
 
-            var check = world.ThingMovement.CheckPosition(
-                vileTargetCorpse,
-                vileTargetCorpse.X,
-                vileTargetCorpse.Y);
+            var check = this.world.ThingMovement.CheckPosition(
+                this.vileTargetCorpse,
+                this.vileTargetCorpse.X,
+                this.vileTargetCorpse.Y);
 
-            vileTargetCorpse.Height >>= 2;
+            this.vileTargetCorpse.Height >>= 2;
 
             if (!check)
             {
@@ -1216,39 +1219,39 @@ namespace ManagedDoom
             if (actor.MoveDir != Direction.None)
             {
                 // Check for corpses to raise.
-                vileTryX = actor.X + actor.Info.Speed * xSpeed[(int)actor.MoveDir];
-                vileTryY = actor.Y + actor.Info.Speed * ySpeed[(int)actor.MoveDir];
+                this.vileTryX = actor.X + actor.Info.Speed * MonsterBehavior.xSpeed[(int)actor.MoveDir];
+                this.vileTryY = actor.Y + actor.Info.Speed * MonsterBehavior.ySpeed[(int)actor.MoveDir];
 
-                var bm = world.Map.BlockMap;
+                var bm = this.world.Map.BlockMap;
 
                 var maxRadius = GameConst.MaxThingRadius * 2;
-                var blockX1 = bm.GetBlockX(vileTryX - maxRadius);
-                var blockX2 = bm.GetBlockX(vileTryX + maxRadius);
-                var blockY1 = bm.GetBlockY(vileTryY - maxRadius);
-                var blockY2 = bm.GetBlockY(vileTryY + maxRadius);
+                var blockX1 = bm.GetBlockX(this.vileTryX - maxRadius);
+                var blockX2 = bm.GetBlockX(this.vileTryX + maxRadius);
+                var blockY1 = bm.GetBlockY(this.vileTryY - maxRadius);
+                var blockY2 = bm.GetBlockY(this.vileTryY + maxRadius);
 
                 for (var bx = blockX1; bx <= blockX2; bx++)
                 {
                     for (var by = blockY1; by <= blockY2; by++)
                     {
                         // Call VileCheck to check whether object is a corpse that canbe raised.
-                        if (!bm.IterateThings(bx, by, vileCheckFunc))
+                        if (!bm.IterateThings(bx, by, this.vileCheckFunc))
                         {
                             // Got one!
                             var temp = actor.Target;
-                            actor.Target = vileTargetCorpse;
-                            FaceTarget(actor);
+                            actor.Target = this.vileTargetCorpse;
+                            this.FaceTarget(actor);
                             actor.Target = temp;
                             actor.SetState(MobjState.VileHeal1);
 
-                            world.StartSound(vileTargetCorpse, Sfx.SLOP, SfxType.Misc);
+                            this.world.StartSound(this.vileTargetCorpse, Sfx.SLOP, SfxType.Misc);
 
-                            var info = vileTargetCorpse.Info;
-                            vileTargetCorpse.SetState(info.Raisestate);
-                            vileTargetCorpse.Height <<= 2;
-                            vileTargetCorpse.Flags = info.Flags;
-                            vileTargetCorpse.Health = info.SpawnHealth;
-                            vileTargetCorpse.Target = null;
+                            var info = this.vileTargetCorpse.Info;
+                            this.vileTargetCorpse.SetState(info.Raisestate);
+                            this.vileTargetCorpse.Height <<= 2;
+                            this.vileTargetCorpse.Flags = info.Flags;
+                            this.vileTargetCorpse.Health = info.SpawnHealth;
+                            this.vileTargetCorpse.Target = null;
 
                             return;
                         }
@@ -1257,29 +1260,29 @@ namespace ManagedDoom
             }
 
             // Return to normal attack.
-            Chase(actor);
+            this.Chase(actor);
         }
 
 
         public void VileStart(Mobj actor)
         {
-            world.StartSound(actor, Sfx.VILATK, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.VILATK, SfxType.Weapon);
         }
 
 
         public void StartFire(Mobj actor)
         {
-            world.StartSound(actor, Sfx.FLAMST, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.FLAMST, SfxType.Weapon);
 
-            Fire(actor);
+            this.Fire(actor);
         }
 
 
         public void FireCrackle(Mobj actor)
         {
-            world.StartSound(actor, Sfx.FLAME, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.FLAME, SfxType.Weapon);
 
-            Fire(actor);
+            this.Fire(actor);
         }
 
 
@@ -1293,19 +1296,19 @@ namespace ManagedDoom
             }
 
             // Don't move it if the vile lost sight.
-            if (!world.VisibilityCheck.CheckSight(actor.Target, dest))
+            if (!this.world.VisibilityCheck.CheckSight(actor.Target, dest))
             {
                 return;
             }
 
-            world.ThingMovement.UnsetThingPosition(actor);
+            this.world.ThingMovement.UnsetThingPosition(actor);
 
             var angle = dest.Angle;
             actor.X = dest.X + Fixed.FromInt(24) * Trig.Cos(angle);
             actor.Y = dest.Y + Fixed.FromInt(24) * Trig.Sin(angle);
             actor.Z = dest.Z;
 
-            world.ThingMovement.SetThingPosition(actor);
+            this.world.ThingMovement.SetThingPosition(actor);
         }
 
 
@@ -1316,9 +1319,9 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            var fog = world.ThingAllocation.SpawnMobj(
+            var fog = this.world.ThingAllocation.SpawnMobj(
                 actor.Target.X,
                 actor.Target.X,
                 actor.Target.Z,
@@ -1327,7 +1330,7 @@ namespace ManagedDoom
             actor.Tracer = fog;
             fog.Target = actor;
             fog.Tracer = actor.Target;
-            Fire(fog);
+            this.Fire(fog);
         }
 
 
@@ -1338,15 +1341,15 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (!world.VisibilityCheck.CheckSight(actor, actor.Target))
+            if (!this.world.VisibilityCheck.CheckSight(actor, actor.Target))
             {
                 return;
             }
 
-            world.StartSound(actor, Sfx.BAREXP, SfxType.Weapon);
-            world.ThingInteraction.DamageMobj(actor.Target, actor, actor, 20);
+            this.world.StartSound(actor, Sfx.BAREXP, SfxType.Weapon);
+            this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, 20);
             actor.Target.MomZ = Fixed.FromInt(1000) / actor.Target.Info.Mass;
 
             var fire = actor.Tracer;
@@ -1360,7 +1363,7 @@ namespace ManagedDoom
             // Move the fire between the vile and the player.
             fire.X = actor.Target.X - Fixed.FromInt(24) * Trig.Cos(angle);
             fire.Y = actor.Target.Y - Fixed.FromInt(24) * Trig.Sin(angle);
-            world.ThingInteraction.RadiusAttack(fire, actor, 70);
+            this.world.ThingInteraction.RadiusAttack(fire, actor, 70);
         }
 
 
@@ -1376,12 +1379,12 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
             // Missile spawns higher.
             actor.Z += Fixed.FromInt(16);
 
-            var missile = world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Tracer);
+            var missile = this.world.ThingAllocation.SpawnMissile(actor, actor.Target, MobjType.Tracer);
 
             // Back to normal.
             actor.Z -= Fixed.FromInt(16);
@@ -1396,22 +1399,22 @@ namespace ManagedDoom
 
         public void Tracer(Mobj actor)
         {
-            if ((world.GameTic & 3) != 0)
+            if ((this.world.GameTic & 3) != 0)
             {
                 return;
             }
 
             // Spawn a puff of smoke behind the rocket.
-            world.Hitscan.SpawnPuff(actor.X, actor.Y, actor.Z);
+            this.world.Hitscan.SpawnPuff(actor.X, actor.Y, actor.Z);
 
-            var smoke = world.ThingAllocation.SpawnMobj(
+            var smoke = this.world.ThingAllocation.SpawnMobj(
                 actor.X - actor.MomX,
                 actor.Y - actor.MomY,
                 actor.Z,
                 MobjType.Smoke);
 
             smoke.MomZ = Fixed.One;
-            smoke.Tics -= world.Random.Next() & 3;
+            smoke.Tics -= this.world.Random.Next() & 3;
             if (smoke.Tics < 1)
             {
                 smoke.Tics = 1;
@@ -1434,7 +1437,7 @@ namespace ManagedDoom
             {
                 if (exact - actor.Angle > Angle.Ang180)
                 {
-                    actor.Angle -= traceAngle;
+                    actor.Angle -= MonsterBehavior.traceAngle;
                     if (exact - actor.Angle < Angle.Ang180)
                     {
                         actor.Angle = exact;
@@ -1442,7 +1445,7 @@ namespace ManagedDoom
                 }
                 else
                 {
-                    actor.Angle += traceAngle;
+                    actor.Angle += MonsterBehavior.traceAngle;
                     if (exact - actor.Angle > Angle.Ang180)
                     {
                         actor.Angle = exact;
@@ -1486,9 +1489,9 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            world.StartSound(actor, Sfx.SKESWG, SfxType.Weapon);
+            this.world.StartSound(actor, Sfx.SKESWG, SfxType.Weapon);
         }
 
 
@@ -1499,13 +1502,13 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            if (CheckMeleeRange(actor))
+            if (this.CheckMeleeRange(actor))
             {
-                var damage = ((world.Random.Next() % 10) + 1) * 6;
-                world.StartSound(actor, Sfx.SKEPCH, SfxType.Weapon);
-                world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
+                var damage = ((this.world.Random.Next() % 10) + 1) * 6;
+                this.world.StartSound(actor, Sfx.SKEPCH, SfxType.Weapon);
+                this.world.ThingInteraction.DamageMobj(actor.Target, actor, actor, damage);
             }
         }
 
@@ -1520,7 +1523,7 @@ namespace ManagedDoom
             // Count total number of skull currently on the level.
             var count = 0;
 
-            foreach (var thinker in world.Thinkers)
+            foreach (var thinker in this.world.Thinkers)
             {
                 var mobj = thinker as Mobj;
                 if (mobj != null && mobj.Type == MobjType.Skull)
@@ -1545,19 +1548,19 @@ namespace ManagedDoom
             var y = actor.Y + preStep * Trig.Sin(angle);
             var z = actor.Z + Fixed.FromInt(8);
 
-            var skull = world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Skull);
+            var skull = this.world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Skull);
 
             // Check for movements.
-            if (!world.ThingMovement.TryMove(skull, skull.X, skull.Y))
+            if (!this.world.ThingMovement.TryMove(skull, skull.X, skull.Y))
             {
                 // Kill it immediately.
-                world.ThingInteraction.DamageMobj(skull, actor, actor, 10000);
+                this.world.ThingInteraction.DamageMobj(skull, actor, actor, 10000);
                 return;
             }
 
             skull.Target = actor.Target;
 
-            SkullAttack(skull);
+            this.SkullAttack(skull);
         }
 
 
@@ -1568,19 +1571,19 @@ namespace ManagedDoom
                 return;
             }
 
-            FaceTarget(actor);
+            this.FaceTarget(actor);
 
-            PainShootSkull(actor, actor.Angle);
+            this.PainShootSkull(actor, actor.Angle);
         }
 
 
         public void PainDie(Mobj actor)
         {
-            Fall(actor);
+            this.Fall(actor);
 
-            PainShootSkull(actor, actor.Angle + Angle.Ang90);
-            PainShootSkull(actor, actor.Angle + Angle.Ang180);
-            PainShootSkull(actor, actor.Angle + Angle.Ang270);
+            this.PainShootSkull(actor, actor.Angle + Angle.Ang90);
+            this.PainShootSkull(actor, actor.Angle + Angle.Ang180);
+            this.PainShootSkull(actor, actor.Angle + Angle.Ang270);
         }
 
 
@@ -1594,13 +1597,13 @@ namespace ManagedDoom
         private void InitBossDeath()
         {
             var v = new Vertex(Fixed.Zero, Fixed.Zero);
-            junk = new LineDef(v, v, 0, 0, 0, null, null);
+            this.junk = new LineDef(v, v, 0, 0, 0, null, null);
         }
 
 
         public void BossDeath(Mobj actor)
         {
-            var options = world.Options;
+            var options = this.world.Options;
             if (options.GameMode == GameMode.Commercial)
             {
                 if (options.Map != 7)
@@ -1691,7 +1694,7 @@ namespace ManagedDoom
             }
 
             // Make sure there is a player alive for victory.
-            var players = world.Options.Players;
+            var players = this.world.Options.Players;
             int i;
             for (i = 0; i < Player.MaxPlayerCount; i++)
             {
@@ -1708,7 +1711,7 @@ namespace ManagedDoom
             }
 
             // Scan the remaining thinkers to see if all bosses are dead.
-            foreach (var thinker in world.Thinkers)
+            foreach (var thinker in this.world.Thinkers)
             {
                 var mo2 = thinker as Mobj;
                 if (mo2 == null)
@@ -1730,15 +1733,15 @@ namespace ManagedDoom
                 {
                     if (actor.Type == MobjType.Fatso)
                     {
-                        junk.Tag = 666;
-                        world.SectorAction.DoFloor(junk, FloorMoveType.LowerFloorToLowest);
+                        this.junk.Tag = 666;
+                        this.world.SectorAction.DoFloor(this.junk, FloorMoveType.LowerFloorToLowest);
                         return;
                     }
 
                     if (actor.Type == MobjType.Baby)
                     {
-                        junk.Tag = 667;
-                        world.SectorAction.DoFloor(junk, FloorMoveType.RaiseToTexture);
+                        this.junk.Tag = 667;
+                        this.world.SectorAction.DoFloor(this.junk, FloorMoveType.RaiseToTexture);
                         return;
                     }
                 }
@@ -1748,38 +1751,38 @@ namespace ManagedDoom
                 switch (options.Episode)
                 {
                     case 1:
-                        junk.Tag = 666;
-                        world.SectorAction.DoFloor(junk, FloorMoveType.LowerFloorToLowest);
+                        this.junk.Tag = 666;
+                        this.world.SectorAction.DoFloor(this.junk, FloorMoveType.LowerFloorToLowest);
                         return;
 
                     case 4:
                         switch (options.Map)
                         {
                             case 6:
-                                junk.Tag = 666;
-                                world.SectorAction.DoDoor(junk, VerticalDoorType.BlazeOpen);
+                                this.junk.Tag = 666;
+                                this.world.SectorAction.DoDoor(this.junk, VerticalDoorType.BlazeOpen);
                                 return;
 
                             case 8:
-                                junk.Tag = 666;
-                                world.SectorAction.DoFloor(junk, FloorMoveType.LowerFloorToLowest);
+                                this.junk.Tag = 666;
+                                this.world.SectorAction.DoFloor(this.junk, FloorMoveType.LowerFloorToLowest);
                                 return;
                         }
                         break;
                 }
             }
 
-            world.ExitLevel();
+            this.world.ExitLevel();
         }
 
 
         public void KeenDie(Mobj actor)
         {
-            Fall(actor);
+            this.Fall(actor);
 
             // scan the remaining thinkers
             // to see if all Keens are dead
-            foreach (var thinker in world.Thinkers)
+            foreach (var thinker in this.world.Thinkers)
             {
                 var mo2 = thinker as Mobj;
                 if (mo2 == null)
@@ -1794,8 +1797,8 @@ namespace ManagedDoom
                 }
             }
 
-            junk.Tag = 666;
-            world.SectorAction.DoDoor(junk, VerticalDoorType.Open);
+            this.junk.Tag = 666;
+            this.world.SectorAction.DoDoor(this.junk, VerticalDoorType.Open);
         }
 
 
@@ -1811,20 +1814,20 @@ namespace ManagedDoom
 
         private void InitBrain()
         {
-            brainTargets = new Mobj[32];
-            brainTargetCount = 0;
-            currentBrainTarget = 0;
-            easy = false;
+            this.brainTargets = new Mobj[32];
+            this.brainTargetCount = 0;
+            this.currentBrainTarget = 0;
+            this.easy = false;
         }
 
 
         public void BrainAwake(Mobj actor)
         {
             // Find all the target spots.
-            brainTargetCount = 0;
-            currentBrainTarget = 0;
+            this.brainTargetCount = 0;
+            this.currentBrainTarget = 0;
 
-            foreach (var thinker in world.Thinkers)
+            foreach (var thinker in this.world.Thinkers)
             {
                 var mobj = thinker as Mobj;
                 if (mobj == null)
@@ -1835,31 +1838,31 @@ namespace ManagedDoom
 
                 if (mobj.Type == MobjType.Bosstarget)
                 {
-                    brainTargets[brainTargetCount] = mobj;
-                    brainTargetCount++;
+                    this.brainTargets[this.brainTargetCount] = mobj;
+                    this.brainTargetCount++;
                 }
             }
 
-            world.StartSound(actor, Sfx.BOSSIT, SfxType.Diffuse);
+            this.world.StartSound(actor, Sfx.BOSSIT, SfxType.Diffuse);
         }
 
 
         public void BrainPain(Mobj actor)
         {
-            world.StartSound(actor, Sfx.BOSPN, SfxType.Diffuse);
+            this.world.StartSound(actor, Sfx.BOSPN, SfxType.Diffuse);
         }
 
 
         public void BrainScream(Mobj actor)
         {
-            var random = world.Random;
+            var random = this.world.Random;
 
             for (var x = actor.X - Fixed.FromInt(196); x < actor.X + Fixed.FromInt(320); x += Fixed.FromInt(8))
             {
                 var y = actor.Y - Fixed.FromInt(320);
                 var z = new Fixed(128) + random.Next() * Fixed.FromInt(2);
 
-                var explosion = world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Rocket);
+                var explosion = this.world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Rocket);
                 explosion.MomZ = new Fixed(random.Next() * 512);
                 explosion.SetState(MobjState.Brainexplode1);
                 explosion.Tics -= random.Next() & 7;
@@ -1869,19 +1872,19 @@ namespace ManagedDoom
                 }
             }
 
-            world.StartSound(actor, Sfx.BOSDTH, SfxType.Diffuse);
+            this.world.StartSound(actor, Sfx.BOSDTH, SfxType.Diffuse);
         }
 
 
         public void BrainExplode(Mobj actor)
         {
-            var random = world.Random;
+            var random = this.world.Random;
 
             var x = actor.X + new Fixed((random.Next() - random.Next()) * 2048);
             var y = actor.Y;
             var z = new Fixed(128) + random.Next() * Fixed.FromInt(2);
 
-            var explosion = world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Rocket);
+            var explosion = this.world.ThingAllocation.SpawnMobj(x, y, z, MobjType.Rocket);
             explosion.MomZ = new Fixed(random.Next() * 512);
             explosion.SetState(MobjState.Brainexplode1);
             explosion.Tics -= random.Next() & 7;
@@ -1894,42 +1897,42 @@ namespace ManagedDoom
 
         public void BrainDie(Mobj actor)
         {
-            world.ExitLevel();
+            this.world.ExitLevel();
         }
 
 
         public void BrainSpit(Mobj actor)
         {
-            easy = !easy;
-            if (world.Options.Skill <= GameSkill.Easy && (!easy))
+            this.easy = !this.easy;
+            if (this.world.Options.Skill <= GameSkill.Easy && (!this.easy))
             {
                 return;
             }
 
             // If the game is reconstructed from a savedata, brain targets might be cleared.
             // If so, re-initialize them to avoid crash.
-            if (brainTargetCount == 0)
+            if (this.brainTargetCount == 0)
             {
-                BrainAwake(actor);
+                this.BrainAwake(actor);
             }
 
             // Shoot a cube at current target.
-            var target = brainTargets[currentBrainTarget];
-            currentBrainTarget = (currentBrainTarget + 1) % brainTargetCount;
+            var target = this.brainTargets[this.currentBrainTarget];
+            this.currentBrainTarget = (this.currentBrainTarget + 1) % this.brainTargetCount;
 
             // Spawn brain missile.
-            var missile = world.ThingAllocation.SpawnMissile(actor, target, MobjType.Spawnshot);
+            var missile = this.world.ThingAllocation.SpawnMissile(actor, target, MobjType.Spawnshot);
             missile.Target = target;
             missile.ReactionTime = ((target.Y - actor.Y).Data / missile.MomY.Data) / missile.State.Tics;
 
-            world.StartSound(actor, Sfx.BOSPIT, SfxType.Diffuse);
+            this.world.StartSound(actor, Sfx.BOSPIT, SfxType.Diffuse);
         }
 
 
         public void SpawnSound(Mobj actor)
         {
-            world.StartSound(actor, Sfx.BOSCUB, SfxType.Misc);
-            SpawnFly(actor);
+            this.world.StartSound(actor, Sfx.BOSCUB, SfxType.Misc);
+            this.SpawnFly(actor);
         }
 
 
@@ -1951,14 +1954,14 @@ namespace ManagedDoom
                 actor.Z = actor.Subsector.Sector.FloorHeight;
             }
 
-            var ta = world.ThingAllocation;
+            var ta = this.world.ThingAllocation;
 
             // First spawn teleport fog.
             var fog = ta.SpawnMobj(target.X, target.Y, target.Z, MobjType.Spawnfire);
-            world.StartSound(fog, Sfx.TELEPT, SfxType.Misc);
+            this.world.StartSound(fog, Sfx.TELEPT, SfxType.Misc);
 
             // Randomly select monster to spawn.
-            var r = world.Random.Next();
+            var r = this.world.Random.Next();
 
             // Probability distribution (kind of :), decreasing likelihood.
             MobjType type;
@@ -2008,16 +2011,16 @@ namespace ManagedDoom
             }
 
             var monster = ta.SpawnMobj(target.X, target.Y, target.Z, type);
-            if (LookForPlayers(monster, true))
+            if (this.LookForPlayers(monster, true))
             {
                 monster.SetState(monster.Info.SeeState);
             }
 
             // Telefrag anything in this spot.
-            world.ThingMovement.TeleportMove(monster, monster.X, monster.Y);
+            this.world.ThingMovement.TeleportMove(monster, monster.X, monster.Y);
 
             // Remove self (i.e., cube).
-            world.ThingAllocation.RemoveMobj(actor);
+            this.world.ThingAllocation.RemoveMobj(actor);
         }
     }
 }

@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.UserInput
+namespace DoomEngine.UserInput
 {
-    public interface IUserInput
+	using Doom.Game;
+
+	public interface IUserInput
     {
         void BuildTicCmd(TicCmd cmd);
         void Reset();

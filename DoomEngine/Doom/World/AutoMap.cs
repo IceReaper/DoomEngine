@@ -13,14 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class AutoMap
+	using Event;
+	using Info;
+	using Map;
+	using Math;
+	using System.Collections.Generic;
+	using UserInput;
+
+	public sealed class AutoMap
     {
         private World world;
 
@@ -53,117 +55,117 @@ namespace ManagedDoom
         {
             this.world = world;
 
-            minX = Fixed.MaxValue;
-            maxX = Fixed.MinValue;
-            minY = Fixed.MaxValue;
-            maxY = Fixed.MinValue;
+            this.minX = Fixed.MaxValue;
+            this.maxX = Fixed.MinValue;
+            this.minY = Fixed.MaxValue;
+            this.maxY = Fixed.MinValue;
             foreach (var vertex in world.Map.Vertices)
             {
-                if (vertex.X < minX)
+                if (vertex.X < this.minX)
                 {
-                    minX = vertex.X;
+                    this.minX = vertex.X;
                 }
 
-                if (vertex.X > maxX)
+                if (vertex.X > this.maxX)
                 {
-                    maxX = vertex.X;
+                    this.maxX = vertex.X;
                 }
 
-                if (vertex.Y < minY)
+                if (vertex.Y < this.minY)
                 {
-                    minY = vertex.Y;
+                    this.minY = vertex.Y;
                 }
 
-                if (vertex.Y > maxY)
+                if (vertex.Y > this.maxY)
                 {
-                    maxY = vertex.Y;
+                    this.maxY = vertex.Y;
                 }
             }
 
-            viewX = minX + (maxX - minX) / 2;
-            viewY = minY + (maxY - minY) / 2;
+            this.viewX = this.minX + (this.maxX - this.minX) / 2;
+            this.viewY = this.minY + (this.maxY - this.minY) / 2;
 
-            visible = false;
-            state = AutoMapState.None;
+            this.visible = false;
+            this.state = AutoMapState.None;
 
-            zoom = Fixed.One;
-            follow = true;
+            this.zoom = Fixed.One;
+            this.follow = true;
 
-            zoomIn = false;
-            zoomOut = false;
-            left = false;
-            right = false;
-            up = false;
-            down = false;
+            this.zoomIn = false;
+            this.zoomOut = false;
+            this.left = false;
+            this.right = false;
+            this.up = false;
+            this.down = false;
 
-            marks = new List<Vertex>();
-            nextMarkNumber = 0;
+            this.marks = new List<Vertex>();
+            this.nextMarkNumber = 0;
         }
 
         public void Update()
         {
-            if (zoomIn)
+            if (this.zoomIn)
             {
-                zoom += zoom / 16;
+                this.zoom += this.zoom / 16;
             }
 
-            if (zoomOut)
+            if (this.zoomOut)
             {
-                zoom -= zoom / 16;
+                this.zoom -= this.zoom / 16;
             }
 
-            if (zoom < Fixed.One / 2)
+            if (this.zoom < Fixed.One / 2)
             {
-                zoom = Fixed.One / 2;
+                this.zoom = Fixed.One / 2;
             }
-            else if (zoom > Fixed.One * 32)
+            else if (this.zoom > Fixed.One * 32)
             {
-                zoom = Fixed.One * 32;
-            }
-
-            if (left)
-            {
-                viewX -= 64 / zoom;
+                this.zoom = Fixed.One * 32;
             }
 
-            if (right)
+            if (this.left)
             {
-                viewX += 64 / zoom;
+                this.viewX -= 64 / this.zoom;
             }
 
-            if (up)
+            if (this.right)
             {
-                viewY += 64 / zoom;
+                this.viewX += 64 / this.zoom;
             }
 
-            if (down)
+            if (this.up)
             {
-                viewY -= 64 / zoom;
+                this.viewY += 64 / this.zoom;
             }
 
-            if (viewX < minX)
+            if (this.down)
             {
-                viewX = minX;
-            }
-            else if (viewX > maxX)
-            {
-                viewX = maxX;
+                this.viewY -= 64 / this.zoom;
             }
 
-            if (viewY < minY)
+            if (this.viewX < this.minX)
             {
-                viewY = minY;
+                this.viewX = this.minX;
             }
-            else if (viewY > maxY)
+            else if (this.viewX > this.maxX)
             {
-                viewY = maxY;
+                this.viewX = this.maxX;
             }
 
-            if (follow)
+            if (this.viewY < this.minY)
             {
-                var player = world.ConsolePlayer.Mobj;
-                viewX = player.X;
-                viewY = player.Y;
+                this.viewY = this.minY;
+            }
+            else if (this.viewY > this.maxY)
+            {
+                this.viewY = this.maxY;
+            }
+
+            if (this.follow)
+            {
+                var player = this.world.ConsolePlayer.Mobj;
+                this.viewX = player.X;
+                this.viewY = player.Y;
             }
         }
 
@@ -173,11 +175,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    zoomIn = true;
+                    this.zoomIn = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    zoomIn = false;
+                    this.zoomIn = false;
                 }
 
                 return true;
@@ -186,11 +188,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    zoomOut = true;
+                    this.zoomOut = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    zoomOut = false;
+                    this.zoomOut = false;
                 }
 
                 return true;
@@ -199,11 +201,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    left = true;
+                    this.left = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    left = false;
+                    this.left = false;
                 }
 
                 return true;
@@ -212,11 +214,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    right = true;
+                    this.right = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    right = false;
+                    this.right = false;
                 }
 
                 return true;
@@ -225,11 +227,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    up = true;
+                    this.up = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    up = false;
+                    this.up = false;
                 }
 
                 return true;
@@ -238,11 +240,11 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    down = true;
+                    this.down = true;
                 }
                 else if (e.Type == EventType.KeyUp)
                 {
-                    down = false;
+                    this.down = false;
                 }
 
                 return true;
@@ -251,14 +253,14 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    follow = !follow;
-                    if (follow)
+                    this.follow = !this.follow;
+                    if (this.follow)
                     {
-                        world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWON);
+                        this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWON);
                     }
                     else
                     {
-                        world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWOFF);
+                        this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWOFF);
                     }
                     return true;
                 }
@@ -267,20 +269,20 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    if (marks.Count < 10)
+                    if (this.marks.Count < 10)
                     {
-                        marks.Add(new Vertex(viewX, viewY));
+                        this.marks.Add(new Vertex(this.viewX, this.viewY));
                     }
                     else
                     {
-                        marks[nextMarkNumber] = new Vertex(viewX, viewY);
+                        this.marks[this.nextMarkNumber] = new Vertex(this.viewX, this.viewY);
                     }
-                    nextMarkNumber++;
-                    if (nextMarkNumber == 10)
+                    this.nextMarkNumber++;
+                    if (this.nextMarkNumber == 10)
                     {
-                        nextMarkNumber = 0;
+                        this.nextMarkNumber = 0;
                     }
-                    world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKEDSPOT);
+                    this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKEDSPOT);
                     return true;
                 }
             }
@@ -288,9 +290,9 @@ namespace ManagedDoom
             {
                 if (e.Type == EventType.KeyDown)
                 {
-                    marks.Clear();
-                    nextMarkNumber = 0;
-                    world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKSCLEARED);
+                    this.marks.Clear();
+                    this.nextMarkNumber = 0;
+                    this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKSCLEARED);
                     return true;
                 }
             }
@@ -300,39 +302,39 @@ namespace ManagedDoom
 
         public void Open()
         {
-            visible = true;
+            this.visible = true;
         }
 
         public void Close()
         {
-            visible = false;
-            zoomIn = false;
-            zoomOut = false;
-            left = false;
-            right = false;
-            up = false;
-            down = false;
+            this.visible = false;
+            this.zoomIn = false;
+            this.zoomOut = false;
+            this.left = false;
+            this.right = false;
+            this.up = false;
+            this.down = false;
         }
 
         public void ToggleCheat()
         {
-            state++;
-            if ((int)state == 3)
+            this.state++;
+            if ((int)this.state == 3)
             {
-                state = AutoMapState.None;
+                this.state = AutoMapState.None;
             }
         }
 
-        public Fixed MinX => minX;
-        public Fixed MaxX => maxX;
-        public Fixed MinY => minY;
-        public Fixed MaxY => maxY;
-        public Fixed ViewX => viewX;
-        public Fixed ViewY => viewY;
-        public Fixed Zoom => zoom;
-        public bool Follow => follow;
-        public bool Visible => visible;
-        public AutoMapState State => state;
-        public IReadOnlyList<Vertex> Marks => marks;
+        public Fixed MinX => this.minX;
+        public Fixed MaxX => this.maxX;
+        public Fixed MinY => this.minY;
+        public Fixed MaxY => this.maxY;
+        public Fixed ViewX => this.viewX;
+        public Fixed ViewY => this.viewY;
+        public Fixed Zoom => this.zoom;
+        public bool Follow => this.follow;
+        public bool Visible => this.visible;
+        public AutoMapState State => this.state;
+        public IReadOnlyList<Vertex> Marks => this.marks;
     }
 }

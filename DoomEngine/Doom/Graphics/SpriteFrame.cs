@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class SpriteFrame
+	public sealed class SpriteFrame
     {
         private bool rotate;
         private Patch[] patches;
@@ -32,8 +28,8 @@ namespace ManagedDoom
             this.flip = flip;
         }
 
-        public bool Rotate => rotate;
-        public Patch[] Patches => patches;
-        public bool[] Flip => flip;
+        public bool Rotate => this.rotate;
+        public Patch[] Patches => this.patches;
+        public bool[] Flip => this.flip;
     }
 }

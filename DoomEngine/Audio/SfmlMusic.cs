@@ -13,20 +13,20 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.IO;
-using System.Runtime.ExceptionServices;
-using SFML.Audio;
-using SFML.System;
-using AudioSynthesis.Midi;
-using AudioSynthesis.Sequencer;
-using AudioSynthesis.Synthesis;
-
-namespace ManagedDoom.Audio
+namespace DoomEngine.Audio
 {
-    public sealed class SfmlMusic : IMusic, IDisposable
+	using AudioSynthesis.Midi;
+	using AudioSynthesis.Sequencer;
+	using AudioSynthesis.Synthesis;
+	using Doom.Info;
+	using Doom.Wad;
+	using SFML.Audio;
+	using SFML.System;
+	using System;
+	using System.IO;
+	using System.Runtime.ExceptionServices;
+
+	public sealed class SfmlMusic : IMusic, IDisposable
     {
         private Config config;
         private Wad wad;
@@ -43,32 +43,32 @@ namespace ManagedDoom.Audio
                 this.config = config;
                 this.wad = wad;
 
-                stream = new MusStream(this, config, sfPath);
-                current = Bgm.NONE;
+                this.stream = new MusStream(this, config, sfPath);
+                this.current = Bgm.NONE;
 
                 Console.WriteLine("OK");
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed");
-                Dispose();
+                this.Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
         }
 
         public void StartMusic(Bgm bgm, bool loop)
         {
-            if (bgm == current)
+            if (bgm == this.current)
             {
                 return;
             }
 
             var lump = "D_" + DoomInfo.BgmNames[(int)bgm];
-            var data = wad.ReadLump(lump);
-            var decoder = ReadData(data, loop);
-            stream.SetDecoder(decoder);
+            var data = this.wad.ReadLump(lump);
+            var decoder = this.ReadData(data, loop);
+            this.stream.SetDecoder(decoder);
 
-            current = bgm;
+            this.current = bgm;
         }
 
         private IDecoder ReadData(byte[] data, bool loop)
@@ -108,11 +108,11 @@ namespace ManagedDoom.Audio
         {
             Console.WriteLine("Shutdown music.");
 
-            if (stream != null)
+            if (this.stream != null)
             {
-                stream.Stop();
-                stream.Dispose();
-                stream = null;
+                this.stream.Stop();
+                this.stream.Dispose();
+                this.stream = null;
             }
         }
 
@@ -128,12 +128,12 @@ namespace ManagedDoom.Audio
         {
             get
             {
-                return config.audio_musicvolume;
+                return this.config.audio_musicvolume;
             }
 
             set
             {
-                config.audio_musicvolume = value;
+                this.config.audio_musicvolume = value;
             }
         }
 
@@ -161,38 +161,38 @@ namespace ManagedDoom.Audio
 
                 config.audio_musicvolume = Math.Clamp(config.audio_musicvolume, 0, parent.MaxVolume);
 
-                synthesizer = new Synthesizer(MusDecoder.SampleRate, 2, MusDecoder.BufferLength, 1);
-                synthesizer.LoadBank(sfPath);
-                synthBufferLength = synthesizer.sampleBuffer.Length;
+                this.synthesizer = new Synthesizer(MusDecoder.SampleRate, 2, MusDecoder.BufferLength, 1);
+                this.synthesizer.LoadBank(sfPath);
+                this.synthBufferLength = this.synthesizer.sampleBuffer.Length;
 
-                var synthBufferDuration = (double)(synthBufferLength / 2) / MusDecoder.SampleRate;
-                stepCount = (int)Math.Ceiling(0.02 / synthBufferDuration);
-                batchLength = synthBufferLength * stepCount;
-                batch = new short[batchLength];
+                var synthBufferDuration = (double)(this.synthBufferLength / 2) / MusDecoder.SampleRate;
+                this.stepCount = (int)Math.Ceiling(0.02 / synthBufferDuration);
+                this.batchLength = this.synthBufferLength * this.stepCount;
+                this.batch = new short[this.batchLength];
 
-                Initialize(2, (uint)MusDecoder.SampleRate);
+                this.Initialize(2, (uint)MusDecoder.SampleRate);
             }
 
             public void SetDecoder(IDecoder decoder)
             {
-                reserved = decoder;
+                this.reserved = decoder;
 
-                if (Status == SoundStatus.Stopped)
+                if (this.Status == SoundStatus.Stopped)
                 {
-                    Play();
+                    this.Play();
                 }
             }
 
             protected override bool OnGetData(out short[] samples)
             {
-                if (reserved != current)
+                if (this.reserved != this.current)
                 {
-                    synthesizer.NoteOffAll(true);
-                    synthesizer.ResetSynthControls();
-                    current = reserved;
+                    this.synthesizer.NoteOffAll(true);
+                    this.synthesizer.ResetSynthControls();
+                    this.current = this.reserved;
                 }
 
-                var a = 32768 * (6.0F * config.audio_musicvolume / parent.MaxVolume);
+                var a = 32768 * (6.0F * this.config.audio_musicvolume / this.parent.MaxVolume);
 
                 //
                 // Due to a design error, this implementation makes the music
@@ -202,10 +202,10 @@ namespace ManagedDoom.Audio
                 //
 
                 var t = 0;
-                for (var i = 0; i < stepCount; i++)
+                for (var i = 0; i < this.stepCount; i++)
                 {
-                    current.FillBuffer(synthesizer);
-                    var buffer = synthesizer.sampleBuffer;
+                    this.current.FillBuffer(this.synthesizer);
+                    var buffer = this.synthesizer.sampleBuffer;
                     for (var j = 0; j < buffer.Length; j++)
                     {
                         var sample = (int)(a * buffer[j]);
@@ -217,11 +217,11 @@ namespace ManagedDoom.Audio
                         {
                             sample = short.MaxValue;
                         }
-                        batch[t++] = (short)sample;
+                        this.batch[t++] = (short)sample;
                     }
                 }
 
-                samples = batch;
+                samples = this.batch;
 
                 return true;
             }
@@ -243,7 +243,7 @@ namespace ManagedDoom.Audio
         private class MusDecoder : IDecoder
         {
             public static readonly int SampleRate = 44100;
-            public static readonly int BufferLength = SampleRate / 140;
+            public static readonly int BufferLength = MusDecoder.SampleRate / 140;
 
             public static readonly byte[] MusHeader = new byte[]
             {
@@ -272,39 +272,39 @@ namespace ManagedDoom.Audio
 
             public MusDecoder(byte[] data, bool loop)
             {
-                CheckHeader(data);
+                MusDecoder.CheckHeader(data);
 
                 this.data = data;
                 this.loop = loop;
 
-                scoreLength = BitConverter.ToUInt16(data, 4);
-                scoreStart = BitConverter.ToUInt16(data, 6);
-                channelCount = BitConverter.ToUInt16(data, 8);
-                channelCount2 = BitConverter.ToUInt16(data, 10);
-                instrumentCount = BitConverter.ToUInt16(data, 12);
-                instruments = new int[instrumentCount];
-                for (var i = 0; i < instruments.Length; i++)
+                this.scoreLength = BitConverter.ToUInt16(data, 4);
+                this.scoreStart = BitConverter.ToUInt16(data, 6);
+                this.channelCount = BitConverter.ToUInt16(data, 8);
+                this.channelCount2 = BitConverter.ToUInt16(data, 10);
+                this.instrumentCount = BitConverter.ToUInt16(data, 12);
+                this.instruments = new int[this.instrumentCount];
+                for (var i = 0; i < this.instruments.Length; i++)
                 {
-                    instruments[i] = BitConverter.ToUInt16(data, 16 + 2 * i);
+                    this.instruments[i] = BitConverter.ToUInt16(data, 16 + 2 * i);
                 }
 
-                events = new MusEvent[128];
-                for (var i = 0; i < events.Length; i++)
+                this.events = new MusEvent[128];
+                for (var i = 0; i < this.events.Length; i++)
                 {
-                    events[i] = new MusEvent();
+                    this.events[i] = new MusEvent();
                 }
-                eventCount = 0;
+                this.eventCount = 0;
 
-                lastVolume = new int[16];
+                this.lastVolume = new int[16];
 
-                Reset();
+                this.Reset();
             }
 
             private static void CheckHeader(byte[] data)
             {
-                for (var p = 0; p < MusHeader.Length; p++)
+                for (var p = 0; p < MusDecoder.MusHeader.Length; p++)
                 {
-                    if (data[p] != MusHeader[p])
+                    if (data[p] != MusDecoder.MusHeader[p])
                     {
                         throw new Exception("Invalid format!");
                     }
@@ -313,23 +313,23 @@ namespace ManagedDoom.Audio
 
             public void FillBuffer(Synthesizer synthesizer)
             {
-                if (delay > 0)
+                if (this.delay > 0)
                 {
-                    delay--;
+                    this.delay--;
                 }
 
-                if (delay == 0)
+                if (this.delay == 0)
                 {
-                    delay = ReadSingleEventGroup();
-                    SendEvents(synthesizer);
+                    this.delay = this.ReadSingleEventGroup();
+                    this.SendEvents(synthesizer);
 
-                    if (delay == -1)
+                    if (this.delay == -1)
                     {
                         synthesizer.NoteOffAll(true);
 
-                        if (loop)
+                        if (this.loop)
                         {
-                            Reset();
+                            this.Reset();
                         }
                     }
                 }
@@ -339,22 +339,22 @@ namespace ManagedDoom.Audio
 
             private void Reset()
             {
-                for (var i = 0; i < lastVolume.Length; i++)
+                for (var i = 0; i < this.lastVolume.Length; i++)
                 {
-                    lastVolume[i] = 0;
+                    this.lastVolume[i] = 0;
                 }
 
-                p = scoreStart;
+                this.p = this.scoreStart;
 
-                delay = 0;
+                this.delay = 0;
             }
 
             private int ReadSingleEventGroup()
             {
-                eventCount = 0;
+                this.eventCount = 0;
                 while (true)
                 {
-                    var result = ReadSingleEvent();
+                    var result = this.ReadSingleEvent();
                     if (result == ReadResult.EndOfGroup)
                     {
                         break;
@@ -368,7 +368,7 @@ namespace ManagedDoom.Audio
                 var time = 0;
                 while (true)
                 {
-                    var value = data[p++];
+                    var value = this.data[this.p++];
                     time = time * 128 + (value & 127);
                     if ((value & 128) == 0)
                     {
@@ -381,19 +381,19 @@ namespace ManagedDoom.Audio
 
             private ReadResult ReadSingleEvent()
             {
-                var channelNumber = data[p] & 0xF;
+                var channelNumber = this.data[this.p] & 0xF;
                 if (channelNumber == 15)
                 {
                     channelNumber = 9;
                 }
 
-                var eventType = (data[p] & 0x70) >> 4;
-                var last = (data[p] >> 7) != 0;
+                var eventType = (this.data[this.p] & 0x70) >> 4;
+                var last = (this.data[this.p] >> 7) != 0;
 
-                p++;
+                this.p++;
 
-                var me = events[eventCount];
-                eventCount++;
+                var me = this.events[this.eventCount];
+                this.eventCount++;
 
                 switch (eventType)
                 {
@@ -401,7 +401,7 @@ namespace ManagedDoom.Audio
                         me.Type = 0;
                         me.Channel = channelNumber;
 
-                        var releaseNote = data[p++];
+                        var releaseNote = this.data[this.p++];
 
                         me.Data1 = releaseNote;
                         me.Data2 = 0;
@@ -412,19 +412,19 @@ namespace ManagedDoom.Audio
                         me.Type = 1;
                         me.Channel = channelNumber;
 
-                        var playNote = data[p++];
+                        var playNote = this.data[this.p++];
                         var noteNumber = playNote & 127;
-                        var noteVolume = (playNote & 128) != 0 ? data[p++] : -1;
+                        var noteVolume = (playNote & 128) != 0 ? this.data[this.p++] : -1;
 
                         me.Data1 = noteNumber;
                         if (noteVolume == -1)
                         {
-                            me.Data2 = lastVolume[channelNumber];
+                            me.Data2 = this.lastVolume[channelNumber];
                         }
                         else
                         {
                             me.Data2 = noteVolume;
-                            lastVolume[channelNumber] = noteVolume;
+                            this.lastVolume[channelNumber] = noteVolume;
                         }
 
                         break;
@@ -433,7 +433,7 @@ namespace ManagedDoom.Audio
                         me.Type = 2;
                         me.Channel = channelNumber;
 
-                        var pitchWheel = data[p++];
+                        var pitchWheel = this.data[this.p++];
 
                         var pw2 = (pitchWheel << 7) / 2;
                         var pw1 = pw2 & 127;
@@ -447,7 +447,7 @@ namespace ManagedDoom.Audio
                         me.Type = 3;
                         me.Channel = -1;
 
-                        var systemEvent = data[p++];
+                        var systemEvent = this.data[this.p++];
                         me.Data1 = systemEvent;
                         me.Data2 = 0;
 
@@ -457,8 +457,8 @@ namespace ManagedDoom.Audio
                         me.Type = 4;
                         me.Channel = channelNumber;
 
-                        var controllerNumber = data[p++];
-                        var controllerValue = data[p++];
+                        var controllerNumber = this.data[this.p++];
+                        var controllerValue = this.data[this.p++];
 
                         me.Data1 = controllerNumber;
                         me.Data2 = controllerValue;
@@ -484,9 +484,9 @@ namespace ManagedDoom.Audio
 
             private void SendEvents(Synthesizer synthesizer)
             {
-                for (var i = 0; i < eventCount; i++)
+                for (var i = 0; i < this.eventCount; i++)
                 {
-                    var me = events[i];
+                    var me = this.events[i];
                     switch (me.Type)
                     {
                         case 0: // RELEASE NOTE
@@ -589,21 +589,21 @@ namespace ManagedDoom.Audio
 
             public MidiDecoder(byte[] data, bool loop)
             {
-                midi = new MidiFile(new MemoryStream(data));
+                this.midi = new MidiFile(new MemoryStream(data));
 
                 this.loop = loop;
             }
 
             public void FillBuffer(Synthesizer synthesizer)
             {
-                if (sequencer == null)
+                if (this.sequencer == null)
                 {
-                    sequencer = new MidiFileSequencer(synthesizer);
-                    sequencer.LoadMidi(midi);
-                    sequencer.Play();
+                    this.sequencer = new MidiFileSequencer(synthesizer);
+                    this.sequencer.LoadMidi(this.midi);
+                    this.sequencer.Play();
                 }
 
-                sequencer.FillMidiEventQueue(loop);
+                this.sequencer.FillMidiEventQueue(this.loop);
                 synthesizer.GetNext();
             }
         }

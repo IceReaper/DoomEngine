@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Common
 {
-    public sealed class DoomRandom
+	public sealed class DoomRandom
     {
         private static readonly int[] table = new int[]
         {
@@ -48,23 +44,23 @@ namespace ManagedDoom
 
         public DoomRandom()
         {
-            index = 0;
+            this.index = 0;
         }
 
         public DoomRandom(int seed)
         {
-            index = seed & 0xff;
+            this.index = seed & 0xff;
         }
 
         public int Next()
         {
-            index = (index + 1) & 0xff;
-            return table[index];
+            this.index = (this.index + 1) & 0xff;
+            return DoomRandom.table[this.index];
         }
 
         public void Clear()
         {
-            index = 0;
+            this.index = 0;
         }
     }
 }

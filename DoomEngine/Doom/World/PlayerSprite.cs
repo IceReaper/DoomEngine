@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public enum PlayerSprite
+	public enum PlayerSprite
     {
         Weapon,
         Flash,

@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public static class TicCmdButtons
+	public static class TicCmdButtons
     {
         public static readonly byte Attack = 1;
 

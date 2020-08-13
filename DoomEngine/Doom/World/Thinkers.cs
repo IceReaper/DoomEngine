@@ -13,15 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class Thinkers
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+
+	public sealed class Thinkers
     {
         private World world;
 
@@ -29,7 +27,7 @@ namespace ManagedDoom
         {
             this.world = world;
 
-            InitThinkers();
+            this.InitThinkers();
         }
 
 
@@ -37,16 +35,16 @@ namespace ManagedDoom
 
         private void InitThinkers()
         {
-            cap = new Thinker();
-            cap.Prev = cap.Next = cap;
+            this.cap = new Thinker();
+            this.cap.Prev = this.cap.Next = this.cap;
         }
 
         public void Add(Thinker thinker)
         {
-            cap.Prev.Next = thinker;
-            thinker.Next = cap;
-            thinker.Prev = cap.Prev;
-            cap.Prev = thinker;
+            this.cap.Prev.Next = thinker;
+            thinker.Next = this.cap;
+            thinker.Prev = this.cap.Prev;
+            this.cap.Prev = thinker;
         }
 
         public void Remove(Thinker thinker)
@@ -56,8 +54,8 @@ namespace ManagedDoom
 
         public void Run()
         {
-            var current = cap.Next;
-            while (current != cap)
+            var current = this.cap.Next;
+            while (current != this.cap)
             {
                 if (current.ThinkerState == ThinkerState.Removed)
                 {
@@ -78,7 +76,7 @@ namespace ManagedDoom
 
         public void Reset()
         {
-            cap.Prev = cap.Next = cap;
+            this.cap.Prev = this.cap.Next = this.cap;
         }
 
         public ThinkerEnumerator GetEnumerator()
@@ -96,19 +94,19 @@ namespace ManagedDoom
             public ThinkerEnumerator(Thinkers thinkers)
             {
                 this.thinkers = thinkers;
-                current = thinkers.cap;
+                this.current = thinkers.cap;
             }
 
             public bool MoveNext()
             {
                 while (true)
                 {
-                    current = current.Next;
-                    if (current == thinkers.cap)
+                    this.current = this.current.Next;
+                    if (this.current == this.thinkers.cap)
                     {
                         return false;
                     }
-                    else if (current.ThinkerState != ThinkerState.Removed)
+                    else if (this.current.ThinkerState != ThinkerState.Removed)
                     {
                         return true;
                     }
@@ -117,14 +115,14 @@ namespace ManagedDoom
 
             public void Reset()
             {
-                current = thinkers.cap;
+                this.current = this.thinkers.cap;
             }
 
             public void Dispose()
             {
             }
 
-            public Thinker Current => current;
+            public Thinker Current => this.current;
 
             object IEnumerator.Current => throw new NotImplementedException();
         }

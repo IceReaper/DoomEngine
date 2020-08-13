@@ -13,28 +13,28 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Math
 {
-    public static class Geometry
+	using Map;
+	using System;
+	using World;
+
+	public static class Geometry
     {
         private const int slopeRange = 2048;
         private const int slopeBits = 11;
-        private const int fracToSlopeShift = Fixed.FracBits - slopeBits;
+        private const int fracToSlopeShift = Fixed.FracBits - Geometry.slopeBits;
 
         private static uint SlopeDiv(Fixed num, Fixed den)
         {
             if ((uint)den.Data < 512)
             {
-                return slopeRange;
+                return Geometry.slopeRange;
             }
 
             var ans = ((uint)num.Data << 3) / ((uint)den.Data >> 8);
 
-            return ans <= slopeRange ? ans : slopeRange;
+            return ans <= Geometry.slopeRange ? ans : Geometry.slopeRange;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace ManagedDoom
                 frac = Fixed.Zero;
             }
 
-            var angle = (Trig.TanToAngle((uint)frac.Data >> fracToSlopeShift) + Angle.Ang90);
+            var angle = (Trig.TanToAngle((uint)frac.Data >> Geometry.fracToSlopeShift) + Angle.Ang90);
 
             // Use as cosine.
             var dist = dx / Trig.Sin(angle);
@@ -155,12 +155,12 @@ namespace ManagedDoom
                     if (x > y)
                     {
                         // octant 0
-                        return Trig.TanToAngle(SlopeDiv(y, x));
+                        return Trig.TanToAngle(Geometry.SlopeDiv(y, x));
                     }
                     else
                     {
                         // octant 1
-                        return new Angle(Angle.Ang90.Data - 1) - Trig.TanToAngle(SlopeDiv(x, y));
+                        return new Angle(Angle.Ang90.Data - 1) - Trig.TanToAngle(Geometry.SlopeDiv(x, y));
                     }
                 }
                 else
@@ -171,12 +171,12 @@ namespace ManagedDoom
                     if (x > y)
                     {
                         // octant 8
-                        return -Trig.TanToAngle(SlopeDiv(y, x));
+                        return -Trig.TanToAngle(Geometry.SlopeDiv(y, x));
                     }
                     else
                     {
                         // octant 7
-                        return Angle.Ang270 + Trig.TanToAngle(SlopeDiv(x, y));
+                        return Angle.Ang270 + Trig.TanToAngle(Geometry.SlopeDiv(x, y));
                     }
                 }
             }
@@ -191,12 +191,12 @@ namespace ManagedDoom
                     if (x > y)
                     {
                         // octant 3
-                        return new Angle(Angle.Ang180.Data - 1) - Trig.TanToAngle(SlopeDiv(y, x));
+                        return new Angle(Angle.Ang180.Data - 1) - Trig.TanToAngle(Geometry.SlopeDiv(y, x));
                     }
                     else
                     {
                         // octant 2
-                        return Angle.Ang90 + Trig.TanToAngle(SlopeDiv(x, y));
+                        return Angle.Ang90 + Trig.TanToAngle(Geometry.SlopeDiv(x, y));
                     }
                 }
                 else
@@ -207,12 +207,12 @@ namespace ManagedDoom
                     if (x > y)
                     {
                         // octant 4
-                        return Angle.Ang180 + Trig.TanToAngle(SlopeDiv(y, x));
+                        return Angle.Ang180 + Trig.TanToAngle(Geometry.SlopeDiv(y, x));
                     }
                     else
                     {
                         // octant 5
-                        return new Angle(Angle.Ang270.Data - 1) - Trig.TanToAngle(SlopeDiv(x, y));
+                        return new Angle(Angle.Ang270.Data - 1) - Trig.TanToAngle(Geometry.SlopeDiv(x, y));
                     }
                 }
             }
@@ -234,7 +234,7 @@ namespace ManagedDoom
             while (!Node.IsSubsector(nodeNumber))
             {
                 var node = map.Nodes[nodeNumber];
-                var side = PointOnSide(x, y, node);
+                var side = Geometry.PointOnSide(x, y, node);
                 nodeNumber = node.Children[side];
             }
 
@@ -395,13 +395,13 @@ namespace ManagedDoom
                     break;
 
                 case SlopeType.Positive:
-                    p1 = PointOnLineSide(box[Box.Left], box[Box.Top], line);
-                    p2 = PointOnLineSide(box[Box.Right], box[Box.Bottom], line);
+                    p1 = Geometry.PointOnLineSide(box[Box.Left], box[Box.Top], line);
+                    p2 = Geometry.PointOnLineSide(box[Box.Right], box[Box.Bottom], line);
                     break;
 
                 case SlopeType.Negative:
-                    p1 = PointOnLineSide(box[Box.Right], box[Box.Top], line);
-                    p2 = PointOnLineSide(box[Box.Left], box[Box.Bottom], line);
+                    p1 = Geometry.PointOnLineSide(box[Box.Right], box[Box.Top], line);
+                    p2 = Geometry.PointOnLineSide(box[Box.Left], box[Box.Bottom], line);
                     break;
 
                 default:

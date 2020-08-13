@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public class SliderMenuItem : MenuItem
+	using System;
+
+	public class SliderMenuItem : MenuItem
     {
         private string name;
         private int itemX;
@@ -45,7 +43,7 @@ namespace ManagedDoom
             this.itemY = itemY;
 
             this.sliderLength = sliderLength;
-            sliderPosition = 0;
+            this.sliderPosition = 0;
 
             this.action = action;
             this.reset = reset;
@@ -53,45 +51,45 @@ namespace ManagedDoom
 
         public void Reset()
         {
-            if (reset != null)
+            if (this.reset != null)
             {
-                sliderPosition = reset();
+                this.sliderPosition = this.reset();
             }
         }
 
         public void Up()
         {
-            if (sliderPosition < SliderLength - 1)
+            if (this.sliderPosition < this.SliderLength - 1)
             {
-                sliderPosition++;
+                this.sliderPosition++;
             }
 
-            if (action != null)
+            if (this.action != null)
             {
-                action(sliderPosition);
+                this.action(this.sliderPosition);
             }
         }
 
         public void Down()
         {
-            if (sliderPosition > 0)
+            if (this.sliderPosition > 0)
             {
-                sliderPosition--;
+                this.sliderPosition--;
             }
 
-            if (action != null)
+            if (this.action != null)
             {
-                action(sliderPosition);
+                this.action(this.sliderPosition);
             }
         }
 
-        public string Name => name;
-        public int ItemX => itemX;
-        public int ItemY => itemY;
+        public string Name => this.name;
+        public int ItemX => this.itemX;
+        public int ItemY => this.itemY;
 
-        public int SliderX => itemX;
-        public int SliderY => itemY + 16;
-        public int SliderLength => sliderLength;
-        public int SliderPosition => sliderPosition;
+        public int SliderX => this.itemX;
+        public int SliderY => this.itemY + 16;
+        public int SliderLength => this.sliderLength;
+        public int SliderPosition => this.sliderPosition;
     }
 }

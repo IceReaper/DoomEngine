@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class Patch
+	using System;
+	using System.Collections.Generic;
+	using Wad;
+
+	public sealed class Patch
     {
         private string name;
         private int width;
@@ -52,7 +51,7 @@ namespace ManagedDoom
             var leftOffset = BitConverter.ToInt16(data, 4);
             var topOffset = BitConverter.ToInt16(data, 6);
 
-            PadData(ref data, width);
+            Patch.PadData(ref data, width);
 
             var columns = new Column[width][];
             for (var x = 0; x < width; x++)
@@ -85,7 +84,7 @@ namespace ManagedDoom
 
         public static Patch FromWad(Wad wad, string name)
         {
-            return FromData(name, wad.ReadLump(name));
+            return Patch.FromData(name, wad.ReadLump(name));
         }
 
         private static void PadData(ref byte[] data, int width)
@@ -116,14 +115,14 @@ namespace ManagedDoom
 
         public override string ToString()
         {
-            return name;
+            return this.name;
         }
 
-        public string Name => name;
-        public int Width => width;
-        public int Height => height;
-        public int LeftOffset => leftOffset;
-        public int TopOffset => topOffset;
-        public Column[][] Columns => columns;
+        public string Name => this.name;
+        public int Width => this.width;
+        public int Height => this.height;
+        public int LeftOffset => this.leftOffset;
+        public int TopOffset => this.topOffset;
+        public Column[][] Columns => this.columns;
     }
 }

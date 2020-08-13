@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class FireFlicker : Thinker
+	using Map;
+
+	public sealed class FireFlicker : Thinker
     {
         private World world;
 
@@ -35,47 +33,47 @@ namespace ManagedDoom
 
         public override void Run()
         {
-            if (--count > 0)
+            if (--this.count > 0)
             {
                 return;
             }
 
-            var amount = (world.Random.Next() & 3) * 16;
+            var amount = (this.world.Random.Next() & 3) * 16;
 
-            if (sector.LightLevel - amount < minLight)
+            if (this.sector.LightLevel - amount < this.minLight)
             {
-                sector.LightLevel = minLight;
+                this.sector.LightLevel = this.minLight;
             }
             else
             {
-                sector.LightLevel = maxLight - amount;
+                this.sector.LightLevel = this.maxLight - amount;
             }
 
-            count = 4;
+            this.count = 4;
         }
 
         public Sector Sector
         {
-            get => sector;
-            set => sector = value;
+            get => this.sector;
+            set => this.sector = value;
         }
 
         public int Count
         {
-            get => count;
-            set => count = value;
+            get => this.count;
+            set => this.count = value;
         }
 
         public int MaxLight
         {
-            get => maxLight;
-            set => maxLight = value;
+            get => this.maxLight;
+            set => this.maxLight = value;
         }
 
         public int MinLight
         {
-            get => minLight;
-            set => minLight = value;
+            get => this.minLight;
+            set => this.minLight = value;
         }
     }
 }

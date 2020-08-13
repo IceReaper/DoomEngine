@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public class OpeningSequenceRenderer
+	using Doom;
+	using Doom.Graphics;
+	using Doom.Wad;
+
+	public class OpeningSequenceRenderer
     {
         private DrawScreen screen;
         private SfmlRenderer parent;
@@ -31,23 +31,23 @@ namespace ManagedDoom.SoftwareRendering
             this.screen = screen;
             this.parent = parent;
 
-            cache = new PatchCache(wad);
+            this.cache = new PatchCache(wad);
         }
 
         public void Render(OpeningSequence sequence)
         {
-            var scale = screen.Width / 320;
+            var scale = this.screen.Width / 320;
 
             switch (sequence.State)
             {
                 case OpeningSequenceState.Title:
-                    screen.DrawPatch(cache["TITLEPIC"], 0, 0, scale);
+                    this.screen.DrawPatch(this.cache["TITLEPIC"], 0, 0, scale);
                     break;
                 case OpeningSequenceState.Demo:
-                    parent.RenderGame(sequence.DemoGame);
+                    this.parent.RenderGame(sequence.DemoGame);
                     break;
                 case OpeningSequenceState.Credit:
-                    screen.DrawPatch(cache["CREDIT"], 0, 0, scale);
+                    this.screen.DrawPatch(this.cache["CREDIT"], 0, 0, scale);
                     break;
             }
         }

@@ -13,14 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
-    public static class WorldMap
+	using System.Collections.Generic;
+
+	public static class WorldMap
     {
         public static readonly IReadOnlyList<IReadOnlyList<Point>> Locations = new Point[][]
         {
@@ -80,8 +77,8 @@ namespace ManagedDoom
                 this.y = y;
             }
 
-            public int X => x;
-            public int Y => y;
+            public int X => this.x;
+            public int Y => this.y;
         }
     }
 }

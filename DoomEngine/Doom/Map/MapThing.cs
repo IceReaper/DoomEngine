@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class MapThing
+	using Math;
+	using System;
+	using Wad;
+
+	public sealed class MapThing
     {
         private static readonly int dataSize = 10;
 
@@ -61,7 +61,7 @@ namespace ManagedDoom
             return new MapThing(
                 Fixed.FromInt(x),
                 Fixed.FromInt(y),
-                new Angle(ManagedDoom.Angle.Ang45.Data * (uint)(angle / 45)),
+                new Angle(Angle.Ang45.Data * (uint)(angle / 45)),
                 type,
                 (ThingFlags)flags);
         }
@@ -69,34 +69,34 @@ namespace ManagedDoom
         public static MapThing[] FromWad(Wad wad, int lump)
         {
             var length = wad.GetLumpSize(lump);
-            if (length % dataSize != 0)
+            if (length % MapThing.dataSize != 0)
             {
                 throw new Exception();
             }
 
             var data = wad.ReadLump(lump);
-            var count = length / dataSize;
+            var count = length / MapThing.dataSize;
             var things = new MapThing[count];
 
             for (var i = 0; i < count; i++)
             {
-                var offset = dataSize * i;
-                things[i] = FromData(data, offset);
+                var offset = MapThing.dataSize * i;
+                things[i] = MapThing.FromData(data, offset);
             }
 
             return things;
         }
 
-        public Fixed X => x;
-        public Fixed Y => y;
-        public Angle Angle => angle;
+        public Fixed X => this.x;
+        public Fixed Y => this.y;
+        public Angle Angle => this.angle;
 
         public int Type
         {
-            get => type;
-            set => type = value;
+            get => this.type;
+            set => this.type = value;
         }
 
-        public ThingFlags Flags => flags;
+        public ThingFlags Flags => this.flags;
     }
 }

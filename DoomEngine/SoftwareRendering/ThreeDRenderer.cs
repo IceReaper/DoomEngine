@@ -13,13 +13,18 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class ThreeDRenderer
+	using Doom.Common;
+	using Doom.Game;
+	using Doom.Graphics;
+	using Doom.Map;
+	using Doom.Math;
+	using Doom.Wad;
+	using Doom.World;
+	using System;
+
+	public sealed class ThreeDRenderer
     {
         public static readonly int MaxScreenSize = 9;
 
@@ -38,63 +43,63 @@ namespace ManagedDoom.SoftwareRendering
 
         public ThreeDRenderer(CommonResource resource, DrawScreen screen, int windowSize)
         {
-            colorMap = resource.ColorMap;
-            textures = resource.Textures;
-            flats = resource.Flats;
-            sprites = resource.Sprites;
+            this.colorMap = resource.ColorMap;
+            this.textures = resource.Textures;
+            this.flats = resource.Flats;
+            this.sprites = resource.Sprites;
 
             this.screen = screen;
-            screenWidth = screen.Width;
-            screenHeight = screen.Height;
-            screenData = screen.Data;
-            drawScale = screenWidth / 320;
+            this.screenWidth = screen.Width;
+            this.screenHeight = screen.Height;
+            this.screenData = screen.Data;
+            this.drawScale = this.screenWidth / 320;
 
             this.windowSize = windowSize;
 
-            InitWallRendering();
-            InitPlaneRendering();
-            InitSkyRendering();
-            InitLighting();
-            InitRenderingHistory();
-            InitSpriteRendering();
-            InitWeaponRendering();
-            InitFuzzEffect();
-            InitColorTranslation();
-            InitWindowBorder(resource.Wad);
+            this.InitWallRendering();
+            this.InitPlaneRendering();
+            this.InitSkyRendering();
+            this.InitLighting();
+            this.InitRenderingHistory();
+            this.InitSpriteRendering();
+            this.InitWeaponRendering();
+            this.InitFuzzEffect();
+            this.InitColorTranslation();
+            this.InitWindowBorder(resource.Wad);
 
-            SetWindowSize(windowSize);
+            this.SetWindowSize(windowSize);
         }
 
         private void SetWindowSize(int size)
         {
-            var scale = screenWidth / 320;
+            var scale = this.screenWidth / 320;
             if (size < 7)
             {
                 var width = scale * (96 + 32 * size);
                 var height = scale * (48 + 16 * size);
-                var x = (screenWidth - width) / 2;
-                var y = (screenHeight - StatusBarRenderer.Height * scale - height) / 2;
-                ResetWindow(x, y, width, height);
+                var x = (this.screenWidth - width) / 2;
+                var y = (this.screenHeight - StatusBarRenderer.Height * scale - height) / 2;
+                this.ResetWindow(x, y, width, height);
             }
             else if (size == 7)
             {
-                var width = screenWidth;
-                var height = screenHeight - StatusBarRenderer.Height * scale;
-                ResetWindow(0, 0, width, height);
+                var width = this.screenWidth;
+                var height = this.screenHeight - StatusBarRenderer.Height * scale;
+                this.ResetWindow(0, 0, width, height);
             }
             else
             {
-                var width = screenWidth;
-                var height = screenHeight;
-                ResetWindow(0, 0, width, height);
+                var width = this.screenWidth;
+                var height = this.screenHeight;
+                this.ResetWindow(0, 0, width, height);
             }
 
-            ResetWallRendering();
-            ResetPlaneRendering();
-            ResetSkyRendering();
-            ResetLighting();
-            ResetRenderingHistory();
-            ResetWeaponRendering();
+            this.ResetWallRendering();
+            this.ResetPlaneRendering();
+            this.ResetSkyRendering();
+            this.ResetLighting();
+            this.ResetRenderingHistory();
+            this.ResetWeaponRendering();
         }
 
 
@@ -115,15 +120,15 @@ namespace ManagedDoom.SoftwareRendering
 
         private void ResetWindow(int x, int y, int width, int height)
         {
-            windowX = x;
-            windowY = y;
-            windowWidth = width;
-            windowHeight = height;
-            centerX = windowWidth / 2;
-            centerY = windowHeight / 2;
-            centerXFrac = Fixed.FromInt(centerX);
-            centerYFrac = Fixed.FromInt(centerY);
-            projection = centerXFrac;
+            this.windowX = x;
+            this.windowY = y;
+            this.windowWidth = width;
+            this.windowHeight = height;
+            this.centerX = this.windowWidth / 2;
+            this.centerY = this.windowHeight / 2;
+            this.centerXFrac = Fixed.FromInt(this.centerX);
+            this.centerYFrac = Fixed.FromInt(this.centerY);
+            this.projection = this.centerXFrac;
         }
 
 
@@ -141,13 +146,13 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitWallRendering()
         {
-            angleToX = new int[Trig.FineAngleCount / 2];
-            xToAngle = new Angle[screenWidth];
+            this.angleToX = new int[Trig.FineAngleCount / 2];
+            this.xToAngle = new Angle[this.screenWidth];
         }
 
         private void ResetWallRendering()
         {
-            var focalLength = centerXFrac / Trig.Tan(Trig.FineAngleCount / 4 + FineFov / 2);
+            var focalLength = this.centerXFrac / Trig.Tan(Trig.FineAngleCount / 4 + ThreeDRenderer.FineFov / 2);
 
             for (var i = 0; i < Trig.FineAngleCount / 2; i++)
             {
@@ -159,49 +164,49 @@ namespace ManagedDoom.SoftwareRendering
                 }
                 else if (Trig.Tan(i) < Fixed.FromInt(-2))
                 {
-                    t = windowWidth + 1;
+                    t = this.windowWidth + 1;
                 }
                 else
                 {
-                    t = (centerXFrac - Trig.Tan(i) * focalLength).ToIntCeiling();
+                    t = (this.centerXFrac - Trig.Tan(i) * focalLength).ToIntCeiling();
 
                     if (t < -1)
                     {
                         t = -1;
                     }
-                    else if (t > windowWidth + 1)
+                    else if (t > this.windowWidth + 1)
                     {
-                        t = windowWidth + 1;
+                        t = this.windowWidth + 1;
                     }
                 }
 
-                angleToX[i] = t;
+                this.angleToX[i] = t;
             }
 
-            for (var x = 0; x < windowWidth; x++)
+            for (var x = 0; x < this.windowWidth; x++)
             {
                 var i = 0;
-                while (angleToX[i] > x)
+                while (this.angleToX[i] > x)
                 {
                     i++;
                 }
-                xToAngle[x] = new Angle((uint)(i << Trig.AngleToFineShift)) - Angle.Ang90;
+                this.xToAngle[x] = new Angle((uint)(i << Trig.AngleToFineShift)) - Angle.Ang90;
             }
 
             for (var i = 0; i < Trig.FineAngleCount / 2; i++)
             {
-                if (angleToX[i] == -1)
+                if (this.angleToX[i] == -1)
                 {
-                    angleToX[i] = 0;
+                    this.angleToX[i] = 0;
                 }
-                else if (angleToX[i] == windowWidth + 1)
+                else if (this.angleToX[i] == this.windowWidth + 1)
                 {
-                    angleToX[i] = windowWidth;
+                    this.angleToX[i] = this.windowWidth;
                 }
             }
 
-            clipAngle = xToAngle[0];
-            clipAngle2 = new Angle(2 * clipAngle.Data);
+            this.clipAngle = this.xToAngle[0];
+            this.clipAngle2 = new Angle(2 * this.clipAngle.Data);
         }
 
 
@@ -237,47 +242,47 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitPlaneRendering()
         {
-            planeYSlope = new Fixed[screenHeight];
-            planeDistScale = new Fixed[screenWidth];
-            ceilingXFrac = new Fixed[screenHeight];
-            ceilingYFrac = new Fixed[screenHeight];
-            ceilingXStep = new Fixed[screenHeight];
-            ceilingYStep = new Fixed[screenHeight];
-            ceilingLights = new byte[screenHeight][];
-            floorXFrac = new Fixed[screenHeight];
-            floorYFrac = new Fixed[screenHeight];
-            floorXStep = new Fixed[screenHeight];
-            floorYStep = new Fixed[screenHeight];
-            floorLights = new byte[screenHeight][];
+            this.planeYSlope = new Fixed[this.screenHeight];
+            this.planeDistScale = new Fixed[this.screenWidth];
+            this.ceilingXFrac = new Fixed[this.screenHeight];
+            this.ceilingYFrac = new Fixed[this.screenHeight];
+            this.ceilingXStep = new Fixed[this.screenHeight];
+            this.ceilingYStep = new Fixed[this.screenHeight];
+            this.ceilingLights = new byte[this.screenHeight][];
+            this.floorXFrac = new Fixed[this.screenHeight];
+            this.floorYFrac = new Fixed[this.screenHeight];
+            this.floorXStep = new Fixed[this.screenHeight];
+            this.floorYStep = new Fixed[this.screenHeight];
+            this.floorLights = new byte[this.screenHeight][];
         }
 
         private void ResetPlaneRendering()
         {
-            for (int i = 0; i < windowHeight; i++)
+            for (int i = 0; i < this.windowHeight; i++)
             {
-                var dy = Fixed.FromInt(i - windowHeight / 2) + Fixed.One / 2;
+                var dy = Fixed.FromInt(i - this.windowHeight / 2) + Fixed.One / 2;
                 dy = Fixed.Abs(dy);
-                planeYSlope[i] = Fixed.FromInt(windowWidth / 2) / dy;
+                this.planeYSlope[i] = Fixed.FromInt(this.windowWidth / 2) / dy;
             }
 
-            for (var i = 0; i < windowWidth; i++)
+            for (var i = 0; i < this.windowWidth; i++)
             {
-                var cos = Fixed.Abs(Trig.Cos(xToAngle[i]));
-                planeDistScale[i] = Fixed.One / cos;
+                var cos = Fixed.Abs(Trig.Cos(this.xToAngle[i]));
+                this.planeDistScale[i] = Fixed.One / cos;
             }
         }
 
         private void ClearPlaneRendering()
         {
-            var angle = viewAngle - Angle.Ang90;
-            planeBaseXScale = Trig.Cos(angle) / centerXFrac;
-            planeBaseYScale = -(Trig.Sin(angle) / centerXFrac);
+            var angle = this.viewAngle - Angle.Ang90;
+            this.planeBaseXScale = Trig.Cos(angle) / this.centerXFrac;
+            this.planeBaseYScale = -(Trig.Sin(angle) / this.centerXFrac);
 
-            ceilingPrevSector = null;
-            ceilingPrevX = int.MaxValue;
+            this.ceilingPrevSector = null;
+            this.ceilingPrevX = int.MaxValue;
 
-            floorPrevSector = null;
-            floorPrevX = int.MaxValue;
+            this.floorPrevSector = null;
+            this.floorPrevX = int.MaxValue;
         }
 
 
@@ -292,15 +297,15 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitSkyRendering()
         {
-            skyTextureAlt = Fixed.FromInt(100);
+            this.skyTextureAlt = Fixed.FromInt(100);
         }
 
         private void ResetSkyRendering()
         {
             // The code below is based on PrBoom+' sky rendering implementation.
-            var num = (long)Fixed.FracUnit * screenWidth * 200;
-            var den = windowWidth * screenHeight;
-            skyInvScale = new Fixed((int)(num / den));
+            var num = (long)Fixed.FracUnit * this.screenWidth * 200;
+            var den = this.windowWidth * this.screenHeight;
+            this.skyInvScale = new Fixed((int)(num / den));
         }
 
 
@@ -330,41 +335,41 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitLighting()
         {
-            maxScaleLight = 48 * (screenWidth / 320);
+            this.maxScaleLight = 48 * (this.screenWidth / 320);
 
-            diminishingScaleLight = new byte[lightLevelCount][][];
-            diminishingZLight = new byte[lightLevelCount][][];
-            fixedLight = new byte[lightLevelCount][][];
+            this.diminishingScaleLight = new byte[ThreeDRenderer.lightLevelCount][][];
+            this.diminishingZLight = new byte[ThreeDRenderer.lightLevelCount][][];
+            this.fixedLight = new byte[ThreeDRenderer.lightLevelCount][][];
 
-            for (var i = 0; i < lightLevelCount; i++)
+            for (var i = 0; i < ThreeDRenderer.lightLevelCount; i++)
             {
-                diminishingScaleLight[i] = new byte[maxScaleLight][];
-                diminishingZLight[i] = new byte[maxZLight][];
-                fixedLight[i] = new byte[Math.Max(maxScaleLight, maxZLight)][];
+                this.diminishingScaleLight[i] = new byte[this.maxScaleLight][];
+                this.diminishingZLight[i] = new byte[ThreeDRenderer.maxZLight][];
+                this.fixedLight[i] = new byte[Math.Max(this.maxScaleLight, ThreeDRenderer.maxZLight)][];
             }
 
             var distMap = 2;
 
             // Calculate the light levels to use for each level / distance combination.
-            for (var i = 0; i < lightLevelCount; i++)
+            for (var i = 0; i < ThreeDRenderer.lightLevelCount; i++)
             {
-                var start = ((lightLevelCount - 1 - i) * 2) * colorMapCount / lightLevelCount;
-                for (var j = 0; j < maxZLight; j++)
+                var start = ((ThreeDRenderer.lightLevelCount - 1 - i) * 2) * ThreeDRenderer.colorMapCount / ThreeDRenderer.lightLevelCount;
+                for (var j = 0; j < ThreeDRenderer.maxZLight; j++)
                 {
-                    var scale = Fixed.FromInt(320 / 2) / new Fixed((j + 1) << zLightShift);
-                    scale = new Fixed(scale.Data >> scaleLightShift);
+                    var scale = Fixed.FromInt(320 / 2) / new Fixed((j + 1) << ThreeDRenderer.zLightShift);
+                    scale = new Fixed(scale.Data >> ThreeDRenderer.scaleLightShift);
 
                     var level = start - scale.Data / distMap;
                     if (level < 0)
                     {
                         level = 0;
                     }
-                    if (level >= colorMapCount)
+                    if (level >= ThreeDRenderer.colorMapCount)
                     {
-                        level = colorMapCount - 1;
+                        level = ThreeDRenderer.colorMapCount - 1;
                     }
 
-                    diminishingZLight[i][j] = colorMap[level];
+                    this.diminishingZLight[i][j] = this.colorMap[level];
                 }
             }
         }
@@ -374,45 +379,45 @@ namespace ManagedDoom.SoftwareRendering
             var distMap = 2;
 
             // Calculate the light levels to use for each level / scale combination.
-            for (var i = 0; i < lightLevelCount; i++)
+            for (var i = 0; i < ThreeDRenderer.lightLevelCount; i++)
             {
-                var start = ((lightLevelCount - 1 - i) * 2) * colorMapCount / lightLevelCount;
-                for (var j = 0; j < maxScaleLight; j++)
+                var start = ((ThreeDRenderer.lightLevelCount - 1 - i) * 2) * ThreeDRenderer.colorMapCount / ThreeDRenderer.lightLevelCount;
+                for (var j = 0; j < this.maxScaleLight; j++)
                 {
-                    var level = start - j * 320 / windowWidth / distMap;
+                    var level = start - j * 320 / this.windowWidth / distMap;
                     if (level < 0)
                     {
                         level = 0;
                     }
-                    if (level >= colorMapCount)
+                    if (level >= ThreeDRenderer.colorMapCount)
                     {
-                        level = colorMapCount - 1;
+                        level = ThreeDRenderer.colorMapCount - 1;
                     }
 
-                    diminishingScaleLight[i][j] = colorMap[level];
+                    this.diminishingScaleLight[i][j] = this.colorMap[level];
                 }
             }
         }
 
         private void ClearLighting()
         {
-            if (fixedColorMap == 0)
+            if (this.fixedColorMap == 0)
             {
-                scaleLight = diminishingScaleLight;
-                zLight = diminishingZLight;
-                fixedLight[0][0] = null;
+                this.scaleLight = this.diminishingScaleLight;
+                this.zLight = this.diminishingZLight;
+                this.fixedLight[0][0] = null;
             }
-            else if (fixedLight[0][0] != colorMap[fixedColorMap])
+            else if (this.fixedLight[0][0] != this.colorMap[this.fixedColorMap])
             {
-                for (var i = 0; i < lightLevelCount; i++)
+                for (var i = 0; i < ThreeDRenderer.lightLevelCount; i++)
                 {
-                    for (var j = 0; j < fixedLight[i].Length; j++)
+                    for (var j = 0; j < this.fixedLight[i].Length; j++)
                     {
-                        fixedLight[i][j] = colorMap[fixedColorMap];
+                        this.fixedLight[i][j] = this.colorMap[this.fixedColorMap];
                     }
                 }
-                scaleLight = fixedLight;
-                zLight = fixedLight;
+                this.scaleLight = this.fixedLight;
+                this.zLight = this.fixedLight;
             }
         }
 
@@ -439,59 +444,59 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitRenderingHistory()
         {
-            upperClip = new short[screenWidth];
-            lowerClip = new short[screenWidth];
+            this.upperClip = new short[this.screenWidth];
+            this.lowerClip = new short[this.screenWidth];
 
-            clipRanges = new ClipRange[256];
-            for (var i = 0; i < clipRanges.Length; i++)
+            this.clipRanges = new ClipRange[256];
+            for (var i = 0; i < this.clipRanges.Length; i++)
             {
-                clipRanges[i] = new ClipRange();
+                this.clipRanges[i] = new ClipRange();
             }
 
-            clipData = new short[128 * screenWidth];
+            this.clipData = new short[128 * this.screenWidth];
 
-            visWallRanges = new VisWallRange[512];
-            for (var i = 0; i < visWallRanges.Length; i++)
+            this.visWallRanges = new VisWallRange[512];
+            for (var i = 0; i < this.visWallRanges.Length; i++)
             {
-                visWallRanges[i] = new VisWallRange();
+                this.visWallRanges[i] = new VisWallRange();
             }
         }
 
         private void ResetRenderingHistory()
         {
-            for (var i = 0; i < windowWidth; i++)
+            for (var i = 0; i < this.windowWidth; i++)
             {
-                clipData[i] = -1;
+                this.clipData[i] = -1;
             }
-            negOneArray = 0;
+            this.negOneArray = 0;
 
-            for (var i = windowWidth; i < 2 * windowWidth; i++)
+            for (var i = this.windowWidth; i < 2 * this.windowWidth; i++)
             {
-                clipData[i] = (short)windowHeight;
+                this.clipData[i] = (short)this.windowHeight;
             }
-            windowHeightArray = windowWidth;
+            this.windowHeightArray = this.windowWidth;
         }
 
         private void ClearRenderingHistory()
         {
-            for (var x = 0; x < windowWidth; x++)
+            for (var x = 0; x < this.windowWidth; x++)
             {
-                upperClip[x] = -1;
+                this.upperClip[x] = -1;
             }
-            for (var x = 0; x < windowWidth; x++)
+            for (var x = 0; x < this.windowWidth; x++)
             {
-                lowerClip[x] = (short)windowHeight;
+                this.lowerClip[x] = (short)this.windowHeight;
             }
 
-            clipRanges[0].First = -0x7fffffff;
-            clipRanges[0].Last = -1;
-            clipRanges[1].First = windowWidth;
-            clipRanges[1].Last = 0x7fffffff;
-            clipRangeCount = 2;
+            this.clipRanges[0].First = -0x7fffffff;
+            this.clipRanges[0].Last = -1;
+            this.clipRanges[1].First = this.windowWidth;
+            this.clipRanges[1].Last = 0x7fffffff;
+            this.clipRangeCount = 2;
 
-            clipDataLength = 2 * windowWidth;
+            this.clipDataLength = 2 * this.windowWidth;
 
-            visWallRangeCount = 0;
+            this.visWallRangeCount = 0;
         }
 
 
@@ -507,16 +512,16 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitSpriteRendering()
         {
-            visSprites = new VisSprite[256];
-            for (var i = 0; i < visSprites.Length; i++)
+            this.visSprites = new VisSprite[256];
+            for (var i = 0; i < this.visSprites.Length; i++)
             {
-                visSprites[i] = new VisSprite();
+                this.visSprites[i] = new VisSprite();
             }
         }
 
         private void ClearSpriteRendering()
         {
-            visSpriteCount = 0;
+            this.visSpriteCount = 0;
         }
 
 
@@ -531,13 +536,13 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitWeaponRendering()
         {
-            weaponSprite = new VisSprite();
+            this.weaponSprite = new VisSprite();
         }
 
         private void ResetWeaponRendering()
         {
-            weaponScale = new Fixed(Fixed.FracUnit * windowWidth / 320);
-            weaponInvScale = new Fixed(Fixed.FracUnit * 320 / windowWidth);
+            this.weaponScale = new Fixed(Fixed.FracUnit * this.windowWidth / 320);
+            this.weaponInvScale = new Fixed(Fixed.FracUnit * 320 / this.windowWidth);
         }
 
 
@@ -561,7 +566,7 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitFuzzEffect()
         {
-            fuzzPos = 0;
+            this.fuzzPos = 0;
         }
 
 
@@ -576,20 +581,20 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitColorTranslation()
         {
-            greenToGray = new byte[256];
-            greenToBrown = new byte[256];
-            greenToRed = new byte[256];
+            this.greenToGray = new byte[256];
+            this.greenToBrown = new byte[256];
+            this.greenToRed = new byte[256];
             for (var i = 0; i < 256; i++)
             {
-                greenToGray[i] = (byte)i;
-                greenToBrown[i] = (byte)i;
-                greenToRed[i] = (byte)i;
+                this.greenToGray[i] = (byte)i;
+                this.greenToBrown[i] = (byte)i;
+                this.greenToRed[i] = (byte)i;
             }
             for (var i = 112; i < 128; i++)
             {
-                greenToGray[i] -= 16;
-                greenToBrown[i] -= 48;
-                greenToRed[i] -= 80;
+                this.greenToGray[i] -= 16;
+                this.greenToBrown[i] -= 48;
+                this.greenToRed[i] -= 80;
             }
         }
 
@@ -611,71 +616,71 @@ namespace ManagedDoom.SoftwareRendering
 
         private void InitWindowBorder(Wad wad)
         {
-            borderTopLeft = Patch.FromWad(wad, "BRDR_TL");
-            borderTopRight = Patch.FromWad(wad, "BRDR_TR");
-            borderBottomLeft = Patch.FromWad(wad, "BRDR_BL");
-            borderBottomRight = Patch.FromWad(wad, "BRDR_BR");
-            borderTop = Patch.FromWad(wad, "BRDR_T");
-            borderBottom = Patch.FromWad(wad, "BRDR_B");
-            borderLeft = Patch.FromWad(wad, "BRDR_L");
-            borderRight = Patch.FromWad(wad, "BRDR_R");
+            this.borderTopLeft = Patch.FromWad(wad, "BRDR_TL");
+            this.borderTopRight = Patch.FromWad(wad, "BRDR_TR");
+            this.borderBottomLeft = Patch.FromWad(wad, "BRDR_BL");
+            this.borderBottomRight = Patch.FromWad(wad, "BRDR_BR");
+            this.borderTop = Patch.FromWad(wad, "BRDR_T");
+            this.borderBottom = Patch.FromWad(wad, "BRDR_B");
+            this.borderLeft = Patch.FromWad(wad, "BRDR_L");
+            this.borderRight = Patch.FromWad(wad, "BRDR_R");
 
             if (wad.GameMode == GameMode.Commercial)
             {
-                backFlat = flats["GRNROCK"];
+                this.backFlat = this.flats["GRNROCK"];
             }
             else
             {
-                backFlat = flats["FLOOR7_2"];
+                this.backFlat = this.flats["FLOOR7_2"];
             }
         }
 
         private void FillBackScreen()
         {
-            var fillHeight = screenHeight - drawScale * StatusBarRenderer.Height;
-            FillRect(0, 0, windowX, fillHeight);
-            FillRect(screenWidth - windowX, 0, windowX, fillHeight);
-            FillRect(windowX, 0, screenWidth - 2 * windowX, windowY);
-            FillRect(windowX, fillHeight - windowY, screenWidth - 2 * windowX, windowY);
+            var fillHeight = this.screenHeight - this.drawScale * StatusBarRenderer.Height;
+            this.FillRect(0, 0, this.windowX, fillHeight);
+            this.FillRect(this.screenWidth - this.windowX, 0, this.windowX, fillHeight);
+            this.FillRect(this.windowX, 0, this.screenWidth - 2 * this.windowX, this.windowY);
+            this.FillRect(this.windowX, fillHeight - this.windowY, this.screenWidth - 2 * this.windowX, this.windowY);
 
-            var step = 8 * drawScale;
+            var step = 8 * this.drawScale;
 
-            for (var x = windowX; x < screenWidth - windowX; x += step)
+            for (var x = this.windowX; x < this.screenWidth - this.windowX; x += step)
             {
-                screen.DrawPatch(borderTop, x, windowY - step, drawScale);
-                screen.DrawPatch(borderBottom, x, fillHeight - windowY, drawScale);
+                this.screen.DrawPatch(this.borderTop, x, this.windowY - step, this.drawScale);
+                this.screen.DrawPatch(this.borderBottom, x, fillHeight - this.windowY, this.drawScale);
             }
 
-            for (var y = windowY; y < fillHeight - windowY; y += step)
+            for (var y = this.windowY; y < fillHeight - this.windowY; y += step)
             {
-                screen.DrawPatch(borderLeft, windowX - step, y, drawScale);
-                screen.DrawPatch(borderRight, screenWidth - windowX, y, drawScale);
+                this.screen.DrawPatch(this.borderLeft, this.windowX - step, y, this.drawScale);
+                this.screen.DrawPatch(this.borderRight, this.screenWidth - this.windowX, y, this.drawScale);
             }
 
-            screen.DrawPatch(borderTopLeft, windowX - step, windowY - step, drawScale);
-            screen.DrawPatch(borderTopRight, screenWidth - windowX, windowY - step, drawScale);
-            screen.DrawPatch(borderBottomLeft, windowX - step, fillHeight - windowY, drawScale);
-            screen.DrawPatch(borderBottomRight, screenWidth - windowX, fillHeight - windowY, drawScale);
+            this.screen.DrawPatch(this.borderTopLeft, this.windowX - step, this.windowY - step, this.drawScale);
+            this.screen.DrawPatch(this.borderTopRight, this.screenWidth - this.windowX, this.windowY - step, this.drawScale);
+            this.screen.DrawPatch(this.borderBottomLeft, this.windowX - step, fillHeight - this.windowY, this.drawScale);
+            this.screen.DrawPatch(this.borderBottomRight, this.screenWidth - this.windowX, fillHeight - this.windowY, this.drawScale);
         }
 
         private void FillRect(int x, int y, int width, int height)
         {
-            var data = backFlat.Data;
+            var data = this.backFlat.Data;
 
-            var srcX = x / drawScale;
-            var srcY = y / drawScale;
+            var srcX = x / this.drawScale;
+            var srcY = y / this.drawScale;
 
-            var invScale = Fixed.One / drawScale;
+            var invScale = Fixed.One / this.drawScale;
             var xFrac = invScale - Fixed.Epsilon;
 
             for (var i = 0; i < width; i++)
             {
                 var src = ((srcX + xFrac.ToIntFloor()) & 63) << 6;
-                var dst = screenHeight * (x + i) + y;
+                var dst = this.screenHeight * (x + i) + y;
                 var yFrac = invScale - Fixed.Epsilon;
                 for (var j = 0; j < height; j++)
                 {
-                    screenData[dst + j] = data[src | ((srcY + yFrac.ToIntFloor()) & 63)];
+                    this.screenData[dst + j] = data[src | ((srcY + yFrac.ToIntFloor()) & 63)];
                     yFrac += invScale;
                 }
                 xFrac += invScale;
@@ -704,34 +709,34 @@ namespace ManagedDoom.SoftwareRendering
 
         public void Render(Player player)
         {
-            world = player.Mobj.World;
+            this.world = player.Mobj.World;
 
-            viewX = player.Mobj.X;
-            viewY = player.Mobj.Y;
-            viewZ = player.ViewZ;
-            viewAngle = player.Mobj.Angle;
+            this.viewX = player.Mobj.X;
+            this.viewY = player.Mobj.Y;
+            this.viewZ = player.ViewZ;
+            this.viewAngle = player.Mobj.Angle;
 
-            viewSin = Trig.Sin(viewAngle);
-            viewCos = Trig.Cos(viewAngle);
+            this.viewSin = Trig.Sin(this.viewAngle);
+            this.viewCos = Trig.Cos(this.viewAngle);
 
-            validCount = world.GetNewValidCount();
+            this.validCount = this.world.GetNewValidCount();
 
-            extraLight = player.ExtraLight;
-            fixedColorMap = player.FixedColorMap;
+            this.extraLight = player.ExtraLight;
+            this.fixedColorMap = player.FixedColorMap;
 
-            ClearPlaneRendering();
-            ClearLighting();
-            ClearRenderingHistory();
-            ClearSpriteRendering();
+            this.ClearPlaneRendering();
+            this.ClearLighting();
+            this.ClearRenderingHistory();
+            this.ClearSpriteRendering();
 
-            RenderBspNode(world.Map.Nodes.Length - 1);
-            RenderSprites();
-            RenderMaskedTextures();
-            DrawPlayerSprites(player);
+            this.RenderBspNode(this.world.Map.Nodes.Length - 1);
+            this.RenderSprites();
+            this.RenderMaskedTextures();
+            this.DrawPlayerSprites(player);
 
-            if (windowSize < 7)
+            if (this.windowSize < 7)
             {
-                FillBackScreen();
+                this.FillBackScreen();
             }
         }
 
@@ -743,27 +748,27 @@ namespace ManagedDoom.SoftwareRendering
             {
                 if (node == -1)
                 {
-                    DrawSubsector(0);
+                    this.DrawSubsector(0);
                 }
                 else
                 {
-                    DrawSubsector(Node.GetSubsector(node));
+                    this.DrawSubsector(Node.GetSubsector(node));
                 }
                 return;
             }
 
-            var bsp = world.Map.Nodes[node];
+            var bsp = this.world.Map.Nodes[node];
 
             // Decide which side the view point is on.
-            var side = Geometry.PointOnSide(viewX, viewY, bsp);
+            var side = Geometry.PointOnSide(this.viewX, this.viewY, bsp);
 
             // Recursively divide front space.
-            RenderBspNode(bsp.Children[side]);
+            this.RenderBspNode(bsp.Children[side]);
 
             // Possibly divide back space.
-            if (IsPotentiallyVisible(bsp.BoundingBox[side ^ 1]))
+            if (this.IsPotentiallyVisible(bsp.BoundingBox[side ^ 1]))
             {
-                RenderBspNode(bsp.Children[side ^ 1]);
+                this.RenderBspNode(bsp.Children[side ^ 1]);
             }
         }
 
@@ -771,13 +776,13 @@ namespace ManagedDoom.SoftwareRendering
 
         private void DrawSubsector(int subsector)
         {
-            var target = world.Map.Subsectors[subsector];
+            var target = this.world.Map.Subsectors[subsector];
 
-            AddSprites(target.Sector, validCount);
+            this.AddSprites(target.Sector, this.validCount);
 
             for (var i = 0; i < target.SegCount; i++)
             {
-                DrawSeg(world.Map.Segs[target.FirstSeg + i]);
+                this.DrawSeg(this.world.Map.Segs[target.FirstSeg + i]);
             }
         }
 
@@ -805,11 +810,11 @@ namespace ManagedDoom.SoftwareRendering
 
             // Find the corners of the box that define the edges from
             // current viewpoint.
-            if (viewX <= bbox[Box.Left])
+            if (this.viewX <= bbox[Box.Left])
             {
                 bx = 0;
             }
-            else if (viewX < bbox[Box.Right])
+            else if (this.viewX < bbox[Box.Right])
             {
                 bx = 1;
             }
@@ -818,11 +823,11 @@ namespace ManagedDoom.SoftwareRendering
                 bx = 2;
             }
 
-            if (viewY >= bbox[Box.Top])
+            if (this.viewY >= bbox[Box.Top])
             {
                 by = 0;
             }
-            else if (viewY > bbox[Box.Bottom])
+            else if (this.viewY > bbox[Box.Bottom])
             {
                 by = 1;
             }
@@ -837,14 +842,14 @@ namespace ManagedDoom.SoftwareRendering
                 return true;
             }
 
-            var x1 = bbox[viewPosToFrustumTangent[viewPos][0]];
-            var y1 = bbox[viewPosToFrustumTangent[viewPos][1]];
-            var x2 = bbox[viewPosToFrustumTangent[viewPos][2]];
-            var y2 = bbox[viewPosToFrustumTangent[viewPos][3]];
+            var x1 = bbox[ThreeDRenderer.viewPosToFrustumTangent[viewPos][0]];
+            var y1 = bbox[ThreeDRenderer.viewPosToFrustumTangent[viewPos][1]];
+            var x2 = bbox[ThreeDRenderer.viewPosToFrustumTangent[viewPos][2]];
+            var y2 = bbox[ThreeDRenderer.viewPosToFrustumTangent[viewPos][3]];
 
             // Check clip list for an open space.
-            var angle1 = Geometry.PointToAngle(viewX, viewY, x1, y1) - viewAngle;
-            var angle2 = Geometry.PointToAngle(viewX, viewY, x2, y2) - viewAngle;
+            var angle1 = Geometry.PointToAngle(this.viewX, this.viewY, x1, y1) - this.viewAngle;
+            var angle2 = Geometry.PointToAngle(this.viewX, this.viewY, x2, y2) - this.viewAngle;
 
             var span = angle1 - angle2;
 
@@ -854,11 +859,11 @@ namespace ManagedDoom.SoftwareRendering
                 return true;
             }
 
-            var tSpan1 = angle1 + clipAngle;
+            var tSpan1 = angle1 + this.clipAngle;
 
-            if (tSpan1 > clipAngle2)
+            if (tSpan1 > this.clipAngle2)
             {
-                tSpan1 -= clipAngle2;
+                tSpan1 -= this.clipAngle2;
 
                 // Totally off the left edge?
                 if (tSpan1 >= span)
@@ -866,13 +871,13 @@ namespace ManagedDoom.SoftwareRendering
                     return false;
                 }
 
-                angle1 = clipAngle;
+                angle1 = this.clipAngle;
             }
 
-            var tSpan2 = clipAngle - angle2;
-            if (tSpan2 > clipAngle2)
+            var tSpan2 = this.clipAngle - angle2;
+            if (tSpan2 > this.clipAngle2)
             {
-                tSpan2 -= clipAngle2;
+                tSpan2 -= this.clipAngle2;
 
                 // Totally off the left edge?
                 if (tSpan2 >= span)
@@ -880,13 +885,13 @@ namespace ManagedDoom.SoftwareRendering
                     return false;
                 }
 
-                angle2 = -clipAngle;
+                angle2 = -this.clipAngle;
             }
 
             // Find the first clippost that touches the source post
             // (adjacent pixels are touching).
-            var sx1 = angleToX[(angle1 + Angle.Ang90).Data >> Trig.AngleToFineShift];
-            var sx2 = angleToX[(angle2 + Angle.Ang90).Data >> Trig.AngleToFineShift];
+            var sx1 = this.angleToX[(angle1 + Angle.Ang90).Data >> Trig.AngleToFineShift];
+            var sx2 = this.angleToX[(angle2 + Angle.Ang90).Data >> Trig.AngleToFineShift];
 
             // Does not cross a pixel.
             if (sx1 == sx2)
@@ -897,12 +902,12 @@ namespace ManagedDoom.SoftwareRendering
             sx2--;
 
             var start = 0;
-            while (clipRanges[start].Last < sx2)
+            while (this.clipRanges[start].Last < sx2)
             {
                 start++;
             }
 
-            if (sx1 >= clipRanges[start].First && sx2 <= clipRanges[start].Last)
+            if (sx1 >= this.clipRanges[start].First && sx2 <= this.clipRanges[start].Last)
             {
                 // The clippost contains the new span.
                 return false;
@@ -916,8 +921,8 @@ namespace ManagedDoom.SoftwareRendering
         private void DrawSeg(Seg seg)
         {
             // OPTIMIZE: quickly reject orthogonal back sides.
-            var angle1 = Geometry.PointToAngle(viewX, viewY, seg.Vertex1.X, seg.Vertex1.Y);
-            var angle2 = Geometry.PointToAngle(viewX, viewY, seg.Vertex2.X, seg.Vertex2.Y);
+            var angle1 = Geometry.PointToAngle(this.viewX, this.viewY, seg.Vertex1.X, seg.Vertex1.Y);
+            var angle2 = Geometry.PointToAngle(this.viewX, this.viewY, seg.Vertex2.X, seg.Vertex2.Y);
 
             // Clip to view edges.
             // OPTIMIZE: make constant out of 2 * clipangle (FIELDOFVIEW).
@@ -932,13 +937,13 @@ namespace ManagedDoom.SoftwareRendering
             // Global angle needed by segcalc.
             var rwAngle1 = angle1;
 
-            angle1 -= viewAngle;
-            angle2 -= viewAngle;
+            angle1 -= this.viewAngle;
+            angle2 -= this.viewAngle;
 
-            var tSpan1 = angle1 + clipAngle;
-            if (tSpan1 > clipAngle2)
+            var tSpan1 = angle1 + this.clipAngle;
+            if (tSpan1 > this.clipAngle2)
             {
-                tSpan1 -= clipAngle2;
+                tSpan1 -= this.clipAngle2;
 
                 // Totally off the left edge?
                 if (tSpan1 >= span)
@@ -946,13 +951,13 @@ namespace ManagedDoom.SoftwareRendering
                     return;
                 }
 
-                angle1 = clipAngle;
+                angle1 = this.clipAngle;
             }
 
-            var tSpan2 = clipAngle - angle2;
-            if (tSpan2 > clipAngle2)
+            var tSpan2 = this.clipAngle - angle2;
+            if (tSpan2 > this.clipAngle2)
             {
-                tSpan2 -= clipAngle2;
+                tSpan2 -= this.clipAngle2;
 
                 // Totally off the left edge?
                 if (tSpan2 >= span)
@@ -960,12 +965,12 @@ namespace ManagedDoom.SoftwareRendering
                     return;
                 }
 
-                angle2 = -clipAngle;
+                angle2 = -this.clipAngle;
             }
 
             // The seg is in the view range, but not necessarily visible.
-            var x1 = angleToX[(angle1 + Angle.Ang90).Data >> Trig.AngleToFineShift];
-            var x2 = angleToX[(angle2 + Angle.Ang90).Data >> Trig.AngleToFineShift];
+            var x1 = this.angleToX[(angle1 + Angle.Ang90).Data >> Trig.AngleToFineShift];
+            var x2 = this.angleToX[(angle2 + Angle.Ang90).Data >> Trig.AngleToFineShift];
 
             // Does not cross a pixel?
             if (x1 == x2)
@@ -979,7 +984,7 @@ namespace ManagedDoom.SoftwareRendering
             // Single sided line?
             if (backSector == null)
             {
-                DrawSolidWall(seg, rwAngle1, x1, x2 - 1);
+                this.DrawSolidWall(seg, rwAngle1, x1, x2 - 1);
                 return;
             }
 
@@ -987,7 +992,7 @@ namespace ManagedDoom.SoftwareRendering
             if (backSector.CeilingHeight <= frontSector.FloorHeight ||
                 backSector.FloorHeight >= frontSector.CeilingHeight)
             {
-                DrawSolidWall(seg, rwAngle1, x1, x2 - 1);
+                this.DrawSolidWall(seg, rwAngle1, x1, x2 - 1);
                 return;
             }
 
@@ -995,7 +1000,7 @@ namespace ManagedDoom.SoftwareRendering
             if (backSector.CeilingHeight != frontSector.CeilingHeight ||
                 backSector.FloorHeight != frontSector.FloorHeight)
             {
-                DrawPassWall(seg, rwAngle1, x1, x2 - 1);
+                this.DrawPassWall(seg, rwAngle1, x1, x2 - 1);
                 return;
             }
 
@@ -1010,7 +1015,7 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            DrawPassWall(seg, rwAngle1, x1, x2 - 1);
+            this.DrawPassWall(seg, rwAngle1, x1, x2 - 1);
         }
 
 
@@ -1023,65 +1028,65 @@ namespace ManagedDoom.SoftwareRendering
             // Find the first range that touches the range
             // (adjacent pixels are touching).
             start = 0;
-            while (clipRanges[start].Last < x1 - 1)
+            while (this.clipRanges[start].Last < x1 - 1)
             {
                 start++;
             }
 
-            if (x1 < clipRanges[start].First)
+            if (x1 < this.clipRanges[start].First)
             {
-                if (x2 < clipRanges[start].First - 1)
+                if (x2 < this.clipRanges[start].First - 1)
                 {
                     // Post is entirely visible (above start),
                     // so insert a new clippost.
-                    DrawSolidWallRange(seg, rwAngle1, x1, x2);
-                    next = clipRangeCount;
-                    clipRangeCount++;
+                    this.DrawSolidWallRange(seg, rwAngle1, x1, x2);
+                    next = this.clipRangeCount;
+                    this.clipRangeCount++;
 
                     while (next != start)
                     {
-                        clipRanges[next].CopyFrom(clipRanges[next - 1]);
+                        this.clipRanges[next].CopyFrom(this.clipRanges[next - 1]);
                         next--;
                     }
-                    clipRanges[next].First = x1;
-                    clipRanges[next].Last = x2;
+                    this.clipRanges[next].First = x1;
+                    this.clipRanges[next].Last = x2;
                     return;
                 }
 
                 // There is a fragment above *start.
-                DrawSolidWallRange(seg, rwAngle1, x1, clipRanges[start].First - 1);
+                this.DrawSolidWallRange(seg, rwAngle1, x1, this.clipRanges[start].First - 1);
 
                 // Now adjust the clip size.
-                clipRanges[start].First = x1;
+                this.clipRanges[start].First = x1;
             }
 
             // Bottom contained in start?
-            if (x2 <= clipRanges[start].Last)
+            if (x2 <= this.clipRanges[start].Last)
             {
                 return;
             }
 
             next = start;
-            while (x2 >= clipRanges[next + 1].First - 1)
+            while (x2 >= this.clipRanges[next + 1].First - 1)
             {
                 // There is a fragment between two posts.
-                DrawSolidWallRange(seg, rwAngle1, clipRanges[next].Last + 1, clipRanges[next + 1].First - 1);
+                this.DrawSolidWallRange(seg, rwAngle1, this.clipRanges[next].Last + 1, this.clipRanges[next + 1].First - 1);
                 next++;
 
-                if (x2 <= clipRanges[next].Last)
+                if (x2 <= this.clipRanges[next].Last)
                 {
                     // Bottom is contained in next.
                     // Adjust the clip size.
-                    clipRanges[start].Last = clipRanges[next].Last;
+                    this.clipRanges[start].Last = this.clipRanges[next].Last;
                     goto crunch;
                 }
             }
 
             // There is a fragment after *next.
-            DrawSolidWallRange(seg, rwAngle1, clipRanges[next].Last + 1, x2);
+            this.DrawSolidWallRange(seg, rwAngle1, this.clipRanges[next].Last + 1, x2);
 
             // Adjust the clip size.
-            clipRanges[start].Last = x2;
+            this.clipRanges[start].Last = x2;
 
             // Remove start + 1 to next from the clip list,
             // because start now covers their area.
@@ -1092,13 +1097,13 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            while (next++ != clipRangeCount)
+            while (next++ != this.clipRangeCount)
             {
                 // Remove a post.
-                clipRanges[++start].CopyFrom(clipRanges[next]);
+                this.clipRanges[++start].CopyFrom(this.clipRanges[next]);
             }
 
-            clipRangeCount = start + 1;
+            this.clipRangeCount = start + 1;
         }
 
 
@@ -1110,51 +1115,51 @@ namespace ManagedDoom.SoftwareRendering
             // Find the first range that touches the range
             // (adjacent pixels are touching).
             start = 0;
-            while (clipRanges[start].Last < x1 - 1)
+            while (this.clipRanges[start].Last < x1 - 1)
             {
                 start++;
             }
 
-            if (x1 < clipRanges[start].First)
+            if (x1 < this.clipRanges[start].First)
             {
-                if (x2 < clipRanges[start].First - 1)
+                if (x2 < this.clipRanges[start].First - 1)
                 {
                     // Post is entirely visible (above start).
-                    DrawPassWallRange(seg, rwAngle1, x1, x2, false);
+                    this.DrawPassWallRange(seg, rwAngle1, x1, x2, false);
                     return;
                 }
 
                 // There is a fragment above *start.
-                DrawPassWallRange(seg, rwAngle1, x1, clipRanges[start].First - 1, false);
+                this.DrawPassWallRange(seg, rwAngle1, x1, this.clipRanges[start].First - 1, false);
             }
 
             // Bottom contained in start?
-            if (x2 <= clipRanges[start].Last)
+            if (x2 <= this.clipRanges[start].Last)
             {
                 return;
             }
 
-            while (x2 >= clipRanges[start + 1].First - 1)
+            while (x2 >= this.clipRanges[start + 1].First - 1)
             {
                 // There is a fragment between two posts.
-                DrawPassWallRange(seg, rwAngle1, clipRanges[start].Last + 1, clipRanges[start + 1].First - 1, false);
+                this.DrawPassWallRange(seg, rwAngle1, this.clipRanges[start].Last + 1, this.clipRanges[start + 1].First - 1, false);
                 start++;
 
-                if (x2 <= clipRanges[start].Last)
+                if (x2 <= this.clipRanges[start].Last)
                 {
                     return;
                 }
             }
 
             // There is a fragment after *next.
-            DrawPassWallRange(seg, rwAngle1, clipRanges[start].Last + 1, x2, false);
+            this.DrawPassWallRange(seg, rwAngle1, this.clipRanges[start].Last + 1, x2, false);
         }
 
 
 
         private Fixed ScaleFromGlobalAngle(Angle visAngle, Angle viewAngle, Angle rwNormal, Fixed rwDistance)
         {
-            var num = projection * Trig.Sin(Angle.Ang90 + (visAngle - rwNormal));
+            var num = this.projection * Trig.Sin(Angle.Ang90 + (visAngle - rwNormal));
             var den = rwDistance * Trig.Sin(Angle.Ang90 + (visAngle - viewAngle));
 
             Fixed scale;
@@ -1182,17 +1187,17 @@ namespace ManagedDoom.SoftwareRendering
 
 
         private const int heightBits = 12;
-        private const int heightUnit = 1 << heightBits;
+        private const int heightUnit = 1 << ThreeDRenderer.heightBits;
 
         private void DrawSolidWallRange(Seg seg, Angle rwAngle1, int x1, int x2)
         {
             if (seg.BackSector != null)
             {
-                DrawPassWallRange(seg, rwAngle1, x1, x2, true);
+                this.DrawPassWallRange(seg, rwAngle1, x1, x2, true);
                 return;
             }
 
-            if (visWallRangeCount == visWallRanges.Length)
+            if (this.visWallRangeCount == this.visWallRanges.Length)
             {
                 // Too many visible walls.
                 return;
@@ -1207,26 +1212,26 @@ namespace ManagedDoom.SoftwareRendering
             line.Flags |= LineFlags.Mapped;
 
             // Calculate the relative plane heights of front and back sector.
-            var worldFrontZ1 = frontSector.CeilingHeight - viewZ;
-            var worldFrontZ2 = frontSector.FloorHeight - viewZ;
+            var worldFrontZ1 = frontSector.CeilingHeight - this.viewZ;
+            var worldFrontZ2 = frontSector.FloorHeight - this.viewZ;
 
             // Check which parts must be rendered.
             var drawWall = side.MiddleTexture != 0;
-            var drawCeiling = worldFrontZ1 > Fixed.Zero || frontSector.CeilingFlat == flats.SkyFlatNumber;
+            var drawCeiling = worldFrontZ1 > Fixed.Zero || frontSector.CeilingFlat == this.flats.SkyFlatNumber;
             var drawFloor = worldFrontZ2 < Fixed.Zero;
 
             //
             // Determine how the wall textures are vertically aligned.
             //
 
-            var wallTexture = textures[world.Specials.TextureTranslation[side.MiddleTexture]];
+            var wallTexture = this.textures[this.world.Specials.TextureTranslation[side.MiddleTexture]];
             var wallWidthMask = wallTexture.Width - 1;
 
             Fixed middleTextureAlt;
             if ((line.Flags & LineFlags.DontPegBottom) != 0)
             {
                 var vTop = frontSector.FloorHeight + Fixed.FromInt(wallTexture.Height);
-                middleTextureAlt = vTop - viewZ;
+                middleTextureAlt = vTop - this.viewZ;
             }
             else
             {
@@ -1248,18 +1253,18 @@ namespace ManagedDoom.SoftwareRendering
 
             var distAngle = Angle.Ang90 - offsetAngle;
 
-            var hypotenuse = Geometry.PointToDist(viewX, viewY, seg.Vertex1.X, seg.Vertex1.Y);
+            var hypotenuse = Geometry.PointToDist(this.viewX, this.viewY, seg.Vertex1.X, seg.Vertex1.Y);
 
             var rwDistance = hypotenuse * Trig.Sin(distAngle);
 
-            var rwScale = ScaleFromGlobalAngle(viewAngle + xToAngle[x1], viewAngle, rwNormalAngle, rwDistance);
+            var rwScale = this.ScaleFromGlobalAngle(this.viewAngle + this.xToAngle[x1], this.viewAngle, rwNormalAngle, rwDistance);
 
             Fixed scale1 = rwScale;
             Fixed scale2;
             Fixed rwScaleStep;
             if (x2 > x1)
             {
-                scale2 = ScaleFromGlobalAngle(viewAngle + xToAngle[x2], viewAngle, rwNormalAngle, rwDistance);
+                scale2 = this.ScaleFromGlobalAngle(this.viewAngle + this.xToAngle[x2], this.viewAngle, rwNormalAngle, rwDistance);
                 rwScaleStep = (scale2 - rwScale) / (x2 - x1);
             }
             else
@@ -1290,9 +1295,9 @@ namespace ManagedDoom.SoftwareRendering
             }
             rwOffset += seg.Offset + side.TextureOffset;
 
-            var rwCenterAngle = Angle.Ang90 + viewAngle - rwNormalAngle;
+            var rwCenterAngle = Angle.Ang90 + this.viewAngle - rwNormalAngle;
 
-            var wallLightLevel = (frontSector.LightLevel >> lightSegShift) + extraLight;
+            var wallLightLevel = (frontSector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
             if (seg.Vertex1.Y == seg.Vertex2.Y)
             {
                 wallLightLevel--;
@@ -1302,7 +1307,7 @@ namespace ManagedDoom.SoftwareRendering
                 wallLightLevel++;
             }
 
-            var wallLights = scaleLight[Math.Clamp(wallLightLevel, 0, lightLevelCount - 1)];
+            var wallLights = this.scaleLight[Math.Clamp(wallLightLevel, 0, ThreeDRenderer.lightLevelCount - 1)];
 
             //
             // Determine where on the screen the wall is drawn.
@@ -1313,28 +1318,28 @@ namespace ManagedDoom.SoftwareRendering
             worldFrontZ2 >>= 4;
 
             // The Y positions of the top / bottom edges of the wall on the screen.
-            var wallY1Frac = (centerYFrac >> 4) - worldFrontZ1 * rwScale;
+            var wallY1Frac = (this.centerYFrac >> 4) - worldFrontZ1 * rwScale;
             var wallY1Step = -(rwScaleStep * worldFrontZ1);
-            var wallY2Frac = (centerYFrac >> 4) - worldFrontZ2 * rwScale;
+            var wallY2Frac = (this.centerYFrac >> 4) - worldFrontZ2 * rwScale;
             var wallY2Step = -(rwScaleStep * worldFrontZ2);
 
             //
             // Determine which color map is used for the plane according to the light level.
             //
 
-            var planeLightLevel = (frontSector.LightLevel >> lightSegShift) + extraLight;
-            if (planeLightLevel >= lightLevelCount)
+            var planeLightLevel = (frontSector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
+            if (planeLightLevel >= ThreeDRenderer.lightLevelCount)
             {
-                planeLightLevel = lightLevelCount - 1;
+                planeLightLevel = ThreeDRenderer.lightLevelCount - 1;
             }
-            var planeLights = zLight[planeLightLevel];
+            var planeLights = this.zLight[planeLightLevel];
 
             //
             // Prepare to record the rendering history.
             //
 
-            var visWallRange = visWallRanges[visWallRangeCount];
-            visWallRangeCount++;
+            var visWallRange = this.visWallRanges[this.visWallRangeCount];
+            this.visWallRangeCount++;
 
             visWallRange.Seg = seg;
             visWallRange.X1 = x1;
@@ -1346,15 +1351,15 @@ namespace ManagedDoom.SoftwareRendering
             visWallRange.LowerSilHeight = Fixed.MaxValue;
             visWallRange.UpperSilHeight = Fixed.MinValue;
             visWallRange.MaskedTextureColumn = -1;
-            visWallRange.UpperClip = windowHeightArray;
-            visWallRange.LowerClip = negOneArray;
+            visWallRange.UpperClip = this.windowHeightArray;
+            visWallRange.LowerClip = this.negOneArray;
 
             //
             // Floor and ceiling.
             //
 
-            var ceilingFlat = flats[world.Specials.FlatTranslation[frontSector.CeilingFlat]];
-            var floorFlat = flats[world.Specials.FlatTranslation[frontSector.FloorFlat]];
+            var ceilingFlat = this.flats[this.world.Specials.FlatTranslation[frontSector.CeilingFlat]];
+            var floorFlat = this.flats[this.world.Specials.FlatTranslation[frontSector.FloorFlat]];
 
             //
             // Now the rendering is carried out.
@@ -1362,42 +1367,42 @@ namespace ManagedDoom.SoftwareRendering
 
             for (var x = x1; x <= x2; x++)
             {
-                var drawWallY1 = (wallY1Frac.Data + heightUnit - 1) >> heightBits;
-                var drawWallY2 = wallY2Frac.Data >> heightBits;
+                var drawWallY1 = (wallY1Frac.Data + ThreeDRenderer.heightUnit - 1) >> ThreeDRenderer.heightBits;
+                var drawWallY2 = wallY2Frac.Data >> ThreeDRenderer.heightBits;
 
                 if (drawCeiling)
                 {
-                    var cy1 = upperClip[x] + 1;
-                    var cy2 = Math.Min(drawWallY1 - 1, lowerClip[x] - 1);
-                    DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
+                    var cy1 = this.upperClip[x] + 1;
+                    var cy2 = Math.Min(drawWallY1 - 1, this.lowerClip[x] - 1);
+                    this.DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
                 }
 
                 if (drawWall)
                 {
-                    var wy1 = Math.Max(drawWallY1, upperClip[x] + 1);
-                    var wy2 = Math.Min(drawWallY2, lowerClip[x] - 1);
+                    var wy1 = Math.Max(drawWallY1, this.upperClip[x] + 1);
+                    var wy2 = Math.Min(drawWallY2, this.lowerClip[x] - 1);
 
-                    var angle = rwCenterAngle + xToAngle[x];
+                    var angle = rwCenterAngle + this.xToAngle[x];
                     angle = new Angle(angle.Data & 0x7FFFFFFF);
 
                     var textureColumn = (rwOffset - Trig.Tan(angle) * rwDistance).ToIntFloor();
                     var source = wallTexture.Composite.Columns[textureColumn & wallWidthMask][0];
 
-                    var lightIndex = rwScale.Data >> scaleLightShift;
-                    if (lightIndex >= maxScaleLight)
+                    var lightIndex = rwScale.Data >> ThreeDRenderer.scaleLightShift;
+                    if (lightIndex >= this.maxScaleLight)
                     {
-                        lightIndex = maxScaleLight - 1;
+                        lightIndex = this.maxScaleLight - 1;
                     }
 
                     var invScale = new Fixed((int)(0xffffffffu / (uint)rwScale.Data));
-                    DrawColumn(source, wallLights[lightIndex], x, wy1, wy2, invScale, middleTextureAlt);
+                    this.DrawColumn(source, wallLights[lightIndex], x, wy1, wy2, invScale, middleTextureAlt);
                 }
 
                 if (drawFloor)
                 {
-                    var fy1 = Math.Max(drawWallY2 + 1, upperClip[x] + 1);
-                    var fy2 = lowerClip[x] - 1;
-                    DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
+                    var fy1 = Math.Max(drawWallY2 + 1, this.upperClip[x] + 1);
+                    var fy2 = this.lowerClip[x] - 1;
+                    this.DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
                 }
 
                 rwScale += rwScaleStep;
@@ -1410,7 +1415,7 @@ namespace ManagedDoom.SoftwareRendering
 
         private void DrawPassWallRange(Seg seg, Angle rwAngle1, int x1, int x2, bool drawAsSolidWall)
         {
-            if (visWallRangeCount == visWallRanges.Length)
+            if (this.visWallRangeCount == this.visWallRanges.Length)
             {
                 // Too many visible walls.
                 return;
@@ -1418,7 +1423,7 @@ namespace ManagedDoom.SoftwareRendering
 
             var range = x2 - x1 + 1;
 
-            if (clipDataLength + 3 * range >= clipData.Length)
+            if (this.clipDataLength + 3 * range >= this.clipData.Length)
             {
                 // Clip info buffer is not sufficient.
                 return;
@@ -1435,14 +1440,14 @@ namespace ManagedDoom.SoftwareRendering
 
             // Calculate the relative plane heights of front and back sector.
             // These values are later 4 bits right shifted to calculate the rendering area.
-            var worldFrontZ1 = frontSector.CeilingHeight - viewZ;
-            var worldFrontZ2 = frontSector.FloorHeight - viewZ;
-            var worldBackZ1 = backSector.CeilingHeight - viewZ;
-            var worldBackZ2 = backSector.FloorHeight - viewZ;
+            var worldFrontZ1 = frontSector.CeilingHeight - this.viewZ;
+            var worldFrontZ2 = frontSector.FloorHeight - this.viewZ;
+            var worldBackZ1 = backSector.CeilingHeight - this.viewZ;
+            var worldBackZ2 = backSector.FloorHeight - this.viewZ;
 
             // The hack below enables ceiling height change in outdoor area without showing the upper wall.
-            if (frontSector.CeilingFlat == flats.SkyFlatNumber &&
-                backSector.CeilingFlat == flats.SkyFlatNumber)
+            if (frontSector.CeilingFlat == this.flats.SkyFlatNumber &&
+                backSector.CeilingFlat == this.flats.SkyFlatNumber)
             {
                 worldFrontZ1 = worldBackZ1;
             }
@@ -1459,7 +1464,7 @@ namespace ManagedDoom.SoftwareRendering
                 frontSector.LightLevel != backSector.LightLevel)
             {
                 drawUpperWall = side.TopTexture != 0 && worldBackZ1 < worldFrontZ1;
-                drawCeiling = worldFrontZ1 >= Fixed.Zero || frontSector.CeilingFlat == flats.SkyFlatNumber;
+                drawCeiling = worldFrontZ1 >= Fixed.Zero || frontSector.CeilingFlat == this.flats.SkyFlatNumber;
             }
             else
             {
@@ -1502,7 +1507,7 @@ namespace ManagedDoom.SoftwareRendering
             var uperTextureAlt = default(Fixed);
             if (drawUpperWall)
             {
-                upperWallTexture = textures[world.Specials.TextureTranslation[side.TopTexture]];
+                upperWallTexture = this.textures[this.world.Specials.TextureTranslation[side.TopTexture]];
                 upperWallWidthMask = upperWallTexture.Width - 1;
 
                 if ((line.Flags & LineFlags.DontPegTop) != 0)
@@ -1512,7 +1517,7 @@ namespace ManagedDoom.SoftwareRendering
                 else
                 {
                     var vTop = backSector.CeilingHeight + Fixed.FromInt(upperWallTexture.Height);
-                    uperTextureAlt = vTop - viewZ;
+                    uperTextureAlt = vTop - this.viewZ;
                 }
                 uperTextureAlt += side.RowOffset;
             }
@@ -1522,7 +1527,7 @@ namespace ManagedDoom.SoftwareRendering
             var lowerTextureAlt = default(Fixed);
             if (drawLowerWall)
             {
-                lowerWallTexture = textures[world.Specials.TextureTranslation[side.BottomTexture]];
+                lowerWallTexture = this.textures[this.world.Specials.TextureTranslation[side.BottomTexture]];
                 lowerWallWidthMask = lowerWallTexture.Width - 1;
 
                 if ((line.Flags & LineFlags.DontPegBottom) != 0)
@@ -1550,18 +1555,18 @@ namespace ManagedDoom.SoftwareRendering
 
             var distAngle = Angle.Ang90 - offsetAngle;
 
-            var hypotenuse = Geometry.PointToDist(viewX, viewY, seg.Vertex1.X, seg.Vertex1.Y);
+            var hypotenuse = Geometry.PointToDist(this.viewX, this.viewY, seg.Vertex1.X, seg.Vertex1.Y);
 
             var rwDistance = hypotenuse * Trig.Sin(distAngle);
 
-            var rwScale = ScaleFromGlobalAngle(viewAngle + xToAngle[x1], viewAngle, rwNormalAngle, rwDistance);
+            var rwScale = this.ScaleFromGlobalAngle(this.viewAngle + this.xToAngle[x1], this.viewAngle, rwNormalAngle, rwDistance);
 
             Fixed scale1 = rwScale;
             Fixed scale2;
             Fixed rwScaleStep;
             if (x2 > x1)
             {
-                scale2 = ScaleFromGlobalAngle(viewAngle + xToAngle[x2], viewAngle, rwNormalAngle, rwDistance);
+                scale2 = this.ScaleFromGlobalAngle(this.viewAngle + this.xToAngle[x2], this.viewAngle, rwNormalAngle, rwDistance);
                 rwScaleStep = (scale2 - rwScale) / (x2 - x1);
             }
             else
@@ -1597,9 +1602,9 @@ namespace ManagedDoom.SoftwareRendering
                 }
                 rwOffset += seg.Offset + side.TextureOffset;
 
-                rwCenterAngle = Angle.Ang90 + viewAngle - rwNormalAngle;
+                rwCenterAngle = Angle.Ang90 + this.viewAngle - rwNormalAngle;
 
-                var wallLightLevel = (frontSector.LightLevel >> lightSegShift) + extraLight;
+                var wallLightLevel = (frontSector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
                 if (seg.Vertex1.Y == seg.Vertex2.Y)
                 {
                     wallLightLevel--;
@@ -1609,7 +1614,7 @@ namespace ManagedDoom.SoftwareRendering
                     wallLightLevel++;
                 }
 
-                wallLights = scaleLight[Math.Clamp(wallLightLevel, 0, lightLevelCount - 1)];
+                wallLights = this.scaleLight[Math.Clamp(wallLightLevel, 0, ThreeDRenderer.lightLevelCount - 1)];
             }
 
             //
@@ -1623,9 +1628,9 @@ namespace ManagedDoom.SoftwareRendering
             worldBackZ2 >>= 4;
 
             // The Y positions of the top / bottom edges of the wall on the screen..
-            var wallY1Frac = (centerYFrac >> 4) - worldFrontZ1 * rwScale;
+            var wallY1Frac = (this.centerYFrac >> 4) - worldFrontZ1 * rwScale;
             var wallY1Step = -(rwScaleStep * worldFrontZ1);
-            var wallY2Frac = (centerYFrac >> 4) - worldFrontZ2 * rwScale;
+            var wallY2Frac = (this.centerYFrac >> 4) - worldFrontZ2 * rwScale;
             var wallY2Step = -(rwScaleStep * worldFrontZ2);
 
             // The Y position of the top edge of the portal (if visible).
@@ -1635,12 +1640,12 @@ namespace ManagedDoom.SoftwareRendering
             {
                 if (worldBackZ1 > worldFrontZ2)
                 {
-                    portalY1Frac = (centerYFrac >> 4) - worldBackZ1 * rwScale;
+                    portalY1Frac = (this.centerYFrac >> 4) - worldBackZ1 * rwScale;
                     portalY1Step = -(rwScaleStep * worldBackZ1);
                 }
                 else
                 {
-                    portalY1Frac = (centerYFrac >> 4) - worldFrontZ2 * rwScale;
+                    portalY1Frac = (this.centerYFrac >> 4) - worldFrontZ2 * rwScale;
                     portalY1Step = -(rwScaleStep * worldFrontZ2);
                 }
             }
@@ -1652,12 +1657,12 @@ namespace ManagedDoom.SoftwareRendering
             {
                 if (worldBackZ2 < worldFrontZ1)
                 {
-                    portalY2Frac = (centerYFrac >> 4) - worldBackZ2 * rwScale;
+                    portalY2Frac = (this.centerYFrac >> 4) - worldBackZ2 * rwScale;
                     portalY2Step = -(rwScaleStep * worldBackZ2);
                 }
                 else
                 {
-                    portalY2Frac = (centerYFrac >> 4) - worldFrontZ1 * rwScale;
+                    portalY2Frac = (this.centerYFrac >> 4) - worldFrontZ1 * rwScale;
                     portalY2Step = -(rwScaleStep * worldFrontZ1);
                 }
             }
@@ -1666,19 +1671,19 @@ namespace ManagedDoom.SoftwareRendering
             // Determine which color map is used for the plane according to the light level.
             //
 
-            var planeLightLevel = (frontSector.LightLevel >> lightSegShift) + extraLight;
-            if (planeLightLevel >= lightLevelCount)
+            var planeLightLevel = (frontSector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
+            if (planeLightLevel >= ThreeDRenderer.lightLevelCount)
             {
-                planeLightLevel = lightLevelCount - 1;
+                planeLightLevel = ThreeDRenderer.lightLevelCount - 1;
             }
-            var planeLights = zLight[planeLightLevel];
+            var planeLights = this.zLight[planeLightLevel];
 
             //
             // Prepare to record the rendering history.
             //
 
-            var visWallRange = visWallRanges[visWallRangeCount];
-            visWallRangeCount++;
+            var visWallRange = this.visWallRanges[this.visWallRangeCount];
+            this.visWallRangeCount++;
 
             visWallRange.Seg = seg;
             visWallRange.X1 = x1;
@@ -1696,7 +1701,7 @@ namespace ManagedDoom.SoftwareRendering
                 visWallRange.Silhouette = Silhouette.Lower;
                 visWallRange.LowerSilHeight = frontSector.FloorHeight;
             }
-            else if (backSector.FloorHeight > viewZ)
+            else if (backSector.FloorHeight > this.viewZ)
             {
                 visWallRange.Silhouette = Silhouette.Lower;
                 visWallRange.LowerSilHeight = Fixed.MaxValue;
@@ -1707,7 +1712,7 @@ namespace ManagedDoom.SoftwareRendering
                 visWallRange.Silhouette |= Silhouette.Upper;
                 visWallRange.UpperSilHeight = frontSector.CeilingHeight;
             }
-            else if (backSector.CeilingHeight < viewZ)
+            else if (backSector.CeilingHeight < this.viewZ)
             {
                 visWallRange.Silhouette |= Silhouette.Upper;
                 visWallRange.UpperSilHeight = Fixed.MinValue;
@@ -1715,14 +1720,14 @@ namespace ManagedDoom.SoftwareRendering
 
             if (backSector.CeilingHeight <= frontSector.FloorHeight)
             {
-                visWallRange.LowerClip = negOneArray;
+                visWallRange.LowerClip = this.negOneArray;
                 visWallRange.LowerSilHeight = Fixed.MaxValue;
                 visWallRange.Silhouette |= Silhouette.Lower;
             }
 
             if (backSector.FloorHeight >= frontSector.CeilingHeight)
             {
-                visWallRange.UpperClip = windowHeightArray;
+                visWallRange.UpperClip = this.windowHeightArray;
                 visWallRange.UpperSilHeight = Fixed.MinValue;
                 visWallRange.Silhouette |= Silhouette.Upper;
             }
@@ -1730,9 +1735,9 @@ namespace ManagedDoom.SoftwareRendering
             var maskedTextureColumn = default(int);
             if (drawMaskedTexture)
             {
-                maskedTextureColumn = clipDataLength - x1;
+                maskedTextureColumn = this.clipDataLength - x1;
                 visWallRange.MaskedTextureColumn = maskedTextureColumn;
-                clipDataLength += range;
+                this.clipDataLength += range;
             }
             else
             {
@@ -1743,8 +1748,8 @@ namespace ManagedDoom.SoftwareRendering
             // Floor and ceiling.
             //
 
-            var ceilingFlat = flats[world.Specials.FlatTranslation[frontSector.CeilingFlat]];
-            var floorFlat = flats[world.Specials.FlatTranslation[frontSector.FloorFlat]];
+            var ceilingFlat = this.flats[this.world.Specials.FlatTranslation[frontSector.CeilingFlat]];
+            var floorFlat = this.flats[this.world.Specials.FlatTranslation[frontSector.FloorFlat]];
 
             //
             // Now the rendering is carried out.
@@ -1752,22 +1757,22 @@ namespace ManagedDoom.SoftwareRendering
 
             for (var x = x1; x <= x2; x++)
             {
-                var drawWallY1 = (wallY1Frac.Data + heightUnit - 1) >> heightBits;
-                var drawWallY2 = wallY2Frac.Data >> heightBits;
+                var drawWallY1 = (wallY1Frac.Data + ThreeDRenderer.heightUnit - 1) >> ThreeDRenderer.heightBits;
+                var drawWallY2 = wallY2Frac.Data >> ThreeDRenderer.heightBits;
 
                 var textureColumn = default(int);
                 var lightIndex = default(int);
                 var invScale = default(Fixed);
                 if (segTextured)
                 {
-                    var angle = rwCenterAngle + xToAngle[x];
+                    var angle = rwCenterAngle + this.xToAngle[x];
                     angle = new Angle(angle.Data & 0x7FFFFFFF);
                     textureColumn = (rwOffset - Trig.Tan(angle) * rwDistance).ToIntFloor();
 
-                    lightIndex = rwScale.Data >> scaleLightShift;
-                    if (lightIndex >= maxScaleLight)
+                    lightIndex = rwScale.Data >> ThreeDRenderer.scaleLightShift;
+                    if (lightIndex >= this.maxScaleLight)
                     {
-                        lightIndex = maxScaleLight - 1;
+                        lightIndex = this.maxScaleLight - 1;
                     }
 
                     invScale = new Fixed((int)(0xffffffffu / (uint)rwScale.Data));
@@ -1775,85 +1780,85 @@ namespace ManagedDoom.SoftwareRendering
 
                 if (drawUpperWall)
                 {
-                    var drawUpperWallY1 = (wallY1Frac.Data + heightUnit - 1) >> heightBits;
-                    var drawUpperWallY2 = portalY1Frac.Data >> heightBits;
+                    var drawUpperWallY1 = (wallY1Frac.Data + ThreeDRenderer.heightUnit - 1) >> ThreeDRenderer.heightBits;
+                    var drawUpperWallY2 = portalY1Frac.Data >> ThreeDRenderer.heightBits;
 
                     if (drawCeiling)
                     {
-                        var cy1 = upperClip[x] + 1;
-                        var cy2 = Math.Min(drawWallY1 - 1, lowerClip[x] - 1);
-                        DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
+                        var cy1 = this.upperClip[x] + 1;
+                        var cy2 = Math.Min(drawWallY1 - 1, this.lowerClip[x] - 1);
+                        this.DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
                     }
 
-                    var wy1 = Math.Max(drawUpperWallY1, upperClip[x] + 1);
-                    var wy2 = Math.Min(drawUpperWallY2, lowerClip[x] - 1);
+                    var wy1 = Math.Max(drawUpperWallY1, this.upperClip[x] + 1);
+                    var wy2 = Math.Min(drawUpperWallY2, this.lowerClip[x] - 1);
                     var source = upperWallTexture.Composite.Columns[textureColumn & upperWallWidthMask];
                     if (source.Length > 0)
                     {
-                        DrawColumn(source[0], wallLights[lightIndex], x, wy1, wy2, invScale, uperTextureAlt);
+                        this.DrawColumn(source[0], wallLights[lightIndex], x, wy1, wy2, invScale, uperTextureAlt);
                     }
 
-                    if (upperClip[x] < wy2)
+                    if (this.upperClip[x] < wy2)
                     {
-                        upperClip[x] = (short)wy2;
+                        this.upperClip[x] = (short)wy2;
                     }
 
                     portalY1Frac += portalY1Step;
                 }
                 else if (drawCeiling)
                 {
-                    var cy1 = upperClip[x] + 1;
-                    var cy2 = Math.Min(drawWallY1 - 1, lowerClip[x] - 1);
-                    DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
+                    var cy1 = this.upperClip[x] + 1;
+                    var cy2 = Math.Min(drawWallY1 - 1, this.lowerClip[x] - 1);
+                    this.DrawCeilingColumn(frontSector, ceilingFlat, planeLights, x, cy1, cy2);
 
-                    if (upperClip[x] < cy2)
+                    if (this.upperClip[x] < cy2)
                     {
-                        upperClip[x] = (short)cy2;
+                        this.upperClip[x] = (short)cy2;
                     }
                 }
 
                 if (drawLowerWall)
                 {
-                    var drawLowerWallY1 = (portalY2Frac.Data + heightUnit - 1) >> heightBits;
-                    var drawLowerWallY2 = wallY2Frac.Data >> heightBits;
+                    var drawLowerWallY1 = (portalY2Frac.Data + ThreeDRenderer.heightUnit - 1) >> ThreeDRenderer.heightBits;
+                    var drawLowerWallY2 = wallY2Frac.Data >> ThreeDRenderer.heightBits;
 
-                    var wy1 = Math.Max(drawLowerWallY1, upperClip[x] + 1);
-                    var wy2 = Math.Min(drawLowerWallY2, lowerClip[x] - 1);
+                    var wy1 = Math.Max(drawLowerWallY1, this.upperClip[x] + 1);
+                    var wy2 = Math.Min(drawLowerWallY2, this.lowerClip[x] - 1);
                     var source = lowerWallTexture.Composite.Columns[textureColumn & lowerWallWidthMask];
                     if (source.Length > 0)
                     {
-                        DrawColumn(source[0], wallLights[lightIndex], x, wy1, wy2, invScale, lowerTextureAlt);
+                        this.DrawColumn(source[0], wallLights[lightIndex], x, wy1, wy2, invScale, lowerTextureAlt);
                     }
 
                     if (drawFloor)
                     {
-                        var fy1 = Math.Max(drawWallY2 + 1, upperClip[x] + 1);
-                        var fy2 = lowerClip[x] - 1;
-                        DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
+                        var fy1 = Math.Max(drawWallY2 + 1, this.upperClip[x] + 1);
+                        var fy2 = this.lowerClip[x] - 1;
+                        this.DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
                     }
 
-                    if (lowerClip[x] > wy1)
+                    if (this.lowerClip[x] > wy1)
                     {
-                        lowerClip[x] = (short)wy1;
+                        this.lowerClip[x] = (short)wy1;
                     }
 
                     portalY2Frac += portalY2Step;
                 }
                 else if (drawFloor)
                 {
-                    var fy1 = Math.Max(drawWallY2 + 1, upperClip[x] + 1);
-                    var fy2 = lowerClip[x] - 1;
-                    DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
+                    var fy1 = Math.Max(drawWallY2 + 1, this.upperClip[x] + 1);
+                    var fy2 = this.lowerClip[x] - 1;
+                    this.DrawFloorColumn(frontSector, floorFlat, planeLights, x, fy1, fy2);
 
-                    if (lowerClip[x] > drawWallY2 + 1)
+                    if (this.lowerClip[x] > drawWallY2 + 1)
                     {
-                        lowerClip[x] = (short)fy1;
+                        this.lowerClip[x] = (short)fy1;
                     }
                 }
 
                 if (drawMaskedTexture)
                 {
-                    clipData[maskedTextureColumn + x] = (short)textureColumn;
+                    this.clipData[maskedTextureColumn + x] = (short)textureColumn;
                 }
 
                 rwScale += rwScaleStep;
@@ -1868,17 +1873,17 @@ namespace ManagedDoom.SoftwareRendering
             if (((visWallRange.Silhouette & Silhouette.Upper) != 0 ||
                 drawMaskedTexture) && visWallRange.UpperClip == -1)
             {
-                Array.Copy(upperClip, x1, clipData, clipDataLength, range);
-                visWallRange.UpperClip = clipDataLength - x1;
-                clipDataLength += range;
+                Array.Copy(this.upperClip, x1, this.clipData, this.clipDataLength, range);
+                visWallRange.UpperClip = this.clipDataLength - x1;
+                this.clipDataLength += range;
             }
 
             if (((visWallRange.Silhouette & Silhouette.Lower) != 0 ||
                 drawMaskedTexture) && visWallRange.LowerClip == -1)
             {
-                Array.Copy(lowerClip, x1, clipData, clipDataLength, range);
-                visWallRange.LowerClip = clipDataLength - x1;
-                clipDataLength += range;
+                Array.Copy(this.lowerClip, x1, this.clipData, this.clipDataLength, range);
+                visWallRange.LowerClip = this.clipDataLength - x1;
+                this.clipDataLength += range;
             }
 
             if (drawMaskedTexture && (visWallRange.Silhouette & Silhouette.Upper) == 0)
@@ -1898,12 +1903,12 @@ namespace ManagedDoom.SoftwareRendering
 
         private void RenderMaskedTextures()
         {
-            for (var i = visWallRangeCount - 1; i >= 0; i--)
+            for (var i = this.visWallRangeCount - 1; i >= 0; i--)
             {
-                var drawSeg = visWallRanges[i];
+                var drawSeg = this.visWallRanges[i];
                 if (drawSeg.MaskedTextureColumn != -1)
                 {
-                    DrawMaskedRange(drawSeg, drawSeg.X1, drawSeg.X2);
+                    this.DrawMaskedRange(drawSeg, drawSeg.X1, drawSeg.X2);
                 }
             }
         }
@@ -1914,7 +1919,7 @@ namespace ManagedDoom.SoftwareRendering
         {
             var seg = drawSeg.Seg;
 
-            var wallLightLevel = (seg.FrontSector.LightLevel >> lightSegShift) + extraLight;
+            var wallLightLevel = (seg.FrontSector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
             if (seg.Vertex1.Y == seg.Vertex2.Y)
             {
                 wallLightLevel--;
@@ -1924,9 +1929,9 @@ namespace ManagedDoom.SoftwareRendering
                 wallLightLevel++;
             }
 
-            var wallLights = scaleLight[Math.Clamp(wallLightLevel, 0, lightLevelCount - 1)];
+            var wallLights = this.scaleLight[Math.Clamp(wallLightLevel, 0, ThreeDRenderer.lightLevelCount - 1)];
 
-            var wallTexture = textures[world.Specials.TextureTranslation[seg.SideDef.MiddleTexture]];
+            var wallTexture = this.textures[this.world.Specials.TextureTranslation[seg.SideDef.MiddleTexture]];
             var mask = wallTexture.Width - 1;
 
             Fixed midTextureAlt;
@@ -1934,13 +1939,13 @@ namespace ManagedDoom.SoftwareRendering
             {
                 midTextureAlt = seg.FrontSector.FloorHeight > seg.BackSector.FloorHeight
                     ? seg.FrontSector.FloorHeight : seg.BackSector.FloorHeight;
-                midTextureAlt = midTextureAlt + Fixed.FromInt(wallTexture.Height) - viewZ;
+                midTextureAlt = midTextureAlt + Fixed.FromInt(wallTexture.Height) - this.viewZ;
             }
             else
             {
                 midTextureAlt = seg.FrontSector.CeilingHeight < seg.BackSector.CeilingHeight
                     ? seg.FrontSector.CeilingHeight : seg.BackSector.CeilingHeight;
-                midTextureAlt = midTextureAlt - viewZ;
+                midTextureAlt = midTextureAlt - this.viewZ;
             }
             midTextureAlt += seg.SideDef.RowOffset;
 
@@ -1949,17 +1954,17 @@ namespace ManagedDoom.SoftwareRendering
 
             for (var x = x1; x <= x2; x++)
             {
-                var index = Math.Min(scale.Data >> scaleLightShift, maxScaleLight - 1);
+                var index = Math.Min(scale.Data >> ThreeDRenderer.scaleLightShift, this.maxScaleLight - 1);
 
-                var col = clipData[drawSeg.MaskedTextureColumn + x];
+                var col = this.clipData[drawSeg.MaskedTextureColumn + x];
 
                 if (col != short.MaxValue)
                 {
-                    var topY = centerYFrac - midTextureAlt * scale;
+                    var topY = this.centerYFrac - midTextureAlt * scale;
                     var invScale = new Fixed((int)(0xffffffffu / (uint)scale.Data));
-                    var ceilClip = clipData[drawSeg.UpperClip + x];
-                    var floorClip = clipData[drawSeg.LowerClip + x];
-                    DrawMaskedColumn(
+                    var ceilClip = this.clipData[drawSeg.UpperClip + x];
+                    var floorClip = this.clipData[drawSeg.LowerClip + x];
+                    this.DrawMaskedColumn(
                         wallTexture.Composite.Columns[col & mask],
                         wallLights[index],
                         x,
@@ -1970,7 +1975,7 @@ namespace ManagedDoom.SoftwareRendering
                         ceilClip,
                         floorClip);
 
-                    clipData[drawSeg.MaskedTextureColumn + x] = short.MaxValue;
+                    this.clipData[drawSeg.MaskedTextureColumn + x] = short.MaxValue;
                 }
 
                 scale += scaleStep;
@@ -1987,9 +1992,9 @@ namespace ManagedDoom.SoftwareRendering
             int y1,
             int y2)
         {
-            if (flat == flats.SkyFlat)
+            if (flat == this.flats.SkyFlat)
             {
-                DrawSkyColumn(x, y1, y2);
+                this.DrawSkyColumn(x, y1, y2);
                 return;
             }
 
@@ -1998,102 +2003,102 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            var height = Fixed.Abs(sector.CeilingHeight - viewZ);
+            var height = Fixed.Abs(sector.CeilingHeight - this.viewZ);
 
             var flatData = flat.Data;
 
-            if (sector == ceilingPrevSector && ceilingPrevX == x - 1)
+            if (sector == this.ceilingPrevSector && this.ceilingPrevX == x - 1)
             {
-                var p1 = Math.Max(y1, ceilingPrevY1);
-                var p2 = Math.Min(y2, ceilingPrevY2);
+                var p1 = Math.Max(y1, this.ceilingPrevY1);
+                var p2 = Math.Min(y2, this.ceilingPrevY2);
 
-                var pos = screenHeight * (windowX + x) + windowY + y1;
+                var pos = this.screenHeight * (this.windowX + x) + this.windowY + y1;
 
                 for (var y = y1; y < p1; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    ceilingXStep[y] = distance * planeBaseXScale;
-                    ceilingYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.ceilingXStep[y] = distance * this.planeBaseXScale;
+                    this.ceilingYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    ceilingXFrac[y] = xFrac;
-                    ceilingYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.ceilingXFrac[y] = xFrac;
+                    this.ceilingYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    ceilingLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.ceilingLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
 
                 for (var y = p1; y <= p2; y++)
                 {
-                    var xFrac = ceilingXFrac[y] + ceilingXStep[y];
-                    var yFrac = ceilingYFrac[y] + ceilingYStep[y];
+                    var xFrac = this.ceilingXFrac[y] + this.ceilingXStep[y];
+                    var yFrac = this.ceilingYFrac[y] + this.ceilingYStep[y];
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = ceilingLights[y][flatData[spot]];
+                    this.screenData[pos] = this.ceilingLights[y][flatData[spot]];
                     pos++;
 
-                    ceilingXFrac[y] = xFrac;
-                    ceilingYFrac[y] = yFrac;
+                    this.ceilingXFrac[y] = xFrac;
+                    this.ceilingYFrac[y] = yFrac;
                 }
 
                 for (var y = p2 + 1; y <= y2; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    ceilingXStep[y] = distance * planeBaseXScale;
-                    ceilingYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.ceilingXStep[y] = distance * this.planeBaseXScale;
+                    this.ceilingYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    ceilingXFrac[y] = xFrac;
-                    ceilingYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.ceilingXFrac[y] = xFrac;
+                    this.ceilingYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    ceilingLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.ceilingLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
             }
             else
             {
-                var pos = screenHeight * (windowX + x) + windowY + y1;
+                var pos = this.screenHeight * (this.windowX + x) + this.windowY + y1;
 
                 for (var y = y1; y <= y2; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    ceilingXStep[y] = distance * planeBaseXScale;
-                    ceilingYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.ceilingXStep[y] = distance * this.planeBaseXScale;
+                    this.ceilingYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    ceilingXFrac[y] = xFrac;
-                    ceilingYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.ceilingXFrac[y] = xFrac;
+                    this.ceilingYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    ceilingLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.ceilingLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
             }
 
-            ceilingPrevSector = sector;
-            ceilingPrevX = x;
-            ceilingPrevY1 = y1;
-            ceilingPrevY2 = y2;
+            this.ceilingPrevSector = sector;
+            this.ceilingPrevX = x;
+            this.ceilingPrevY1 = y1;
+            this.ceilingPrevY2 = y2;
         }
 
         private void DrawFloorColumn(
@@ -2104,9 +2109,9 @@ namespace ManagedDoom.SoftwareRendering
             int y1,
             int y2)
         {
-            if (flat == flats.SkyFlat)
+            if (flat == this.flats.SkyFlat)
             {
-                DrawSkyColumn(x, y1, y2);
+                this.DrawSkyColumn(x, y1, y2);
                 return;
             }
 
@@ -2115,102 +2120,102 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            var height = Fixed.Abs(sector.FloorHeight - viewZ);
+            var height = Fixed.Abs(sector.FloorHeight - this.viewZ);
 
             var flatData = flat.Data;
 
-            if (sector == floorPrevSector && floorPrevX == x - 1)
+            if (sector == this.floorPrevSector && this.floorPrevX == x - 1)
             {
-                var p1 = Math.Max(y1, floorPrevY1);
-                var p2 = Math.Min(y2, floorPrevY2);
+                var p1 = Math.Max(y1, this.floorPrevY1);
+                var p2 = Math.Min(y2, this.floorPrevY2);
 
-                var pos = screenHeight * (windowX + x) + windowY + y1;
+                var pos = this.screenHeight * (this.windowX + x) + this.windowY + y1;
 
                 for (var y = y1; y < p1; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    floorXStep[y] = distance * planeBaseXScale;
-                    floorYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.floorXStep[y] = distance * this.planeBaseXScale;
+                    this.floorYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    floorXFrac[y] = xFrac;
-                    floorYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.floorXFrac[y] = xFrac;
+                    this.floorYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    floorLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.floorLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
 
                 for (var y = p1; y <= p2; y++)
                 {
-                    var xFrac = floorXFrac[y] + floorXStep[y];
-                    var yFrac = floorYFrac[y] + floorYStep[y];
+                    var xFrac = this.floorXFrac[y] + this.floorXStep[y];
+                    var yFrac = this.floorYFrac[y] + this.floorYStep[y];
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = floorLights[y][flatData[spot]];
+                    this.screenData[pos] = this.floorLights[y][flatData[spot]];
                     pos++;
 
-                    floorXFrac[y] = xFrac;
-                    floorYFrac[y] = yFrac;
+                    this.floorXFrac[y] = xFrac;
+                    this.floorYFrac[y] = yFrac;
                 }
 
                 for (var y = p2 + 1; y <= y2; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    floorXStep[y] = distance * planeBaseXScale;
-                    floorYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.floorXStep[y] = distance * this.planeBaseXScale;
+                    this.floorYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    floorXFrac[y] = xFrac;
-                    floorYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.floorXFrac[y] = xFrac;
+                    this.floorYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    floorLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.floorLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
             }
             else
             {
-                var pos = screenHeight * (windowX + x) + windowY + y1;
+                var pos = this.screenHeight * (this.windowX + x) + this.windowY + y1;
 
                 for (var y = y1; y <= y2; y++)
                 {
-                    var distance = height * planeYSlope[y];
-                    floorXStep[y] = distance * planeBaseXScale;
-                    floorYStep[y] = distance * planeBaseYScale;
+                    var distance = height * this.planeYSlope[y];
+                    this.floorXStep[y] = distance * this.planeBaseXScale;
+                    this.floorYStep[y] = distance * this.planeBaseYScale;
 
-                    var length = distance * planeDistScale[x];
-                    var angle = viewAngle + xToAngle[x];
-                    var xFrac = viewX + Trig.Cos(angle) * length;
-                    var yFrac = -viewY - Trig.Sin(angle) * length;
-                    floorXFrac[y] = xFrac;
-                    floorYFrac[y] = yFrac;
+                    var length = distance * this.planeDistScale[x];
+                    var angle = this.viewAngle + this.xToAngle[x];
+                    var xFrac = this.viewX + Trig.Cos(angle) * length;
+                    var yFrac = -this.viewY - Trig.Sin(angle) * length;
+                    this.floorXFrac[y] = xFrac;
+                    this.floorYFrac[y] = yFrac;
 
-                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> zLightShift), maxZLight - 1)];
-                    floorLights[y] = colorMap;
+                    var colorMap = planeLights[Math.Min((uint)(distance.Data >> ThreeDRenderer.zLightShift), ThreeDRenderer.maxZLight - 1)];
+                    this.floorLights[y] = colorMap;
 
                     var spot = ((yFrac.Data >> (16 - 6)) & (63 * 64)) + ((xFrac.Data >> 16) & 63);
-                    screenData[pos] = colorMap[flatData[spot]];
+                    this.screenData[pos] = colorMap[flatData[spot]];
                     pos++;
                 }
             }
 
-            floorPrevSector = sector;
-            floorPrevX = x;
-            floorPrevY1 = y1;
-            floorPrevY2 = y2;
+            this.floorPrevSector = sector;
+            this.floorPrevX = x;
+            this.floorPrevY1 = y1;
+            this.floorPrevY2 = y2;
         }
 
 
@@ -2232,12 +2237,12 @@ namespace ManagedDoom.SoftwareRendering
             // Framebuffer destination address.
             // Use ylookup LUT to avoid multiply with ScreenWidth.
             // Use columnofs LUT for subwindows? 
-            var pos1 = screenHeight * (windowX + x) + windowY + y1;
+            var pos1 = this.screenHeight * (this.windowX + x) + this.windowY + y1;
             var pos2 = pos1 + (y2 - y1);
 
             // Determine scaling, which is the only mapping to be done.
             var fracStep = invScale;
-            var frac = textureAlt + (y1 - centerY) * fracStep;
+            var frac = textureAlt + (y1 - this.centerY) * fracStep;
 
             // Inner loop that does the actual texture mapping,
             // e.g. a DDA-lile scaling.
@@ -2248,7 +2253,7 @@ namespace ManagedDoom.SoftwareRendering
             {
                 // Re-map color indices from wall texture column
                 // using a lighting/special effects LUT.
-                screenData[pos] = map[source[offset + ((frac.Data >> Fixed.FracBits) & 127)]];
+                this.screenData[pos] = map[source[offset + ((frac.Data >> Fixed.FracBits) & 127)]];
                 frac += fracStep;
             }
         }
@@ -2271,12 +2276,12 @@ namespace ManagedDoom.SoftwareRendering
             // Framebuffer destination address.
             // Use ylookup LUT to avoid multiply with ScreenWidth.
             // Use columnofs LUT for subwindows? 
-            var pos1 = screenHeight * (windowX + x) + windowY + y1;
+            var pos1 = this.screenHeight * (this.windowX + x) + this.windowY + y1;
             var pos2 = pos1 + (y2 - y1);
 
             // Determine scaling, which is the only mapping to be done.
             var fracStep = invScale;
-            var frac = textureAlt + (y1 - centerY) * fracStep;
+            var frac = textureAlt + (y1 - this.centerY) * fracStep;
 
             // Inner loop that does the actual texture mapping,
             // e.g. a DDA-lile scaling.
@@ -2287,7 +2292,7 @@ namespace ManagedDoom.SoftwareRendering
             {
                 // Re-map color indices from wall texture column
                 // using a lighting/special effects LUT.
-                screenData[pos] = map[translation[source[offset + ((frac.Data >> Fixed.FracBits) & 127)]]];
+                this.screenData[pos] = map[translation[source[offset + ((frac.Data >> Fixed.FracBits) & 127)]]];
                 frac += fracStep;
             }
         }
@@ -2308,32 +2313,32 @@ namespace ManagedDoom.SoftwareRendering
                 y1 = 1;
             }
 
-            if (y2 == windowHeight - 1)
+            if (y2 == this.windowHeight - 1)
             {
-                y2 = windowHeight - 2;
+                y2 = this.windowHeight - 2;
             }
 
-            var pos1 = screenHeight * (windowX + x) + windowY + y1;
+            var pos1 = this.screenHeight * (this.windowX + x) + this.windowY + y1;
             var pos2 = pos1 + (y2 - y1);
 
-            var map = colorMap[6];
+            var map = this.colorMap[6];
             for (var pos = pos1; pos <= pos2; pos++)
             {
-                screenData[pos] = map[screenData[pos + fuzzTable[fuzzPos]]];
+                this.screenData[pos] = map[this.screenData[pos + ThreeDRenderer.fuzzTable[this.fuzzPos]]];
 
-                if (++fuzzPos == fuzzTable.Length)
+                if (++this.fuzzPos == ThreeDRenderer.fuzzTable.Length)
                 {
-                    fuzzPos = 0;
+                    this.fuzzPos = 0;
                 }
             }
         }
 
         private void DrawSkyColumn(int x, int y1, int y2)
         {
-            var angle = (viewAngle + xToAngle[x]).Data >> angleToSkyShift;
-            var mask = world.Map.SkyTexture.Width - 1;
-            var source = world.Map.SkyTexture.Composite.Columns[angle & mask];
-            DrawColumn(source[0], colorMap[0], x, y1, y2, skyInvScale, skyTextureAlt);
+            var angle = (this.viewAngle + this.xToAngle[x]).Data >> ThreeDRenderer.angleToSkyShift;
+            var mask = this.world.Map.SkyTexture.Width - 1;
+            var source = this.world.Map.SkyTexture.Composite.Columns[angle & mask];
+            this.DrawColumn(source[0], this.colorMap[0], x, y1, y2, this.skyInvScale, this.skyTextureAlt);
         }
 
         private void DrawMaskedColumn(
@@ -2360,7 +2365,7 @@ namespace ManagedDoom.SoftwareRendering
                 if (y1 <= y2)
                 {
                     var alt = new Fixed(textureAlt.Data - (column.TopDelta << Fixed.FracBits));
-                    DrawColumn(column, map, x, y1, y2, invScale, alt);
+                    this.DrawColumn(column, map, x, y1, y2, invScale, alt);
                 }
             }
         }
@@ -2390,7 +2395,7 @@ namespace ManagedDoom.SoftwareRendering
                 if (y1 <= y2)
                 {
                     var alt = new Fixed(textureAlt.Data - (column.TopDelta << Fixed.FracBits));
-                    DrawColumnTranslation(column, translation, map, x, y1, y2, invScale, alt);
+                    this.DrawColumnTranslation(column, translation, map, x, y1, y2, invScale, alt);
                 }
             }
         }
@@ -2415,7 +2420,7 @@ namespace ManagedDoom.SoftwareRendering
 
                 if (y1 <= y2)
                 {
-                    DrawFuzzColumn(column, x, y1, y2);
+                    this.DrawFuzzColumn(column, x, y1, y2);
                 }
             }
         }
@@ -2435,43 +2440,43 @@ namespace ManagedDoom.SoftwareRendering
             // Well, now it will be done.
             sector.ValidCount = validCount;
 
-            var spriteLightLevel = (sector.LightLevel >> lightSegShift) + extraLight;
-            var spriteLights = scaleLight[Math.Clamp(spriteLightLevel, 0, lightLevelCount - 1)];
+            var spriteLightLevel = (sector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
+            var spriteLights = this.scaleLight[Math.Clamp(spriteLightLevel, 0, ThreeDRenderer.lightLevelCount - 1)];
 
             // Handle all things in sector.
             foreach (var thing in sector)
             {
-                ProjectSprite(thing, spriteLights);
+                this.ProjectSprite(thing, spriteLights);
             }
         }
 
         private void ProjectSprite(Mobj thing, byte[][] spriteLights)
         {
-            if (visSpriteCount == visSprites.Length)
+            if (this.visSpriteCount == this.visSprites.Length)
             {
                 // Too many sprites.
                 return;
             }
 
             // Transform the origin point.
-            var trX = thing.X - viewX;
-            var trY = thing.Y - viewY;
+            var trX = thing.X - this.viewX;
+            var trY = thing.Y - this.viewY;
 
-            var gxt = (trX * viewCos);
-            var gyt = -(trY * viewSin);
+            var gxt = (trX * this.viewCos);
+            var gyt = -(trY * this.viewSin);
 
             var tz = gxt - gyt;
 
             // Thing is behind view plane?
-            if (tz < minZ)
+            if (tz < ThreeDRenderer.minZ)
             {
                 return;
             }
 
-            var xScale = projection / tz;
+            var xScale = this.projection / tz;
 
-            gxt = -trX * viewSin;
-            gyt = trY * viewCos;
+            gxt = -trX * this.viewSin;
+            gyt = trY * this.viewCos;
             var tx = -(gyt + gxt);
 
             // Too far off the side?
@@ -2480,7 +2485,7 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            var spriteDef = sprites[thing.Sprite];
+            var spriteDef = this.sprites[thing.Sprite];
             var frameNumber = thing.Frame & 0x7F;
             var spriteFrame = spriteDef.Frames[frameNumber];
 
@@ -2489,7 +2494,7 @@ namespace ManagedDoom.SoftwareRendering
             if (spriteFrame.Rotate)
             {
                 // Choose a different rotation based on player view.
-                var ang = Geometry.PointToAngle(viewX, viewY, thing.X, thing.Y);
+                var ang = Geometry.PointToAngle(this.viewX, this.viewY, thing.X, thing.Y);
                 var rot = (ang.Data - thing.Angle.Data + (uint)(Angle.Ang45.Data / 2) * 9) >> 29;
                 lump = spriteFrame.Patches[rot];
                 flip = spriteFrame.Flip[rot];
@@ -2503,16 +2508,16 @@ namespace ManagedDoom.SoftwareRendering
 
             // Calculate edges of the shape.
             tx -= Fixed.FromInt(lump.LeftOffset);
-            var x1 = (centerXFrac + (tx * xScale)).Data >> Fixed.FracBits;
+            var x1 = (this.centerXFrac + (tx * xScale)).Data >> Fixed.FracBits;
 
             // Off the right side?
-            if (x1 > windowWidth)
+            if (x1 > this.windowWidth)
             {
                 return;
             }
 
             tx += Fixed.FromInt(lump.Width);
-            var x2 = ((centerXFrac + (tx * xScale)).Data >> Fixed.FracBits) - 1;
+            var x2 = ((this.centerXFrac + (tx * xScale)).Data >> Fixed.FracBits) - 1;
 
             // Off the left side?
             if (x2 < 0)
@@ -2521,8 +2526,8 @@ namespace ManagedDoom.SoftwareRendering
             }
 
             // Store information in a vissprite.
-            var vis = visSprites[visSpriteCount];
-            visSpriteCount++;
+            var vis = this.visSprites[this.visSpriteCount];
+            this.visSpriteCount++;
 
             vis.MobjFlags = thing.Flags;
             vis.Scale = xScale;
@@ -2530,9 +2535,9 @@ namespace ManagedDoom.SoftwareRendering
             vis.GlobalY = thing.Y;
             vis.GlobalBottomZ = thing.Z;
             vis.GlobalTopZ = thing.Z + Fixed.FromInt(lump.TopOffset);
-            vis.TextureAlt = vis.GlobalTopZ - viewZ;
+            vis.TextureAlt = vis.GlobalTopZ - this.viewZ;
             vis.X1 = x1 < 0 ? 0 : x1;
-            vis.X2 = x2 >= windowWidth ? windowWidth - 1 : x2;
+            vis.X2 = x2 >= this.windowWidth ? this.windowWidth - 1 : x2;
 
             var invScale = Fixed.One / xScale;
 
@@ -2554,41 +2559,41 @@ namespace ManagedDoom.SoftwareRendering
 
             vis.Patch = lump;
 
-            if (fixedColorMap == 0)
+            if (this.fixedColorMap == 0)
             {
                 if ((thing.Frame & 0x8000) == 0)
                 {
-                    vis.ColorMap = spriteLights[Math.Min(xScale.Data >> scaleLightShift, maxScaleLight - 1)];
+                    vis.ColorMap = spriteLights[Math.Min(xScale.Data >> ThreeDRenderer.scaleLightShift, this.maxScaleLight - 1)];
                 }
                 else
                 {
-                    vis.ColorMap = colorMap.FullBright;
+                    vis.ColorMap = this.colorMap.FullBright;
                 }
             }
             else
             {
-                vis.ColorMap = colorMap[fixedColorMap];
+                vis.ColorMap = this.colorMap[this.fixedColorMap];
             }
         }
 
         private void RenderSprites()
         {
-            for (var i = 0; i < visSpriteCount - 1; i++)
+            for (var i = 0; i < this.visSpriteCount - 1; i++)
             {
                 for (var j = i + 1; j > 0; j--)
                 {
-                    if (visSprites[j - 1].Scale < visSprites[j].Scale)
+                    if (this.visSprites[j - 1].Scale < this.visSprites[j].Scale)
                     {
-                        var temp = visSprites[j - 1];
-                        visSprites[j - 1] = visSprites[j];
-                        visSprites[j] = temp;
+                        var temp = this.visSprites[j - 1];
+                        this.visSprites[j - 1] = this.visSprites[j];
+                        this.visSprites[j] = temp;
                     }
                 }
             }
 
-            for (var i = visSpriteCount - 1; i >= 0; i--)
+            for (var i = this.visSpriteCount - 1; i >= 0; i--)
             {
-                DrawSprite(visSprites[i]);
+                this.DrawSprite(this.visSprites[i]);
             }
         }
 
@@ -2596,15 +2601,15 @@ namespace ManagedDoom.SoftwareRendering
         {
             for (var x = sprite.X1; x <= sprite.X2; x++)
             {
-                lowerClip[x] = -2;
-                upperClip[x] = -2;
+                this.lowerClip[x] = -2;
+                this.upperClip[x] = -2;
             }
 
             // Scan drawsegs from end to start for obscuring segs.
             // The first drawseg that has a greater scale is the clip seg.
-            for (var i = visWallRangeCount - 1; i >= 0; i--)
+            for (var i = this.visWallRangeCount - 1; i >= 0; i--)
             {
-                var wall = visWallRanges[i];
+                var wall = this.visWallRanges[i];
 
                 // Determine if the drawseg obscures the sprite.
                 if (wall.X1 > sprite.X2 ||
@@ -2638,7 +2643,7 @@ namespace ManagedDoom.SoftwareRendering
                     // Masked mid texture?
                     if (wall.MaskedTextureColumn != -1)
                     {
-                        DrawMaskedRange(wall, r1, r2);
+                        this.DrawMaskedRange(wall, r1, r2);
                     }
                     // Seg is behind sprite.
                     continue;
@@ -2662,9 +2667,9 @@ namespace ManagedDoom.SoftwareRendering
                     // Bottom sil.
                     for (var x = r1; x <= r2; x++)
                     {
-                        if (lowerClip[x] == -2)
+                        if (this.lowerClip[x] == -2)
                         {
-                            lowerClip[x] = clipData[wall.LowerClip + x];
+                            this.lowerClip[x] = this.clipData[wall.LowerClip + x];
                         }
                     }
                 }
@@ -2673,9 +2678,9 @@ namespace ManagedDoom.SoftwareRendering
                     // Top sil.
                     for (var x = r1; x <= r2; x++)
                     {
-                        if (upperClip[x] == -2)
+                        if (this.upperClip[x] == -2)
                         {
-                            upperClip[x] = clipData[wall.UpperClip + x];
+                            this.upperClip[x] = this.clipData[wall.UpperClip + x];
                         }
                     }
                 }
@@ -2684,13 +2689,13 @@ namespace ManagedDoom.SoftwareRendering
                     // Both.
                     for (var x = r1; x <= r2; x++)
                     {
-                        if (lowerClip[x] == -2)
+                        if (this.lowerClip[x] == -2)
                         {
-                            lowerClip[x] = clipData[wall.LowerClip + x];
+                            this.lowerClip[x] = this.clipData[wall.LowerClip + x];
                         }
-                        if (upperClip[x] == -2)
+                        if (this.upperClip[x] == -2)
                         {
-                            upperClip[x] = clipData[wall.UpperClip + x];
+                            this.upperClip[x] = this.clipData[wall.UpperClip + x];
                         }
                     }
                 }
@@ -2701,13 +2706,13 @@ namespace ManagedDoom.SoftwareRendering
             // Check for unclipped columns.
             for (var x = sprite.X1; x <= sprite.X2; x++)
             {
-                if (lowerClip[x] == -2)
+                if (this.lowerClip[x] == -2)
                 {
-                    lowerClip[x] = (short)windowHeight;
+                    this.lowerClip[x] = (short)this.windowHeight;
                 }
-                if (upperClip[x] == -2)
+                if (this.upperClip[x] == -2)
                 {
-                    upperClip[x] = -1;
+                    this.upperClip[x] = -1;
                 }
             }
 
@@ -2717,13 +2722,13 @@ namespace ManagedDoom.SoftwareRendering
                 for (var x = sprite.X1; x <= sprite.X2; x++)
                 {
                     var textureColumn = frac.ToIntFloor();
-                    DrawMaskedFuzzColumn(
+                    this.DrawMaskedFuzzColumn(
                         sprite.Patch.Columns[textureColumn],
                         x,
-                        centerYFrac - (sprite.TextureAlt * sprite.Scale),
+                        this.centerYFrac - (sprite.TextureAlt * sprite.Scale),
                         sprite.Scale,
-                        upperClip[x],
-                        lowerClip[x]);
+                        this.upperClip[x],
+                        this.lowerClip[x]);
                     frac += sprite.InvScale;
                 }
             }
@@ -2733,30 +2738,30 @@ namespace ManagedDoom.SoftwareRendering
                 switch (((int)(sprite.MobjFlags & MobjFlags.Translation) >> (int)MobjFlags.TransShift))
                 {
                     case 1:
-                        translation = greenToGray;
+                        translation = this.greenToGray;
                         break;
                     case 2:
-                        translation = greenToBrown;
+                        translation = this.greenToBrown;
                         break;
                     default:
-                        translation = greenToRed;
+                        translation = this.greenToRed;
                         break;
                 }
                 var frac = sprite.StartFrac;
                 for (var x = sprite.X1; x <= sprite.X2; x++)
                 {
                     var textureColumn = frac.ToIntFloor();
-                    DrawMaskedColumnTranslation(
+                    this.DrawMaskedColumnTranslation(
                         sprite.Patch.Columns[textureColumn],
                         translation,
                         sprite.ColorMap,
                         x,
-                        centerYFrac - (sprite.TextureAlt * sprite.Scale),
+                        this.centerYFrac - (sprite.TextureAlt * sprite.Scale),
                         sprite.Scale,
                         Fixed.Abs(sprite.InvScale),
                         sprite.TextureAlt,
-                        upperClip[x],
-                        lowerClip[x]);
+                        this.upperClip[x],
+                        this.lowerClip[x]);
                     frac += sprite.InvScale;
                 }
             }
@@ -2766,16 +2771,16 @@ namespace ManagedDoom.SoftwareRendering
                 for (var x = sprite.X1; x <= sprite.X2; x++)
                 {
                     var textureColumn = frac.ToIntFloor();
-                    DrawMaskedColumn(
+                    this.DrawMaskedColumn(
                         sprite.Patch.Columns[textureColumn],
                         sprite.ColorMap,
                         x,
-                        centerYFrac - (sprite.TextureAlt * sprite.Scale),
+                        this.centerYFrac - (sprite.TextureAlt * sprite.Scale),
                         sprite.Scale,
                         Fixed.Abs(sprite.InvScale),
                         sprite.TextureAlt,
-                        upperClip[x],
-                        lowerClip[x]);
+                        this.upperClip[x],
+                        this.lowerClip[x]);
                     frac += sprite.InvScale;
                 }
             }
@@ -2786,7 +2791,7 @@ namespace ManagedDoom.SoftwareRendering
         private void DrawPlayerSprite(PlayerSpriteDef psp, byte[][] spriteLights, bool fuzz)
         {
             // Decide which patch to use.
-            var spriteDef = sprites[psp.State.Sprite];
+            var spriteDef = this.sprites[psp.State.Sprite];
 
             var spriteFrame = spriteDef.Frames[psp.State.Frame & 0x7fff];
 
@@ -2796,16 +2801,16 @@ namespace ManagedDoom.SoftwareRendering
             // Calculate edges of the shape.
             var tx = psp.Sx - Fixed.FromInt(160);
             tx -= Fixed.FromInt(lump.LeftOffset);
-            var x1 = (centerXFrac + tx * weaponScale).Data >> Fixed.FracBits;
+            var x1 = (this.centerXFrac + tx * this.weaponScale).Data >> Fixed.FracBits;
 
             // Off the right side?
-            if (x1 > windowWidth)
+            if (x1 > this.windowWidth)
             {
                 return;
             }
 
             tx += Fixed.FromInt(lump.Width);
-            var x2 = ((centerXFrac + tx * weaponScale).Data >> Fixed.FracBits) - 1;
+            var x2 = ((this.centerXFrac + tx * this.weaponScale).Data >> Fixed.FracBits) - 1;
 
             // Off the left side?
             if (x2 < 0)
@@ -2814,22 +2819,22 @@ namespace ManagedDoom.SoftwareRendering
             }
 
             // Store information in a vissprite.
-            var vis = weaponSprite;
+            var vis = this.weaponSprite;
             vis.MobjFlags = 0;
             // The code below is based on Crispy Doom's weapon rendering code.
             vis.TextureAlt = Fixed.FromInt(100) + Fixed.One / 4 - (psp.Sy - Fixed.FromInt(lump.TopOffset));
             vis.X1 = x1 < 0 ? 0 : x1;
-            vis.X2 = x2 >= windowWidth ? windowWidth - 1 : x2;
-            vis.Scale = weaponScale;
+            vis.X2 = x2 >= this.windowWidth ? this.windowWidth - 1 : x2;
+            vis.Scale = this.weaponScale;
 
             if (flip)
             {
-                vis.InvScale = -weaponInvScale;
+                vis.InvScale = -this.weaponInvScale;
                 vis.StartFrac = Fixed.FromInt(lump.Width) - new Fixed(1);
             }
             else
             {
-                vis.InvScale = weaponInvScale;
+                vis.InvScale = this.weaponInvScale;
                 vis.StartFrac = Fixed.Zero;
             }
 
@@ -2840,20 +2845,20 @@ namespace ManagedDoom.SoftwareRendering
 
             vis.Patch = lump;
 
-            if (fixedColorMap == 0)
+            if (this.fixedColorMap == 0)
             {
                 if ((psp.State.Frame & 0x8000) == 0)
                 {
-                    vis.ColorMap = spriteLights[maxScaleLight - 1];
+                    vis.ColorMap = spriteLights[this.maxScaleLight - 1];
                 }
                 else
                 {
-                    vis.ColorMap = colorMap.FullBright;
+                    vis.ColorMap = this.colorMap.FullBright;
                 }
             }
             else
             {
-                vis.ColorMap = colorMap[fixedColorMap];
+                vis.ColorMap = this.colorMap[this.fixedColorMap];
             }
 
             if (fuzz)
@@ -2862,13 +2867,13 @@ namespace ManagedDoom.SoftwareRendering
                 for (var x = vis.X1; x <= vis.X2; x++)
                 {
                     var texturecolumn = frac.Data >> Fixed.FracBits;
-                    DrawMaskedFuzzColumn(
+                    this.DrawMaskedFuzzColumn(
                         vis.Patch.Columns[texturecolumn],
                         x,
-                        centerYFrac - (vis.TextureAlt * vis.Scale),
+                        this.centerYFrac - (vis.TextureAlt * vis.Scale),
                         vis.Scale,
                         -1,
-                        windowHeight);
+                        this.windowHeight);
                     frac += vis.InvScale;
                 }
             }
@@ -2878,16 +2883,16 @@ namespace ManagedDoom.SoftwareRendering
                 for (var x = vis.X1; x <= vis.X2; x++)
                 {
                     var texturecolumn = frac.Data >> Fixed.FracBits;
-                    DrawMaskedColumn(
+                    this.DrawMaskedColumn(
                         vis.Patch.Columns[texturecolumn],
                         vis.ColorMap,
                         x,
-                        centerYFrac - (vis.TextureAlt * vis.Scale),
+                        this.centerYFrac - (vis.TextureAlt * vis.Scale),
                         vis.Scale,
                         Fixed.Abs(vis.InvScale),
                         vis.TextureAlt,
                         -1,
-                        windowHeight);
+                        this.windowHeight);
                     frac += vis.InvScale;
                 }
             }
@@ -2898,20 +2903,20 @@ namespace ManagedDoom.SoftwareRendering
         private void DrawPlayerSprites(Player player)
         {
             // Get light level.
-            var spriteLightLevel = (player.Mobj.Subsector.Sector.LightLevel >> lightSegShift) + extraLight;
+            var spriteLightLevel = (player.Mobj.Subsector.Sector.LightLevel >> ThreeDRenderer.lightSegShift) + this.extraLight;
 
             byte[][] spriteLights;
             if (spriteLightLevel < 0)
             {
-                spriteLights = scaleLight[0];
+                spriteLights = this.scaleLight[0];
             }
-            else if (spriteLightLevel >= lightLevelCount)
+            else if (spriteLightLevel >= ThreeDRenderer.lightLevelCount)
             {
-                spriteLights = scaleLight[lightLevelCount - 1];
+                spriteLights = this.scaleLight[ThreeDRenderer.lightLevelCount - 1];
             }
             else
             {
-                spriteLights = scaleLight[spriteLightLevel];
+                spriteLights = this.scaleLight[spriteLightLevel];
             }
 
             bool fuzz;
@@ -2932,7 +2937,7 @@ namespace ManagedDoom.SoftwareRendering
                 var psp = player.PlayerSprites[i];
                 if (psp.State != null)
                 {
-                    DrawPlayerSprite(psp, spriteLights, fuzz);
+                    this.DrawPlayerSprite(psp, spriteLights, fuzz);
                 }
             }
         }
@@ -2943,13 +2948,13 @@ namespace ManagedDoom.SoftwareRendering
         {
             get
             {
-                return windowSize;
+                return this.windowSize;
             }
 
             set
             {
-                windowSize = value;
-                SetWindowSize(windowSize);
+                this.windowSize = value;
+                this.SetWindowSize(this.windowSize);
             }
         }
 
@@ -2962,8 +2967,8 @@ namespace ManagedDoom.SoftwareRendering
 
             public void CopyFrom(ClipRange range)
             {
-                First = range.First;
-                Last = range.Last;
+                this.First = range.First;
+                this.Last = range.Last;
             }
         }
 

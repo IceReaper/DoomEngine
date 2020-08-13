@@ -13,14 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using System.Collections.Generic;
+
+	public static partial class DoomInfo
     {
         public static class ParTimes
         {

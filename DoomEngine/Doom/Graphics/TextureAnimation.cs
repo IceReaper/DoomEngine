@@ -13,15 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class TextureAnimation
+	using Info;
+	using System;
+	using System.Collections.Generic;
+	using System.Runtime.ExceptionServices;
+
+	public sealed class TextureAnimation
     {
         private TextureAnimationInfo[] animations;
 
@@ -73,7 +72,7 @@ namespace ManagedDoom
                     list.Add(anim);
                 }
 
-                animations = list.ToArray();
+                this.animations = list.ToArray();
 
                 Console.WriteLine("OK");
             }
@@ -84,6 +83,6 @@ namespace ManagedDoom
             }
         }
 
-        public TextureAnimationInfo[] Animations => animations;
+        public TextureAnimationInfo[] Animations => this.animations;
     }
 }

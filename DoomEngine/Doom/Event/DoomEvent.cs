@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Event
 {
-    public sealed class DoomEvent
+	using UserInput;
+
+	public sealed class DoomEvent
     {
         private EventType type;
         private DoomKey key;
@@ -30,7 +28,7 @@ namespace ManagedDoom
             this.key = key;
         }
 
-        public EventType Type => type;
-        public DoomKey Key => key;
+        public EventType Type => this.type;
+        public DoomKey Key => this.key;
     }
 }

@@ -13,15 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class SpriteLookup
+	using Info;
+	using System;
+	using System.Collections.Generic;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class SpriteLookup
     {
         private SpriteDef[] spriteDefs;
 
@@ -43,7 +43,7 @@ namespace ManagedDoom
 
                 var cache = new Dictionary<int, Patch>();
 
-                foreach (var lump in EnumerateSprites(wad))
+                foreach (var lump in SpriteLookup.EnumerateSprites(wad))
                 {
                     var name = wad.LumpInfos[lump].Name.Substring(0, 4);
 
@@ -69,7 +69,7 @@ namespace ManagedDoom
                             {
                                 if (list[frame].Patches[i] == null)
                                 {
-                                    list[frame].Patches[i] = CachedRead(lump, wad, cache, useDummy);
+                                    list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
                                     list[frame].Flip[i] = false;
                                 }
                             }
@@ -78,7 +78,7 @@ namespace ManagedDoom
                         {
                             if (list[frame].Patches[rotation - 1] == null)
                             {
-                                list[frame].Patches[rotation - 1] = CachedRead(lump, wad, cache, useDummy);
+                                list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
                                 list[frame].Flip[rotation - 1] = false;
                             }
                         }
@@ -100,7 +100,7 @@ namespace ManagedDoom
                             {
                                 if (list[frame].Patches[i] == null)
                                 {
-                                    list[frame].Patches[i] = CachedRead(lump, wad, cache, useDummy);
+                                    list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
                                     list[frame].Flip[i] = true;
                                 }
                             }
@@ -109,15 +109,15 @@ namespace ManagedDoom
                         {
                             if (list[frame].Patches[rotation - 1] == null)
                             {
-                                list[frame].Patches[rotation - 1] = CachedRead(lump, wad, cache, useDummy);
+                                list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
                                 list[frame].Flip[rotation - 1] = true;
                             }
                         }
                     }
                 }
 
-                spriteDefs = new SpriteDef[(int)Sprite.Count];
-                for (var i = 0; i < spriteDefs.Length; i++)
+                this.spriteDefs = new SpriteDef[(int)Sprite.Count];
+                for (var i = 0; i < this.spriteDefs.Length; i++)
                 {
                     var list = temp[DoomInfo.SpriteNames[i]];
 
@@ -130,7 +130,7 @@ namespace ManagedDoom
                         frames[j] = frame;
                     }
 
-                    spriteDefs[i] = new SpriteDef(frames);
+                    this.spriteDefs[i] = new SpriteDef(frames);
                 }
 
                 Console.WriteLine("OK (" + cache.Count + " sprites)");
@@ -198,15 +198,15 @@ namespace ManagedDoom
 
             public SpriteInfo()
             {
-                Patches = new Patch[8];
-                Flip = new bool[8];
+                this.Patches = new Patch[8];
+                this.Flip = new bool[8];
             }
 
             public void CheckCompletion()
             {
-                for (var i = 0; i < Patches.Length; i++)
+                for (var i = 0; i < this.Patches.Length; i++)
                 {
-                    if (Patches[i] == null)
+                    if (this.Patches[i] == null)
                     {
                         throw new Exception("Missing sprite!");
                     }
@@ -215,9 +215,9 @@ namespace ManagedDoom
 
             public bool HasRotation()
             {
-                for (var i = 1; i < Patches.Length; i++)
+                for (var i = 1; i < this.Patches.Length; i++)
                 {
-                    if (Patches[i] != Patches[0])
+                    if (this.Patches[i] != this.Patches[0])
                     {
                         return true;
                     }
@@ -231,7 +231,7 @@ namespace ManagedDoom
         {
             get
             {
-                return spriteDefs[(int)sprite];
+                return this.spriteDefs[(int)sprite];
             }
         }
     }

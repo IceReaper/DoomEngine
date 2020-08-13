@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class MapCollision
+	using Map;
+	using Math;
+
+	public sealed class MapCollision
     {
         private World world;
 
@@ -41,7 +40,7 @@ namespace ManagedDoom
             if (line.BackSide == null)
             {
                 // If the line is single sided, nothing can pass through.
-                openRange = Fixed.Zero;
+                this.openRange = Fixed.Zero;
                 return;
             }
 
@@ -50,30 +49,30 @@ namespace ManagedDoom
 
             if (front.CeilingHeight < back.CeilingHeight)
             {
-                openTop = front.CeilingHeight;
+                this.openTop = front.CeilingHeight;
             }
             else
             {
-                openTop = back.CeilingHeight;
+                this.openTop = back.CeilingHeight;
             }
 
             if (front.FloorHeight > back.FloorHeight)
             {
-                openBottom = front.FloorHeight;
-                lowFloor = back.FloorHeight;
+                this.openBottom = front.FloorHeight;
+                this.lowFloor = back.FloorHeight;
             }
             else
             {
-                openBottom = back.FloorHeight;
-                lowFloor = front.FloorHeight;
+                this.openBottom = back.FloorHeight;
+                this.lowFloor = front.FloorHeight;
             }
 
-            openRange = openTop - openBottom;
+            this.openRange = this.openTop - this.openBottom;
         }
 
-        public Fixed OpenTop => openTop;
-        public Fixed OpenBottom => openBottom;
-        public Fixed OpenRange => openRange;
-        public Fixed LowFloor => lowFloor;
+        public Fixed OpenTop => this.openTop;
+        public Fixed OpenBottom => this.openBottom;
+        public Fixed OpenRange => this.openRange;
+        public Fixed LowFloor => this.lowFloor;
     }
 }

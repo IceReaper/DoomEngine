@@ -13,18 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	public static partial class DoomInfo
     {
         // This is to ensure the static members initialized.
         public static void Initialize()
         {
-            SpriteNames[0].Equals(null);
+            DoomInfo.SpriteNames[0].Equals(null);
         }
     }
 }

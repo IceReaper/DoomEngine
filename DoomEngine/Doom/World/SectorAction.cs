@@ -13,12 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Game;
+	using Info;
+	using Map;
+	using Math;
+	using System;
+
 	public sealed class SectorAction
 	{
 		//
@@ -41,7 +44,7 @@ namespace ManagedDoom
 		{
 			this.world = world;
 
-			InitSectorChange();
+			this.InitSectorChange();
 		}
 
 
@@ -52,14 +55,14 @@ namespace ManagedDoom
 
 		private void InitSectorChange()
 		{
-			crushThingFunc = CrushThing;
+			this.crushThingFunc = this.CrushThing;
 		}
 
 		private bool ThingHeightClip(Mobj thing)
 		{
 			var onFloor = (thing.Z == thing.FloorZ);
 
-			var tm = world.ThingMovement;
+			var tm = this.world.ThingMovement;
 
 			tm.CheckPosition(thing, thing.X, thing.Y);
 			// What about stranding a monster partially off an edge?
@@ -91,7 +94,7 @@ namespace ManagedDoom
 
 		private bool CrushThing(Mobj thing)
 		{
-			if (ThingHeightClip(thing))
+			if (this.ThingHeightClip(thing))
 			{
 				// Keep checking.
 				return true;
@@ -112,7 +115,7 @@ namespace ManagedDoom
 			// Crunch dropped items.
 			if ((thing.Flags & MobjFlags.Dropped) != 0)
 			{
-				world.ThingAllocation.RemoveMobj(thing);
+				this.world.ThingAllocation.RemoveMobj(thing);
 
 				// Keep checking.
 				return true;
@@ -124,20 +127,20 @@ namespace ManagedDoom
 				return true;
 			}
 
-			noFit = true;
+			this.noFit = true;
 
-			if (crushChange && (world.LevelTime & 3) == 0)
+			if (this.crushChange && (this.world.LevelTime & 3) == 0)
 			{
-				world.ThingInteraction.DamageMobj(thing, null, null, 10);
+				this.world.ThingInteraction.DamageMobj(thing, null, null, 10);
 
 				// Spray blood in a random direction.
-				var blood = world.ThingAllocation.SpawnMobj(
+				var blood = this.world.ThingAllocation.SpawnMobj(
 					thing.X,
 					thing.Y,
 					thing.Z + thing.Height / 2,
 					MobjType.Blood);
 
-				var random = world.Random;
+				var random = this.world.Random;
 				blood.MomX = new Fixed((random.Next() - random.Next()) << 12);
 				blood.MomY = new Fixed((random.Next() - random.Next()) << 12);
 			}
@@ -148,10 +151,10 @@ namespace ManagedDoom
 
 		private bool ChangeSector(Sector sector, bool crunch)
 		{
-			noFit = false;
-			crushChange = crunch;
+			this.noFit = false;
+			this.crushChange = crunch;
 
-			var bm = world.Map.BlockMap;
+			var bm = this.world.Map.BlockMap;
 			var blockBox = sector.BlockBox;
 
 			// Re-check heights for all things near the moving sector.
@@ -159,11 +162,11 @@ namespace ManagedDoom
 			{
 				for (var y = blockBox.Bottom(); y <= blockBox.Top(); y++)
 				{
-					bm.IterateThings(x, y, crushThingFunc);
+					bm.IterateThings(x, y, this.crushThingFunc);
 				}
 			}
 
-			return noFit;
+			return this.noFit;
 		}
 
 		/// <summary>
@@ -189,10 +192,10 @@ namespace ManagedDoom
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight = dest;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 								}
 
 								return SectorActionResult.PastDestination;
@@ -201,10 +204,10 @@ namespace ManagedDoom
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight -= speed;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 
 									return SectorActionResult.Crushed;
 								}
@@ -218,10 +221,10 @@ namespace ManagedDoom
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight = dest;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 								}
 
 								return SectorActionResult.PastDestination;
@@ -231,14 +234,14 @@ namespace ManagedDoom
 								// Could get crushed.
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight += speed;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									if (crush)
 									{
 										return SectorActionResult.Crushed;
 									}
 									sector.FloorHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 
 									return SectorActionResult.Crushed;
 								}
@@ -258,10 +261,10 @@ namespace ManagedDoom
 							{
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight = dest;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									sector.CeilingHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 								}
 
 								return SectorActionResult.PastDestination;
@@ -271,14 +274,14 @@ namespace ManagedDoom
 								// Could get crushed.
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight -= speed;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									if (crush)
 									{
 										return SectorActionResult.Crushed;
 									}
 									sector.CeilingHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 
 									return SectorActionResult.Crushed;
 								}
@@ -292,10 +295,10 @@ namespace ManagedDoom
 							{
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight = dest;
-								if (ChangeSector(sector, crush))
+								if (this.ChangeSector(sector, crush))
 								{
 									sector.CeilingHeight = lastPos;
-									ChangeSector(sector, crush);
+									this.ChangeSector(sector, crush);
 								}
 
 								return SectorActionResult.PastDestination;
@@ -303,7 +306,7 @@ namespace ManagedDoom
 							else
 							{
 								sector.CeilingHeight += speed;
-								ChangeSector(sector, crush);
+								this.ChangeSector(sector, crush);
 							}
 
 							break;
@@ -338,7 +341,7 @@ namespace ManagedDoom
 			{
 				var check = sector.Lines[i];
 
-				var other = GetNextSector(check, sector);
+				var other = this.GetNextSector(check, sector);
 				if (other == null)
 				{
 					continue;
@@ -361,7 +364,7 @@ namespace ManagedDoom
 			{
 				var check = sector.Lines[i];
 
-				var other = GetNextSector(check, sector);
+				var other = this.GetNextSector(check, sector);
 				if (other == null)
 				{
 					continue;
@@ -384,7 +387,7 @@ namespace ManagedDoom
 			{
 				var check = sector.Lines[i];
 
-				var other = GetNextSector(check, sector);
+				var other = this.GetNextSector(check, sector);
 				if (other == null)
 				{
 					continue;
@@ -407,7 +410,7 @@ namespace ManagedDoom
 			{
 				var check = sector.Lines[i];
 
-				var other = GetNextSector(check, sector);
+				var other = this.GetNextSector(check, sector);
 				if (other == null)
 				{
 					continue;
@@ -424,7 +427,7 @@ namespace ManagedDoom
 
 		private int FindSectorFromLineTag(LineDef line, int start)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 
 			for (var i = start + 1; i < sectors.Length; i++)
 			{
@@ -468,7 +471,7 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.BlueSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEK);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return;
 					}
 					break;
@@ -485,7 +488,7 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.YellowSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWK);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return;
 					}
 					break;
@@ -502,7 +505,7 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.RedSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDK);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return;
 					}
 					break;
@@ -550,29 +553,29 @@ namespace ManagedDoom
 
 				// Blazing door open.
 				case 118:
-					world.StartSound(sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
+					this.world.StartSound(sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
 					break;
 
 				// Normal door sound.
 				case 1:
 				case 31:
-					world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+					this.world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 					break;
 
 				// Locked door sound.
 				default:
-					world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+					this.world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 					break;
 			}
 
 			// New door thinker.
-			var newDoor = new VerticalDoor(world);
-			world.Thinkers.Add(newDoor);
+			var newDoor = new VerticalDoor(this.world);
+			this.world.Thinkers.Add(newDoor);
 			sector.SpecialData = newDoor;
 			newDoor.Sector = sector;
 			newDoor.Direction = 1;
-			newDoor.Speed = doorSpeed;
-			newDoor.TopWait = doorWait;
+			newDoor.Speed = SectorAction.doorSpeed;
+			newDoor.TopWait = SectorAction.doorWait;
 
 			switch ((int)line.Special)
 			{
@@ -594,29 +597,29 @@ namespace ManagedDoom
 				// Blazing door raise.
 				case 117:
 					newDoor.Type = VerticalDoorType.BlazeRaise;
-					newDoor.Speed = doorSpeed * 4;
+					newDoor.Speed = SectorAction.doorSpeed * 4;
 					break;
 
 				// Blazing door open.
 				case 118:
 					newDoor.Type = VerticalDoorType.BlazeOpen;
 					line.Special = 0;
-					newDoor.Speed = doorSpeed * 4;
+					newDoor.Speed = SectorAction.doorSpeed * 4;
 					break;
 			}
 
 			// Find the top and bottom of the movement range.
-			newDoor.TopHeight = FindLowestCeilingSurrounding(sector);
+			newDoor.TopHeight = this.FindLowestCeilingSurrounding(sector);
 			newDoor.TopHeight -= Fixed.FromInt(4);
 		}
 
 		public bool DoDoor(LineDef line, VerticalDoorType type)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var setcorNumber = -1;
 			var result = false;
 
-			while ((setcorNumber = FindSectorFromLineTag(line, setcorNumber)) >= 0)
+			while ((setcorNumber = this.FindSectorFromLineTag(line, setcorNumber)) >= 0)
 			{
 				var sector = sectors[setcorNumber];
 				if (sector.SpecialData != null)
@@ -627,57 +630,57 @@ namespace ManagedDoom
 				result = true;
 
 				// New door thinker.
-				var door = new VerticalDoor(world);
-				world.Thinkers.Add(door);
+				var door = new VerticalDoor(this.world);
+				this.world.Thinkers.Add(door);
 				sector.SpecialData = door;
 				door.Sector = sector;
 				door.Type = type;
-				door.TopWait = doorWait;
-				door.Speed = doorSpeed;
+				door.TopWait = SectorAction.doorWait;
+				door.Speed = SectorAction.doorSpeed;
 
 				switch (type)
 				{
 					case VerticalDoorType.BlazeClose:
-						door.TopHeight = FindLowestCeilingSurrounding(sector);
+						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
 						door.Direction = -1;
-						door.Speed = doorSpeed * 4;
-						world.StartSound(door.Sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+						door.Speed = SectorAction.doorSpeed * 4;
+						this.world.StartSound(door.Sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
 						break;
 
 					case VerticalDoorType.Close:
-						door.TopHeight = FindLowestCeilingSurrounding(sector);
+						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
 						door.Direction = -1;
-						world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+						this.world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
 						break;
 
 					case VerticalDoorType.Close30ThenOpen:
 						door.TopHeight = sector.CeilingHeight;
 						door.Direction = -1;
-						world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+						this.world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
 						break;
 
 					case VerticalDoorType.BlazeRaise:
 					case VerticalDoorType.BlazeOpen:
 						door.Direction = 1;
-						door.TopHeight = FindLowestCeilingSurrounding(sector);
+						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
-						door.Speed = doorSpeed * 4;
+						door.Speed = SectorAction.doorSpeed * 4;
 						if (door.TopHeight != sector.CeilingHeight)
 						{
-							world.StartSound(door.Sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
+							this.world.StartSound(door.Sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
 						}
 						break;
 
 					case VerticalDoorType.Normal:
 					case VerticalDoorType.Open:
 						door.Direction = 1;
-						door.TopHeight = FindLowestCeilingSurrounding(sector);
+						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
 						if (door.TopHeight != sector.CeilingHeight)
 						{
-							world.StartSound(door.Sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+							this.world.StartSound(door.Sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 						}
 						break;
 
@@ -711,7 +714,7 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.BlueSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEO);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return false;
 					}
 					break;
@@ -727,7 +730,7 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.RedSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDO);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return false;
 					}
 					break;
@@ -743,13 +746,13 @@ namespace ManagedDoom
 						!player.Cards[(int)CardType.YellowSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWO);
-						world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
 						return false;
 					}
 					break;
 			}
 
-			return DoDoor(line, type);
+			return this.DoDoor(line, type);
 		}
 
 
@@ -760,7 +763,7 @@ namespace ManagedDoom
 
 		// In plutonia MAP23, number of adjoining sectors can be 44.
 		private static readonly int maxAdjoiningSectorCount = 64;
-		private Fixed[] heightList = new Fixed[maxAdjoiningSectorCount];
+		private Fixed[] heightList = new Fixed[SectorAction.maxAdjoiningSectorCount];
 
 		private Fixed FindNextHighestFloor(Sector sector, Fixed currentHeight)
 		{
@@ -771,7 +774,7 @@ namespace ManagedDoom
 			{
 				var check = sector.Lines[i];
 
-				var other = GetNextSector(check, sector);
+				var other = this.GetNextSector(check, sector);
 				if (other == null)
 				{
 					continue;
@@ -779,11 +782,11 @@ namespace ManagedDoom
 
 				if (other.FloorHeight > height)
 				{
-					heightList[h++] = other.FloorHeight;
+					this.heightList[h++] = other.FloorHeight;
 				}
 
 				// Check for overflow.
-				if (h >= heightList.Length)
+				if (h >= this.heightList.Length)
 				{
 					// Exit.
 					throw new Exception("Too many adjoining sectors!");
@@ -796,14 +799,14 @@ namespace ManagedDoom
 				return currentHeight;
 			}
 
-			var min = heightList[0];
+			var min = this.heightList[0];
 
 			// Range checking? 
 			for (var i = 1; i < h; i++)
 			{
-				if (heightList[i] < min)
+				if (this.heightList[i] < min)
 				{
-					min = heightList[i];
+					min = this.heightList[i];
 				}
 			}
 
@@ -820,18 +823,18 @@ namespace ManagedDoom
 			switch (type)
 			{
 				case PlatformType.PerpetualRaise:
-					ActivateInStasis(line.Tag);
+					this.ActivateInStasis(line.Tag);
 					break;
 
 				default:
 					break;
 			}
 
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 			var result = false;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
 				if (sector.SpecialData != null)
@@ -842,8 +845,8 @@ namespace ManagedDoom
 				result = true;
 
 				// Find lowest and highest floors around sector.
-				var plat = new Platform(world);
-				world.Thinkers.Add(plat);
+				var plat = new Platform(this.world);
+				this.world.Thinkers.Add(plat);
 				plat.Type = type;
 				plat.Sector = sector;
 				plat.Sector.SpecialData = plat;
@@ -853,70 +856,70 @@ namespace ManagedDoom
 				switch (type)
 				{
 					case PlatformType.RaiseToNearestAndChange:
-						plat.Speed = platformSpeed / 2;
+						plat.Speed = SectorAction.platformSpeed / 2;
 						sector.FloorFlat = line.FrontSide.Sector.FloorFlat;
-						plat.High = FindNextHighestFloor(sector, sector.FloorHeight);
+						plat.High = this.FindNextHighestFloor(sector, sector.FloorHeight);
 						plat.Wait = 0;
 						plat.Status = PlatformState.Up;
 						// No more damage, if applicable.
 						sector.Special = 0;
-						world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+						this.world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
 						break;
 
 					case PlatformType.RaiseAndChange:
-						plat.Speed = platformSpeed / 2;
+						plat.Speed = SectorAction.platformSpeed / 2;
 						sector.FloorFlat = line.FrontSide.Sector.FloorFlat;
 						plat.High = sector.FloorHeight + amount * Fixed.One;
 						plat.Wait = 0;
 						plat.Status = PlatformState.Up;
-						world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+						this.world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
 						break;
 
 					case PlatformType.DownWaitUpStay:
-						plat.Speed = platformSpeed * 4;
-						plat.Low = FindLowestFloorSurrounding(sector);
+						plat.Speed = SectorAction.platformSpeed * 4;
+						plat.Low = this.FindLowestFloorSurrounding(sector);
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
 						plat.High = sector.FloorHeight;
-						plat.Wait = 35 * platformWait;
+						plat.Wait = 35 * SectorAction.platformWait;
 						plat.Status = PlatformState.Down;
-						world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 						break;
 
 					case PlatformType.BlazeDwus:
-						plat.Speed = platformSpeed * 8;
-						plat.Low = FindLowestFloorSurrounding(sector);
+						plat.Speed = SectorAction.platformSpeed * 8;
+						plat.Low = this.FindLowestFloorSurrounding(sector);
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
 						plat.High = sector.FloorHeight;
-						plat.Wait = 35 * platformWait;
+						plat.Wait = 35 * SectorAction.platformWait;
 						plat.Status = PlatformState.Down;
-						world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 						break;
 
 					case PlatformType.PerpetualRaise:
-						plat.Speed = platformSpeed;
-						plat.Low = FindLowestFloorSurrounding(sector);
+						plat.Speed = SectorAction.platformSpeed;
+						plat.Low = this.FindLowestFloorSurrounding(sector);
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
-						plat.High = FindHighestFloorSurrounding(sector);
+						plat.High = this.FindHighestFloorSurrounding(sector);
 						if (plat.High < sector.FloorHeight)
 						{
 							plat.High = sector.FloorHeight;
 						}
-						plat.Wait = 35 * platformWait;
-						plat.Status = (PlatformState)(world.Random.Next() & 1);
-						world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+						plat.Wait = 35 * SectorAction.platformWait;
+						plat.Status = (PlatformState)(this.world.Random.Next() & 1);
+						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 						break;
 				}
 
-				AddActivePlatform(plat);
+				this.AddActivePlatform(plat);
 			}
 
 			return result;
@@ -924,44 +927,44 @@ namespace ManagedDoom
 
 
 		private static readonly int maxPlatformCount = 60;
-		private Platform[] activePlatforms = new Platform[maxPlatformCount];
+		private Platform[] activePlatforms = new Platform[SectorAction.maxPlatformCount];
 
 		public void ActivateInStasis(int tag)
 		{
-			for (var i = 0; i < activePlatforms.Length; i++)
+			for (var i = 0; i < this.activePlatforms.Length; i++)
 			{
-				if (activePlatforms[i] != null &&
-					activePlatforms[i].Tag == tag &&
-					activePlatforms[i].Status == PlatformState.InStasis)
+				if (this.activePlatforms[i] != null &&
+					this.activePlatforms[i].Tag == tag &&
+					this.activePlatforms[i].Status == PlatformState.InStasis)
 				{
-					activePlatforms[i].Status = activePlatforms[i].OldStatus;
-					activePlatforms[i].ThinkerState = ThinkerState.Active;
+					this.activePlatforms[i].Status = this.activePlatforms[i].OldStatus;
+					this.activePlatforms[i].ThinkerState = ThinkerState.Active;
 				}
 			}
 		}
 
 		public void StopPlatform(LineDef line)
 		{
-			for (var j = 0; j < activePlatforms.Length; j++)
+			for (var j = 0; j < this.activePlatforms.Length; j++)
 			{
-				if (activePlatforms[j] != null &&
-					activePlatforms[j].Status != PlatformState.InStasis &&
-					activePlatforms[j].Tag == line.Tag)
+				if (this.activePlatforms[j] != null &&
+					this.activePlatforms[j].Status != PlatformState.InStasis &&
+					this.activePlatforms[j].Tag == line.Tag)
 				{
-					activePlatforms[j].OldStatus = activePlatforms[j].Status;
-					activePlatforms[j].Status = PlatformState.InStasis;
-					activePlatforms[j].ThinkerState = ThinkerState.InStasis;
+					this.activePlatforms[j].OldStatus = this.activePlatforms[j].Status;
+					this.activePlatforms[j].Status = PlatformState.InStasis;
+					this.activePlatforms[j].ThinkerState = ThinkerState.InStasis;
 				}
 			}
 		}
 
 		public void AddActivePlatform(Platform platform)
 		{
-			for (var i = 0; i < activePlatforms.Length; i++)
+			for (var i = 0; i < this.activePlatforms.Length; i++)
 			{
-				if (activePlatforms[i] == null)
+				if (this.activePlatforms[i] == null)
 				{
-					activePlatforms[i] = platform;
+					this.activePlatforms[i] = platform;
 
 					return;
 				}
@@ -972,13 +975,13 @@ namespace ManagedDoom
 
 		public void RemoveActivePlatform(Platform platform)
 		{
-			for (var i = 0; i < activePlatforms.Length; i++)
+			for (var i = 0; i < this.activePlatforms.Length; i++)
 			{
-				if (platform == activePlatforms[i])
+				if (platform == this.activePlatforms[i])
 				{
-					activePlatforms[i].Sector.SpecialData = null;
-					world.Thinkers.Remove(activePlatforms[i]);
-					activePlatforms[i] = null;
+					this.activePlatforms[i].Sector.SpecialData = null;
+					this.world.Thinkers.Remove(this.activePlatforms[i]);
+					this.activePlatforms[i] = null;
 					return;
 				}
 			}
@@ -996,11 +999,11 @@ namespace ManagedDoom
 
 		public bool DoFloor(LineDef line, FloorMoveType type)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 			var result = false;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
 
@@ -1013,8 +1016,8 @@ namespace ManagedDoom
 				result = true;
 
 				// New floor thinker.
-				var floor = new FloorMove(world);
-				world.Thinkers.Add(floor);
+				var floor = new FloorMove(this.world);
+				this.world.Thinkers.Add(floor);
 				sector.SpecialData = floor;
 				floor.Type = type;
 				floor.Crush = false;
@@ -1024,22 +1027,22 @@ namespace ManagedDoom
 					case FloorMoveType.LowerFloor:
 						floor.Direction = -1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						floor.FloorDestHeight = FindHighestFloorSurrounding(sector);
+						floor.Speed = SectorAction.floorSpeed;
+						floor.FloorDestHeight = this.FindHighestFloorSurrounding(sector);
 						break;
 
 					case FloorMoveType.LowerFloorToLowest:
 						floor.Direction = -1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						floor.FloorDestHeight = FindLowestFloorSurrounding(sector);
+						floor.Speed = SectorAction.floorSpeed;
+						floor.FloorDestHeight = this.FindLowestFloorSurrounding(sector);
 						break;
 
 					case FloorMoveType.TurboLower:
 						floor.Direction = -1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed * 4;
-						floor.FloorDestHeight = FindHighestFloorSurrounding(sector);
+						floor.Speed = SectorAction.floorSpeed * 4;
+						floor.FloorDestHeight = this.FindHighestFloorSurrounding(sector);
 						if (floor.FloorDestHeight != sector.FloorHeight)
 						{
 							floor.FloorDestHeight += Fixed.FromInt(8);
@@ -1054,8 +1057,8 @@ namespace ManagedDoom
 						}
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						floor.FloorDestHeight = FindLowestCeilingSurrounding(sector);
+						floor.Speed = SectorAction.floorSpeed;
+						floor.FloorDestHeight = this.FindLowestCeilingSurrounding(sector);
 						if (floor.FloorDestHeight > sector.CeilingHeight)
 						{
 							floor.FloorDestHeight = sector.CeilingHeight;
@@ -1066,35 +1069,35 @@ namespace ManagedDoom
 					case FloorMoveType.RaiseFloorTurbo:
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed * 4;
-						floor.FloorDestHeight = FindNextHighestFloor(sector, sector.FloorHeight);
+						floor.Speed = SectorAction.floorSpeed * 4;
+						floor.FloorDestHeight = this.FindNextHighestFloor(sector, sector.FloorHeight);
 						break;
 
 					case FloorMoveType.RaiseFloorToNearest:
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						floor.FloorDestHeight = FindNextHighestFloor(sector, sector.FloorHeight);
+						floor.Speed = SectorAction.floorSpeed;
+						floor.FloorDestHeight = this.FindNextHighestFloor(sector, sector.FloorHeight);
 						break;
 
 					case FloorMoveType.RaiseFloor24:
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
+						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(24);
 						break;
 
 					case FloorMoveType.RaiseFloor512:
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
+						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(512);
 						break;
 
 					case FloorMoveType.RaiseFloor24AndChange:
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
+						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(24);
 						sector.FloorFlat = line.FrontSector.FloorFlat;
 						sector.Special = line.FrontSector.Special;
@@ -1104,8 +1107,8 @@ namespace ManagedDoom
 						var min = int.MaxValue;
 						floor.Direction = 1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						var textures = world.Map.Textures;
+						floor.Speed = SectorAction.floorSpeed;
+						var textures = this.world.Map.Textures;
 						for (var i = 0; i < sector.Lines.Length; i++)
 						{
 							if ((sector.Lines[i].Flags & LineFlags.TwoSided) != 0)
@@ -1134,8 +1137,8 @@ namespace ManagedDoom
 					case FloorMoveType.LowerAndChange:
 						floor.Direction = -1;
 						floor.Sector = sector;
-						floor.Speed = floorSpeed;
-						floor.FloorDestHeight = FindLowestFloorSurrounding(sector);
+						floor.Speed = SectorAction.floorSpeed;
+						floor.FloorDestHeight = this.FindLowestFloorSurrounding(sector);
 						floor.Texture = sector.FloorFlat;
 						for (var i = 0; i < sector.Lines.Length; i++)
 						{
@@ -1173,11 +1176,11 @@ namespace ManagedDoom
 
 		public bool BuildStairs(LineDef line, StairType type)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 			var result = false;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
 
@@ -1190,8 +1193,8 @@ namespace ManagedDoom
 				result = true;
 
 				// New floor thinker.
-				var floor = new FloorMove(world);
-				world.Thinkers.Add(floor);
+				var floor = new FloorMove(this.world);
+				this.world.Thinkers.Add(floor);
 				sector.SpecialData = floor;
 				floor.Direction = 1;
 				floor.Sector = sector;
@@ -1201,11 +1204,11 @@ namespace ManagedDoom
 				switch (type)
 				{
 					case StairType.Build8:
-						speed = floorSpeed / 4;
+						speed = SectorAction.floorSpeed / 4;
 						stairSize = Fixed.FromInt(8);
 						break;
 					case StairType.Turbo16:
-						speed = floorSpeed * 4;
+						speed = SectorAction.floorSpeed * 4;
 						stairSize = Fixed.FromInt(16);
 						break;
 					default:
@@ -1258,9 +1261,9 @@ namespace ManagedDoom
 
 						sector = target;
 						sectorNumber = newSectorNumber;
-						floor = new FloorMove(world);
+						floor = new FloorMove(this.world);
 
-						world.Thinkers.Add(floor);
+						this.world.Thinkers.Add(floor);
 
 						sector.SpecialData = floor;
 						floor.Direction = 1;
@@ -1290,18 +1293,18 @@ namespace ManagedDoom
 				case CeilingMoveType.FastCrushAndRaise:
 				case CeilingMoveType.SilentCrushAndRaise:
 				case CeilingMoveType.CrushAndRaise:
-					ActivateInStasisCeiling(line);
+					this.ActivateInStasisCeiling(line);
 					break;
 
 				default:
 					break;
 			}
 
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 			var result = false;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
 				if (sector.SpecialData != null)
@@ -1312,8 +1315,8 @@ namespace ManagedDoom
 				result = true;
 
 				// New door thinker.
-				var ceiling = new CeilingMove(world);
-				world.Thinkers.Add(ceiling);
+				var ceiling = new CeilingMove(this.world);
+				this.world.Thinkers.Add(ceiling);
 				sector.SpecialData = ceiling;
 				ceiling.Sector = sector;
 				ceiling.Crush = false;
@@ -1325,7 +1328,7 @@ namespace ManagedDoom
 						ceiling.TopHeight = sector.CeilingHeight;
 						ceiling.BottomHeight = sector.FloorHeight + Fixed.FromInt(8);
 						ceiling.Direction = -1;
-						ceiling.Speed = CeilingSpeed * 2;
+						ceiling.Speed = SectorAction.CeilingSpeed * 2;
 						break;
 
 					case CeilingMoveType.SilentCrushAndRaise:
@@ -1344,19 +1347,19 @@ namespace ManagedDoom
 							ceiling.BottomHeight += Fixed.FromInt(8);
 						}
 						ceiling.Direction = -1;
-						ceiling.Speed = CeilingSpeed;
+						ceiling.Speed = SectorAction.CeilingSpeed;
 						break;
 
 					case CeilingMoveType.RaiseToHighest:
-						ceiling.TopHeight = FindHighestCeilingSurrounding(sector);
+						ceiling.TopHeight = this.FindHighestCeilingSurrounding(sector);
 						ceiling.Direction = 1;
-						ceiling.Speed = CeilingSpeed;
+						ceiling.Speed = SectorAction.CeilingSpeed;
 						break;
 				}
 
 				ceiling.Tag = sector.Tag;
 				ceiling.Type = type;
-				AddActiveCeiling(ceiling);
+				this.AddActiveCeiling(ceiling);
 			}
 
 			return result;
@@ -1368,15 +1371,15 @@ namespace ManagedDoom
 
 		private static readonly int maxCeilingCount = 30;
 
-		private CeilingMove[] activeCeilings = new CeilingMove[maxCeilingCount];
+		private CeilingMove[] activeCeilings = new CeilingMove[SectorAction.maxCeilingCount];
 
 		public void AddActiveCeiling(CeilingMove ceiling)
 		{
-			for (var i = 0; i < activeCeilings.Length; i++)
+			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (activeCeilings[i] == null)
+				if (this.activeCeilings[i] == null)
 				{
-					activeCeilings[i] = ceiling;
+					this.activeCeilings[i] = ceiling;
 
 					return;
 				}
@@ -1385,13 +1388,13 @@ namespace ManagedDoom
 
 		public void RemoveActiveCeiling(CeilingMove ceiling)
 		{
-			for (var i = 0; i < activeCeilings.Length; i++)
+			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (activeCeilings[i] == ceiling)
+				if (this.activeCeilings[i] == ceiling)
 				{
-					activeCeilings[i].Sector.SpecialData = null;
-					world.Thinkers.Remove(activeCeilings[i]);
-					activeCeilings[i] = null;
+					this.activeCeilings[i].Sector.SpecialData = null;
+					this.world.Thinkers.Remove(this.activeCeilings[i]);
+					this.activeCeilings[i] = null;
 					break;
 				}
 			}
@@ -1404,9 +1407,9 @@ namespace ManagedDoom
 				return false;
 			}
 
-			for (var i = 0; i < activeCeilings.Length; i++)
+			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (activeCeilings[i] == ceiling)
+				if (this.activeCeilings[i] == ceiling)
 				{
 					return true;
 				}
@@ -1417,14 +1420,14 @@ namespace ManagedDoom
 
 		public void ActivateInStasisCeiling(LineDef line)
 		{
-			for (var i = 0; i < activeCeilings.Length; i++)
+			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (activeCeilings[i] != null &&
-					activeCeilings[i].Tag == line.Tag &&
-					activeCeilings[i].Direction == 0)
+				if (this.activeCeilings[i] != null &&
+					this.activeCeilings[i].Tag == line.Tag &&
+					this.activeCeilings[i].Direction == 0)
 				{
-					activeCeilings[i].Direction = activeCeilings[i].OldDirection;
-					activeCeilings[i].ThinkerState = ThinkerState.Active;
+					this.activeCeilings[i].Direction = this.activeCeilings[i].OldDirection;
+					this.activeCeilings[i].ThinkerState = ThinkerState.Active;
 				}
 			}
 		}
@@ -1433,15 +1436,15 @@ namespace ManagedDoom
 		{
 			var result = false;
 
-			for (var i = 0; i < activeCeilings.Length; i++)
+			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (activeCeilings[i] != null &&
-					activeCeilings[i].Tag == line.Tag &&
-					activeCeilings[i].Direction != 0)
+				if (this.activeCeilings[i] != null &&
+					this.activeCeilings[i].Tag == line.Tag &&
+					this.activeCeilings[i].Direction != 0)
 				{
-					activeCeilings[i].OldDirection = activeCeilings[i].Direction;
-					activeCeilings[i].ThinkerState = ThinkerState.InStasis;
-					activeCeilings[i].Direction = 0;
+					this.activeCeilings[i].OldDirection = this.activeCeilings[i].Direction;
+					this.activeCeilings[i].ThinkerState = ThinkerState.InStasis;
+					this.activeCeilings[i].Direction = 0;
 					result = true;
 				}
 			}
@@ -1469,14 +1472,14 @@ namespace ManagedDoom
 				return false;
 			}
 
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var tag = line.Tag;
 
 			for (var i = 0; i < sectors.Length; i++)
 			{
 				if (sectors[i].Tag == tag)
 				{
-					foreach (var thinker in world.Thinkers)
+					foreach (var thinker in this.world.Thinkers)
 					{
 						var dest = thinker as Mobj;
 
@@ -1504,13 +1507,13 @@ namespace ManagedDoom
 						var oldY = thing.Y;
 						var oldZ = thing.Z;
 
-						if (!world.ThingMovement.TeleportMove(thing, dest.X, dest.Y))
+						if (!this.world.ThingMovement.TeleportMove(thing, dest.X, dest.Y))
 						{
 							return false;
 						}
 
 						// This compatibility fix is based on Chocolate Doom's implementation.
-						if (world.Options.GameVersion != GameVersion.Final)
+						if (this.world.Options.GameVersion != GameVersion.Final)
 						{
 							thing.Z = thing.FloorZ;
 						}
@@ -1520,7 +1523,7 @@ namespace ManagedDoom
 							thing.Player.ViewZ = thing.Z + thing.Player.ViewHeight;
 						}
 
-						var ta = world.ThingAllocation;
+						var ta = this.world.ThingAllocation;
 
 						// Spawn teleport fog at source position.
 						var fog1 = ta.SpawnMobj(
@@ -1528,7 +1531,7 @@ namespace ManagedDoom
 							oldY,
 							oldZ,
 							MobjType.Tfog);
-						world.StartSound(fog1, Sfx.TELEPT, SfxType.Misc);
+						this.world.StartSound(fog1, Sfx.TELEPT, SfxType.Misc);
 
 						// Destination position.
 						var angle = dest.Angle;
@@ -1537,7 +1540,7 @@ namespace ManagedDoom
 							dest.Y + 20 * Trig.Sin(angle),
 							thing.Z,
 							MobjType.Tfog);
-						world.StartSound(fog2, Sfx.TELEPT, SfxType.Misc);
+						this.world.StartSound(fog2, Sfx.TELEPT, SfxType.Misc);
 
 						if (thing.Player != null)
 						{
@@ -1564,7 +1567,7 @@ namespace ManagedDoom
 
 		public void TurnTagLightsOff(LineDef line)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 
 			for (var i = 0; i < sectors.Length; i++)
 			{
@@ -1576,7 +1579,7 @@ namespace ManagedDoom
 
 					for (var j = 0; j < sector.Lines.Length; j++)
 					{
-						var target = GetNextSector(sector.Lines[j], sector);
+						var target = this.GetNextSector(sector.Lines[j], sector);
 						if (target == null)
 						{
 							continue;
@@ -1595,7 +1598,7 @@ namespace ManagedDoom
 
 		public void LightTurnOn(LineDef line, int bright)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 
 			for (var i = 0; i < sectors.Length; i++)
 			{
@@ -1608,7 +1611,7 @@ namespace ManagedDoom
 					{
 						for (var j = 0; j < sector.Lines.Length; j++)
 						{
-							var target = GetNextSector(sector.Lines[j], sector);
+							var target = this.GetNextSector(sector.Lines[j], sector);
 							if (target == null)
 							{
 								continue;
@@ -1629,10 +1632,10 @@ namespace ManagedDoom
 
 		public void StartLightStrobing(LineDef line)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
 
@@ -1641,7 +1644,7 @@ namespace ManagedDoom
 					continue;
 				}
 
-				world.LightingChange.SpawnStrobeFlash(sector, StrobeFlash.SlowDark, 0);
+				this.world.LightingChange.SpawnStrobeFlash(sector, StrobeFlash.SlowDark, 0);
 			}
 		}
 
@@ -1653,11 +1656,11 @@ namespace ManagedDoom
 
 		public bool DoDonut(LineDef line)
 		{
-			var sectors = world.Map.Sectors;
+			var sectors = this.world.Map.Sectors;
 			var sectorNumber = -1;
 			var result = false;
 
-			while ((sectorNumber = FindSectorFromLineTag(line, sectorNumber)) >= 0)
+			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var s1 = sectors[sectorNumber];
 
@@ -1669,7 +1672,7 @@ namespace ManagedDoom
 
 				result = true;
 
-				var s2 = GetNextSector(s1.Lines[0], s1);
+				var s2 = this.GetNextSector(s1.Lines[0], s1);
 
 				//
 				// The code below is based on Chocolate Doom's implementation.
@@ -1695,30 +1698,30 @@ namespace ManagedDoom
 						return result;
 					}
 
-					var thinkers = world.Thinkers;
+					var thinkers = this.world.Thinkers;
 
 					// Spawn rising slime.
-					var floor1 = new FloorMove(world);
+					var floor1 = new FloorMove(this.world);
 					thinkers.Add(floor1);
 					s2.SpecialData = floor1;
 					floor1.Type = FloorMoveType.DonutRaise;
 					floor1.Crush = false;
 					floor1.Direction = 1;
 					floor1.Sector = s2;
-					floor1.Speed = floorSpeed / 2;
+					floor1.Speed = SectorAction.floorSpeed / 2;
 					floor1.Texture = s3.FloorFlat;
 					floor1.NewSpecial = 0;
 					floor1.FloorDestHeight = s3.FloorHeight;
 
 					// Spawn lowering donut-hole.
-					var floor2 = new FloorMove(world);
+					var floor2 = new FloorMove(this.world);
 					thinkers.Add(floor2);
 					s1.SpecialData = floor2;
 					floor2.Type = FloorMoveType.LowerFloor;
 					floor2.Crush = false;
 					floor2.Direction = -1;
 					floor2.Sector = s1;
-					floor2.Speed = floorSpeed / 2;
+					floor2.Speed = SectorAction.floorSpeed / 2;
 					floor2.FloorDestHeight = s3.FloorHeight;
 
 					break;
@@ -1731,9 +1734,9 @@ namespace ManagedDoom
 
 		public void SpawnDoorCloseIn30(Sector sector)
 		{
-			var door = new VerticalDoor(world);
+			var door = new VerticalDoor(this.world);
 
-			world.Thinkers.Add(door);
+			this.world.Thinkers.Add(door);
 
 			sector.SpecialData = door;
 			sector.Special = 0;
@@ -1741,15 +1744,15 @@ namespace ManagedDoom
 			door.Sector = sector;
 			door.Direction = 0;
 			door.Type = VerticalDoorType.Normal;
-			door.Speed = doorSpeed;
+			door.Speed = SectorAction.doorSpeed;
 			door.TopCountDown = 30 * 35;
 		}
 
 		public void SpawnDoorRaiseIn5Mins(Sector sector)
 		{
-			var door = new VerticalDoor(world);
+			var door = new VerticalDoor(this.world);
 
-			world.Thinkers.Add(door);
+			this.world.Thinkers.Add(door);
 
 			sector.SpecialData = door;
 			sector.Special = 0;
@@ -1757,10 +1760,10 @@ namespace ManagedDoom
 			door.Sector = sector;
 			door.Direction = 2;
 			door.Type = VerticalDoorType.RaiseIn5Mins;
-			door.Speed = doorSpeed;
-			door.TopHeight = FindLowestCeilingSurrounding(sector);
+			door.Speed = SectorAction.doorSpeed;
+			door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 			door.TopHeight -= Fixed.FromInt(4);
-			door.TopWait = doorWait;
+			door.TopWait = SectorAction.doorWait;
 			door.TopCountDown = 5 * 60 * 35;
 		}
 	}

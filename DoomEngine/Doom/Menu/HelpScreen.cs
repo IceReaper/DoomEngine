@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class HelpScreen : MenuDef
+	using Audio;
+	using Event;
+	using UserInput;
+
+	public sealed class HelpScreen : MenuDef
     {
         public HelpScreen(DoomMenu menu) : base(menu)
         {
@@ -34,8 +34,8 @@ namespace ManagedDoom
 
             if (e.Key == DoomKey.Escape)
             {
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
             }
 
             return true;

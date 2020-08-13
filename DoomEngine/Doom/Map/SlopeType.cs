@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public enum SlopeType
+	public enum SlopeType
     {
         Horizontal,
         Vertical,

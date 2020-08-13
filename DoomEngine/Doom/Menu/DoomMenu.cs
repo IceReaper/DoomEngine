@@ -13,13 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class DoomMenu
+	using Audio;
+	using Event;
+	using Game;
+	using Info;
+	using UserInput;
+
+	public sealed class DoomMenu
     {
         private DoomApplication app;
         private GameOptions options;
@@ -52,33 +54,33 @@ namespace ManagedDoom
         public DoomMenu(DoomApplication app)
         {
             this.app = app;
-            options = app.Options;
+            this.options = app.Options;
 
-            thisIsShareware = new PressAnyKey(
+            this.thisIsShareware = new PressAnyKey(
                 this,
                 DoomInfo.Strings.SWSTRING,
                 null);
 
-            saveFailed = new PressAnyKey(
+            this.saveFailed = new PressAnyKey(
                 this,
                 DoomInfo.Strings.SAVEDEAD,
                 null);
 
-            nightmareConfirm = new YesNoConfirm(
+            this.nightmareConfirm = new YesNoConfirm(
                 this,
                 DoomInfo.Strings.NIGHTMARE,
-                () => app.NewGame(GameSkill.Nightmare, selectedEpisode, 1));
+                () => app.NewGame(GameSkill.Nightmare, this.selectedEpisode, 1));
 
-            endGameConfirm = new YesNoConfirm(
+            this.endGameConfirm = new YesNoConfirm(
                 this,
                 DoomInfo.Strings.ENDGAME,
                 () => app.EndGame());
 
-            quitConfirm = new QuitConfirm(
+            this.quitConfirm = new QuitConfirm(
                 this,
                 app);
 
-            skillMenu = new SelectableMenu(
+            this.skillMenu = new SelectableMenu(
                 this,
                 "M_NEWG", 96, 14,
                 "M_SKILL", 54, 38,
@@ -86,105 +88,105 @@ namespace ManagedDoom
 
                 new SimpleMenuItem(
                     "M_JKILL", 16, 58, 48, 63,
-                    () => app.NewGame(GameSkill.Baby, selectedEpisode, 1),
+                    () => app.NewGame(GameSkill.Baby, this.selectedEpisode, 1),
                     null),
 
                 new SimpleMenuItem(
                     "M_ROUGH", 16, 74, 48, 79,
-                    () => app.NewGame(GameSkill.Easy, selectedEpisode, 1),
+                    () => app.NewGame(GameSkill.Easy, this.selectedEpisode, 1),
                     null),
 
                 new SimpleMenuItem(
                     "M_HURT", 16, 90, 48, 95,
-                    () => app.NewGame(GameSkill.Medium, selectedEpisode, 1),
+                    () => app.NewGame(GameSkill.Medium, this.selectedEpisode, 1),
                     null),
 
                 new SimpleMenuItem(
                     "M_ULTRA", 16, 106, 48, 111,
-                    () => app.NewGame(GameSkill.Hard, selectedEpisode, 1),
+                    () => app.NewGame(GameSkill.Hard, this.selectedEpisode, 1),
                     null),
 
                 new SimpleMenuItem(
                     "M_NMARE", 16, 122, 48, 127,
                     null,
-                    nightmareConfirm));
+                    this.nightmareConfirm));
 
             if (app.Options.GameMode == GameMode.Retail)
             {
-                episodeMenu = new SelectableMenu(
+                this.episodeMenu = new SelectableMenu(
                     this,
                     "M_EPISOD", 54, 38,
                     0,
 
                     new SimpleMenuItem(
                         "M_EPI1", 16, 58, 48, 63,
-                        () => selectedEpisode = 1,
-                        skillMenu),
+                        () => this.selectedEpisode = 1,
+                        this.skillMenu),
 
                     new SimpleMenuItem(
                         "M_EPI2", 16, 74, 48, 79,
-                        () => selectedEpisode = 2,
-                        skillMenu),
+                        () => this.selectedEpisode = 2,
+                        this.skillMenu),
 
                     new SimpleMenuItem(
                         "M_EPI3", 16, 90, 48, 95,
-                        () => selectedEpisode = 3,
-                        skillMenu),
+                        () => this.selectedEpisode = 3,
+                        this.skillMenu),
 
                     new SimpleMenuItem(
                         "M_EPI4", 16, 106, 48, 111,
-                        () => selectedEpisode = 4,
-                        skillMenu));
+                        () => this.selectedEpisode = 4,
+                        this.skillMenu));
             }
             else
             {
                 if (app.Options.GameMode == GameMode.Shareware)
                 {
-                    episodeMenu = new SelectableMenu(
+                    this.episodeMenu = new SelectableMenu(
                         this,
                         "M_EPISOD", 54, 38,
                         0,
 
                         new SimpleMenuItem(
                             "M_EPI1", 16, 58, 48, 63,
-                            () => selectedEpisode = 1,
-                            skillMenu),
+                            () => this.selectedEpisode = 1,
+                            this.skillMenu),
 
                         new SimpleMenuItem(
                             "M_EPI2", 16, 74, 48, 79,
                             null,
-                            thisIsShareware),
+                            this.thisIsShareware),
 
                         new SimpleMenuItem(
                             "M_EPI3", 16, 90, 48, 95,
                             null,
-                            thisIsShareware));
+                            this.thisIsShareware));
                 }
                 else
                 {
-                    episodeMenu = new SelectableMenu(
+                    this.episodeMenu = new SelectableMenu(
                         this,
                         "M_EPISOD", 54, 38,
                         0,
 
                         new SimpleMenuItem(
                             "M_EPI1", 16, 58, 48, 63,
-                            () => selectedEpisode = 1,
-                            skillMenu),
+                            () => this.selectedEpisode = 1,
+                            this.skillMenu),
                         new SimpleMenuItem(
                             "M_EPI2", 16, 74, 48, 79,
-                            () => selectedEpisode = 2,
-                            skillMenu),
+                            () => this.selectedEpisode = 2,
+                            this.skillMenu),
                         new SimpleMenuItem(
                             "M_EPI3", 16, 90, 48, 95,
-                            () => selectedEpisode = 3,
-                            skillMenu));
+                            () => this.selectedEpisode = 3,
+                            this.skillMenu));
                 }
             }
 
-            var sound = options.Sound;
-            var music = options.Music;
-            volume = new SelectableMenu(
+            var sound = this.options.Sound;
+            var music = this.options.Music;
+            this.volume = new SelectableMenu(
                 this,
                 "M_SVOL", 60, 38,
                 0,
@@ -200,9 +202,9 @@ namespace ManagedDoom
                     () => music.Volume,
                     vol => music.Volume = vol));
 
-            var renderer = options.Renderer;
-            var userInput = options.UserInput;
-            optionMenu = new SelectableMenu(
+            var renderer = this.options.Renderer;
+            var userInput = this.options.UserInput;
+            this.optionMenu = new SelectableMenu(
                 this,
                 "M_OPTTTL", 108, 15,
                 0,
@@ -210,7 +212,7 @@ namespace ManagedDoom
                 new SimpleMenuItem(
                     "M_ENDGAM", 28, 32, 60, 37,
                     null,
-                    endGameConfirm,
+                    this.endGameConfirm,
                     () => app.State == ApplicationState.Game),
 
                 new ToggleMenuItem(
@@ -233,9 +235,9 @@ namespace ManagedDoom
                 new SimpleMenuItem(
                     "M_SVOL", 28, 144 - 16, 60, 149 - 16,
                     null,
-                    volume));
+                    this.volume));
 
-            load = new LoadMenu(
+            this.load = new LoadMenu(
                 this,
                 "M_LOADG", 72, 28,
                 0,
@@ -246,7 +248,7 @@ namespace ManagedDoom
                 new TextBoxMenuItem(48, 113, 72, 125),
                 new TextBoxMenuItem(48, 129, 72, 141));
 
-            save = new SaveMenu(
+            this.save = new SaveMenu(
                 this,
                 "M_SAVEG", 72, 28,
                 0,
@@ -260,48 +262,48 @@ namespace ManagedDoom
             MenuDef newGameMenu;
             if (app.Options.GameMode == GameMode.Commercial)
             {
-                newGameMenu = skillMenu;
+                newGameMenu = this.skillMenu;
             }
             else
             {
-                newGameMenu = episodeMenu;
+                newGameMenu = this.episodeMenu;
             }
-            main = new SelectableMenu(
+            this.main = new SelectableMenu(
                 this,
                 "M_DOOM", 94, 2,
                 0,
                 new SimpleMenuItem("M_NGAME", 65, 67, 97, 72, null, newGameMenu),
-                new SimpleMenuItem("M_OPTION", 65, 83, 97, 88, null, optionMenu),
-                new SimpleMenuItem("M_LOADG", 65, 99, 97, 104, null, load),
-                new SimpleMenuItem("M_SAVEG", 65, 115, 97, 120, null, save, () =>
+                new SimpleMenuItem("M_OPTION", 65, 83, 97, 88, null, this.optionMenu),
+                new SimpleMenuItem("M_LOADG", 65, 99, 97, 104, null, this.load),
+                new SimpleMenuItem("M_SAVEG", 65, 115, 97, 120, null, this.save, () =>
                     !(app.State == ApplicationState.Game &&
                         app.Game.State != GameState.Level)),
-                new SimpleMenuItem("M_QUITG", 65, 131, 97, 136, null, quitConfirm));
+                new SimpleMenuItem("M_QUITG", 65, 131, 97, 136, null, this.quitConfirm));
 
-            help = new HelpScreen(this);
+            this.help = new HelpScreen(this);
 
-            current = main;
-            active = false;
+            this.current = this.main;
+            this.active = false;
 
-            tics = 0;
+            this.tics = 0;
 
-            selectedEpisode = 1;
+            this.selectedEpisode = 1;
 
-            saveSlots = new SaveSlots();
+            this.saveSlots = new SaveSlots();
         }
 
         public bool DoEvent(DoomEvent e)
         {
-            if (active)
+            if (this.active)
             {
-                if (current.DoEvent(e))
+                if (this.current.DoEvent(e))
                 {
                     return true;
                 }
 
                 if (e.Key == DoomKey.Escape && e.Type == EventType.KeyDown)
                 {
-                    Close();
+                    this.Close();
                 }
 
                 return true;
@@ -310,13 +312,13 @@ namespace ManagedDoom
             {
                 if (e.Key == DoomKey.Escape && e.Type == EventType.KeyDown)
                 {
-                    SetCurrent(main);
-                    Open();
-                    StartSound(Sfx.SWTCHN);
+                    this.SetCurrent(this.main);
+                    this.Open();
+                    this.StartSound(Sfx.SWTCHN);
                     return true;
                 }
 
-                if (e.Type == EventType.KeyDown && app.State == ApplicationState.Opening)
+                if (e.Type == EventType.KeyDown && this.app.State == ApplicationState.Opening)
                 {
                     if (e.Key == DoomKey.Enter ||
                         e.Key == DoomKey.Space ||
@@ -324,9 +326,9 @@ namespace ManagedDoom
                         e.Key == DoomKey.RControl ||
                         e.Key == DoomKey.Escape)
                     {
-                        SetCurrent(main);
-                        Open();
-                        StartSound(Sfx.SWTCHN);
+                        this.SetCurrent(this.main);
+                        this.Open();
+                        this.StartSound(Sfx.SWTCHN);
                         return true;
                     }
                 }
@@ -337,141 +339,141 @@ namespace ManagedDoom
 
         public void Update()
         {
-            tics++;
+            this.tics++;
 
-            if (current != null)
+            if (this.current != null)
             {
-                current.Update();
+                this.current.Update();
             }
 
-            if (active && !app.Options.NetGame)
+            if (this.active && !this.app.Options.NetGame)
             {
-                app.PauseGame();
+                this.app.PauseGame();
             }
         }
 
         public void SetCurrent(MenuDef next)
         {
-            current = next;
-            current.Open();
+            this.current = next;
+            this.current.Open();
         }
 
         public void Open()
         {
-            active = true;
+            this.active = true;
         }
 
         public void Close()
         {
-            active = false;
+            this.active = false;
 
-            if (!app.Options.NetGame)
+            if (!this.app.Options.NetGame)
             {
-                app.ResumeGame();
+                this.app.ResumeGame();
             }
         }
 
         public void StartSound(Sfx sfx)
         {
-            options.Sound.StartSound(sfx);
+            this.options.Sound.StartSound(sfx);
         }
 
         public void NotifySaveFailed()
         {
-            SetCurrent(saveFailed);
+            this.SetCurrent(this.saveFailed);
         }
 
         public void ShowHelpScreen()
         {
-            SetCurrent(help);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.help);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
         public void ShowSaveScreen()
         {
-            SetCurrent(save);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.save);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
         public void ShowLoadScreen()
         {
-            SetCurrent(load);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.load);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
         public void ShowVolumeControl()
         {
-            SetCurrent(volume);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.volume);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
         public void QuickSave()
         {
-            if (save.LastSaveSlot == -1)
+            if (this.save.LastSaveSlot == -1)
             {
-                ShowSaveScreen();
+                this.ShowSaveScreen();
             }
             else
             {
-                var desc = saveSlots[save.LastSaveSlot];
+                var desc = this.saveSlots[this.save.LastSaveSlot];
                 var confirm = new YesNoConfirm(
                     this,
                     ((string)DoomInfo.Strings.QSPROMPT).Replace("%s", desc),
-                    () => save.DoSave(save.LastSaveSlot));
-                SetCurrent(confirm);
-                Open();
-                StartSound(Sfx.SWTCHN);
+                    () => this.save.DoSave(this.save.LastSaveSlot));
+                this.SetCurrent(confirm);
+                this.Open();
+                this.StartSound(Sfx.SWTCHN);
             }
         }
 
         public void QuickLoad()
         {
-            if (save.LastSaveSlot == -1)
+            if (this.save.LastSaveSlot == -1)
             {
                 var pak = new PressAnyKey(
                     this,
                     DoomInfo.Strings.QSAVESPOT,
                     null);
-                SetCurrent(pak);
-                Open();
-                StartSound(Sfx.SWTCHN);
+                this.SetCurrent(pak);
+                this.Open();
+                this.StartSound(Sfx.SWTCHN);
             }
             else
             {
-                var desc = saveSlots[save.LastSaveSlot];
+                var desc = this.saveSlots[this.save.LastSaveSlot];
                 var confirm = new YesNoConfirm(
                     this,
                     ((string)DoomInfo.Strings.QLPROMPT).Replace("%s", desc),
-                    () => load.DoLoad(save.LastSaveSlot));
-                SetCurrent(confirm);
-                Open();
-                StartSound(Sfx.SWTCHN);
+                    () => this.load.DoLoad(this.save.LastSaveSlot));
+                this.SetCurrent(confirm);
+                this.Open();
+                this.StartSound(Sfx.SWTCHN);
             }
         }
 
         public void EndGame()
         {
-            SetCurrent(endGameConfirm);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.endGameConfirm);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
         public void Quit()
         {
-            SetCurrent(quitConfirm);
-            Open();
-            StartSound(Sfx.SWTCHN);
+            this.SetCurrent(this.quitConfirm);
+            this.Open();
+            this.StartSound(Sfx.SWTCHN);
         }
 
-        public DoomApplication Application => app;
-        public GameOptions Options => app.Options;
-        public MenuDef Current => current;
-        public bool Active => active;
-        public int Tics => tics;
-        public SaveSlots SaveSlots => saveSlots;
+        public DoomApplication Application => this.app;
+        public GameOptions Options => this.app.Options;
+        public MenuDef Current => this.current;
+        public bool Active => this.active;
+        public int Tics => this.tics;
+        public SaveSlots SaveSlots => this.saveSlots;
     }
 }

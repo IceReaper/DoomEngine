@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Audio
 {
-    public enum Bgm
+	public enum Bgm
     {
         NONE,
         E1M1,

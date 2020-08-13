@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Intermission
 {
-    public sealed class AnimationInfo
+	using Game;
+	using System.Collections.Generic;
+
+	public sealed class AnimationInfo
     {
         private AnimationType type;
         private int period;
@@ -48,12 +46,12 @@ namespace ManagedDoom
             this.data = data;
         }
 
-        public AnimationType Type => type;
-        public int Period => period;
-        public int Count => count;
-        public int X => x;
-        public int Y => y;
-        public int Data => data;
+        public AnimationType Type => this.type;
+        public int Period => this.period;
+        public int Count => this.count;
+        public int X => this.x;
+        public int Y => this.y;
+        public int Data => this.data;
 
         public static readonly IReadOnlyList<IReadOnlyList<AnimationInfo>> Episodes = new AnimationInfo[][]
         {

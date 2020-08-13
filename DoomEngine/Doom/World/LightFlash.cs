@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class LightFlash : Thinker
+	using Map;
+
+	public sealed class LightFlash : Thinker
     {
         private World world;
 
@@ -37,57 +35,57 @@ namespace ManagedDoom
 
         public override void Run()
         {
-            if (--count > 0)
+            if (--this.count > 0)
             {
                 return;
             }
 
-            if (sector.LightLevel == maxLight)
+            if (this.sector.LightLevel == this.maxLight)
             {
-                sector.LightLevel = minLight;
-                count = (world.Random.Next() & minTime) + 1;
+                this.sector.LightLevel = this.minLight;
+                this.count = (this.world.Random.Next() & this.minTime) + 1;
             }
             else
             {
-                sector.LightLevel = maxLight;
-                count = (world.Random.Next() & maxTime) + 1;
+                this.sector.LightLevel = this.maxLight;
+                this.count = (this.world.Random.Next() & this.maxTime) + 1;
             }
         }
 
         public Sector Sector
         {
-            get => sector;
-            set => sector = value;
+            get => this.sector;
+            set => this.sector = value;
         }
 
         public int Count
         {
-            get => count;
-            set => count = value;
+            get => this.count;
+            set => this.count = value;
         }
 
         public int MaxLight
         {
-            get => maxLight;
-            set => maxLight = value;
+            get => this.maxLight;
+            set => this.maxLight = value;
         }
 
         public int MinLight
         {
-            get => minLight;
-            set => minLight = value;
+            get => this.minLight;
+            set => this.minLight = value;
         }
 
         public int MaxTime
         {
-            get => maxTime;
-            set => maxTime = value;
+            get => this.maxTime;
+            set => this.maxTime = value;
         }
 
         public int MinTime
         {
-            get => minTime;
-            set => minTime = value;
+            get => this.minTime;
+            set => this.minTime = value;
         }
     }
 }

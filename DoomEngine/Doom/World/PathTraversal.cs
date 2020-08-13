@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class PathTraversal
+	using Map;
+	using Math;
+	using System;
+
+	public sealed class PathTraversal
     {
         private World world;
 
@@ -38,17 +38,17 @@ namespace ManagedDoom
         {
             this.world = world;
 
-            intercepts = new Intercept[256];
-            for (var i = 0; i < intercepts.Length; i++)
+            this.intercepts = new Intercept[256];
+            for (var i = 0; i < this.intercepts.Length; i++)
             {
-                intercepts[i] = new Intercept();
+                this.intercepts[i] = new Intercept();
             }
 
-            target = new DivLine();
-            trace = new DivLine();
+            this.target = new DivLine();
+            this.trace = new DivLine();
 
-            lineInterceptFunc = AddLineIntercepts;
-            thingInterceptFunc = AddThingIntercepts;
+            this.lineInterceptFunc = this.AddLineIntercepts;
+            this.thingInterceptFunc = this.AddThingIntercepts;
         }
 
         /// <summary>
@@ -63,18 +63,18 @@ namespace ManagedDoom
             int s2;
 
             // Avoid precision problems with two routines.
-            if (trace.Dx > Fixed.FromInt(16) ||
-                trace.Dy > Fixed.FromInt(16) ||
-                trace.Dx < -Fixed.FromInt(16) ||
-                trace.Dy < -Fixed.FromInt(16))
+            if (this.trace.Dx > Fixed.FromInt(16) ||
+                this.trace.Dy > Fixed.FromInt(16) ||
+                this.trace.Dx < -Fixed.FromInt(16) ||
+                this.trace.Dy < -Fixed.FromInt(16))
             {
-                s1 = Geometry.PointOnDivLineSide(line.Vertex1.X, line.Vertex1.Y, trace);
-                s2 = Geometry.PointOnDivLineSide(line.Vertex2.X, line.Vertex2.Y, trace);
+                s1 = Geometry.PointOnDivLineSide(line.Vertex1.X, line.Vertex1.Y, this.trace);
+                s2 = Geometry.PointOnDivLineSide(line.Vertex2.X, line.Vertex2.Y, this.trace);
             }
             else
             {
-                s1 = Geometry.PointOnLineSide(trace.X, trace.Y, line);
-                s2 = Geometry.PointOnLineSide(trace.X + trace.Dx, trace.Y + trace.Dy, line);
+                s1 = Geometry.PointOnLineSide(this.trace.X, this.trace.Y, line);
+                s2 = Geometry.PointOnLineSide(this.trace.X + this.trace.Dx, this.trace.Y + this.trace.Dy, line);
             }
 
             if (s1 == s2)
@@ -84,9 +84,9 @@ namespace ManagedDoom
             }
 
             // Hit the line.
-            target.MakeFrom(line);
+            this.target.MakeFrom(line);
 
-            var frac = InterceptVector(trace, target);
+            var frac = this.InterceptVector(this.trace, this.target);
 
             if (frac < Fixed.Zero)
             {
@@ -95,14 +95,14 @@ namespace ManagedDoom
             }
 
             // Try to early out the check.
-            if (earlyOut && frac < Fixed.One && line.BackSector == null)
+            if (this.earlyOut && frac < Fixed.One && line.BackSector == null)
             {
                 // Stop checking.
                 return false;
             }
 
-            intercepts[interceptCount].Make(frac, line);
-            interceptCount++;
+            this.intercepts[this.interceptCount].Make(frac, line);
+            this.interceptCount++;
 
             // Continue.
             return true;
@@ -113,7 +113,7 @@ namespace ManagedDoom
         /// </summary>
         private bool AddThingIntercepts(Mobj thing)
         {
-            var tracePositive = (trace.Dx.Data ^ trace.Dy.Data) > 0;
+            var tracePositive = (this.trace.Dx.Data ^ this.trace.Dy.Data) > 0;
 
             Fixed x1;
             Fixed y1;
@@ -138,8 +138,8 @@ namespace ManagedDoom
                 y2 = thing.Y + thing.Radius;
             }
 
-            var s1 = Geometry.PointOnDivLineSide(x1, y1, trace);
-            var s2 = Geometry.PointOnDivLineSide(x2, y2, trace);
+            var s1 = Geometry.PointOnDivLineSide(x1, y1, this.trace);
+            var s2 = Geometry.PointOnDivLineSide(x2, y2, this.trace);
 
             if (s1 == s2)
             {
@@ -147,12 +147,12 @@ namespace ManagedDoom
                 return true;
             }
 
-            target.X = x1;
-            target.Y = y1;
-            target.Dx = x2 - x1;
-            target.Dy = y2 - y1;
+            this.target.X = x1;
+            this.target.Y = y1;
+            this.target.Dx = x2 - x1;
+            this.target.Dy = y2 - y1;
 
-            var frac = InterceptVector(trace, target);
+            var frac = this.InterceptVector(this.trace, this.target);
 
             if (frac < Fixed.Zero)
             {
@@ -160,8 +160,8 @@ namespace ManagedDoom
                 return true;
             }
 
-            intercepts[interceptCount].Make(frac, thing);
-            interceptCount++;
+            this.intercepts[this.interceptCount].Make(frac, thing);
+            this.interceptCount++;
 
             // Keep going.
             return true;
@@ -192,19 +192,19 @@ namespace ManagedDoom
         /// </summary>
         private bool TraverseIntercepts(Func<Intercept, bool> func, Fixed maxFrac)
         {
-            var count = interceptCount;
+            var count = this.interceptCount;
 
             Intercept intercept = null;
 
             while (count-- > 0)
             {
                 var dist = Fixed.MaxValue;
-                for (var i = 0; i < interceptCount; i++)
+                for (var i = 0; i < this.interceptCount; i++)
                 {
-                    if (intercepts[i].Frac < dist)
+                    if (this.intercepts[i].Frac < dist)
                     {
-                        dist = intercepts[i].Frac;
-                        intercept = intercepts[i];
+                        dist = this.intercepts[i].Frac;
+                        intercept = this.intercepts[i];
                     }
                 }
 
@@ -233,13 +233,13 @@ namespace ManagedDoom
         /// </summary>
         public bool PathTraverse(Fixed x1, Fixed y1, Fixed x2, Fixed y2, PathTraverseFlags flags, Func<Intercept, bool> trav)
         {
-            earlyOut = (flags & PathTraverseFlags.EarlyOut) != 0;
+            this.earlyOut = (flags & PathTraverseFlags.EarlyOut) != 0;
 
-            var validCount = world.GetNewValidCount();
+            var validCount = this.world.GetNewValidCount();
 
-            var bm = world.Map.BlockMap;
+            var bm = this.world.Map.BlockMap;
 
-            interceptCount = 0;
+            this.interceptCount = 0;
 
             if (((x1 - bm.OriginX).Data & (BlockMap.BlockSize.Data - 1)) == 0)
             {
@@ -253,10 +253,10 @@ namespace ManagedDoom
                 y1 += Fixed.One;
             }
 
-            trace.X = x1;
-            trace.Y = y1;
-            trace.Dx = x2 - x1;
-            trace.Dy = y2 - y1;
+            this.trace.X = x1;
+            this.trace.Y = y1;
+            this.trace.Dx = x2 - x1;
+            this.trace.Dy = y2 - y1;
 
             x1 -= bm.OriginX;
             y1 -= bm.OriginY;
@@ -330,7 +330,7 @@ namespace ManagedDoom
             {
                 if ((flags & PathTraverseFlags.AddLines) != 0)
                 {
-                    if (!bm.IterateLines(bx, by, lineInterceptFunc, validCount))
+                    if (!bm.IterateLines(bx, by, this.lineInterceptFunc, validCount))
                     {
                         // Early out.
                         return false;
@@ -339,7 +339,7 @@ namespace ManagedDoom
 
                 if ((flags & PathTraverseFlags.AddThings) != 0)
                 {
-                    if (!bm.IterateThings(bx, by, thingInterceptFunc))
+                    if (!bm.IterateThings(bx, by, this.thingInterceptFunc))
                     {
                         // Early out.
                         return false;
@@ -365,9 +365,9 @@ namespace ManagedDoom
             }
 
             // Go through the sorted list.
-            return TraverseIntercepts(trav, Fixed.One);
+            return this.TraverseIntercepts(trav, Fixed.One);
         }
 
-        public DivLine Trace => trace;
+        public DivLine Trace => this.trace;
     }
 }

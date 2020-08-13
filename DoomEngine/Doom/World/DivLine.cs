@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class DivLine
+	using Map;
+	using Math;
+
+	public sealed class DivLine
     {
         private Fixed x;
         private Fixed y;
@@ -28,34 +27,34 @@ namespace ManagedDoom
 
         public void MakeFrom(LineDef line)
         {
-            x = line.Vertex1.X;
-            y = line.Vertex1.Y;
-            dx = line.Dx;
-            dy = line.Dy;
+            this.x = line.Vertex1.X;
+            this.y = line.Vertex1.Y;
+            this.dx = line.Dx;
+            this.dy = line.Dy;
         }
 
         public Fixed X
         {
-            get => x;
-            set => x = value;
+            get => this.x;
+            set => this.x = value;
         }
 
         public Fixed Y
         {
-            get => y;
-            set => y = value;
+            get => this.y;
+            set => this.y = value;
         }
 
         public Fixed Dx
         {
-            get => dx;
-            set => dx = value;
+            get => this.dx;
+            set => this.dx = value;
         }
 
         public Fixed Dy
         {
-            get => dy;
-            set => dy = value;
+            get => this.dy;
+            set => this.dy = value;
         }
     }
 }

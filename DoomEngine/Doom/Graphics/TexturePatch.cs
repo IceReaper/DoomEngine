@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class TexturePatch
+	using System;
+
+	public sealed class TexturePatch
     {
         public const int DataSize = 10;
 
@@ -49,11 +47,11 @@ namespace ManagedDoom
                 patches[patchNum]);
         }
 
-        public string Name => patch.Name;
-        public int OriginX => originX;
-        public int OriginY => originY;
-        public int Width => patch.Width;
-        public int Height => patch.Height;
-        public Column[][] Columns => patch.Columns;
+        public string Name => this.patch.Name;
+        public int OriginX => this.originX;
+        public int OriginY => this.originY;
+        public int Width => this.patch.Width;
+        public int Height => this.patch.Height;
+        public Column[][] Columns => this.patch.Columns;
     }
 }

@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Node
+	using Math;
+	using System;
+	using Wad;
+
+	public sealed class Node
     {
         private static readonly int dataSize = 28;
 
@@ -69,13 +69,13 @@ namespace ManagedDoom
                 backBoundingBoxRight
             };
 
-            boundingBox = new Fixed[][]
+            this.boundingBox = new Fixed[][]
             {
                 frontBoundingBox,
                 backBoundingBox
             };
 
-            children = new int[]
+            this.children = new int[]
             {
                 frontChild,
                 backChild
@@ -147,11 +147,11 @@ namespace ManagedDoom
             return node ^ unchecked((int)0xFFFF8000);
         }
 
-        public Fixed X => x;
-        public Fixed Y => y;
-        public Fixed Dx => dx;
-        public Fixed Dy => dy;
-        public Fixed[][] BoundingBox => boundingBox;
-        public int[] Children => children;
+        public Fixed X => this.x;
+        public Fixed Y => this.y;
+        public Fixed Dx => this.dx;
+        public Fixed Dy => this.dy;
+        public Fixed[][] BoundingBox => this.boundingBox;
+        public int[] Children => this.children;
     }
 }

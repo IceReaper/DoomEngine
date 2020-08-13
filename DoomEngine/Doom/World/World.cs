@@ -13,13 +13,17 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed partial class World
+	using Audio;
+	using Common;
+	using Event;
+	using Game;
+	using Map;
+	using Math;
+	using UserInput;
+
+	public sealed partial class World
     {
         private GameOptions options;
         private DoomGame game;
@@ -71,34 +75,34 @@ namespace ManagedDoom
 
             if (game != null)
             {
-                random = game.Random;
+                this.random = game.Random;
             }
             else
             {
-                random = new DoomRandom();
+                this.random = new DoomRandom();
             }
 
-            map = new Map(resorces, this);
+            this.map = new Map(resorces, this);
 
-            thinkers = new Thinkers(this);
-            specials = new Specials(this);
-            thingAllocation = new ThingAllocation(this);
-            thingMovement = new ThingMovement(this);
-            thingInteraction = new ThingInteraction(this);
-            mapCollision = new MapCollision(this);
-            mapInteraction = new MapInteraction(this);
-            pathTraversal = new PathTraversal(this);
-            hitscan = new Hitscan(this);
-            visibilityCheck = new VisibilityCheck(this);
-            sectorAction = new SectorAction(this);
-            playerBehavior = new PlayerBehavior(this);
-            itemPickup = new ItemPickup(this);
-            weaponBehavior = new WeaponBehavior(this);
-            monsterBehavior = new MonsterBehavior(this);
-            lightingChange = new LightingChange(this);
-            statusBar = new StatusBar(this);
-            autoMap = new AutoMap(this);
-            cheat = new Cheat(this);
+            this.thinkers = new Thinkers(this);
+            this.specials = new Specials(this);
+            this.thingAllocation = new ThingAllocation(this);
+            this.thingMovement = new ThingMovement(this);
+            this.thingInteraction = new ThingInteraction(this);
+            this.mapCollision = new MapCollision(this);
+            this.mapInteraction = new MapInteraction(this);
+            this.pathTraversal = new PathTraversal(this);
+            this.hitscan = new Hitscan(this);
+            this.visibilityCheck = new VisibilityCheck(this);
+            this.sectorAction = new SectorAction(this);
+            this.playerBehavior = new PlayerBehavior(this);
+            this.itemPickup = new ItemPickup(this);
+            this.weaponBehavior = new WeaponBehavior(this);
+            this.monsterBehavior = new MonsterBehavior(this);
+            this.lightingChange = new LightingChange(this);
+            this.statusBar = new StatusBar(this);
+            this.autoMap = new AutoMap(this);
+            this.cheat = new Cheat(this);
 
             options.IntermissionInfo.TotalFrags = 0;
             options.IntermissionInfo.ParTime = 180;
@@ -113,11 +117,11 @@ namespace ManagedDoom
             // Initial height of view will be set by player think.
             options.Players[options.ConsolePlayer].ViewZ = Fixed.Epsilon;
 
-            totalKills = 0;
-            totalItems = 0;
-            totalSecrets = 0;
+            this.totalKills = 0;
+            this.totalItems = 0;
+            this.totalSecrets = 0;
 
-            LoadThings();
+            this.LoadThings();
 
             // If deathmatch, randomly spawn the active players.
             if (options.Deathmatch != 0)
@@ -127,58 +131,58 @@ namespace ManagedDoom
                     if (options.Players[i].InGame)
                     {
                         options.Players[i].Mobj = null;
-                        thingAllocation.DeathMatchSpawnPlayer(i);
+                        this.thingAllocation.DeathMatchSpawnPlayer(i);
                     }
                 }
             }
 
-            specials.SpawnSpecials();
+            this.specials.SpawnSpecials();
 
-            levelTime = 0;
-            doneFirstTic = false;
-            secretExit = false;
-            completed = false;
+            this.levelTime = 0;
+            this.doneFirstTic = false;
+            this.secretExit = false;
+            this.completed = false;
 
-            validCount = 0;
+            this.validCount = 0;
 
-            displayPlayer = options.ConsolePlayer;
+            this.displayPlayer = options.ConsolePlayer;
 
             options.Music.StartMusic(Map.GetMapBgm(options), true);
         }
 
         public UpdateResult Update()
         {
-            var players = options.Players;
+            var players = this.options.Players;
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
                 if (players[i].InGame)
                 {
-                    playerBehavior.PlayerThink(players[i]);
+                    this.playerBehavior.PlayerThink(players[i]);
                 }
             }
 
-            thinkers.Run();
-            specials.Update();
-            thingAllocation.RespawnSpecials();
+            this.thinkers.Run();
+            this.specials.Update();
+            this.thingAllocation.RespawnSpecials();
 
-            statusBar.Update();
-            autoMap.Update();
+            this.statusBar.Update();
+            this.autoMap.Update();
 
-            levelTime++;
+            this.levelTime++;
 
-            if (completed)
+            if (this.completed)
             {
                 return UpdateResult.Completed;
             }
             else
             {
-                if (doneFirstTic)
+                if (this.doneFirstTic)
                 {
                     return UpdateResult.None;
                 }
                 else
                 {
-                    doneFirstTic = true;
+                    this.doneFirstTic = true;
                     return UpdateResult.NeedWipe;
                 }
             }
@@ -186,14 +190,14 @@ namespace ManagedDoom
 
         private void LoadThings()
         {
-            for (var i = 0; i < map.Things.Length; i++)
+            for (var i = 0; i < this.map.Things.Length; i++)
             {
-                var mt = map.Things[i];
+                var mt = this.map.Things[i];
 
                 var spawn = true;
 
                 // Do not spawn cool, new monsters if not commercial.
-                if (options.GameMode != GameMode.Commercial)
+                if (this.options.GameMode != GameMode.Commercial)
                 {
                     switch (mt.Type)
                     {
@@ -217,53 +221,53 @@ namespace ManagedDoom
                     break;
                 }
 
-                thingAllocation.SpawnMapThing(mt);
+                this.thingAllocation.SpawnMapThing(mt);
             }
         }
 
         public void ExitLevel()
         {
-            secretExit = false;
-            completed = true;
+            this.secretExit = false;
+            this.completed = true;
         }
 
         public void SecretExitLevel()
         {
-            secretExit = true;
-            completed = true;
+            this.secretExit = true;
+            this.completed = true;
         }
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
         {
-            options.Sound.StartSound(mobj, sfx, type);
+            this.options.Sound.StartSound(mobj, sfx, type);
         }
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
         {
-            options.Sound.StartSound(mobj, sfx, type, volume);
+            this.options.Sound.StartSound(mobj, sfx, type, volume);
         }
 
         public void StopSound(Mobj mobj)
         {
-            options.Sound.StopSound(mobj);
+            this.options.Sound.StopSound(mobj);
         }
 
         public int GetNewValidCount()
         {
-            validCount++;
-            return validCount;
+            this.validCount++;
+            return this.validCount;
         }
 
         public bool DoEvent(DoomEvent e)
         {
-            if (!options.NetGame && options.Skill != GameSkill.Nightmare)
+            if (!this.options.NetGame && this.options.Skill != GameSkill.Nightmare)
             {
-                cheat.DoEvent(e);
+                this.cheat.DoEvent(e);
             }
 
-            if (autoMap.Visible)
+            if (this.autoMap.Visible)
             {
-                if (autoMap.DoEvent(e))
+                if (this.autoMap.DoEvent(e))
                 {
                     return true;
                 }
@@ -271,22 +275,22 @@ namespace ManagedDoom
 
             if (e.Key == DoomKey.Tab && e.Type == EventType.KeyDown)
             {
-                if (autoMap.Visible)
+                if (this.autoMap.Visible)
                 {
-                    autoMap.Close();
+                    this.autoMap.Close();
                 }
                 else
                 {
-                    autoMap.Open();
+                    this.autoMap.Open();
                 }
                 return true;
             }
 
             if (e.Key == DoomKey.F12 && e.Type == EventType.KeyDown)
             {
-                if (options.DemoPlayback || options.Deathmatch == 0)
+                if (this.options.DemoPlayback || this.options.Deathmatch == 0)
                 {
-                    ChangeDisplayPlayer();
+                    this.ChangeDisplayPlayer();
                 }
                 return true;
             }
@@ -296,83 +300,83 @@ namespace ManagedDoom
 
         public void ChangeDisplayPlayer()
         {
-            displayPlayer++;
-            if (displayPlayer == Player.MaxPlayerCount ||
-                !options.Players[displayPlayer].InGame)
+            this.displayPlayer++;
+            if (this.displayPlayer == Player.MaxPlayerCount ||
+                !this.options.Players[this.displayPlayer].InGame)
             {
-                displayPlayer = 0;
+                this.displayPlayer = 0;
             }
         }
 
-        public GameOptions Options => options;
-        public DoomGame Game => game;
-        public DoomRandom Random => random;
+        public GameOptions Options => this.options;
+        public DoomGame Game => this.game;
+        public DoomRandom Random => this.random;
 
-        public Map Map => map;
+        public Map Map => this.map;
 
-        public Thinkers Thinkers => thinkers;
-        public Specials Specials => specials;
-        public ThingAllocation ThingAllocation => thingAllocation;
-        public ThingMovement ThingMovement => thingMovement;
-        public ThingInteraction ThingInteraction => thingInteraction;
-        public MapCollision MapCollision => mapCollision;
-        public MapInteraction MapInteraction => mapInteraction;
-        public PathTraversal PathTraversal => pathTraversal;
-        public Hitscan Hitscan => hitscan;
-        public VisibilityCheck VisibilityCheck => visibilityCheck;
-        public SectorAction SectorAction => sectorAction;
-        public PlayerBehavior PlayerBehavior => playerBehavior;
-        public ItemPickup ItemPickup => itemPickup;
-        public WeaponBehavior WeaponBehavior => weaponBehavior;
-        public MonsterBehavior MonsterBehavior => monsterBehavior;
-        public LightingChange LightingChange => lightingChange;
-        public StatusBar StatusBar => statusBar;
-        public AutoMap AutoMap => autoMap;
-        public Cheat Cheat => cheat;
+        public Thinkers Thinkers => this.thinkers;
+        public Specials Specials => this.specials;
+        public ThingAllocation ThingAllocation => this.thingAllocation;
+        public ThingMovement ThingMovement => this.thingMovement;
+        public ThingInteraction ThingInteraction => this.thingInteraction;
+        public MapCollision MapCollision => this.mapCollision;
+        public MapInteraction MapInteraction => this.mapInteraction;
+        public PathTraversal PathTraversal => this.pathTraversal;
+        public Hitscan Hitscan => this.hitscan;
+        public VisibilityCheck VisibilityCheck => this.visibilityCheck;
+        public SectorAction SectorAction => this.sectorAction;
+        public PlayerBehavior PlayerBehavior => this.playerBehavior;
+        public ItemPickup ItemPickup => this.itemPickup;
+        public WeaponBehavior WeaponBehavior => this.weaponBehavior;
+        public MonsterBehavior MonsterBehavior => this.monsterBehavior;
+        public LightingChange LightingChange => this.lightingChange;
+        public StatusBar StatusBar => this.statusBar;
+        public AutoMap AutoMap => this.autoMap;
+        public Cheat Cheat => this.cheat;
 
         public int TotalKills
         {
-            get => totalKills;
-            set => totalKills = value;
+            get => this.totalKills;
+            set => this.totalKills = value;
         }
 
         public int TotalItems
         {
-            get => totalItems;
-            set => totalItems = value;
+            get => this.totalItems;
+            set => this.totalItems = value;
         }
 
         public int TotalSecrets
         {
-            get => totalSecrets;
-            set => totalSecrets = value;
+            get => this.totalSecrets;
+            set => this.totalSecrets = value;
         }
 
         public int LevelTime
         {
-            get => levelTime;
-            set => levelTime = value;
+            get => this.levelTime;
+            set => this.levelTime = value;
         }
 
         public int GameTic
         {
             get
             {
-                if (game != null)
+                if (this.game != null)
                 {
-                    return game.GameTic;
+                    return this.game.GameTic;
                 }
                 else
                 {
-                    return levelTime;
+                    return this.levelTime;
                 }
             }
         }
 
-        public bool SecretExit => secretExit;
+        public bool SecretExit => this.secretExit;
 
-        public Player ConsolePlayer => options.Players[options.ConsolePlayer];
-        public Player DisplayPlayer => options.Players[displayPlayer];
-        public bool FirstTicIsNotYetDone => ConsolePlayer.ViewZ == Fixed.Epsilon;
+        public Player ConsolePlayer => this.options.Players[this.options.ConsolePlayer];
+        public Player DisplayPlayer => this.options.Players[this.displayPlayer];
+        public bool FirstTicIsNotYetDone => this.ConsolePlayer.ViewZ == Fixed.Epsilon;
     }
 }

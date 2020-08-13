@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using Audio;
+	using Math;
+	using World;
+
+	public static partial class DoomInfo
     {
         public static readonly MobjInfo[] MobjInfos = new MobjInfo[]
         {

@@ -13,24 +13,22 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.Audio
+namespace DoomEngine.Audio
 {
-    public sealed class NullSound : ISound
+	using Doom.World;
+
+	public sealed class NullSound : ISound
     {
         private static NullSound instance;
 
         public static NullSound GetInstance()
         {
-            if (instance == null)
+            if (NullSound.instance == null)
             {
-                instance = new NullSound();
+                NullSound.instance = new NullSound();
             }
 
-            return instance;
+            return NullSound.instance;
         }
 
         public void SetListener(Mobj listerner)

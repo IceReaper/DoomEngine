@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Map;
+	using Math;
+
 	public sealed class Platform : Thinker
 	{
 		private World world;
@@ -42,39 +42,39 @@ namespace ManagedDoom
 
 		public override void Run()
 		{
-			var sa = world.SectorAction;
+			var sa = this.world.SectorAction;
 
 			SectorActionResult result;
 
-			switch (status)
+			switch (this.status)
 			{
 				case PlatformState.Up:
-					result = sa.MovePlane(sector, speed, high, crush, 0, 1);
+					result = sa.MovePlane(this.sector, this.speed, this.high, this.crush, 0, 1);
 
-					if (type == PlatformType.RaiseAndChange ||
-						type == PlatformType.RaiseToNearestAndChange)
+					if (this.type == PlatformType.RaiseAndChange ||
+						this.type == PlatformType.RaiseToNearestAndChange)
 					{
-						if (((world.LevelTime + sector.Number) & 7) == 0)
+						if (((this.world.LevelTime + this.sector.Number) & 7) == 0)
 						{
-							world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+							this.world.StartSound(this.sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
 						}
 					}
 
-					if (result == SectorActionResult.Crushed && !crush)
+					if (result == SectorActionResult.Crushed && !this.crush)
 					{
-						count = wait;
-						status = PlatformState.Down;
-						world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+						this.count = this.wait;
+						this.status = PlatformState.Down;
+						this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 					}
 					else
 					{
 						if (result == SectorActionResult.PastDestination)
 						{
-							count = wait;
-							status = PlatformState.Waiting;
-							world.StartSound(sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
+							this.count = this.wait;
+							this.status = PlatformState.Waiting;
+							this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
 
-							switch (type)
+							switch (this.type)
 							{
 								case PlatformType.BlazeDwus:
 								case PlatformType.DownWaitUpStay:
@@ -95,29 +95,29 @@ namespace ManagedDoom
 					break;
 
 				case PlatformState.Down:
-					result = sa.MovePlane(sector, speed, low, false, 0, -1);
+					result = sa.MovePlane(this.sector, this.speed, this.low, false, 0, -1);
 
 					if (result == SectorActionResult.PastDestination)
 					{
-						count = wait;
-						status = PlatformState.Waiting;
-						world.StartSound(sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
+						this.count = this.wait;
+						this.status = PlatformState.Waiting;
+						this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
 					}
 
 					break;
 
 				case PlatformState.Waiting:
-					if (--count == 0)
+					if (--this.count == 0)
 					{
-						if (sector.FloorHeight == low)
+						if (this.sector.FloorHeight == this.low)
 						{
-							status = PlatformState.Up;
+							this.status = PlatformState.Up;
 						}
 						else
 						{
-							status = PlatformState.Down;
+							this.status = PlatformState.Down;
 						}
-						world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+						this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 					}
 
 					break;
@@ -129,68 +129,68 @@ namespace ManagedDoom
 
 		public Sector Sector
 		{
-			get => sector;
-			set => sector = value;
+			get => this.sector;
+			set => this.sector = value;
 		}
 
 		public Fixed Speed
 		{
-			get => speed;
-			set => speed = value;
+			get => this.speed;
+			set => this.speed = value;
 		}
 
 		public Fixed Low
 		{
-			get => low;
-			set => low = value;
+			get => this.low;
+			set => this.low = value;
 		}
 
 		public Fixed High
 		{
-			get => high;
-			set => high = value;
+			get => this.high;
+			set => this.high = value;
 		}
 
 		public int Wait
 		{
-			get => wait;
-			set => wait = value;
+			get => this.wait;
+			set => this.wait = value;
 		}
 
 		public int Count
 		{
-			get => count;
-			set => count = value;
+			get => this.count;
+			set => this.count = value;
 		}
 
 		public PlatformState Status
 		{
-			get => status;
-			set => status = value;
+			get => this.status;
+			set => this.status = value;
 		}
 
 		public PlatformState OldStatus
 		{
-			get => oldStatus;
-			set => oldStatus = value;
+			get => this.oldStatus;
+			set => this.oldStatus = value;
 		}
 
 		public bool Crush
 		{
-			get => crush;
-			set => crush = value;
+			get => this.crush;
+			set => this.crush = value;
 		}
 
 		public int Tag
 		{
-			get => tag;
-			set => tag = value;
+			get => this.tag;
+			set => this.tag = value;
 		}
 
 		public PlatformType Type
 		{
-			get => type;
-			set => type = value;
+			get => this.type;
+			set => this.type = value;
 		}
 	}
 }

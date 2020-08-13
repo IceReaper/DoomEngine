@@ -13,16 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class FlatLookup : IReadOnlyList<Flat>
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class FlatLookup : IReadOnlyList<Flat>
     {
         private Flat[] flats;
 
@@ -40,10 +39,10 @@ namespace ManagedDoom
         {
             if (!useDummy)
             {
-                var fStartCount = CountLump(wad, "F_START");
-                var fEndCount = CountLump(wad, "F_END");
-                var ffStartCount = CountLump(wad, "FF_START");
-                var ffEndCount = CountLump(wad, "FF_END");
+                var fStartCount = FlatLookup.CountLump(wad, "F_START");
+                var fEndCount = FlatLookup.CountLump(wad, "F_END");
+                var ffStartCount = FlatLookup.CountLump(wad, "FF_START");
+                var ffEndCount = FlatLookup.CountLump(wad, "FF_END");
 
                 // Usual case.
                 var standard =
@@ -65,11 +64,11 @@ namespace ManagedDoom
 
                 if (standard || customFlatTrick)
                 {
-                    InitStandard(wad);
+                    this.InitStandard(wad);
                 }
                 else if (deutexMerge)
                 {
-                    InitDeuTexMerge(wad);
+                    this.InitDeuTexMerge(wad);
                 }
                 else
                 {
@@ -78,7 +77,7 @@ namespace ManagedDoom
             }
             else
             {
-                InitDummy(wad);
+                this.InitDummy(wad);
             }
         }
 
@@ -92,10 +91,10 @@ namespace ManagedDoom
                 var lastFlat = wad.GetLumpNumber("F_END") - 1;
                 var count = lastFlat - firstFlat + 1;
 
-                flats = new Flat[count];
+                this.flats = new Flat[count];
 
-                nameToFlat = new Dictionary<string, Flat>();
-                nameToNumber = new Dictionary<string, int>();
+                this.nameToFlat = new Dictionary<string, Flat>();
+                this.nameToNumber = new Dictionary<string, int>();
 
                 for (var lump = firstFlat; lump <= lastFlat; lump++)
                 {
@@ -108,15 +107,15 @@ namespace ManagedDoom
                     var name = wad.LumpInfos[lump].Name;
                     var flat = new Flat(name, wad.ReadLump(lump));
 
-                    flats[number] = flat;
-                    nameToFlat[name] = flat;
-                    nameToNumber[name] = number;
+                    this.flats[number] = flat;
+                    this.nameToFlat[name] = flat;
+                    this.nameToNumber[name] = number;
                 }
 
-                skyFlatNumber = nameToNumber["F_SKY1"];
-                skyFlat = nameToFlat["F_SKY1"];
+                this.skyFlatNumber = this.nameToNumber["F_SKY1"];
+                this.skyFlat = this.nameToFlat["F_SKY1"];
 
-                Console.WriteLine("OK (" + nameToFlat.Count + " flats)");
+                Console.WriteLine("OK (" + this.nameToFlat.Count + " flats)");
             }
             catch (Exception e)
             {
@@ -169,12 +168,12 @@ namespace ManagedDoom
                 }
                 distinctFlats.Reverse();
 
-                flats = new Flat[distinctFlats.Count];
+                this.flats = new Flat[distinctFlats.Count];
 
-                nameToFlat = new Dictionary<string, Flat>();
-                nameToNumber = new Dictionary<string, int>();
+                this.nameToFlat = new Dictionary<string, Flat>();
+                this.nameToNumber = new Dictionary<string, int>();
 
-                for (var number = 0; number < flats.Length; number++)
+                for (var number = 0; number < this.flats.Length; number++)
                 {
                     var lump = distinctFlats[number];
 
@@ -186,15 +185,15 @@ namespace ManagedDoom
                     var name = wad.LumpInfos[lump].Name;
                     var flat = new Flat(name, wad.ReadLump(lump));
 
-                    flats[number] = flat;
-                    nameToFlat[name] = flat;
-                    nameToNumber[name] = number;
+                    this.flats[number] = flat;
+                    this.nameToFlat[name] = flat;
+                    this.nameToNumber[name] = number;
                 }
 
-                skyFlatNumber = nameToNumber["F_SKY1"];
-                skyFlat = nameToFlat["F_SKY1"];
+                this.skyFlatNumber = this.nameToNumber["F_SKY1"];
+                this.skyFlat = this.nameToFlat["F_SKY1"];
 
-                Console.WriteLine("OK (" + nameToFlat.Count + " flats)");
+                Console.WriteLine("OK (" + this.nameToFlat.Count + " flats)");
             }
             catch (Exception e)
             {
@@ -209,10 +208,10 @@ namespace ManagedDoom
             var lastFlat = wad.GetLumpNumber("F_END") - 1;
             var count = lastFlat - firstFlat + 1;
 
-            flats = new Flat[count];
+            this.flats = new Flat[count];
 
-            nameToFlat = new Dictionary<string, Flat>();
-            nameToNumber = new Dictionary<string, int>();
+            this.nameToFlat = new Dictionary<string, Flat>();
+            this.nameToNumber = new Dictionary<string, int>();
 
             for (var lump = firstFlat; lump <= lastFlat; lump++)
             {
@@ -225,20 +224,20 @@ namespace ManagedDoom
                 var name = wad.LumpInfos[lump].Name;
                 var flat = name != "F_SKY1" ? Dummy.GetFlat() : Dummy.GetSkyFlat();
 
-                flats[number] = flat;
-                nameToFlat[name] = flat;
-                nameToNumber[name] = number;
+                this.flats[number] = flat;
+                this.nameToFlat[name] = flat;
+                this.nameToNumber[name] = number;
             }
 
-            skyFlatNumber = nameToNumber["F_SKY1"];
-            skyFlat = nameToFlat["F_SKY1"];
+            this.skyFlatNumber = this.nameToNumber["F_SKY1"];
+            this.skyFlat = this.nameToFlat["F_SKY1"];
         }
 
         public int GetNumber(string name)
         {
-            if (nameToNumber.ContainsKey(name))
+            if (this.nameToNumber.ContainsKey(name))
             {
-                return nameToNumber[name];
+                return this.nameToNumber[name];
             }
             else
             {
@@ -248,12 +247,12 @@ namespace ManagedDoom
 
         public IEnumerator<Flat> GetEnumerator()
         {
-            return ((IEnumerable<Flat>)flats).GetEnumerator();
+            return ((IEnumerable<Flat>)this.flats).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return flats.GetEnumerator();
+            return this.flats.GetEnumerator();
         }
 
         private static int CountLump(Wad wad, string name)
@@ -269,10 +268,10 @@ namespace ManagedDoom
             return count;
         }
 
-        public int Count => flats.Length;
-        public Flat this[int num] => flats[num];
-        public Flat this[string name] => nameToFlat[name];
-        public int SkyFlatNumber => skyFlatNumber;
-        public Flat SkyFlat => skyFlat;
+        public int Count => this.flats.Length;
+        public Flat this[int num] => this.flats[num];
+        public Flat this[string name] => this.nameToFlat[name];
+        public int SkyFlatNumber => this.skyFlatNumber;
+        public Flat SkyFlat => this.skyFlat;
     }
 }

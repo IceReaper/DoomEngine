@@ -13,14 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Common
 {
-    public sealed class DoomString
+	using System.Collections.Generic;
+
+	public sealed class DoomString
     {
         private static Dictionary<string, DoomString> table = new Dictionary<string, DoomString>();
 
@@ -30,24 +27,24 @@ namespace ManagedDoom
         public DoomString(string original)
         {
             this.original = original;
-            replaced = original;
+            this.replaced = original;
 
-            if (!table.ContainsKey(original))
+            if (!DoomString.table.ContainsKey(original))
             {
-                table.Add(original, this);
+                DoomString.table.Add(original, this);
             }
         }
 
         public override string ToString()
         {
-            return replaced;
+            return this.replaced;
         }
 
         public char this[int index]
         {
             get
             {
-                return replaced[index];
+                return this.replaced[index];
             }
         }
 
@@ -59,7 +56,7 @@ namespace ManagedDoom
         public static void Replace(string original, string replaced)
         {
             DoomString ds;
-            if (table.TryGetValue(original, out ds))
+            if (DoomString.table.TryGetValue(original, out ds))
             {
                 ds.replaced = replaced;
             }

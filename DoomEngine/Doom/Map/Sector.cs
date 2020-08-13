@@ -13,15 +13,18 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class Sector
+	using Common;
+	using Graphics;
+	using Math;
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using Wad;
+	using World;
+
+	public sealed class Sector
     {
         private static readonly int dataSize = 26;
 
@@ -101,19 +104,19 @@ namespace ManagedDoom
         public static Sector[] FromWad(Wad wad, int lump, FlatLookup flats)
         {
             var length = wad.GetLumpSize(lump);
-            if (length % dataSize != 0)
+            if (length % Sector.dataSize != 0)
             {
                 throw new Exception();
             }
 
             var data = wad.ReadLump(lump);
-            var count = length / dataSize;
+            var count = length / Sector.dataSize;
             var sectors = new Sector[count]; ;
 
             for (var i = 0; i < count; i++)
             {
-                var offset = dataSize * i;
-                sectors[i] = FromData(data, offset, i, flats);
+                var offset = Sector.dataSize * i;
+                sectors[i] = Sector.FromData(data, offset, i, flats);
             }
 
             return sectors;
@@ -135,130 +138,130 @@ namespace ManagedDoom
             public ThingEnumerator(Sector sector)
             {
                 this.sector = sector;
-                thing = sector.thingList;
-                current = null;
+                this.thing = sector.thingList;
+                this.current = null;
             }
 
             public bool MoveNext()
             {
-                if (thing != null)
+                if (this.thing != null)
                 {
-                    current = thing;
-                    thing = thing.SectorNext;
+                    this.current = this.thing;
+                    this.thing = this.thing.SectorNext;
                     return true;
                 }
                 else
                 {
-                    current = null;
+                    this.current = null;
                     return false;
                 }
             }
 
             public void Reset()
             {
-                thing = sector.thingList;
-                current = null;
+                this.thing = this.sector.thingList;
+                this.current = null;
             }
 
             public void Dispose()
             {
             }
 
-            public Mobj Current => current;
+            public Mobj Current => this.current;
 
             object IEnumerator.Current => throw new NotImplementedException();
         }
 
-        public int Number => number;
+        public int Number => this.number;
 
         public Fixed FloorHeight
         {
-            get => floorHeight;
-            set => floorHeight = value;
+            get => this.floorHeight;
+            set => this.floorHeight = value;
         }
 
         public Fixed CeilingHeight
         {
-            get => ceilingHeight;
-            set => ceilingHeight = value;
+            get => this.ceilingHeight;
+            set => this.ceilingHeight = value;
         }
 
         public int FloorFlat
         {
-            get => floorFlat;
-            set => floorFlat = value;
+            get => this.floorFlat;
+            set => this.floorFlat = value;
         }
 
         public int CeilingFlat
         {
-            get => ceilingFlat;
-            set => ceilingFlat = value;
+            get => this.ceilingFlat;
+            set => this.ceilingFlat = value;
         }
 
         public int LightLevel
         {
-            get => lightLevel;
-            set => lightLevel = value;
+            get => this.lightLevel;
+            set => this.lightLevel = value;
         }
 
         public SectorSpecial Special
         {
-            get => special;
-            set => special = value;
+            get => this.special;
+            set => this.special = value;
         }
 
         public int Tag
         {
-            get => tag;
-            set => tag = value;
+            get => this.tag;
+            set => this.tag = value;
         }
 
         public int SoundTraversed
         {
-            get => soundTraversed;
-            set => soundTraversed = value;
+            get => this.soundTraversed;
+            set => this.soundTraversed = value;
         }
 
         public Mobj SoundTarget
         {
-            get => soundTarget;
-            set => soundTarget = value;
+            get => this.soundTarget;
+            set => this.soundTarget = value;
         }
 
         public int[] BlockBox
         {
-            get => blockBox;
-            set => blockBox = value;
+            get => this.blockBox;
+            set => this.blockBox = value;
         }
 
         public Mobj SoundOrigin
         {
-            get => soundOrigin;
-            set => soundOrigin = value;
+            get => this.soundOrigin;
+            set => this.soundOrigin = value;
         }
 
         public int ValidCount
         {
-            get => validCount;
-            set => validCount = value;
+            get => this.validCount;
+            set => this.validCount = value;
         }
 
         public Mobj ThingList
         {
-            get => thingList;
-            set => thingList = value;
+            get => this.thingList;
+            set => this.thingList = value;
         }
 
         public Thinker SpecialData
         {
-            get => specialData;
-            set => specialData = value;
+            get => this.specialData;
+            set => this.specialData = value;
         }
 
         public LineDef[] Lines
         {
-            get => lines;
-            set => lines = value;
+            get => this.lines;
+            set => this.lines = value;
         }
     }
 }

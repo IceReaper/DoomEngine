@@ -13,13 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
+	using Common;
+	using Event;
+	using Info;
+	using Intermission;
+	using System;
+	using System.IO;
+	using World;
+
 	public sealed class DoomGame
 	{
 		private CommonResource resource;
@@ -46,10 +49,10 @@ namespace ManagedDoom
 			this.resource = resource;
 			this.options = options;
 
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
-			gameTic = 0;
-			random = new DoomRandom();
+			this.gameTic = 0;
+			this.random = new DoomRandom();
 		}
 
 
@@ -63,7 +66,7 @@ namespace ManagedDoom
 		/// </summary>
 		public void DeferedInitNew()
 		{
-			gameAction = GameAction.NewGame;
+			this.gameAction = GameAction.NewGame;
 		}
 
 		/// <summary>
@@ -72,10 +75,10 @@ namespace ManagedDoom
 		/// </summary>
 		public void DeferedInitNew(GameSkill skill, int episode, int map)
 		{
-			options.Skill = skill;
-			options.Episode = episode;
-			options.Map = map;
-			gameAction = GameAction.NewGame;
+			this.options.Skill = skill;
+			this.options.Episode = episode;
+			this.options.Map = map;
+			this.gameAction = GameAction.NewGame;
 		}
 
 		/// <summary>
@@ -84,8 +87,8 @@ namespace ManagedDoom
 		/// </summary>
 		public void LoadGame(int slotNumber)
 		{
-			loadGameSlotNumber = slotNumber;
-			gameAction = GameAction.LoadGame;
+			this.loadGameSlotNumber = slotNumber;
+			this.gameAction = GameAction.LoadGame;
 		}
 
 		/// <summary>
@@ -94,9 +97,9 @@ namespace ManagedDoom
 		/// </summary>
 		public void SaveGame(int slotNumber, string description)
 		{
-			saveGameSlotNumber = slotNumber;
-			saveGameDescription = description;
-			gameAction = GameAction.SaveGame;
+			this.saveGameSlotNumber = slotNumber;
+			this.saveGameDescription = description;
+			this.gameAction = GameAction.SaveGame;
 		}
 
 		/// <summary>
@@ -105,40 +108,40 @@ namespace ManagedDoom
 		public UpdateResult Update(TicCmd[] cmds)
 		{
 			// Do player reborns if needed.
-			var players = options.Players;
+			var players = this.options.Players;
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				if (players[i].InGame && players[i].PlayerState == PlayerState.Reborn)
 				{
-					DoReborn(i);
+					this.DoReborn(i);
 				}
 			}
 
 			// Do things to change the game state.
-			while (gameAction != GameAction.Nothing)
+			while (this.gameAction != GameAction.Nothing)
 			{
-				switch (gameAction)
+				switch (this.gameAction)
 				{
 					case GameAction.LoadLevel:
-						DoLoadLevel();
+						this.DoLoadLevel();
 						break;
 					case GameAction.NewGame:
-						DoNewGame();
+						this.DoNewGame();
 						break;
 					case GameAction.LoadGame:
-						DoLoadGame();
+						this.DoLoadGame();
 						break;
 					case GameAction.SaveGame:
-						DoSaveGame();
+						this.DoSaveGame();
 						break;
 					case GameAction.Completed:
-						DoCompleted();
+						this.DoCompleted();
 						break;
 					case GameAction.Victory:
-						DoFinale();
+						this.DoFinale();
 						break;
 					case GameAction.WorldDone:
-						DoWorldDone();
+						this.DoWorldDone();
 						break;
 					case GameAction.Nothing:
 						break;
@@ -161,10 +164,10 @@ namespace ManagedDoom
 
 					// Check for turbo cheats.
 					if (cmd.ForwardMove > GameConst.TurboThreshold &&
-						(world.LevelTime & 31) == 0 &&
-						((world.LevelTime >> 5) & 3) == i)
+						(this.world.LevelTime & 31) == 0 &&
+						((this.world.LevelTime >> 5) & 3) == i)
 					{
-						var player = players[options.ConsolePlayer];
+						var player = players[this.options.ConsolePlayer];
 						player.SendMessage(players[i].Name + " is turbo!");
 					}
 				}
@@ -179,14 +182,14 @@ namespace ManagedDoom
 					{
 						if ((players[i].Cmd.Buttons & TicCmdButtons.SpecialMask) == TicCmdButtons.Pause)
 						{
-							paused = !paused;
-							if (paused)
+							this.paused = !this.paused;
+							if (this.paused)
 							{
-								options.Sound.Pause();
+								this.options.Sound.Pause();
 							}
 							else
 							{
-								options.Sound.Resume();
+								this.options.Sound.Resume();
 							}
 						}
 					}
@@ -195,47 +198,47 @@ namespace ManagedDoom
 
 			// Do main actions.
 			var result = UpdateResult.None;
-			switch (gameState)
+			switch (this.gameState)
 			{
 				case GameState.Level:
-					if (!paused || world.FirstTicIsNotYetDone)
+					if (!this.paused || this.world.FirstTicIsNotYetDone)
 					{
-						result = world.Update();
+						result = this.world.Update();
 						if (result == UpdateResult.Completed)
 						{
-							gameAction = GameAction.Completed;
+							this.gameAction = GameAction.Completed;
 						}
 					}
 					break;
 
 				case GameState.Intermission:
-					result = intermission.Update();
+					result = this.intermission.Update();
 					if (result == UpdateResult.Completed)
 					{
-						gameAction = GameAction.WorldDone;
+						this.gameAction = GameAction.WorldDone;
 
-						if (world.SecretExit)
+						if (this.world.SecretExit)
 						{
-							players[options.ConsolePlayer].DidSecret = true;
+							players[this.options.ConsolePlayer].DidSecret = true;
 						}
 
-						if (options.GameMode == GameMode.Commercial)
+						if (this.options.GameMode == GameMode.Commercial)
 						{
-							switch (options.Map)
+							switch (this.options.Map)
 							{
 								case 6:
 								case 11:
 								case 20:
 								case 30:
-									DoFinale();
+									this.DoFinale();
 									result = UpdateResult.NeedWipe;
 									break;
 
 								case 15:
 								case 31:
-									if (world.SecretExit)
+									if (this.world.SecretExit)
 									{
-										DoFinale();
+										this.DoFinale();
 										result = UpdateResult.NeedWipe;
 									}
 									break;
@@ -245,15 +248,15 @@ namespace ManagedDoom
 					break;
 
 				case GameState.Finale:
-					result = finale.Update();
+					result = this.finale.Update();
 					if (result == UpdateResult.Completed)
 					{
-						gameAction = GameAction.WorldDone;
+						this.gameAction = GameAction.WorldDone;
 					}
 					break;
 			}
 
-			gameTic++;
+			this.gameTic++;
 
 			if (result == UpdateResult.NeedWipe)
 			{
@@ -281,11 +284,11 @@ namespace ManagedDoom
 
 		private void DoLoadLevel()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
-			gameState = GameState.Level;
+			this.gameState = GameState.Level;
 
-			var players = options.Players;
+			var players = this.options.Players;
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				if (players[i].InGame && players[i].PlayerState == PlayerState.Dead)
@@ -295,98 +298,98 @@ namespace ManagedDoom
 				Array.Clear(players[i].Frags, 0, players[i].Frags.Length);
 			}
 
-			intermission = null;
+			this.intermission = null;
 
-			options.Sound.Reset();
+			this.options.Sound.Reset();
 
-			world = new World(resource, options, this);
+			this.world = new World(this.resource, this.options, this);
 
-			options.UserInput.Reset();
+			this.options.UserInput.Reset();
 		}
 
 		private void DoNewGame()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
-			InitNew(options.Skill, options.Episode, options.Map);
+			this.InitNew(this.options.Skill, this.options.Episode, this.options.Map);
 		}
 
 		private void DoLoadGame()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
 			var directory = ConfigUtilities.GetExeDirectory();
-			var path = Path.Combine(directory, "doomsav" + loadGameSlotNumber + ".dsg");
+			var path = Path.Combine(directory, "doomsav" + this.loadGameSlotNumber + ".dsg");
 			SaveAndLoad.Load(this, path);
 		}
 
 		private void DoSaveGame()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
 			var directory = ConfigUtilities.GetExeDirectory();
-			var path = Path.Combine(directory, "doomsav" + saveGameSlotNumber + ".dsg");
-			SaveAndLoad.Save(this, saveGameDescription, path);
-			world.ConsolePlayer.SendMessage(DoomInfo.Strings.GGSAVED);
+			var path = Path.Combine(directory, "doomsav" + this.saveGameSlotNumber + ".dsg");
+			SaveAndLoad.Save(this, this.saveGameDescription, path);
+			this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.GGSAVED);
 		}
 
 		private void DoCompleted()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
-				if (options.Players[i].InGame)
+				if (this.options.Players[i].InGame)
 				{
 					// Take away cards and stuff.
-					options.Players[i].FinishLevel();
+					this.options.Players[i].FinishLevel();
 				}
 			}
 
-			if (options.GameMode != GameMode.Commercial)
+			if (this.options.GameMode != GameMode.Commercial)
 			{
-				switch (options.Map)
+				switch (this.options.Map)
 				{
 					case 8:
-						gameAction = GameAction.Victory;
+						this.gameAction = GameAction.Victory;
 						return;
 					case 9:
 						for (var i = 0; i < Player.MaxPlayerCount; i++)
 						{
-							options.Players[i].DidSecret = true;
+							this.options.Players[i].DidSecret = true;
 						}
 						break;
 				}
 			}
 
-			if ((options.Map == 8) && (options.GameMode != GameMode.Commercial))
+			if ((this.options.Map == 8) && (this.options.GameMode != GameMode.Commercial))
 			{
 				// Victory.
-				gameAction = GameAction.Victory;
+				this.gameAction = GameAction.Victory;
 				return;
 			}
 
-			if ((options.Map == 9) && (options.GameMode != GameMode.Commercial))
+			if ((this.options.Map == 9) && (this.options.GameMode != GameMode.Commercial))
 			{
 				// Exit secret level.
 				for (var i = 0; i < Player.MaxPlayerCount; i++)
 				{
-					options.Players[i].DidSecret = true;
+					this.options.Players[i].DidSecret = true;
 				}
 			}
 
-			var imInfo = options.IntermissionInfo;
+			var imInfo = this.options.IntermissionInfo;
 
-			imInfo.DidSecret = options.Players[options.ConsolePlayer].DidSecret;
-			imInfo.Episode = options.Episode - 1;
-			imInfo.LastLevel = options.Map - 1;
+			imInfo.DidSecret = this.options.Players[this.options.ConsolePlayer].DidSecret;
+			imInfo.Episode = this.options.Episode - 1;
+			imInfo.LastLevel = this.options.Map - 1;
 
 			// IntermissionInfo.Next is 0 biased, unlike GameOptions.Map.
-			if (options.GameMode == GameMode.Commercial)
+			if (this.options.GameMode == GameMode.Commercial)
 			{
-				if (world.SecretExit)
+				if (this.world.SecretExit)
 				{
-					switch (options.Map)
+					switch (this.options.Map)
 					{
 						case 15:
 							imInfo.NextLevel = 30;
@@ -398,29 +401,29 @@ namespace ManagedDoom
 				}
 				else
 				{
-					switch (options.Map)
+					switch (this.options.Map)
 					{
 						case 31:
 						case 32:
 							imInfo.NextLevel = 15;
 							break;
 						default:
-							imInfo.NextLevel = options.Map;
+							imInfo.NextLevel = this.options.Map;
 							break;
 					}
 				}
 			}
 			else
 			{
-				if (world.SecretExit)
+				if (this.world.SecretExit)
 				{
 					// Go to secret level.
 					imInfo.NextLevel = 8;
 				}
-				else if (options.Map == 9)
+				else if (this.options.Map == 9)
 				{
 					// Returning from secret level.
-					switch (options.Episode)
+					switch (this.options.Episode)
 					{
 						case 1:
 							imInfo.NextLevel = 3;
@@ -439,53 +442,53 @@ namespace ManagedDoom
 				else
 				{
 					// Go to next level.
-					imInfo.NextLevel = options.Map;
+					imInfo.NextLevel = this.options.Map;
 				}
 			}
 
-			imInfo.MaxKillCount = world.TotalKills;
-			imInfo.MaxItemCount = world.TotalItems;
-			imInfo.MaxSecretCount = world.TotalSecrets;
+			imInfo.MaxKillCount = this.world.TotalKills;
+			imInfo.MaxItemCount = this.world.TotalItems;
+			imInfo.MaxSecretCount = this.world.TotalSecrets;
 			imInfo.TotalFrags = 0;
-			if (options.GameMode == GameMode.Commercial)
+			if (this.options.GameMode == GameMode.Commercial)
 			{
-				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom2[options.Map - 1];
+				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom2[this.options.Map - 1];
 			}
 			else
 			{
-				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom1[options.Episode - 1][options.Map - 1];
+				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom1[this.options.Episode - 1][this.options.Map - 1];
 			}
 
-			var players = options.Players;
+			var players = this.options.Players;
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				imInfo.Players[i].InGame = players[i].InGame;
 				imInfo.Players[i].KillCount = players[i].KillCount;
 				imInfo.Players[i].ItemCount = players[i].ItemCount;
 				imInfo.Players[i].SecretCount = players[i].SecretCount;
-				imInfo.Players[i].Time = world.LevelTime;
+				imInfo.Players[i].Time = this.world.LevelTime;
 				Array.Copy(players[i].Frags, imInfo.Players[i].Frags, Player.MaxPlayerCount);
 			}
 
-			gameState = GameState.Intermission;
-			intermission = new Intermission(options, imInfo);
+			this.gameState = GameState.Intermission;
+			this.intermission = new Intermission(this.options, imInfo);
 		}
 
 		private void DoWorldDone()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
-			gameState = GameState.Level;
-			options.Map = options.IntermissionInfo.NextLevel + 1;
-			DoLoadLevel();
+			this.gameState = GameState.Level;
+			this.options.Map = this.options.IntermissionInfo.NextLevel + 1;
+			this.DoLoadLevel();
 		}
 
 		private void DoFinale()
 		{
-			gameAction = GameAction.Nothing;
+			this.gameAction = GameAction.Nothing;
 
-			gameState = GameState.Finale;
-			finale = new Finale(options);
+			this.gameState = GameState.Finale;
+			this.finale = new Finale(this.options);
 		}
 
 
@@ -497,11 +500,11 @@ namespace ManagedDoom
 		{
 			skill = (GameSkill)Math.Clamp((int)skill, (int)GameSkill.Baby, (int)GameSkill.Nightmare);
 
-			if (options.GameMode == GameMode.Retail)
+			if (this.options.GameMode == GameMode.Retail)
 			{
 				episode = Math.Clamp(episode, 1, 4);
 			}
-			else if (options.GameMode == GameMode.Shareware)
+			else if (this.options.GameMode == GameMode.Shareware)
 			{
 				episode = 1;
 			}
@@ -510,7 +513,7 @@ namespace ManagedDoom
 				episode = Math.Clamp(episode, 1, 3);
 			}
 
-			if (options.GameMode == GameMode.Commercial)
+			if (this.options.GameMode == GameMode.Commercial)
 			{
 				map = Math.Clamp(map, 1, 32);
 			}
@@ -519,26 +522,26 @@ namespace ManagedDoom
 				map = Math.Clamp(map, 1, 9);
 			}
 
-			random.Clear();
+			this.random.Clear();
 
 			// Force players to be initialized upon first level load.
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
-				options.Players[i].PlayerState = PlayerState.Reborn;
+				this.options.Players[i].PlayerState = PlayerState.Reborn;
 			}
 
-			DoLoadLevel();
+			this.DoLoadLevel();
 		}
 
 		public bool DoEvent(DoomEvent e)
 		{
-			if (gameState == GameState.Level)
+			if (this.gameState == GameState.Level)
 			{
-				return world.DoEvent(e);
+				return this.world.DoEvent(e);
 			}
-			else if (gameState == GameState.Finale)
+			else if (this.gameState == GameState.Finale)
 			{
-				return finale.DoEvent(e);
+				return this.finale.DoEvent(e);
 			}
 
 			return false;
@@ -546,22 +549,22 @@ namespace ManagedDoom
 
 		private void DoReborn(int playerNumber)
 		{
-			if (!options.NetGame)
+			if (!this.options.NetGame)
 			{
 				// Reload the level from scratch.
-				gameAction = GameAction.LoadLevel;
+				this.gameAction = GameAction.LoadLevel;
 			}
 			else
 			{
 				// Respawn at the start.
 
 				// First dissasociate the corpse.
-				options.Players[playerNumber].Mobj.Player = null;
+				this.options.Players[playerNumber].Mobj.Player = null;
 
-				var ta = world.ThingAllocation;
+				var ta = this.world.ThingAllocation;
 
 				// Spawn at random spot if in death match.
-				if (options.Deathmatch != 0)
+				if (this.options.Deathmatch != 0)
 				{
 					ta.DeathMatchSpawnPlayer(playerNumber);
 					return;
@@ -581,7 +584,7 @@ namespace ManagedDoom
 						// Fake as other player.
 						ta.PlayerStarts[i].Type = playerNumber + 1;
 
-						world.ThingAllocation.SpawnPlayer(ta.PlayerStarts[i]);
+						this.world.ThingAllocation.SpawnPlayer(ta.PlayerStarts[i]);
 
 						// Restore.
 						ta.PlayerStarts[i].Type = i + 1;
@@ -592,20 +595,20 @@ namespace ManagedDoom
 
 				// He's going to be inside something.
 				// Too bad.
-				world.ThingAllocation.SpawnPlayer(ta.PlayerStarts[playerNumber]);
+				this.world.ThingAllocation.SpawnPlayer(ta.PlayerStarts[playerNumber]);
 			}
 		}
 
 
-		public GameOptions Options => options;
-		public Player[] Players => options.Players;
-		public GameState State => gameState;
-		public int GameTic => gameTic;
-		public DoomRandom Random => random;
-		public World World => world;
-		public Intermission Intermission => intermission;
-		public Finale Finale => finale;
-		public bool Paused => paused;
+		public GameOptions Options => this.options;
+		public Player[] Players => this.options.Players;
+		public GameState State => this.gameState;
+		public int GameTic => this.gameTic;
+		public DoomRandom Random => this.random;
+		public World World => this.world;
+		public Intermission Intermission => this.intermission;
+		public Finale Finale => this.finale;
+		public bool Paused => this.paused;
 
 
 

@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class Palette
+	using System;
+	using System.Runtime.ExceptionServices;
+	using Wad;
+
+	public sealed class Palette
     {
         public static readonly int DamageStart = 1;
         public static readonly int DamageCount = 8;
@@ -40,13 +39,13 @@ namespace ManagedDoom
             {
                 Console.Write("Load palette: ");
 
-                data = wad.ReadLump("PLAYPAL");
+                this.data = wad.ReadLump("PLAYPAL");
 
-                var count = data.Length / (3 * 256);
-                palettes = new uint[count][];
-                for (var i = 0; i < palettes.Length; i++)
+                var count = this.data.Length / (3 * 256);
+                this.palettes = new uint[count][];
+                for (var i = 0; i < this.palettes.Length; i++)
                 {
-                    palettes[i] = new uint[256];
+                    this.palettes[i] = new uint[256];
                 }
 
                 Console.WriteLine("OK");
@@ -60,22 +59,22 @@ namespace ManagedDoom
 
         public void ResetColors(double p)
         {
-            for (var i = 0; i < palettes.Length; i++)
+            for (var i = 0; i < this.palettes.Length; i++)
             {
                 var paletteOffset = (3 * 256) * i;
                 for (var j = 0; j < 256; j++)
                 {
                     var colorOffset = paletteOffset + 3 * j;
 
-                    var r = data[colorOffset];
-                    var g = data[colorOffset + 1];
-                    var b = data[colorOffset + 2];
+                    var r = this.data[colorOffset];
+                    var g = this.data[colorOffset + 1];
+                    var b = this.data[colorOffset + 2];
 
-                    r = (byte)Math.Round(255 * CorrectionCurve(r / 255.0, p));
-                    g = (byte)Math.Round(255 * CorrectionCurve(g / 255.0, p));
-                    b = (byte)Math.Round(255 * CorrectionCurve(b / 255.0, p));
+                    r = (byte)Math.Round(255 * Palette.CorrectionCurve(r / 255.0, p));
+                    g = (byte)Math.Round(255 * Palette.CorrectionCurve(g / 255.0, p));
+                    b = (byte)Math.Round(255 * Palette.CorrectionCurve(b / 255.0, p));
 
-                    palettes[i][j] = (uint)((r << 0) | (g << 8) | (b << 16) | (255 << 24));
+                    this.palettes[i][j] = (uint)((r << 0) | (g << 8) | (b << 16) | (255 << 24));
                 }
             }
         }
@@ -89,7 +88,7 @@ namespace ManagedDoom
         {
             get
             {
-                return palettes[paletteNumber];
+                return this.palettes[paletteNumber];
             }
         }
     }

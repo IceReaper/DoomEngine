@@ -12,18 +12,23 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public static class DeHackEd
+	using Audio;
+	using Doom.Common;
+	using Doom.Game;
+	using Doom.Graphics;
+	using Doom.Info;
+	using Doom.Math;
+	using Doom.World;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Runtime.ExceptionServices;
+	using System.Text;
+
+	public static class DeHackEd
     {
         private static Tuple<Action<World, Player, PlayerSpriteDef>, Action<World, Mobj>>[] sourcePointerTable;
 
@@ -35,7 +40,7 @@ namespace ManagedDoom
 
                 foreach (var fileName in fileNames)
                 {
-                    ReadFile(fileName);
+                    DeHackEd.ReadFile(fileName);
                 }
 
                 Console.WriteLine("OK (" + string.Join(", ", fileNames.Select(x => Path.GetFileName(x))) + ")");
@@ -49,14 +54,14 @@ namespace ManagedDoom
 
         private static void ReadFile(string fileName)
         {
-            if (sourcePointerTable == null)
+            if (DeHackEd.sourcePointerTable == null)
             {
-                sourcePointerTable = new Tuple<Action<World, Player, PlayerSpriteDef>, Action<World, Mobj>>[DoomInfo.States.Length];
-                for (var i = 0; i < sourcePointerTable.Length; i++)
+                DeHackEd.sourcePointerTable = new Tuple<Action<World, Player, PlayerSpriteDef>, Action<World, Mobj>>[DoomInfo.States.Length];
+                for (var i = 0; i < DeHackEd.sourcePointerTable.Length; i++)
                 {
                     var playerAction = DoomInfo.States[i].PlayerAction;
                     var mobjAction = DoomInfo.States[i].MobjAction;
-                    sourcePointerTable[i] = Tuple.Create(playerAction, mobjAction);
+                    DeHackEd.sourcePointerTable[i] = Tuple.Create(playerAction, mobjAction);
                 }
             }
 
@@ -65,20 +70,20 @@ namespace ManagedDoom
             foreach (var line in File.ReadLines(fileName))
             {
                 var split = line.Split(' ');
-                var blockType = GetBlockType(split);
+                var blockType = DeHackEd.GetBlockType(split);
                 if (blockType == Block.None)
                 {
                     data.Add(line);
                 }
                 else
                 {
-                    ProcessBlock(last, data);
+                    DeHackEd.ProcessBlock(last, data);
                     data.Clear();
                     data.Add(line);
                     last = blockType;
                 }
             }
-            ProcessBlock(last, data);
+            DeHackEd.ProcessBlock(last, data);
         }
 
         private static void ProcessBlock(Block type, List<string> data)
@@ -89,34 +94,34 @@ namespace ManagedDoom
             switch (type)
             {
                 case Block.Thing:
-                    ProcessThingBlock(data);
+                    DeHackEd.ProcessThingBlock(data);
                     break;
                 case Block.Frame:
-                    ProcessFrameBlock(data);
+                    DeHackEd.ProcessFrameBlock(data);
                     break;
                 case Block.Pointer:
-                    ProcessPointerBlock(data);
+                    DeHackEd.ProcessPointerBlock(data);
                     break;
                 case Block.Sound:
-                    ProcessSoundBlock(data);
+                    DeHackEd.ProcessSoundBlock(data);
                     break;
                 case Block.Ammo:
-                    ProcessAmmoBlock(data);
+                    DeHackEd.ProcessAmmoBlock(data);
                     break;
                 case Block.Weapon:
-                    ProcessWeaponBlock(data);
+                    DeHackEd.ProcessWeaponBlock(data);
                     break;
                 case Block.Cheat:
-                    ProcessCheatBlock(data);
+                    DeHackEd.ProcessCheatBlock(data);
                     break;
                 case Block.Misc:
-                    ProcessMiscBlock(data);
+                    DeHackEd.ProcessMiscBlock(data);
                     break;
                 case Block.Text:
-                    ProcessTextBlock(data);
+                    DeHackEd.ProcessTextBlock(data);
                     break;
                 case Block.Sprite:
-                    ProcessSpriteBlock(data);
+                    DeHackEd.ProcessSpriteBlock(data);
                     break;
             }
         }
@@ -125,63 +130,63 @@ namespace ManagedDoom
         {
             var thingNumber = int.Parse(data[0].Split(' ')[1]) - 1;
             var info = DoomInfo.MobjInfos[thingNumber];
-            var dic = GetKeyValuePairs(data);
+            var dic = DeHackEd.GetKeyValuePairs(data);
 
-            info.DoomEdNum = GetInt(dic, "ID #", info.DoomEdNum);
-            info.SpawnState = (MobjState)GetInt(dic, "Initial frame", (int)info.SpawnState);
-            info.SpawnHealth = GetInt(dic, "Hit points", info.SpawnHealth);
-            info.SeeState = (MobjState)GetInt(dic, "First moving frame", (int)info.SeeState);
-            info.SeeSound = (Sfx)GetInt(dic, "Alert sound", (int)info.SeeSound);
-            info.ReactionTime = GetInt(dic, "Reaction time", info.ReactionTime);
-            info.AttackSound = (Sfx)GetInt(dic, "Attack sound", (int)info.AttackSound);
-            info.PainState = (MobjState)GetInt(dic, "Injury frame", (int)info.PainState);
-            info.PainChance = GetInt(dic, "Pain chance", info.PainChance);
-            info.PainSound = (Sfx)GetInt(dic, "Pain sound", (int)info.PainSound);
-            info.MeleeState = (MobjState)GetInt(dic, "Close attack frame", (int)info.MeleeState);
-            info.MissileState = (MobjState)GetInt(dic, "Far attack frame", (int)info.MissileState);
-            info.DeathState = (MobjState)GetInt(dic, "Death frame", (int)info.DeathState);
-            info.XdeathState = (MobjState)GetInt(dic, "Exploding frame", (int)info.XdeathState);
-            info.DeathSound = (Sfx)GetInt(dic, "Death sound", (int)info.DeathSound);
-            info.Speed = GetInt(dic, "Speed", info.Speed);
-            info.Radius = new Fixed(GetInt(dic, "Width", info.Radius.Data));
-            info.Height = new Fixed(GetInt(dic, "Height", info.Height.Data));
-            info.Mass = GetInt(dic, "Mass", info.Mass);
-            info.Damage = GetInt(dic, "Missile damage", info.Damage);
-            info.ActiveSound = (Sfx)GetInt(dic, "Action sound", (int)info.ActiveSound);
-            info.Flags = (MobjFlags)GetInt(dic, "Bits", (int)info.Flags);
-            info.Raisestate = (MobjState)GetInt(dic, "Respawn frame", (int)info.Raisestate);
+            info.DoomEdNum = DeHackEd.GetInt(dic, "ID #", info.DoomEdNum);
+            info.SpawnState = (MobjState)DeHackEd.GetInt(dic, "Initial frame", (int)info.SpawnState);
+            info.SpawnHealth = DeHackEd.GetInt(dic, "Hit points", info.SpawnHealth);
+            info.SeeState = (MobjState)DeHackEd.GetInt(dic, "First moving frame", (int)info.SeeState);
+            info.SeeSound = (Sfx)DeHackEd.GetInt(dic, "Alert sound", (int)info.SeeSound);
+            info.ReactionTime = DeHackEd.GetInt(dic, "Reaction time", info.ReactionTime);
+            info.AttackSound = (Sfx)DeHackEd.GetInt(dic, "Attack sound", (int)info.AttackSound);
+            info.PainState = (MobjState)DeHackEd.GetInt(dic, "Injury frame", (int)info.PainState);
+            info.PainChance = DeHackEd.GetInt(dic, "Pain chance", info.PainChance);
+            info.PainSound = (Sfx)DeHackEd.GetInt(dic, "Pain sound", (int)info.PainSound);
+            info.MeleeState = (MobjState)DeHackEd.GetInt(dic, "Close attack frame", (int)info.MeleeState);
+            info.MissileState = (MobjState)DeHackEd.GetInt(dic, "Far attack frame", (int)info.MissileState);
+            info.DeathState = (MobjState)DeHackEd.GetInt(dic, "Death frame", (int)info.DeathState);
+            info.XdeathState = (MobjState)DeHackEd.GetInt(dic, "Exploding frame", (int)info.XdeathState);
+            info.DeathSound = (Sfx)DeHackEd.GetInt(dic, "Death sound", (int)info.DeathSound);
+            info.Speed = DeHackEd.GetInt(dic, "Speed", info.Speed);
+            info.Radius = new Fixed(DeHackEd.GetInt(dic, "Width", info.Radius.Data));
+            info.Height = new Fixed(DeHackEd.GetInt(dic, "Height", info.Height.Data));
+            info.Mass = DeHackEd.GetInt(dic, "Mass", info.Mass);
+            info.Damage = DeHackEd.GetInt(dic, "Missile damage", info.Damage);
+            info.ActiveSound = (Sfx)DeHackEd.GetInt(dic, "Action sound", (int)info.ActiveSound);
+            info.Flags = (MobjFlags)DeHackEd.GetInt(dic, "Bits", (int)info.Flags);
+            info.Raisestate = (MobjState)DeHackEd.GetInt(dic, "Respawn frame", (int)info.Raisestate);
         }
 
         private static void ProcessFrameBlock(List<string> data)
         {
             var frameNumber = int.Parse(data[0].Split(' ')[1]);
             var info = DoomInfo.States[frameNumber];
-            var dic = GetKeyValuePairs(data);
+            var dic = DeHackEd.GetKeyValuePairs(data);
 
-            info.Sprite = (Sprite)GetInt(dic, "Sprite number", (int)info.Sprite);
-            info.Frame = GetInt(dic, "Sprite subnumber", info.Frame);
-            info.Tics = GetInt(dic, "Duration", info.Tics);
-            info.Next = (MobjState)GetInt(dic, "Next frame", (int)info.Next);
-            info.Misc1 = GetInt(dic, "Unknown 1", info.Misc1);
-            info.Misc2 = GetInt(dic, "Unknown 2", info.Misc2);
+            info.Sprite = (Sprite)DeHackEd.GetInt(dic, "Sprite number", (int)info.Sprite);
+            info.Frame = DeHackEd.GetInt(dic, "Sprite subnumber", info.Frame);
+            info.Tics = DeHackEd.GetInt(dic, "Duration", info.Tics);
+            info.Next = (MobjState)DeHackEd.GetInt(dic, "Next frame", (int)info.Next);
+            info.Misc1 = DeHackEd.GetInt(dic, "Unknown 1", info.Misc1);
+            info.Misc2 = DeHackEd.GetInt(dic, "Unknown 2", info.Misc2);
         }
 
         private static void ProcessPointerBlock(List<string> data)
         {
-            var dic = GetKeyValuePairs(data);
+            var dic = DeHackEd.GetKeyValuePairs(data);
             var start = data[0].IndexOf('(') + 1;
             var end = data[0].IndexOf(')');
             var length = end - start;
             var targetFrameNumber = int.Parse(data[0].Substring(start, length).Split(' ')[1]);
-            var sourceFrameNumber = GetInt(dic, "Codep Frame", -1);
+            var sourceFrameNumber = DeHackEd.GetInt(dic, "Codep Frame", -1);
             if (sourceFrameNumber == -1)
             {
                 return;
             }
             var info = DoomInfo.States[targetFrameNumber];
 
-            info.PlayerAction = sourcePointerTable[sourceFrameNumber].Item1;
-            info.MobjAction = sourcePointerTable[sourceFrameNumber].Item2;
+            info.PlayerAction = DeHackEd.sourcePointerTable[sourceFrameNumber].Item1;
+            info.MobjAction = DeHackEd.sourcePointerTable[sourceFrameNumber].Item2;
         }
 
         private static void ProcessSoundBlock(List<string> data)
@@ -191,26 +196,26 @@ namespace ManagedDoom
         private static void ProcessAmmoBlock(List<string> data)
         {
             var ammoNumber = int.Parse(data[0].Split(' ')[1]);
-            var dic = GetKeyValuePairs(data);
+            var dic = DeHackEd.GetKeyValuePairs(data);
             var max = DoomInfo.AmmoInfos.Max;
             var clip = DoomInfo.AmmoInfos.Clip;
 
-            max[ammoNumber] = GetInt(dic, "Max ammo", max[ammoNumber]);
-            clip[ammoNumber] = GetInt(dic, "Per ammo", clip[ammoNumber]);
+            max[ammoNumber] = DeHackEd.GetInt(dic, "Max ammo", max[ammoNumber]);
+            clip[ammoNumber] = DeHackEd.GetInt(dic, "Per ammo", clip[ammoNumber]);
         }
 
         private static void ProcessWeaponBlock(List<string> data)
         {
             var weaponNumber = int.Parse(data[0].Split(' ')[1]);
             var info = DoomInfo.WeaponInfos[weaponNumber];
-            var dic = GetKeyValuePairs(data);
+            var dic = DeHackEd.GetKeyValuePairs(data);
 
-            info.Ammo = (AmmoType)GetInt(dic, "Ammo type", (int)info.Ammo);
-            info.UpState = (MobjState)GetInt(dic, "Deselect frame", (int)info.UpState);
-            info.DownState = (MobjState)GetInt(dic, "Select frame", (int)info.DownState);
-            info.ReadyState = (MobjState)GetInt(dic, "Bobbing frame", (int)info.ReadyState);
-            info.AttackState = (MobjState)GetInt(dic, "Shooting frame", (int)info.AttackState);
-            info.FlashState = (MobjState)GetInt(dic, "Firing frame", (int)info.FlashState);
+            info.Ammo = (AmmoType)DeHackEd.GetInt(dic, "Ammo type", (int)info.Ammo);
+            info.UpState = (MobjState)DeHackEd.GetInt(dic, "Deselect frame", (int)info.UpState);
+            info.DownState = (MobjState)DeHackEd.GetInt(dic, "Select frame", (int)info.DownState);
+            info.ReadyState = (MobjState)DeHackEd.GetInt(dic, "Bobbing frame", (int)info.ReadyState);
+            info.AttackState = (MobjState)DeHackEd.GetInt(dic, "Shooting frame", (int)info.AttackState);
+            info.FlashState = (MobjState)DeHackEd.GetInt(dic, "Firing frame", (int)info.FlashState);
         }
 
         private static void ProcessCheatBlock(List<string> data)
@@ -271,43 +276,43 @@ namespace ManagedDoom
 
         private static Block GetBlockType(string[] split)
         {
-            if (IsThingBlockStart(split))
+            if (DeHackEd.IsThingBlockStart(split))
             {
                 return Block.Thing;
             }
-            else if (IsFrameBlockStart(split))
+            else if (DeHackEd.IsFrameBlockStart(split))
             {
                 return Block.Frame;
             }
-            else if (IsPointerBlockStart(split))
+            else if (DeHackEd.IsPointerBlockStart(split))
             {
                 return Block.Pointer;
             }
-            else if (IsSoundBlockStart(split))
+            else if (DeHackEd.IsSoundBlockStart(split))
             {
                 return Block.Sound;
             }
-            else if (IsAmmoBlockStart(split))
+            else if (DeHackEd.IsAmmoBlockStart(split))
             {
                 return Block.Ammo;
             }
-            else if (IsWeaponBlockStart(split))
+            else if (DeHackEd.IsWeaponBlockStart(split))
             {
                 return Block.Weapon;
             }
-            else if (IsCheatBlockStart(split))
+            else if (DeHackEd.IsCheatBlockStart(split))
             {
                 return Block.Cheat;
             }
-            else if (IsMiscBlockStart(split))
+            else if (DeHackEd.IsMiscBlockStart(split))
             {
                 return Block.Misc;
             }
-            else if (IsTextBlockStart(split))
+            else if (DeHackEd.IsTextBlockStart(split))
             {
                 return Block.Text;
             }
-            else if (IsSpriteBlockStart(split))
+            else if (DeHackEd.IsSpriteBlockStart(split))
             {
                 return Block.Sprite;
             }
@@ -329,7 +334,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
@@ -349,7 +354,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
@@ -384,7 +389,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
@@ -404,7 +409,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
@@ -424,7 +429,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
@@ -484,12 +489,12 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }
 
-            if (!IsNumber(split[2]))
+            if (!DeHackEd.IsNumber(split[2]))
             {
                 return false;
             }
@@ -509,7 +514,7 @@ namespace ManagedDoom
                 return false;
             }
 
-            if (!IsNumber(split[1]))
+            if (!DeHackEd.IsNumber(split[1]))
             {
                 return false;
             }

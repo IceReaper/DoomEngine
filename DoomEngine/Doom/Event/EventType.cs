@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Event
 {
-    public enum EventType
+	public enum EventType
     {
         KeyDown,
         KeyUp,

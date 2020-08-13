@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public abstract class MenuItem
+	public abstract class MenuItem
     {
         private int skullX;
         private int skullY;
@@ -36,8 +32,8 @@ namespace ManagedDoom
             this.next = next;
         }
 
-        public int SkullX => skullX;
-        public int SkullY => skullY;
-        public MenuDef Next => next;
+        public int SkullX => this.skullX;
+        public int SkullY => this.skullY;
+        public MenuDef Next => this.next;
     }
 }

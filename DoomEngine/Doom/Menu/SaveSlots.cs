@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class SaveSlots
+	using Common;
+	using System.IO;
+
+	public sealed class SaveSlots
     {
         private static readonly int slotCount = 6;
         private static readonly int descriptionSize = 24;
@@ -29,11 +27,11 @@ namespace ManagedDoom
 
         private void ReadSlots()
         {
-            slots = new string[slotCount];
+            this.slots = new string[SaveSlots.slotCount];
 
             var directory = ConfigUtilities.GetExeDirectory();
-            var buffer = new byte[descriptionSize];
-            for (var i = 0; i < slots.Length; i++)
+            var buffer = new byte[SaveSlots.descriptionSize];
+            for (var i = 0; i < this.slots.Length; i++)
             {
                 var path = Path.Combine(directory, "doomsav" + i + ".dsg");
                 if (File.Exists(path))
@@ -41,7 +39,7 @@ namespace ManagedDoom
                     using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
                     {
                         reader.Read(buffer, 0, buffer.Length);
-                        slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);
+                        this.slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);
                     }
                 }
             }
@@ -51,20 +49,20 @@ namespace ManagedDoom
         {
             get
             {
-                if (slots == null)
+                if (this.slots == null)
                 {
-                    ReadSlots();
+                    this.ReadSlots();
                 }
 
-                return slots[number];
+                return this.slots[number];
             }
 
             set
             {
-                slots[number] = value;
+                this.slots[number] = value;
             }
         }
 
-        public int Count => slots.Length;
+        public int Count => this.slots.Length;
     }
 }

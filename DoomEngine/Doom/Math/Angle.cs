@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.CompilerServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Math
 {
-    public struct Angle
+	using System;
+	using System.Runtime.CompilerServices;
+
+	public struct Angle
     {
         public static readonly Angle Ang0 = new Angle(0x00000000);
         public static readonly Angle Ang45 = new Angle(0x20000000);
@@ -56,12 +54,12 @@ namespace ManagedDoom
 
         public double ToRadian()
         {
-            return 2 * Math.PI * ((double)data / 0x100000000);
+            return 2 * Math.PI * ((double)this.data / 0x100000000);
         }
 
         public double ToDegree()
         {
-            return 360 * ((double)data / 0x100000000);
+            return 360 * ((double)this.data / 0x100000000);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,18 +161,18 @@ namespace ManagedDoom
 
         public override int GetHashCode()
         {
-            return data.GetHashCode();
+            return this.data.GetHashCode();
         }
 
         public override string ToString()
         {
-            return ToDegree().ToString();
+            return this.ToDegree().ToString();
         }
 
         public uint Data
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => data;
+            get => this.data;
         }
     }
 }

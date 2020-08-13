@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public class Thinker
+	public class Thinker
     {
         private Thinker prev;
         private Thinker next;
@@ -35,20 +31,20 @@ namespace ManagedDoom
 
         public Thinker Prev
         {
-            get => prev;
-            set => prev = value;
+            get => this.prev;
+            set => this.prev = value;
         }
 
         public Thinker Next
         {
-            get => next;
-            set => next = value;
+            get => this.next;
+            set => this.next = value;
         }
 
         public ThinkerState ThinkerState
         {
-            get => thinkerState;
-            set => thinkerState = value;
+            get => this.thinkerState;
+            set => this.thinkerState = value;
         }
     }
 }

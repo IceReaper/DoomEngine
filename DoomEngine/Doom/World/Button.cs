@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class Button
+	using Map;
+
+	public sealed class Button
     {
         private LineDef line;
         private ButtonPosition position;
@@ -29,41 +27,41 @@ namespace ManagedDoom
 
         public void Clear()
         {
-            line = null;
-            position = 0;
-            texture = 0;
-            timer = 0;
-            soundOrigin = null;
+            this.line = null;
+            this.position = 0;
+            this.texture = 0;
+            this.timer = 0;
+            this.soundOrigin = null;
         }
 
         public LineDef Line
         {
-            get => line;
-            set => line = value;
+            get => this.line;
+            set => this.line = value;
         }
 
         public ButtonPosition Position
         {
-            get => position;
-            set => position = value;
+            get => this.position;
+            set => this.position = value;
         }
 
         public int Texture
         {
-            get => texture;
-            set => texture = value;
+            get => this.texture;
+            set => this.texture = value;
         }
 
         public int Timer
         {
-            get => timer;
-            set => timer = value;
+            get => this.timer;
+            set => this.timer = value;
         }
 
         public Mobj SoundOrigin
         {
-            get => soundOrigin;
-            set => soundOrigin = value;
+            get => this.soundOrigin;
+            set => this.soundOrigin = value;
         }
     }
 }

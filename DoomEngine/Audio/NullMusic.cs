@@ -13,24 +13,20 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.Audio
+namespace DoomEngine.Audio
 {
-    public sealed class NullMusic : IMusic
+	public sealed class NullMusic : IMusic
     {
         private static NullMusic instance;
 
         public static NullMusic GetInstance()
         {
-            if (instance == null)
+            if (NullMusic.instance == null)
             {
-                instance = new NullMusic();
+                NullMusic.instance = new NullMusic();
             }
 
-            return instance;
+            return NullMusic.instance;
         }
 
         public void StartMusic(Bgm bgm, bool loop)

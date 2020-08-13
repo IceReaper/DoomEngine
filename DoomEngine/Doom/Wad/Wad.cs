@@ -13,17 +13,17 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Wad
 {
-    public sealed class Wad : IDisposable
+	using Common;
+	using Game;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Runtime.ExceptionServices;
+
+	public sealed class Wad : IDisposable
     {
         private List<string> names;
         private List<Stream> streams;
@@ -38,35 +38,35 @@ namespace ManagedDoom
             {
                 Console.Write("Open wad files: ");
 
-                names = new List<string>();
-                streams = new List<Stream>();
-                lumpInfos = new List<LumpInfo>();
+                this.names = new List<string>();
+                this.streams = new List<Stream>();
+                this.lumpInfos = new List<LumpInfo>();
 
                 foreach (var fileName in fileNames)
                 {
-                    AddFile(fileName);
+                    this.AddFile(fileName);
                 }
 
-                gameMode = GetGameMode(names);
-                missionPack = GetMissionPack(names);
-                gameVersion = GetGameVersion(names);
+                this.gameMode = Wad.GetGameMode(this.names);
+                this.missionPack = Wad.GetMissionPack(this.names);
+                this.gameVersion = Wad.GetGameVersion(this.names);
 
                 Console.WriteLine("OK (" + string.Join(", ", fileNames.Select(x => Path.GetFileName(x))) + ")");
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed");
-                Dispose();
+                this.Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
         }
 
         private void AddFile(string fileName)
         {
-            names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
+            this.names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
 
             var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            streams.Add(stream);
+            this.streams.Add(stream);
 
             string identification;
             int lumpCount;
@@ -103,16 +103,16 @@ namespace ManagedDoom
                         stream,
                         BitConverter.ToInt32(data, offset),
                         BitConverter.ToInt32(data, offset + 4));
-                    lumpInfos.Add(lumpInfo);
+                    this.lumpInfos.Add(lumpInfo);
                 }
             }
         }
 
         public int GetLumpNumber(string name)
         {
-            for (var i = lumpInfos.Count - 1; i >= 0; i--)
+            for (var i = this.lumpInfos.Count - 1; i >= 0; i--)
             {
-                if (lumpInfos[i].Name == name)
+                if (this.lumpInfos[i].Name == name)
                 {
                     return i;
                 }
@@ -123,12 +123,12 @@ namespace ManagedDoom
 
         public int GetLumpSize(int number)
         {
-            return lumpInfos[number].Size;
+            return this.lumpInfos[number].Size;
         }
 
         public byte[] ReadLump(int number)
         {
-            var lumpInfo = lumpInfos[number];
+            var lumpInfo = this.lumpInfos[number];
 
             var data = new byte[lumpInfo.Size];
 
@@ -144,26 +144,26 @@ namespace ManagedDoom
 
         public byte[] ReadLump(string name)
         {
-            var lumpNumber = GetLumpNumber(name);
+            var lumpNumber = this.GetLumpNumber(name);
 
             if (lumpNumber == -1)
             {
                 throw new Exception("The lump '" + name + "' was not found.");
             }
 
-            return ReadLump(lumpNumber);
+            return this.ReadLump(lumpNumber);
         }
 
         public void Dispose()
         {
             Console.WriteLine("Close wad files.");
 
-            foreach (var stream in streams)
+            foreach (var stream in this.streams)
             {
                 stream.Dispose();
             }
 
-            streams.Clear();
+            this.streams.Clear();
         }
 
         private static GameVersion GetGameVersion(IReadOnlyList<string> names)
@@ -222,10 +222,10 @@ namespace ManagedDoom
             return MissionPack.Doom2;
         }
 
-        public IReadOnlyList<string> Names => names;
-        public IReadOnlyList<LumpInfo> LumpInfos => lumpInfos;
-        public GameVersion GameVersion => gameVersion;
-        public GameMode GameMode => gameMode;
-        public MissionPack MissionPack => missionPack;
+        public IReadOnlyList<string> Names => this.names;
+        public IReadOnlyList<LumpInfo> LumpInfos => this.lumpInfos;
+        public GameVersion GameVersion => this.gameVersion;
+        public GameMode GameMode => this.gameMode;
+        public MissionPack MissionPack => this.missionPack;
     }
 }

@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Math
 {
-    public static partial class Trig
+	public static partial class Trig
     {
         private static readonly int[] fineTangent =
         {

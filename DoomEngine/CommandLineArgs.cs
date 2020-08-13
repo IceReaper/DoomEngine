@@ -13,15 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public sealed class CommandLineArgs
+	using System;
+	using System.Linq;
+
+	public sealed class CommandLineArgs
     {
         public readonly Arg<string> iwad;
         public readonly Arg<string[]> file;
@@ -48,33 +45,33 @@ namespace ManagedDoom
 
         public CommandLineArgs(string[] args)
         {
-            iwad = GetString(args, "-iwad");
-            file = Check_file(args);
-            deh = Check_deh(args);
+            this.iwad = CommandLineArgs.GetString(args, "-iwad");
+            this.file = CommandLineArgs.Check_file(args);
+            this.deh = CommandLineArgs.Check_deh(args);
 
-            warp = Check_warp(args);
-            skill = GetInt(args, "-skill");
+            this.warp = CommandLineArgs.Check_warp(args);
+            this.skill = CommandLineArgs.GetInt(args, "-skill");
 
-            deathmatch = new Arg(args.Contains("-deathmatch"));
-            altdeath = new Arg(args.Contains("-altdeath"));
-            fast = new Arg(args.Contains("-fast"));
-            respawn = new Arg(args.Contains("-respawn"));
-            nomonsters = new Arg(args.Contains("-nomonsters"));
+            this.deathmatch = new Arg(args.Contains("-deathmatch"));
+            this.altdeath = new Arg(args.Contains("-altdeath"));
+            this.fast = new Arg(args.Contains("-fast"));
+            this.respawn = new Arg(args.Contains("-respawn"));
+            this.nomonsters = new Arg(args.Contains("-nomonsters"));
 
-            playdemo = GetString(args, "-playdemo");
-            timedemo = GetString(args, "-timedemo");
+            this.playdemo = CommandLineArgs.GetString(args, "-playdemo");
+            this.timedemo = CommandLineArgs.GetString(args, "-timedemo");
 
-            loadgame = GetInt(args, "-loadgame");
+            this.loadgame = CommandLineArgs.GetInt(args, "-loadgame");
 
-            nomouse = new Arg(args.Contains("-nomouse"));
-            nosound = new Arg(args.Contains("-nosound"));
-            nosfx = new Arg(args.Contains("-nosfx"));
-            nomusic = new Arg(args.Contains("-nomusic"));
+            this.nomouse = new Arg(args.Contains("-nomouse"));
+            this.nosound = new Arg(args.Contains("-nosound"));
+            this.nosfx = new Arg(args.Contains("-nosfx"));
+            this.nomusic = new Arg(args.Contains("-nomusic"));
         }
 
         private static Arg<string[]> Check_file(string[] args)
         {
-            var values = GetValues(args, "-file");
+            var values = CommandLineArgs.GetValues(args, "-file");
             if (values.Length >= 1)
             {
                 return new Arg<string[]>(values);
@@ -85,7 +82,7 @@ namespace ManagedDoom
 
         private static Arg<string[]> Check_deh(string[] args)
         {
-            var values = GetValues(args, "-deh");
+            var values = CommandLineArgs.GetValues(args, "-deh");
             if (values.Length >= 1)
             {
                 return new Arg<string[]>(values);
@@ -96,7 +93,7 @@ namespace ManagedDoom
 
         private static Arg<Tuple<int, int>> Check_warp(string[] args)
         {
-            var values = GetValues(args, "-warp");
+            var values = CommandLineArgs.GetValues(args, "-warp");
             if (values.Length == 1)
             {
                 int map;
@@ -120,7 +117,7 @@ namespace ManagedDoom
 
         private static Arg<string> GetString(string[] args, string name)
         {
-            var values = GetValues(args, name);
+            var values = CommandLineArgs.GetValues(args, name);
             if (values.Length == 1)
             {
                 return new Arg<string>(values[0]);
@@ -131,7 +128,7 @@ namespace ManagedDoom
 
         private static Arg<int> GetInt(string[] args, string name)
         {
-            var values = GetValues(args, name);
+            var values = CommandLineArgs.GetValues(args, name);
             if (values.Length == 1)
             {
                 int result;
@@ -169,7 +166,7 @@ namespace ManagedDoom
                 this.present = present;
             }
 
-            public bool Present => present;
+            public bool Present => this.present;
         }
 
         public class Arg<T>
@@ -189,8 +186,8 @@ namespace ManagedDoom
                 this.value = value;
             }
 
-            public bool Present => present;
-            public T Value => value;
+            public bool Present => this.present;
+            public T Value => this.value;
         }
     }
 }

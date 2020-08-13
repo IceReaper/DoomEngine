@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class LightingChange
+	using Map;
+
+	public sealed class LightingChange
     {
         private World world;
 
@@ -34,13 +32,13 @@ namespace ManagedDoom
             // Nothing special about it during gameplay.
             sector.Special = 0;
 
-            var flicker = new FireFlicker(world);
+            var flicker = new FireFlicker(this.world);
 
-            world.Thinkers.Add(flicker);
+            this.world.Thinkers.Add(flicker);
 
             flicker.Sector = sector;
             flicker.MaxLight = sector.LightLevel;
-            flicker.MinLight = FindMinSurroundingLight(sector, sector.LightLevel) + 16;
+            flicker.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel) + 16;
             flicker.Count = 4;
         }
 
@@ -49,30 +47,30 @@ namespace ManagedDoom
             // Nothing special about it during gameplay.
             sector.Special = 0;
 
-            var light = new LightFlash(world);
+            var light = new LightFlash(this.world);
 
-            world.Thinkers.Add(light);
+            this.world.Thinkers.Add(light);
 
             light.Sector = sector;
             light.MaxLight = sector.LightLevel;
 
-            light.MinLight = FindMinSurroundingLight(sector, sector.LightLevel);
+            light.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
             light.MaxTime = 64;
             light.MinTime = 7;
-            light.Count = (world.Random.Next() & light.MaxTime) + 1;
+            light.Count = (this.world.Random.Next() & light.MaxTime) + 1;
         }
 
         public void SpawnStrobeFlash(Sector sector, int fastOrSlow, int inSync)
         {
-            var strobe = new StrobeFlash(world);
+            var strobe = new StrobeFlash(this.world);
 
-            world.Thinkers.Add(strobe);
+            this.world.Thinkers.Add(strobe);
 
             strobe.Sector = sector;
             strobe.DarkTime = fastOrSlow;
             strobe.BrightTime = StrobeFlash.StrobeBright;
             strobe.MaxLight = sector.LightLevel;
-            strobe.MinLight = FindMinSurroundingLight(sector, sector.LightLevel);
+            strobe.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
 
             if (strobe.MinLight == strobe.MaxLight)
             {
@@ -84,7 +82,7 @@ namespace ManagedDoom
 
             if (inSync == 0)
             {
-                strobe.Count = (world.Random.Next() & 7) + 1;
+                strobe.Count = (this.world.Random.Next() & 7) + 1;
             }
             else
             {
@@ -94,12 +92,12 @@ namespace ManagedDoom
 
         public void SpawnGlowingLight(Sector sector)
         {
-            var glowing = new GlowingLight(world);
+            var glowing = new GlowingLight(this.world);
 
-            world.Thinkers.Add(glowing);
+            this.world.Thinkers.Add(glowing);
 
             glowing.Sector = sector;
-            glowing.MinLight = FindMinSurroundingLight(sector, sector.LightLevel);
+            glowing.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
             glowing.MaxLight = sector.LightLevel;
             glowing.Direction = -1;
 
@@ -112,7 +110,7 @@ namespace ManagedDoom
             for (var i = 0; i < sector.Lines.Length; i++)
             {
                 var line = sector.Lines[i];
-                var check = GetNextSector(line, sector);
+                var check = this.GetNextSector(line, sector);
 
                 if (check == null)
                 {

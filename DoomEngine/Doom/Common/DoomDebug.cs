@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Text;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Common
 {
-    public static class DoomDebug
+	using Map;
+	using System.IO;
+	using System.Text;
+	using World;
+
+	public static class DoomDebug
     {
         public static int CombineHash(int a, int b)
         {
@@ -31,33 +31,33 @@ namespace ManagedDoom
         {
             var hash = 0;
 
-            hash = CombineHash(hash, mobj.X.Data);
-            hash = CombineHash(hash, mobj.Y.Data);
-            hash = CombineHash(hash, mobj.Z.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.X.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.Y.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.Z.Data);
 
-            hash = CombineHash(hash, (int)mobj.Angle.Data);
-            hash = CombineHash(hash, (int)mobj.Sprite);
-            hash = CombineHash(hash, mobj.Frame);
+            hash = DoomDebug.CombineHash(hash, (int)mobj.Angle.Data);
+            hash = DoomDebug.CombineHash(hash, (int)mobj.Sprite);
+            hash = DoomDebug.CombineHash(hash, mobj.Frame);
 
-            hash = CombineHash(hash, mobj.FloorZ.Data);
-            hash = CombineHash(hash, mobj.CeilingZ.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.FloorZ.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.CeilingZ.Data);
 
-            hash = CombineHash(hash, mobj.Radius.Data);
-            hash = CombineHash(hash, mobj.Height.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.Radius.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.Height.Data);
 
-            hash = CombineHash(hash, mobj.MomX.Data);
-            hash = CombineHash(hash, mobj.MomY.Data);
-            hash = CombineHash(hash, mobj.MomZ.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.MomX.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.MomY.Data);
+            hash = DoomDebug.CombineHash(hash, mobj.MomZ.Data);
 
-            hash = CombineHash(hash, mobj.Tics);
-            hash = CombineHash(hash, (int)mobj.Flags);
-            hash = CombineHash(hash, mobj.Health);
+            hash = DoomDebug.CombineHash(hash, mobj.Tics);
+            hash = DoomDebug.CombineHash(hash, (int)mobj.Flags);
+            hash = DoomDebug.CombineHash(hash, mobj.Health);
 
-            hash = CombineHash(hash, (int)mobj.MoveDir);
-            hash = CombineHash(hash, mobj.MoveCount);
+            hash = DoomDebug.CombineHash(hash, (int)mobj.MoveDir);
+            hash = DoomDebug.CombineHash(hash, mobj.MoveCount);
 
-            hash = CombineHash(hash, mobj.ReactionTime);
-            hash = CombineHash(hash, mobj.Threshold);
+            hash = DoomDebug.CombineHash(hash, mobj.ReactionTime);
+            hash = DoomDebug.CombineHash(hash, mobj.Threshold);
 
             return hash;
         }
@@ -70,7 +70,7 @@ namespace ManagedDoom
                 var mobj = thinker as Mobj;
                 if (mobj != null)
                 {
-                    hash = CombineHash(hash, GetMobjHash(mobj));
+                    hash = DoomDebug.CombineHash(hash, DoomDebug.GetMobjHash(mobj));
                 }
             }
             return hash;
@@ -113,14 +113,14 @@ namespace ManagedDoom
 
         public static void DumpMobjCsv(string path, World world)
         {
-            using (var writer = new System.IO.StreamWriter(path))
+            using (var writer = new StreamWriter(path))
             {
                 foreach (var thinker in world.Thinkers)
                 {
                     var mobj = thinker as Mobj;
                     if (mobj != null)
                     {
-                        writer.WriteLine(GetMobjCsv(mobj));
+                        writer.WriteLine(DoomDebug.GetMobjCsv(mobj));
                     }
                 }
             }
@@ -130,9 +130,9 @@ namespace ManagedDoom
         {
             var hash = 0;
 
-            hash = CombineHash(hash, sector.FloorHeight.Data);
-            hash = CombineHash(hash, sector.CeilingHeight.Data);
-            hash = CombineHash(hash, sector.LightLevel);
+            hash = DoomDebug.CombineHash(hash, sector.FloorHeight.Data);
+            hash = DoomDebug.CombineHash(hash, sector.CeilingHeight.Data);
+            hash = DoomDebug.CombineHash(hash, sector.LightLevel);
 
             return hash;
         }
@@ -142,7 +142,7 @@ namespace ManagedDoom
             var hash = 0;
             foreach (var sector in world.Map.Sectors)
             {
-                hash = CombineHash(hash, GetSectorHash(sector));
+                hash = DoomDebug.CombineHash(hash, DoomDebug.GetSectorHash(sector));
             }
             return hash;
         }

@@ -13,13 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public class Mobj : Thinker
+	using Audio;
+	using Game;
+	using Graphics;
+	using Info;
+	using Map;
+	using Math;
+
+	public class Mobj : Thinker
     {
         //
         // NOTES: mobj_t
@@ -172,23 +175,23 @@ namespace ManagedDoom
         public override void Run()
         {
             // Momentum movement.
-            if (momX != Fixed.Zero || momY != Fixed.Zero ||
-                (flags & MobjFlags.SkullFly) != 0)
+            if (this.momX != Fixed.Zero || this.momY != Fixed.Zero ||
+                (this.flags & MobjFlags.SkullFly) != 0)
             {
-                world.ThingMovement.XYMovement(this);
+                this.world.ThingMovement.XYMovement(this);
 
-                if (ThinkerState == ThinkerState.Removed)
+                if (this.ThinkerState == ThinkerState.Removed)
                 {
                     // Mobj was removed.
                     return;
                 }
             }
 
-            if ((z != floorZ) || momZ != Fixed.Zero)
+            if ((this.z != this.floorZ) || this.momZ != Fixed.Zero)
             {
-                world.ThingMovement.ZMovement(this);
+                this.world.ThingMovement.ZMovement(this);
 
-                if (ThinkerState == ThinkerState.Removed)
+                if (this.ThinkerState == ThinkerState.Removed)
                 {
                     // Mobj was removed.
                     return;
@@ -197,14 +200,14 @@ namespace ManagedDoom
 
             // Cycle through states,
             // calling action functions at transitions.
-            if (tics != -1)
+            if (this.tics != -1)
             {
-                tics--;
+                this.tics--;
 
                 // You can cycle through multiple states in a tic.
-                if (tics == 0)
+                if (this.tics == 0)
                 {
-                    if (!SetState(state.Next))
+                    if (!this.SetState(this.state.Next))
                     {
                         // Freed itself.
                         return;
@@ -214,35 +217,35 @@ namespace ManagedDoom
             else
             {
                 // Check for nightmare respawn.
-                if ((flags & MobjFlags.CountKill) == 0)
+                if ((this.flags & MobjFlags.CountKill) == 0)
                 {
                     return;
                 }
 
-                var options = world.Options;
+                var options = this.world.Options;
                 if (!(options.Skill == GameSkill.Nightmare || options.RespawnMonsters))
                 {
                     return;
                 }
 
-                moveCount++;
+                this.moveCount++;
 
-                if (moveCount < 12 * 35)
+                if (this.moveCount < 12 * 35)
                 {
                     return;
                 }
 
-                if ((world.LevelTime & 31) != 0)
+                if ((this.world.LevelTime & 31) != 0)
                 {
                     return;
                 }
 
-                if (world.Random.Next() > 4)
+                if (this.world.Random.Next() > 4)
                 {
                     return;
                 }
 
-                NightmareRespawn();
+                this.NightmareRespawn();
             }
         }
 
@@ -253,33 +256,33 @@ namespace ManagedDoom
                 if (state == MobjState.Null)
                 {
                     this.state = DoomInfo.States[(int)MobjState.Null];
-                    world.ThingAllocation.RemoveMobj(this);
+                    this.world.ThingAllocation.RemoveMobj(this);
                     return false;
                 }
 
                 var st = DoomInfo.States[(int)state];
                 this.state = st;
-                tics = GetTics(st);
-                sprite = st.Sprite;
-                frame = st.Frame;
+                this.tics = this.GetTics(st);
+                this.sprite = st.Sprite;
+                this.frame = st.Frame;
 
                 // Modified handling.
                 // Call action functions when the state is set.
                 if (st.MobjAction != null)
                 {
-                    st.MobjAction(world, this);
+                    st.MobjAction(this.world, this);
                 }
 
                 state = st.Next;
             }
-            while (tics == 0);
+            while (this.tics == 0);
 
             return true;
         }
 
         private int GetTics(MobjStateDef state)
         {
-            var options = world.Options;
+            var options = this.world.Options;
             if (options.FastMonsters || options.Skill == GameSkill.Nightmare)
             {
                 if ((int)MobjState.SargRun1 <= state.Number &&
@@ -301,9 +304,9 @@ namespace ManagedDoom
         private void NightmareRespawn()
         {
             MapThing sp;
-            if (spawnPoint != null)
+            if (this.spawnPoint != null)
             {
-                sp = spawnPoint;
+                sp = this.spawnPoint;
             }
             else
             {
@@ -311,46 +314,46 @@ namespace ManagedDoom
             }
 
             // Somthing is occupying it's position?
-            if (!world.ThingMovement.CheckPosition(this, sp.X, sp.Y))
+            if (!this.world.ThingMovement.CheckPosition(this, sp.X, sp.Y))
             {
                 // No respwan.
                 return;
             }
 
-            var ta = world.ThingAllocation;
+            var ta = this.world.ThingAllocation;
 
             // Spawn a teleport fog at old spot.
             var fog1 = ta.SpawnMobj(
-                x, y,
-                subsector.Sector.FloorHeight,
+                this.x, this.y,
+                this.subsector.Sector.FloorHeight,
                 MobjType.Tfog);
 
             // Initiate teleport sound.
-            world.StartSound(fog1, Sfx.TELEPT, SfxType.Misc);
+            this.world.StartSound(fog1, Sfx.TELEPT, SfxType.Misc);
 
             // Spawn a teleport fog at the new spot.
-            var ss = Geometry.PointInSubsector(sp.X, sp.Y, world.Map);
+            var ss = Geometry.PointInSubsector(sp.X, sp.Y, this.world.Map);
 
             var fog2 = ta.SpawnMobj(
                 sp.X, sp.Y,
                 ss.Sector.FloorHeight, MobjType.Tfog);
 
-            world.StartSound(fog2, Sfx.TELEPT, SfxType.Misc);
+            this.world.StartSound(fog2, Sfx.TELEPT, SfxType.Misc);
 
             // Spawn the new monster.
             Fixed z;
-            if ((info.Flags & MobjFlags.SpawnCeiling) != 0)
+            if ((this.info.Flags & MobjFlags.SpawnCeiling) != 0)
             {
-                z = OnCeilingZ;
+                z = Mobj.OnCeilingZ;
             }
             else
             {
-                z = OnFloorZ;
+                z = Mobj.OnFloorZ;
             }
 
             // Inherit attributes from deceased one.
-            var mobj = ta.SpawnMobj(sp.X, sp.Y, z, type);
-            mobj.SpawnPoint = spawnPoint;
+            var mobj = ta.SpawnMobj(sp.X, sp.Y, z, this.type);
+            mobj.SpawnPoint = this.spawnPoint;
             mobj.Angle = sp.Angle;
 
             if ((sp.Flags & ThingFlags.Ambush) != 0)
@@ -361,213 +364,213 @@ namespace ManagedDoom
             mobj.ReactionTime = 18;
 
             // Remove the old monster.
-            world.ThingAllocation.RemoveMobj(this);
+            this.world.ThingAllocation.RemoveMobj(this);
         }
 
-        public World World => world;
+        public World World => this.world;
 
         public Fixed X
         {
-            get => x;
-            set => x = value;
+            get => this.x;
+            set => this.x = value;
         }
 
         public Fixed Y
         {
-            get => y;
-            set => y = value;
+            get => this.y;
+            set => this.y = value;
         }
 
         public Fixed Z
         {
-            get => z;
-            set => z = value;
+            get => this.z;
+            set => this.z = value;
         }
 
         public Mobj SectorNext
         {
-            get => sectorNext;
-            set => sectorNext = value;
+            get => this.sectorNext;
+            set => this.sectorNext = value;
         }
 
         public Mobj SectorPrev
         {
-            get => sectorPrev;
-            set => sectorPrev = value;
+            get => this.sectorPrev;
+            set => this.sectorPrev = value;
         }
 
         public Angle Angle
         {
-            get => angle;
-            set => angle = value;
+            get => this.angle;
+            set => this.angle = value;
         }
 
         public Sprite Sprite
         {
-            get => sprite;
-            set => sprite = value;
+            get => this.sprite;
+            set => this.sprite = value;
         }
 
         public int Frame
         {
-            get => frame;
-            set => frame = value;
+            get => this.frame;
+            set => this.frame = value;
         }
 
         public Mobj BlockNext
         {
-            get => blockNext;
-            set => blockNext = value;
+            get => this.blockNext;
+            set => this.blockNext = value;
         }
 
         public Mobj BlockPrev
         {
-            get => blockPrev;
-            set => blockPrev = value;
+            get => this.blockPrev;
+            set => this.blockPrev = value;
         }
 
         public Subsector Subsector
         {
-            get => subsector;
-            set => subsector = value;
+            get => this.subsector;
+            set => this.subsector = value;
         }
 
         public Fixed FloorZ
         {
-            get => floorZ;
-            set => floorZ = value;
+            get => this.floorZ;
+            set => this.floorZ = value;
         }
 
         public Fixed CeilingZ
         {
-            get => ceilingZ;
-            set => ceilingZ = value;
+            get => this.ceilingZ;
+            set => this.ceilingZ = value;
         }
 
         public Fixed Radius
         {
-            get => radius;
-            set => radius = value;
+            get => this.radius;
+            set => this.radius = value;
         }
 
         public Fixed Height
         {
-            get => height;
-            set => height = value;
+            get => this.height;
+            set => this.height = value;
         }
 
         public Fixed MomX
         {
-            get => momX;
-            set => momX = value;
+            get => this.momX;
+            set => this.momX = value;
         }
 
         public Fixed MomY
         {
-            get => momY;
-            set => momY = value;
+            get => this.momY;
+            set => this.momY = value;
         }
 
         public Fixed MomZ
         {
-            get => momZ;
-            set => momZ = value;
+            get => this.momZ;
+            set => this.momZ = value;
         }
 
         public int ValidCount
         {
-            get => validCount;
-            set => validCount = value;
+            get => this.validCount;
+            set => this.validCount = value;
         }
 
         public MobjType Type
         {
-            get => type;
-            set => type = value;
+            get => this.type;
+            set => this.type = value;
         }
 
         public MobjInfo Info
         {
-            get => info;
-            set => info = value;
+            get => this.info;
+            set => this.info = value;
         }
 
         public int Tics
         {
-            get => tics;
-            set => tics = value;
+            get => this.tics;
+            set => this.tics = value;
         }
 
         public MobjStateDef State
         {
-            get => state;
-            set => state = value;
+            get => this.state;
+            set => this.state = value;
         }
 
         public MobjFlags Flags
         {
-            get => flags;
-            set => flags = value;
+            get => this.flags;
+            set => this.flags = value;
         }
 
         public int Health
         {
-            get => health;
-            set => health = value;
+            get => this.health;
+            set => this.health = value;
         }
 
         public Direction MoveDir
         {
-            get => moveDir;
-            set => moveDir = value;
+            get => this.moveDir;
+            set => this.moveDir = value;
         }
 
         public int MoveCount
         {
-            get => moveCount;
-            set => moveCount = value;
+            get => this.moveCount;
+            set => this.moveCount = value;
         }
 
         public Mobj Target
         {
-            get => target;
-            set => target = value;
+            get => this.target;
+            set => this.target = value;
         }
 
         public int ReactionTime
         {
-            get => reactionTime;
-            set => reactionTime = value;
+            get => this.reactionTime;
+            set => this.reactionTime = value;
         }
 
         public int Threshold
         {
-            get => threshold;
-            set => threshold = value;
+            get => this.threshold;
+            set => this.threshold = value;
         }
 
         public Player Player
         {
-            get => player;
-            set => player = value;
+            get => this.player;
+            set => this.player = value;
         }
 
         public int LastLook
         {
-            get => lastLook;
-            set => lastLook = value;
+            get => this.lastLook;
+            set => this.lastLook = value;
         }
 
         public MapThing SpawnPoint
         {
-            get => spawnPoint;
-            set => spawnPoint = value;
+            get => this.spawnPoint;
+            set => this.spawnPoint = value;
         }
 
         public Mobj Tracer
         {
-            get => tracer;
-            set => tracer = value;
+            get => this.tracer;
+            set => this.tracer = value;
         }
     }
 }

@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class GlowingLight : Thinker
+	using Map;
+
+	public sealed class GlowingLight : Thinker
     {
         private static readonly int glowSpeed = 8;
 
@@ -37,25 +35,25 @@ namespace ManagedDoom
 
         public override void Run()
         {
-            switch (direction)
+            switch (this.direction)
             {
                 case -1:
                     // Down.
-                    sector.LightLevel -= glowSpeed;
-                    if (sector.LightLevel <= minLight)
+                    this.sector.LightLevel -= GlowingLight.glowSpeed;
+                    if (this.sector.LightLevel <= this.minLight)
                     {
-                        sector.LightLevel += glowSpeed;
-                        direction = 1;
+                        this.sector.LightLevel += GlowingLight.glowSpeed;
+                        this.direction = 1;
                     }
                     break;
 
                 case 1:
                     // Up.
-                    sector.LightLevel += glowSpeed;
-                    if (sector.LightLevel >= maxLight)
+                    this.sector.LightLevel += GlowingLight.glowSpeed;
+                    if (this.sector.LightLevel >= this.maxLight)
                     {
-                        sector.LightLevel -= glowSpeed;
-                        direction = -1;
+                        this.sector.LightLevel -= GlowingLight.glowSpeed;
+                        this.direction = -1;
                     }
                     break;
             }
@@ -63,26 +61,26 @@ namespace ManagedDoom
 
         public Sector Sector
         {
-            get => sector;
-            set => sector = value;
+            get => this.sector;
+            set => this.sector = value;
         }
 
         public int MinLight
         {
-            get => minLight;
-            set => minLight = value;
+            get => this.minLight;
+            set => this.minLight = value;
         }
 
         public int MaxLight
         {
-            get => maxLight;
-            set => maxLight = value;
+            get => this.maxLight;
+            set => this.maxLight = value;
         }
 
         public int Direction
         {
-            get => direction;
-            set => direction = value;
+            get => this.direction;
+            set => this.direction = value;
         }
     }
 }

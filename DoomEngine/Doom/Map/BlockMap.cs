@@ -13,19 +13,20 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class BlockMap
+	using Math;
+	using System;
+	using Wad;
+	using World;
+
+	public sealed class BlockMap
     {
         public static readonly int IntBlockSize = 128;
-        public static readonly Fixed BlockSize = Fixed.FromInt(IntBlockSize);
-        public static readonly int BlockMask = BlockSize.Data - 1;
+        public static readonly Fixed BlockSize = Fixed.FromInt(BlockMap.IntBlockSize);
+        public static readonly int BlockMask = BlockMap.BlockSize.Data - 1;
         public static readonly int FracToBlockShift = Fixed.FracBits + 7;
-        public static readonly int BlockToFracShift = FracToBlockShift - Fixed.FracBits;
+        public static readonly int BlockToFracShift = BlockMap.FracToBlockShift - Fixed.FracBits;
 
         private Fixed originX;
         private Fixed originY;
@@ -54,7 +55,7 @@ namespace ManagedDoom
             this.table = table;
             this.lines = lines;
 
-            thingLists = new Mobj[width * height];
+            this.thingLists = new Mobj[width * height];
         }
 
         public static BlockMap FromWad(Wad wad, int lump, LineDef[] lines)
@@ -84,19 +85,19 @@ namespace ManagedDoom
 
         public int GetBlockX(Fixed x)
         {
-            return (x - originX).Data >> FracToBlockShift;
+            return (x - this.originX).Data >> BlockMap.FracToBlockShift;
         }
 
         public int GetBlockY(Fixed y)
         {
-            return (y - originY).Data >> FracToBlockShift;
+            return (y - this.originY).Data >> BlockMap.FracToBlockShift;
         }
 
         public int GetIndex(int blockX, int blockY)
         {
-            if (0 <= blockX && blockX < width && 0 <= blockY && blockY < height)
+            if (0 <= blockX && blockX < this.width && 0 <= blockY && blockY < this.height)
             {
-                return width * blockY + blockX;
+                return this.width * blockY + blockX;
             }
             else
             {
@@ -106,23 +107,23 @@ namespace ManagedDoom
 
         public int GetIndex(Fixed x, Fixed y)
         {
-            var blockX = GetBlockX(x);
-            var blockY = GetBlockY(y);
-            return GetIndex(blockX, blockY);
+            var blockX = this.GetBlockX(x);
+            var blockY = this.GetBlockY(y);
+            return this.GetIndex(blockX, blockY);
         }
 
         public bool IterateLines(int blockX, int blockY, Func<LineDef, bool> func, int validCount)
         {
-            var index = GetIndex(blockX, blockY);
+            var index = this.GetIndex(blockX, blockY);
 
             if (index == -1)
             {
                 return true;
             }
 
-            for (var offset = table[4 + index]; table[offset] != -1; offset++)
+            for (var offset = this.table[4 + index]; this.table[offset] != -1; offset++)
             {
-                var line = lines[table[offset]];
+                var line = this.lines[this.table[offset]];
 
                 if (line.ValidCount == validCount)
                 {
@@ -142,14 +143,14 @@ namespace ManagedDoom
 
         public bool IterateThings(int blockX, int blockY, Func<Mobj, bool> func)
         {
-            var index = GetIndex(blockX, blockY);
+            var index = this.GetIndex(blockX, blockY);
 
             if (index == -1)
             {
                 return true;
             }
 
-            for (var mobj = thingLists[index]; mobj != null; mobj = mobj.BlockNext)
+            for (var mobj = this.thingLists[index]; mobj != null; mobj = mobj.BlockNext)
             {
                 if (!func(mobj))
                 {
@@ -160,10 +161,10 @@ namespace ManagedDoom
             return true;
         }
 
-        public Fixed OriginX => originX;
-        public Fixed OriginY => originY;
-        public int Width => width;
-        public int Height => height;
-        public Mobj[] ThingLists => thingLists;
+        public Fixed OriginX => this.originX;
+        public Fixed OriginY => this.originY;
+        public int Width => this.width;
+        public int Height => this.height;
+        public Mobj[] ThingLists => this.thingLists;
     }
 }

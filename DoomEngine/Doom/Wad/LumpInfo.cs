@@ -13,14 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Wad
 {
-    public sealed class LumpInfo
+	using System.IO;
+
+	public sealed class LumpInfo
     {
         public const int DataSize = 16;
 
@@ -37,9 +34,9 @@ namespace ManagedDoom
             this.size = size;
         }
 
-        public string Name => name;
-        public Stream Stream => stream;
-        public int Position => position;
-        public int Size => size;
+        public string Name => this.name;
+        public Stream Stream => this.stream;
+        public int Position => this.position;
+        public int Size => this.size;
     }
 }

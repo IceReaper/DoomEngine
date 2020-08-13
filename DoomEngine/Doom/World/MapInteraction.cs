@@ -13,12 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Game;
+	using Map;
+	using Math;
+	using System;
+
 	public sealed class MapInteraction
 	{
 		private static readonly Fixed useRange = Fixed.FromInt(64);
@@ -29,7 +31,7 @@ namespace ManagedDoom
 		{
 			this.world = world;
 
-			InitUse();
+			this.InitUse();
 		}
 
 
@@ -43,19 +45,19 @@ namespace ManagedDoom
 
 		private void InitUse()
 		{
-			useTraverseFunc = UseTraverse;
+			this.useTraverseFunc = this.UseTraverse;
 		}
 
 		private bool UseTraverse(Intercept intercept)
 		{
-			var mc = world.MapCollision;
+			var mc = this.world.MapCollision;
 
 			if (intercept.Line.Special == 0)
 			{
 				mc.LineOpening(intercept.Line);
 				if (mc.OpenRange <= Fixed.Zero)
 				{
-					world.StartSound(useThing, Sfx.NOWAY, SfxType.Voice);
+					this.world.StartSound(this.useThing, Sfx.NOWAY, SfxType.Voice);
 
 					// Can't use through a wall.
 					return false;
@@ -66,12 +68,12 @@ namespace ManagedDoom
 			}
 
 			var side = 0;
-			if (Geometry.PointOnLineSide(useThing.X, useThing.Y, intercept.Line) == 1)
+			if (Geometry.PointOnLineSide(this.useThing.X, this.useThing.Y, intercept.Line) == 1)
 			{
 				side = 1;
 			}
 
-			UseSpecialLine(useThing, intercept.Line, side);
+			this.UseSpecialLine(this.useThing, intercept.Line, side);
 
 			// Can't use for than one special line in a row.
 			return false;
@@ -82,18 +84,18 @@ namespace ManagedDoom
 		/// </summary>
 		public void UseLines(Player player)
 		{
-			var pt = world.PathTraversal;
+			var pt = this.world.PathTraversal;
 
-			useThing = player.Mobj;
+			this.useThing = player.Mobj;
 
 			var angle = player.Mobj.Angle;
 
 			var x1 = player.Mobj.X;
 			var y1 = player.Mobj.Y;
-			var x2 = x1 + useRange.ToIntFloor() * Trig.Cos(angle);
-			var y2 = y1 + useRange.ToIntFloor() * Trig.Sin(angle);
+			var x2 = x1 + MapInteraction.useRange.ToIntFloor() * Trig.Cos(angle);
+			var y2 = y1 + MapInteraction.useRange.ToIntFloor() * Trig.Sin(angle);
 
-			pt.PathTraverse(x1, y1, x2, y2, PathTraverseFlags.AddLines, useTraverseFunc);
+			pt.PathTraverse(x1, y1, x2, y2, PathTraverseFlags.AddLines, this.useTraverseFunc);
 		}
 
 		/// <summary>
@@ -102,8 +104,8 @@ namespace ManagedDoom
 		/// </summary>
 		public bool UseSpecialLine(Mobj thing, LineDef line, int side)
 		{
-			var specials = world.Specials;
-			var sa = world.SectorAction;
+			var specials = this.world.Specials;
+			var sa = this.world.SectorAction;
 
 			// Err...
 			// Use the back sides of VERY SPECIAL lines...
@@ -181,7 +183,7 @@ namespace ManagedDoom
 				case 11:
 					// Exit level.
 					specials.ChangeSwitchTexture(line, false);
-					world.ExitLevel();
+					this.world.ExitLevel();
 					break;
 
 				case 14:
@@ -275,7 +277,7 @@ namespace ManagedDoom
 				case 51:
 					// Secret exit.
 					specials.ChangeSwitchTexture(line, false);
-					world.SecretExitLevel();
+					this.world.SecretExitLevel();
 					break;
 
 				case 55:
@@ -607,7 +609,7 @@ namespace ManagedDoom
 				}
 			}
 
-			var sa = world.SectorAction;
+			var sa = this.world.SectorAction;
 
 			// Note: could use some const's here.
 			switch ((int)line.Special)
@@ -749,7 +751,7 @@ namespace ManagedDoom
 
 				case 52:
 					// Do exit.
-					world.ExitLevel();
+					this.world.ExitLevel();
 					break;
 
 				case 53:
@@ -832,7 +834,7 @@ namespace ManagedDoom
 
 				case 124:
 					// Secret exit.
-					world.SecretExitLevel();
+					this.world.SecretExitLevel();
 					break;
 
 				case 125:
@@ -1052,8 +1054,8 @@ namespace ManagedDoom
 				}
 			}
 
-			var sa = world.SectorAction;
-			var specials = world.Specials;
+			var sa = this.world.SectorAction;
+			var specials = this.world.Specials;
 
 			switch ((int)line.Special)
 			{

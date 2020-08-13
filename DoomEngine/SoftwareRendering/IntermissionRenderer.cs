@@ -13,14 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class IntermissionRenderer
+	using Doom.Game;
+	using Doom.Graphics;
+	using Doom.Intermission;
+	using Doom.Wad;
+	using System;
+	using System.Collections.Generic;
+
+	public sealed class IntermissionRenderer
     {
         // GLOBAL LOCATIONS
         private static readonly int titleY = 2;
@@ -72,20 +74,20 @@ namespace ManagedDoom.SoftwareRendering
 
         static IntermissionRenderer()
         {
-            doomLevels = new string[4][];
+            IntermissionRenderer.doomLevels = new string[4][];
             for (var e = 0; e < 4; e++)
             {
-                doomLevels[e] = new string[9];
+                IntermissionRenderer.doomLevels[e] = new string[9];
                 for (var m = 0; m < 9; m++)
                 {
-                    doomLevels[e][m] = "WILV" + e + m;
+                    IntermissionRenderer.doomLevels[e][m] = "WILV" + e + m;
                 }
             }
 
-            doom2Levels = new string[32];
+            IntermissionRenderer.doom2Levels = new string[32];
             for (var m = 0; m < 32; m++)
             {
-                doom2Levels[m] = "CWILV" + m.ToString("00");
+                IntermissionRenderer.doom2Levels[m] = "CWILV" + m.ToString("00");
             }
         }
 
@@ -107,40 +109,40 @@ namespace ManagedDoom.SoftwareRendering
             this.wad = wad;
             this.screen = screen;
 
-            cache = new PatchCache(wad);
+            this.cache = new PatchCache(wad);
 
-            minus = Patch.FromWad(wad, "WIMINUS");
-            numbers = new Patch[10];
+            this.minus = Patch.FromWad(wad, "WIMINUS");
+            this.numbers = new Patch[10];
             for (var i = 0; i < 10; i++)
             {
-                numbers[i] = Patch.FromWad(wad, "WINUM" + i);
+                this.numbers[i] = Patch.FromWad(wad, "WINUM" + i);
             }
-            percent = Patch.FromWad(wad, "WIPCNT");
-            colon = Patch.FromWad(wad, "WICOLON");
+            this.percent = Patch.FromWad(wad, "WIPCNT");
+            this.colon = Patch.FromWad(wad, "WICOLON");
 
-            scale = screen.Width / 320;
+            this.scale = screen.Width / 320;
         }
 
 
         private void DrawPatch(Patch patch, int x, int y)
         {
-            screen.DrawPatch(patch, scale * x, scale * y, scale);
+            this.screen.DrawPatch(patch, this.scale * x, this.scale * y, this.scale);
         }
 
         private void DrawPatch(string name, int x, int y)
         {
-            var scale = screen.Width / 320;
-            screen.DrawPatch(cache[name], scale * x, scale * y, scale);
+            var scale = this.screen.Width / 320;
+            this.screen.DrawPatch(this.cache[name], scale * x, scale * y, scale);
         }
 
         private int GetWidth(string name)
         {
-            return cache.GetWidth(name);
+            return this.cache.GetWidth(name);
         }
 
         private int GetHeight(string name)
         {
-            return cache.GetHeight(name);
+            return this.cache.GetHeight(name);
         }
 
 
@@ -151,24 +153,24 @@ namespace ManagedDoom.SoftwareRendering
                 case IntermissionState.StatCount:
                     if (im.Options.Deathmatch != 0)
                     {
-                        DrawDeathmatchStats(im);
+                        this.DrawDeathmatchStats(im);
                     }
                     else if (im.Options.NetGame)
                     {
-                        DrawNetGameStats(im);
+                        this.DrawNetGameStats(im);
                     }
                     else
                     {
-                        DrawSinglePlayerStats(im);
+                        this.DrawSinglePlayerStats(im);
                     }
                     break;
 
                 case IntermissionState.ShowNextLoc:
-                    DrawShowNextLoc(im);
+                    this.DrawShowNextLoc(im);
                     break;
 
                 case IntermissionState.NoState:
-                    DrawNoState(im);
+                    this.DrawNoState(im);
                     break;
             }
         }
@@ -178,132 +180,132 @@ namespace ManagedDoom.SoftwareRendering
         {
             if (im.Options.GameMode == GameMode.Commercial)
             {
-                DrawPatch("INTERPIC", 0, 0);
+                this.DrawPatch("INTERPIC", 0, 0);
             }
             else
             {
                 var e = im.Options.Episode - 1;
-                if (e < mapPictures.Length)
+                if (e < IntermissionRenderer.mapPictures.Length)
                 {
-                    DrawPatch(mapPictures[e], 0, 0);
+                    this.DrawPatch(IntermissionRenderer.mapPictures[e], 0, 0);
                 }
                 else
                 {
-                    DrawPatch("INTERPIC", 0, 0);
+                    this.DrawPatch("INTERPIC", 0, 0);
                 }
             }
         }
 
         private void DrawSinglePlayerStats(Intermission im)
         {
-            DrawBackground(im);
+            this.DrawBackground(im);
 
             // Draw animated background.
-            DrawBackgroundAnimation(im);
+            this.DrawBackgroundAnimation(im);
 
             // Draw level name.
-            DrawFinishedLevelName(im);
+            this.DrawFinishedLevelName(im);
 
             // Line height.
-            var lineHeight = (3 * numbers[0].Height) / 2;
+            var lineHeight = (3 * this.numbers[0].Height) / 2;
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIOSTK", // KILLS
-                spStatsX,
-                spStatsY);
+                IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY);
 
-            DrawPercent(
-                320 - spStatsX,
-                spStatsY,
+            this.DrawPercent(
+                320 - IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY,
                 im.KillCount[0]);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIOSTI", // ITEMS
-                spStatsX,
-                spStatsY + lineHeight);
+                IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY + lineHeight);
 
-            DrawPercent(
-                320 - spStatsX,
-                spStatsY + lineHeight,
+            this.DrawPercent(
+                320 - IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY + lineHeight,
                 im.ItemCount[0]);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WISCRT2", // SECRET
-                spStatsX,
-                spStatsY + 2 * lineHeight);
+                IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY + 2 * lineHeight);
 
-            DrawPercent(
-                320 - spStatsX,
-                spStatsY + 2 * lineHeight,
+            this.DrawPercent(
+                320 - IntermissionRenderer.spStatsX,
+                IntermissionRenderer.spStatsY + 2 * lineHeight,
                 im.SecretCount[0]);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WITIME", // TIME
-                spTimeX,
-                spTimeY);
+                IntermissionRenderer.spTimeX,
+                IntermissionRenderer.spTimeY);
 
-            DrawTime(
-                320 / 2 - spTimeX,
-                spTimeY,
+            this.DrawTime(
+                320 / 2 - IntermissionRenderer.spTimeX,
+                IntermissionRenderer.spTimeY,
                 im.TimeCount);
 
             if (im.Info.Episode < 3)
             {
 
-                DrawPatch(
+                this.DrawPatch(
                     "WIPAR", // PAR
-                    320 / 2 + spTimeX,
-                    spTimeY);
+                    320 / 2 + IntermissionRenderer.spTimeX,
+                    IntermissionRenderer.spTimeY);
 
-                DrawTime(
-                    320 - spTimeX,
-                    spTimeY,
+                this.DrawTime(
+                    320 - IntermissionRenderer.spTimeX,
+                    IntermissionRenderer.spTimeY,
                     im.ParCount);
             }
         }
 
         private void DrawNetGameStats(Intermission im)
         {
-            DrawBackground(im);
+            this.DrawBackground(im);
 
             // Draw animated background.
-            DrawBackgroundAnimation(im);
+            this.DrawBackgroundAnimation(im);
 
             // Draw level name.
-            DrawFinishedLevelName(im);
+            this.DrawFinishedLevelName(im);
 
-            var ngStatsX = 32 + GetWidth("STFST01") / 2;
+            var ngStatsX = 32 + this.GetWidth("STFST01") / 2;
             if (!im.DoFrags)
             {
                 ngStatsX += 32;
             }
 
             // Draw stat titles (top line).
-            DrawPatch(
+            this.DrawPatch(
                 "WIOSTK", // KILLS
-                ngStatsX + ngSpacingX - GetWidth("WIOSTK"),
-                ngStatsY);
+                ngStatsX + IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTK"),
+                IntermissionRenderer.ngStatsY);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIOSTI", // ITEMS
-                ngStatsX + 2 * ngSpacingX - GetWidth("WIOSTI"),
-                ngStatsY);
+                ngStatsX + 2 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTI"),
+                IntermissionRenderer.ngStatsY);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIOSTS", // SCRT
-                ngStatsX + 3 * ngSpacingX - GetWidth("WIOSTS"),
-                ngStatsY);
+                ngStatsX + 3 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTS"),
+                IntermissionRenderer.ngStatsY);
 
             if (im.DoFrags)
             {
-                DrawPatch(
+                this.DrawPatch(
                     "WIFRGS", // FRAGS
-                    ngStatsX + 4 * ngSpacingX - GetWidth("WIFRGS"),
-                    ngStatsY);
+                    ngStatsX + 4 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIFRGS"),
+                    IntermissionRenderer.ngStatsY);
             }
 
             // Draw stats.
-            var y = ngStatsY + GetHeight("WIOSTK");
+            var y = IntermissionRenderer.ngStatsY + this.GetHeight("WIOSTK");
 
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
@@ -314,93 +316,93 @@ namespace ManagedDoom.SoftwareRendering
 
                 var x = ngStatsX;
 
-                DrawPatch(
-                    playerBoxes[i],
-                    x - GetWidth(playerBoxes[i]),
+                this.DrawPatch(
+                    IntermissionRenderer.playerBoxes[i],
+                    x - this.GetWidth(IntermissionRenderer.playerBoxes[i]),
                     y);
 
                 if (i == im.Options.ConsolePlayer)
                 {
-                    DrawPatch(
+                    this.DrawPatch(
                         "STFST01", // Player face
-                        x - GetWidth(playerBoxes[i]),
+                        x - this.GetWidth(IntermissionRenderer.playerBoxes[i]),
                         y);
                 }
 
-                x += ngSpacingX;
+                x += IntermissionRenderer.ngSpacingX;
 
-                DrawPercent(x - percent.Width, y + 10, im.KillCount[i]);
-                x += ngSpacingX;
+                this.DrawPercent(x - this.percent.Width, y + 10, im.KillCount[i]);
+                x += IntermissionRenderer.ngSpacingX;
 
-                DrawPercent(x - percent.Width, y + 10, im.ItemCount[i]);
-                x += ngSpacingX;
+                this.DrawPercent(x - this.percent.Width, y + 10, im.ItemCount[i]);
+                x += IntermissionRenderer.ngSpacingX;
 
-                DrawPercent(x - percent.Width, y + 10, im.SecretCount[i]);
-                x += ngSpacingX;
+                this.DrawPercent(x - this.percent.Width, y + 10, im.SecretCount[i]);
+                x += IntermissionRenderer.ngSpacingX;
 
                 if (im.DoFrags)
                 {
-                    DrawNumber(x, y + 10, im.FragCount[i], -1);
+                    this.DrawNumber(x, y + 10, im.FragCount[i], -1);
                 }
 
-                y += spacingY;
+                y += IntermissionRenderer.spacingY;
             }
         }
 
         private void DrawDeathmatchStats(Intermission im)
         {
-            DrawBackground(im);
+            this.DrawBackground(im);
 
             // Draw animated background.
-            DrawBackgroundAnimation(im);
+            this.DrawBackgroundAnimation(im);
 
             // Draw level name.
-            DrawFinishedLevelName(im);
+            this.DrawFinishedLevelName(im);
 
             // Draw stat titles (top line).
-            DrawPatch(
+            this.DrawPatch(
                 "WIMSTT", // TOTAL
-                dmTotalsX - GetWidth("WIMSTT") / 2,
-                dmMatrixY - spacingY + 10);
+                IntermissionRenderer.dmTotalsX - this.GetWidth("WIMSTT") / 2,
+                IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY + 10);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIKILRS", // KILLERS
-                dmKillersX,
-                dmKillersY);
+                IntermissionRenderer.dmKillersX,
+                IntermissionRenderer.dmKillersY);
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIVCTMS", // VICTIMS
-                dmVictimsX,
-                dmVictimsY);
+                IntermissionRenderer.dmVictimsX,
+                IntermissionRenderer.dmVictimsY);
 
             // Draw player boxes.
-            var x = dmMatrixX + dmSpacingX;
-            var y = dmMatrixY;
+            var x = IntermissionRenderer.dmMatrixX + IntermissionRenderer.dmSpacingX;
+            var y = IntermissionRenderer.dmMatrixY;
 
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
                 if (im.Options.Players[i].InGame)
                 {
-                    DrawPatch(
-                        playerBoxes[i],
-                        x - GetWidth(playerBoxes[i]) / 2,
-                        dmMatrixY - spacingY);
+                    this.DrawPatch(
+                        IntermissionRenderer.playerBoxes[i],
+                        x - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
+                        IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY);
 
-                    DrawPatch(
-                        playerBoxes[i],
-                        dmMatrixX - GetWidth(playerBoxes[i]) / 2,
+                    this.DrawPatch(
+                        IntermissionRenderer.playerBoxes[i],
+                        IntermissionRenderer.dmMatrixX - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
                         y);
 
                     if (i == im.Options.ConsolePlayer)
                     {
-                        DrawPatch(
+                        this.DrawPatch(
                             "STFDEAD0", // Player face (dead)
-                            x - GetWidth(playerBoxes[i]) / 2,
-                            dmMatrixY - spacingY);
+                            x - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
+                            IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY);
 
-                        DrawPatch(
+                        this.DrawPatch(
                             "STFST01", // Player face
-                            dmMatrixX - GetWidth(playerBoxes[i]) / 2,
+                            IntermissionRenderer.dmMatrixX - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
                             y);
                     }
                 }
@@ -412,17 +414,17 @@ namespace ManagedDoom.SoftwareRendering
                     //   y, FB, bp[i]);
                 }
 
-                x += dmSpacingX;
-                y += spacingY;
+                x += IntermissionRenderer.dmSpacingX;
+                y += IntermissionRenderer.spacingY;
             }
 
             // Draw stats.
-            y = dmMatrixY + 10;
-            var w = numbers[0].Width;
+            y = IntermissionRenderer.dmMatrixY + 10;
+            var w = this.numbers[0].Width;
 
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
-                x = dmMatrixX + dmSpacingX;
+                x = IntermissionRenderer.dmMatrixX + IntermissionRenderer.dmSpacingX;
 
                 if (im.Options.Players[i].InGame)
                 {
@@ -430,37 +432,37 @@ namespace ManagedDoom.SoftwareRendering
                     {
                         if (im.Options.Players[j].InGame)
                         {
-                            DrawNumber(x + w, y, im.DeathmatchFrags[i][j], 2);
+                            this.DrawNumber(x + w, y, im.DeathmatchFrags[i][j], 2);
                         }
 
-                        x += dmSpacingX;
+                        x += IntermissionRenderer.dmSpacingX;
                     }
 
-                    DrawNumber(dmTotalsX + w, y, im.DeathmatchTotals[i], 2);
+                    this.DrawNumber(IntermissionRenderer.dmTotalsX + w, y, im.DeathmatchTotals[i], 2);
                 }
 
-                y += spacingY;
+                y += IntermissionRenderer.spacingY;
             }
         }
 
 
         private void DrawNoState(Intermission im)
         {
-            DrawShowNextLoc(im);
+            this.DrawShowNextLoc(im);
         }
 
         private void DrawShowNextLoc(Intermission im)
         {
-            DrawBackground(im);
+            this.DrawBackground(im);
 
             // Draw animated background.
-            DrawBackgroundAnimation(im);
+            this.DrawBackgroundAnimation(im);
 
             if (im.Options.GameMode != GameMode.Commercial)
             {
                 if (im.Info.Episode > 2)
                 {
-                    DrawEnteringLevelName(im);
+                    this.DrawEnteringLevelName(im);
                     return;
                 }
 
@@ -471,7 +473,7 @@ namespace ManagedDoom.SoftwareRendering
                 {
                     var x = WorldMap.Locations[im.Info.Episode][i].X;
                     var y = WorldMap.Locations[im.Info.Episode][i].Y;
-                    DrawPatch("WISPLAT", x, y);
+                    this.DrawPatch("WISPLAT", x, y);
                 }
 
                 // Splat the secret level?
@@ -479,7 +481,7 @@ namespace ManagedDoom.SoftwareRendering
                 {
                     var x = WorldMap.Locations[im.Info.Episode][8].X;
                     var y = WorldMap.Locations[im.Info.Episode][8].Y;
-                    DrawPatch("WISPLAT", x, y);
+                    this.DrawPatch("WISPLAT", x, y);
                 }
 
                 // Draw "you are here".
@@ -487,76 +489,76 @@ namespace ManagedDoom.SoftwareRendering
                 {
                     var x = WorldMap.Locations[im.Info.Episode][im.Info.NextLevel].X;
                     var y = WorldMap.Locations[im.Info.Episode][im.Info.NextLevel].Y;
-                    DrawSuitablePatch(youAreHere, x, y);
+                    this.DrawSuitablePatch(IntermissionRenderer.youAreHere, x, y);
                 }
             }
 
             // Draw next level name.
             if ((im.Options.GameMode != GameMode.Commercial) || im.Info.NextLevel != 30)
             {
-                DrawEnteringLevelName(im);
+                this.DrawEnteringLevelName(im);
             }
         }
 
         private void DrawFinishedLevelName(Intermission intermission)
         {
             var wbs = intermission.Info;
-            var y = titleY;
+            var y = IntermissionRenderer.titleY;
 
             string levelName;
             if (intermission.Options.GameMode != GameMode.Commercial)
             {
                 var e = intermission.Options.Episode - 1;
-                levelName = doomLevels[e][wbs.LastLevel];
+                levelName = IntermissionRenderer.doomLevels[e][wbs.LastLevel];
             }
             else
             {
-                levelName = doom2Levels[wbs.LastLevel];
+                levelName = IntermissionRenderer.doom2Levels[wbs.LastLevel];
             }
 
             // Draw level name. 
-            DrawPatch(
+            this.DrawPatch(
                 levelName,
-                (320 - GetWidth(levelName)) / 2,
+                (320 - this.GetWidth(levelName)) / 2,
                 y);
 
             // Draw "Finished!".
-            y += (5 * GetHeight(levelName)) / 4;
+            y += (5 * this.GetHeight(levelName)) / 4;
 
-            DrawPatch(
+            this.DrawPatch(
                 "WIF",
-                (320 - GetWidth("WIF")) / 2,
+                (320 - this.GetWidth("WIF")) / 2,
                 y);
         }
 
         private void DrawEnteringLevelName(Intermission im)
         {
             var wbs = im.Info;
-            int y = titleY;
+            int y = IntermissionRenderer.titleY;
 
             string levelName;
             if (im.Options.GameMode != GameMode.Commercial)
             {
                 var e = im.Options.Episode - 1;
-                levelName = doomLevels[e][wbs.NextLevel];
+                levelName = IntermissionRenderer.doomLevels[e][wbs.NextLevel];
             }
             else
             {
-                levelName = doom2Levels[wbs.NextLevel];
+                levelName = IntermissionRenderer.doom2Levels[wbs.NextLevel];
             }
 
             // Draw "Entering".
-            DrawPatch(
+            this.DrawPatch(
                 "WIENTER",
-                (320 - GetWidth("WIENTER")) / 2,
+                (320 - this.GetWidth("WIENTER")) / 2,
                 y);
 
             // Draw level name.
-            y += (5 * GetHeight(levelName)) / 4;
+            y += (5 * this.GetHeight(levelName)) / 4;
 
-            DrawPatch(
+            this.DrawPatch(
                 levelName,
-                (320 - GetWidth(levelName)) / 2,
+                (320 - this.GetWidth(levelName)) / 2,
                 y);
         }
 
@@ -595,20 +597,20 @@ namespace ManagedDoom.SoftwareRendering
                 return 0;
             }
 
-            var fontWidth = numbers[0].Width;
+            var fontWidth = this.numbers[0].Width;
 
             // Draw the new number.
             while (digits-- != 0)
             {
                 x -= fontWidth;
-                DrawPatch(numbers[n % 10], x, y);
+                this.DrawPatch(this.numbers[n % 10], x, y);
                 n /= 10;
             }
 
             // Draw a minus sign if necessary.
             if (neg)
             {
-                DrawPatch(minus, x -= 8, y);
+                this.DrawPatch(this.minus, x -= 8, y);
             }
 
             return x;
@@ -621,8 +623,8 @@ namespace ManagedDoom.SoftwareRendering
                 return;
             }
 
-            DrawPatch(percent, x, y);
-            DrawNumber(x, y, p, -1);
+            this.DrawPatch(this.percent, x, y);
+            this.DrawNumber(x, y, p, -1);
         }
 
         private void DrawTime(int x, int y, int t)
@@ -639,22 +641,22 @@ namespace ManagedDoom.SoftwareRendering
                 do
                 {
                     var n = (t / div) % 60;
-                    x = DrawNumber(x, y, n, 2) - colon.Width;
+                    x = this.DrawNumber(x, y, n, 2) - this.colon.Width;
                     div *= 60;
 
                     // Draw.
                     if (div == 60 || t / div != 0)
                     {
-                        DrawPatch(colon, x, y);
+                        this.DrawPatch(this.colon, x, y);
                     }
                 }
                 while (t / div != 0);
             }
             else
             {
-                DrawPatch(
+                this.DrawPatch(
                     "WISUCKS", // SUCKS
-                    x - GetWidth("WISUCKS"),
+                    x - this.GetWidth("WISUCKS"),
                     y);
             }
         }
@@ -676,7 +678,7 @@ namespace ManagedDoom.SoftwareRendering
                 var a = im.Animations[i];
                 if (a.PatchNumber >= 0)
                 {
-                    DrawPatch(a.Patches[a.PatchNumber], a.LocationX, a.LocationY);
+                    this.DrawPatch(a.Patches[a.PatchNumber], a.LocationX, a.LocationY);
                 }
             }
         }
@@ -688,7 +690,7 @@ namespace ManagedDoom.SoftwareRendering
 
             do
             {
-                var patch = cache[candidates[i]];
+                var patch = this.cache[candidates[i]];
 
                 var left = x - patch.LeftOffset;
                 var top = y - patch.TopOffset;
@@ -708,7 +710,7 @@ namespace ManagedDoom.SoftwareRendering
 
             if (fits && i < 2)
             {
-                DrawPatch(candidates[i], x, y);
+                this.DrawPatch(candidates[i], x, y);
             }
             else
             {

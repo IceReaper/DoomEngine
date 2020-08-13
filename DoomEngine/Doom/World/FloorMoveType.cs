@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public enum FloorMoveType
+	public enum FloorMoveType
     {
         // Lower floor to highest surrounding floor.
         LowerFloor,

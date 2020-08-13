@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public static class GameConst
+	using Math;
+
+	public static class GameConst
     {
         public static readonly int TicRate = 35;
 

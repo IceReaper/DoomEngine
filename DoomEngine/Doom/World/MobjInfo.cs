@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public sealed class MobjInfo
+	using Audio;
+	using Math;
+
+	public sealed class MobjInfo
     {
         private int doomEdNum;
         private MobjState spawnState;
@@ -97,140 +96,140 @@ namespace ManagedDoom
 
         public int DoomEdNum
         {
-            get => doomEdNum;
-            set => doomEdNum = value;
+            get => this.doomEdNum;
+            set => this.doomEdNum = value;
         }
 
         public MobjState SpawnState
         {
-            get => spawnState;
-            set => spawnState = value;
+            get => this.spawnState;
+            set => this.spawnState = value;
         }
 
         public int SpawnHealth
         {
-            get => spawnHealth;
-            set => spawnHealth = value;
+            get => this.spawnHealth;
+            set => this.spawnHealth = value;
         }
 
         public MobjState SeeState
         {
-            get => seeState;
-            set => seeState = value;
+            get => this.seeState;
+            set => this.seeState = value;
         }
 
         public Sfx SeeSound
         {
-            get => seeSound;
-            set => seeSound = value;
+            get => this.seeSound;
+            set => this.seeSound = value;
         }
 
         public int ReactionTime
         {
-            get => reactionTime;
-            set => reactionTime = value;
+            get => this.reactionTime;
+            set => this.reactionTime = value;
         }
 
         public Sfx AttackSound
         {
-            get => attackSound;
-            set => attackSound = value;
+            get => this.attackSound;
+            set => this.attackSound = value;
         }
 
         public MobjState PainState
         {
-            get => painState;
-            set => painState = value;
+            get => this.painState;
+            set => this.painState = value;
         }
 
         public int PainChance
         {
-            get => painChance;
-            set => painChance = value;
+            get => this.painChance;
+            set => this.painChance = value;
         }
 
         public Sfx PainSound
         {
-            get => painSound;
-            set => painSound = value;
+            get => this.painSound;
+            set => this.painSound = value;
         }
 
         public MobjState MeleeState
         {
-            get => meleeState;
-            set => meleeState = value;
+            get => this.meleeState;
+            set => this.meleeState = value;
         }
 
         public MobjState MissileState
         {
-            get => missileState;
-            set => missileState = value;
+            get => this.missileState;
+            set => this.missileState = value;
         }
 
         public MobjState DeathState
         {
-            get => deathState;
-            set => deathState = value;
+            get => this.deathState;
+            set => this.deathState = value;
         }
 
         public MobjState XdeathState
         {
-            get => xdeathState;
-            set => xdeathState = value;
+            get => this.xdeathState;
+            set => this.xdeathState = value;
         }
 
         public Sfx DeathSound
         {
-            get => deathSound;
-            set => deathSound = value;
+            get => this.deathSound;
+            set => this.deathSound = value;
         }
 
         public int Speed
         {
-            get => speed;
-            set => speed = value;
+            get => this.speed;
+            set => this.speed = value;
         }
 
         public Fixed Radius
         {
-            get => radius;
-            set => radius = value;
+            get => this.radius;
+            set => this.radius = value;
         }
 
         public Fixed Height
         {
-            get => height;
-            set => height = value;
+            get => this.height;
+            set => this.height = value;
         }
 
         public int Mass
         {
-            get => mass;
-            set => mass = value;
+            get => this.mass;
+            set => this.mass = value;
         }
 
         public int Damage
         {
-            get => damage;
-            set => damage = value;
+            get => this.damage;
+            set => this.damage = value;
         }
 
         public Sfx ActiveSound
         {
-            get => activeSound;
-            set => activeSound = value;
+            get => this.activeSound;
+            set => this.activeSound = value;
         }
 
         public MobjFlags Flags
         {
-            get => flags;
-            set => flags = value;
+            get => this.flags;
+            set => this.flags = value;
         }
 
         public MobjState Raisestate
         {
-            get => raiseState;
-            set => raiseState = value;
+            get => this.raiseState;
+            set => this.raiseState = value;
         }
     }
 }

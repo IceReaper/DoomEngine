@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class MenuRenderer
+	using Doom.Graphics;
+	using Doom.Menu;
+	using Doom.Wad;
+	using System.Collections.Generic;
+
+	public sealed class MenuRenderer
     {
         private static readonly char[] cursor = { '_' };
 
@@ -34,7 +34,7 @@ namespace ManagedDoom.SoftwareRendering
             this.wad = wad;
             this.screen = screen;
 
-            cache = new PatchCache(wad);
+            this.cache = new PatchCache(wad);
         }
 
         public void Render(DoomMenu menu)
@@ -42,43 +42,43 @@ namespace ManagedDoom.SoftwareRendering
             var selectable = menu.Current as SelectableMenu;
             if (selectable != null)
             {
-                DrawSelectableMenu(selectable);
+                this.DrawSelectableMenu(selectable);
             }
 
             var save = menu.Current as SaveMenu;
             if (save != null)
             {
-                DrawSaveMenu(save);
+                this.DrawSaveMenu(save);
             }
 
             var load = menu.Current as LoadMenu;
             if (load != null)
             {
-                DrawLoadMenu(load);
+                this.DrawLoadMenu(load);
             }
 
             var yesNo = menu.Current as YesNoConfirm;
             if (yesNo != null)
             {
-                DrawText(yesNo.Text);
+                this.DrawText(yesNo.Text);
             }
 
             var pressAnyKey = menu.Current as PressAnyKey;
             if (pressAnyKey != null)
             {
-                DrawText(pressAnyKey.Text);
+                this.DrawText(pressAnyKey.Text);
             }
 
             var quit = menu.Current as QuitConfirm;
             if (quit != null)
             {
-                DrawText(quit.Text);
+                this.DrawText(quit.Text);
             }
 
             var help = menu.Current as HelpScreen;
             if (help != null)
             {
-                DrawHelp(help);
+                this.DrawHelp(help);
             }
         }
 
@@ -86,7 +86,7 @@ namespace ManagedDoom.SoftwareRendering
         {
             for (var i = 0; i < selectable.Name.Count; i++)
             {
-                DrawMenuPatch(
+                this.DrawMenuPatch(
                     selectable.Name[i],
                     selectable.TitleX[i],
                     selectable.TitleY[i]);
@@ -94,19 +94,19 @@ namespace ManagedDoom.SoftwareRendering
 
             foreach (var item in selectable.Items)
             {
-                DrawMenuItem(selectable.Menu, item);
+                this.DrawMenuItem(selectable.Menu, item);
             }
 
             var choice = selectable.Choice;
             var skull = selectable.Menu.Tics / 8 % 2 == 0 ? "M_SKULL1" : "M_SKULL2";
-            DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
+            this.DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
         }
 
         private void DrawSaveMenu(SaveMenu save)
         {
             for (var i = 0; i < save.Name.Count; i++)
             {
-                DrawMenuPatch(
+                this.DrawMenuPatch(
                     save.Name[i],
                     save.TitleX[i],
                     save.TitleY[i]);
@@ -114,19 +114,19 @@ namespace ManagedDoom.SoftwareRendering
 
             foreach (var item in save.Items)
             {
-                DrawMenuItem(save.Menu, item);
+                this.DrawMenuItem(save.Menu, item);
             }
 
             var choice = save.Choice;
             var skull = save.Menu.Tics / 8 % 2 == 0 ? "M_SKULL1" : "M_SKULL2";
-            DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
+            this.DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
         }
 
         private void DrawLoadMenu(LoadMenu load)
         {
             for (var i = 0; i < load.Name.Count; i++)
             {
-                DrawMenuPatch(
+                this.DrawMenuPatch(
                     load.Name[i],
                     load.TitleX[i],
                     load.TitleY[i]);
@@ -134,12 +134,12 @@ namespace ManagedDoom.SoftwareRendering
 
             foreach (var item in load.Items)
             {
-                DrawMenuItem(load.Menu, item);
+                this.DrawMenuItem(load.Menu, item);
             }
 
             var choice = load.Choice;
             var skull = load.Menu.Tics / 8 % 2 == 0 ? "M_SKULL1" : "M_SKULL2";
-            DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
+            this.DrawMenuPatch(skull, choice.SkullX, choice.SkullY);
         }
 
         private void DrawMenuItem(DoomMenu menu, MenuItem item)
@@ -147,67 +147,67 @@ namespace ManagedDoom.SoftwareRendering
             var simple = item as SimpleMenuItem;
             if (simple != null)
             {
-                DrawSimpleMenuItem(simple);
+                this.DrawSimpleMenuItem(simple);
             }
 
             var toggle = item as ToggleMenuItem;
             if (toggle != null)
             {
-                DrawToggleMenuItem(toggle);
+                this.DrawToggleMenuItem(toggle);
             }
 
             var slider = item as SliderMenuItem;
             if (slider != null)
             {
-                DrawSliderMenuItem(slider);
+                this.DrawSliderMenuItem(slider);
             }
 
             var textBox = item as TextBoxMenuItem;
             if (textBox != null)
             {
-                DrawTextBoxMenuItem(textBox, menu.Tics);
+                this.DrawTextBoxMenuItem(textBox, menu.Tics);
             }
         }
 
         private void DrawMenuPatch(string name, int x, int y)
         {
-            var scale = screen.Width / 320;
-            screen.DrawPatch(cache[name], scale * x, scale * y, scale);
+            var scale = this.screen.Width / 320;
+            this.screen.DrawPatch(this.cache[name], scale * x, scale * y, scale);
         }
 
         private void DrawMenuText(IReadOnlyList<char> text, int x, int y)
         {
-            var scale = screen.Width / 320;
-            screen.DrawText(text, scale * x, scale * y, scale);
+            var scale = this.screen.Width / 320;
+            this.screen.DrawText(text, scale * x, scale * y, scale);
         }
 
         private void DrawSimpleMenuItem(SimpleMenuItem item)
         {
-            DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
+            this.DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
         }
 
         private void DrawToggleMenuItem(ToggleMenuItem item)
         {
-            DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
-            DrawMenuPatch(item.State, item.StateX, item.ItemY);
+            this.DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
+            this.DrawMenuPatch(item.State, item.StateX, item.ItemY);
         }
 
         private void DrawSliderMenuItem(SliderMenuItem item)
         {
-            DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
+            this.DrawMenuPatch(item.Name, item.ItemX, item.ItemY);
 
-            DrawMenuPatch("M_THERML", item.SliderX, item.SliderY);
+            this.DrawMenuPatch("M_THERML", item.SliderX, item.SliderY);
             for (var i = 0; i < item.SliderLength; i++)
             {
                 var x = item.SliderX + 8 * (1 + i);
-                DrawMenuPatch("M_THERMM", x, item.SliderY);
+                this.DrawMenuPatch("M_THERMM", x, item.SliderY);
             }
 
             var end = item.SliderX + 8 * (1 + item.SliderLength);
-            DrawMenuPatch("M_THERMR", end, item.SliderY);
+            this.DrawMenuPatch("M_THERMR", end, item.SliderY);
 
             var pos = item.SliderX + 8 * (1 + item.SliderPosition);
-            DrawMenuPatch("M_THERMO", pos, item.SliderY);
+            this.DrawMenuPatch("M_THERMO", pos, item.SliderY);
         }
 
         private char[] emptyText = "EMPTY SLOT".ToCharArray();
@@ -215,49 +215,49 @@ namespace ManagedDoom.SoftwareRendering
         private void DrawTextBoxMenuItem(TextBoxMenuItem item, int tics)
         {
             var length = 24;
-            DrawMenuPatch("M_LSLEFT", item.ItemX, item.ItemY);
+            this.DrawMenuPatch("M_LSLEFT", item.ItemX, item.ItemY);
             for (var i = 0; i < length; i++)
             {
                 var x = item.ItemX + 8 * (1 + i);
-                DrawMenuPatch("M_LSCNTR", x, item.ItemY);
+                this.DrawMenuPatch("M_LSCNTR", x, item.ItemY);
             }
-            DrawMenuPatch("M_LSRGHT", item.ItemX + 8 * (1 + length), item.ItemY);
+            this.DrawMenuPatch("M_LSRGHT", item.ItemX + 8 * (1 + length), item.ItemY);
 
             if (!item.Editing)
             {
-                var text = item.Text != null ? item.Text : emptyText;
-                DrawMenuText(text, item.ItemX + 8, item.ItemY);
+                var text = item.Text != null ? item.Text : this.emptyText;
+                this.DrawMenuText(text, item.ItemX + 8, item.ItemY);
             }
             else
             {
-                DrawMenuText(item.Text, item.ItemX + 8, item.ItemY);
+                this.DrawMenuText(item.Text, item.ItemX + 8, item.ItemY);
                 if (tics / 3 % 2 == 0)
                 {
-                    var textWidth = screen.MeasureText(item.Text, 1);
-                    DrawMenuText(cursor, item.ItemX + 8 + textWidth, item.ItemY);
+                    var textWidth = this.screen.MeasureText(item.Text, 1);
+                    this.DrawMenuText(MenuRenderer.cursor, item.ItemX + 8 + textWidth, item.ItemY);
                 }
             }
         }
 
         private void DrawText(IReadOnlyList<string> text)
         {
-            var scale = screen.Width / 320;
+            var scale = this.screen.Width / 320;
             var height = 7 * scale * text.Count;
 
             for (var i = 0; i < text.Count; i++)
             {
-                var x = (screen.Width - screen.MeasureText(text[i], scale)) / 2;
-                var y = (screen.Height - height) / 2 + 7 * scale * (i + 1);
-                screen.DrawText(text[i], x, y, scale);
+                var x = (this.screen.Width - this.screen.MeasureText(text[i], scale)) / 2;
+                var y = (this.screen.Height - height) / 2 + 7 * scale * (i + 1);
+                this.screen.DrawText(text[i], x, y, scale);
             }
         }
 
         private void DrawHelp(HelpScreen help)
         {
-            DrawMenuPatch("HELP", 0, 0);
+            this.DrawMenuPatch("HELP", 0, 0);
 
             var skull = help.Menu.Tics / 8 % 2 == 0 ? "M_SKULL1" : "M_SKULL2";
-            DrawMenuPatch(skull, 298, 160);
+            this.DrawMenuPatch(skull, 298, 160);
         }
     }
 }

@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Menu
 {
-    public sealed class PressAnyKey : MenuDef
+	using Audio;
+	using Event;
+	using System;
+	using System.Collections.Generic;
+
+	public sealed class PressAnyKey : MenuDef
     {
         private string[] text;
         private Action action;
@@ -35,13 +35,13 @@ namespace ManagedDoom
         {
             if (e.Type == EventType.KeyDown)
             {
-                if (action != null)
+                if (this.action != null)
                 {
-                    action();
+                    this.action();
                 }
 
-                Menu.Close();
-                Menu.StartSound(Sfx.SWTCHX);
+                this.Menu.Close();
+                this.Menu.StartSound(Sfx.SWTCHX);
 
                 return true;
             }
@@ -49,6 +49,6 @@ namespace ManagedDoom
             return true;
         }
 
-        public IReadOnlyList<string> Text => text;
+        public IReadOnlyList<string> Text => this.text;
     }
 }

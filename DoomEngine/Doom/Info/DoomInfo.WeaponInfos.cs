@@ -13,13 +13,11 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using World;
+
+	public static partial class DoomInfo
     {
         public static readonly WeaponInfo[] WeaponInfos = new WeaponInfo[]
         {

@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
-    public class MobjStateDef
+	using Game;
+	using Graphics;
+	using System;
+
+	public class MobjStateDef
     {
         private int number;
         private Sprite sprite;
@@ -55,56 +55,56 @@ namespace ManagedDoom
 
         public int Number
         {
-            get => number;
-            set => number = value;
+            get => this.number;
+            set => this.number = value;
         }
 
         public Sprite Sprite
         {
-            get => sprite;
-            set => sprite = value;
+            get => this.sprite;
+            set => this.sprite = value;
         }
 
         public int Frame
         {
-            get => frame;
-            set => frame = value;
+            get => this.frame;
+            set => this.frame = value;
         }
 
         public int Tics
         {
-            get => tics;
-            set => tics = value;
+            get => this.tics;
+            set => this.tics = value;
         }
 
         public Action<World, Player, PlayerSpriteDef> PlayerAction
         {
-            get => playerAction;
-            set => playerAction = value;
+            get => this.playerAction;
+            set => this.playerAction = value;
         }
 
         public Action<World, Mobj> MobjAction
         {
-            get => mobjAction;
-            set => mobjAction = value;
+            get => this.mobjAction;
+            set => this.mobjAction = value;
         }
 
         public MobjState Next
         {
-            get => next;
-            set => next = value;
+            get => this.next;
+            set => this.next = value;
         }
 
         public int Misc1
         {
-            get => misc1;
-            set => misc1 = value;
+            get => this.misc1;
+            set => this.misc1 = value;
         }
 
         public int Misc2
         {
-            get => misc2;
-            set => misc2 = value;
+            get => this.misc2;
+            set => this.misc2 = value;
         }
     }
 }

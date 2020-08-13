@@ -13,13 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class StatusBarRenderer
+	using Doom.Game;
+	using Doom.Graphics;
+	using Doom.Info;
+	using Doom.Wad;
+	using Doom.World;
+
+	public sealed class StatusBarRenderer
     {
         public static readonly int Height = 32;
 
@@ -53,10 +55,10 @@ namespace ManagedDoom.SoftwareRendering
         private static readonly int key0Width = 8;
         private static readonly int key0X = 239;
         private static readonly int key0Y = 171;
-        private static readonly int key1Width = key0Width;
+        private static readonly int key1Width = StatusBarRenderer.key0Width;
         private static readonly int key1X = 239;
         private static readonly int key1Y = 181;
-        private static readonly int key2Width = key0Width;
+        private static readonly int key2Width = StatusBarRenderer.key0Width;
         private static readonly int key2X = 239;
         private static readonly int key2Y = 191;
 
@@ -64,13 +66,13 @@ namespace ManagedDoom.SoftwareRendering
         private static readonly int ammo0Width = 3;
         private static readonly int ammo0X = 288;
         private static readonly int ammo0Y = 173;
-        private static readonly int ammo1Width = ammo0Width;
+        private static readonly int ammo1Width = StatusBarRenderer.ammo0Width;
         private static readonly int ammo1X = 288;
         private static readonly int ammo1Y = 179;
-        private static readonly int ammo2Width = ammo0Width;
+        private static readonly int ammo2Width = StatusBarRenderer.ammo0Width;
         private static readonly int ammo2X = 288;
         private static readonly int ammo2Y = 191;
-        private static readonly int ammo3Wdth = ammo0Width;
+        private static readonly int ammo3Wdth = StatusBarRenderer.ammo0Width;
         private static readonly int ammo3X = 288;
         private static readonly int ammo3Y = 185;
 
@@ -79,13 +81,13 @@ namespace ManagedDoom.SoftwareRendering
         private static readonly int maxAmmo0Width = 3;
         private static readonly int maxAmmo0X = 314;
         private static readonly int maxAmmo0Y = 173;
-        private static readonly int maxAmmo1Width = maxAmmo0Width;
+        private static readonly int maxAmmo1Width = StatusBarRenderer.maxAmmo0Width;
         private static readonly int maxAmmo1X = 314;
         private static readonly int maxAmmo1Y = 179;
-        private static readonly int maxAmmo2Width = maxAmmo0Width;
+        private static readonly int maxAmmo2Width = StatusBarRenderer.maxAmmo0Width;
         private static readonly int maxAmmo2X = 314;
         private static readonly int maxAmmo2Y = 191;
-        private static readonly int maxAmmo3Width = maxAmmo0Width;
+        private static readonly int maxAmmo3Width = StatusBarRenderer.maxAmmo0Width;
         private static readonly int maxAmmo3X = 314;
         private static readonly int maxAmmo3Y = 185;
 
@@ -117,144 +119,144 @@ namespace ManagedDoom.SoftwareRendering
         {
             this.screen = screen;
 
-            patches = new Patches(wad);
+            this.patches = new Patches(wad);
 
-            scale = screen.Width / 320;
+            this.scale = screen.Width / 320;
 
-            ready = new NumberWidget();
-            ready.Patches = patches.TallNumbers;
-            ready.Width = ammoWidth;
-            ready.X = ammoX;
-            ready.Y = ammoY;
+            this.ready = new NumberWidget();
+            this.ready.Patches = this.patches.TallNumbers;
+            this.ready.Width = StatusBarRenderer.ammoWidth;
+            this.ready.X = StatusBarRenderer.ammoX;
+            this.ready.Y = StatusBarRenderer.ammoY;
 
-            health = new PercentWidget();
-            health.NumberWidget.Patches = patches.TallNumbers;
-            health.NumberWidget.Width = 3;
-            health.NumberWidget.X = healthX;
-            health.NumberWidget.Y = healthY;
-            health.Patch = patches.TallPercent;
+            this.health = new PercentWidget();
+            this.health.NumberWidget.Patches = this.patches.TallNumbers;
+            this.health.NumberWidget.Width = 3;
+            this.health.NumberWidget.X = StatusBarRenderer.healthX;
+            this.health.NumberWidget.Y = StatusBarRenderer.healthY;
+            this.health.Patch = this.patches.TallPercent;
 
-            armor = new PercentWidget();
-            armor.NumberWidget.Patches = patches.TallNumbers;
-            armor.NumberWidget.Width = 3;
-            armor.NumberWidget.X = armorX;
-            armor.NumberWidget.Y = armorY;
-            armor.Patch = patches.TallPercent;
+            this.armor = new PercentWidget();
+            this.armor.NumberWidget.Patches = this.patches.TallNumbers;
+            this.armor.NumberWidget.Width = 3;
+            this.armor.NumberWidget.X = StatusBarRenderer.armorX;
+            this.armor.NumberWidget.Y = StatusBarRenderer.armorY;
+            this.armor.Patch = this.patches.TallPercent;
 
-            ammo = new NumberWidget[(int)AmmoType.Count];
-            ammo[0] = new NumberWidget();
-            ammo[0].Patches = patches.ShortNumbers;
-            ammo[0].Width = ammo0Width;
-            ammo[0].X = ammo0X;
-            ammo[0].Y = ammo0Y;
-            ammo[1] = new NumberWidget();
-            ammo[1].Patches = patches.ShortNumbers;
-            ammo[1].Width = ammo1Width;
-            ammo[1].X = ammo1X;
-            ammo[1].Y = ammo1Y;
-            ammo[2] = new NumberWidget();
-            ammo[2].Patches = patches.ShortNumbers;
-            ammo[2].Width = ammo2Width;
-            ammo[2].X = ammo2X;
-            ammo[2].Y = ammo2Y;
-            ammo[3] = new NumberWidget();
-            ammo[3].Patches = patches.ShortNumbers;
-            ammo[3].Width = ammo3Wdth;
-            ammo[3].X = ammo3X;
-            ammo[3].Y = ammo3Y;
+            this.ammo = new NumberWidget[(int)AmmoType.Count];
+            this.ammo[0] = new NumberWidget();
+            this.ammo[0].Patches = this.patches.ShortNumbers;
+            this.ammo[0].Width = StatusBarRenderer.ammo0Width;
+            this.ammo[0].X = StatusBarRenderer.ammo0X;
+            this.ammo[0].Y = StatusBarRenderer.ammo0Y;
+            this.ammo[1] = new NumberWidget();
+            this.ammo[1].Patches = this.patches.ShortNumbers;
+            this.ammo[1].Width = StatusBarRenderer.ammo1Width;
+            this.ammo[1].X = StatusBarRenderer.ammo1X;
+            this.ammo[1].Y = StatusBarRenderer.ammo1Y;
+            this.ammo[2] = new NumberWidget();
+            this.ammo[2].Patches = this.patches.ShortNumbers;
+            this.ammo[2].Width = StatusBarRenderer.ammo2Width;
+            this.ammo[2].X = StatusBarRenderer.ammo2X;
+            this.ammo[2].Y = StatusBarRenderer.ammo2Y;
+            this.ammo[3] = new NumberWidget();
+            this.ammo[3].Patches = this.patches.ShortNumbers;
+            this.ammo[3].Width = StatusBarRenderer.ammo3Wdth;
+            this.ammo[3].X = StatusBarRenderer.ammo3X;
+            this.ammo[3].Y = StatusBarRenderer.ammo3Y;
 
-            maxAmmo = new NumberWidget[(int)AmmoType.Count];
-            maxAmmo[0] = new NumberWidget();
-            maxAmmo[0].Patches = patches.ShortNumbers;
-            maxAmmo[0].Width = maxAmmo0Width;
-            maxAmmo[0].X = maxAmmo0X;
-            maxAmmo[0].Y = maxAmmo0Y;
-            maxAmmo[1] = new NumberWidget();
-            maxAmmo[1].Patches = patches.ShortNumbers;
-            maxAmmo[1].Width = maxAmmo1Width;
-            maxAmmo[1].X = maxAmmo1X;
-            maxAmmo[1].Y = maxAmmo1Y;
-            maxAmmo[2] = new NumberWidget();
-            maxAmmo[2].Patches = patches.ShortNumbers;
-            maxAmmo[2].Width = maxAmmo2Width;
-            maxAmmo[2].X = maxAmmo2X;
-            maxAmmo[2].Y = maxAmmo2Y;
-            maxAmmo[3] = new NumberWidget();
-            maxAmmo[3].Patches = patches.ShortNumbers;
-            maxAmmo[3].Width = maxAmmo3Width;
-            maxAmmo[3].X = maxAmmo3X;
-            maxAmmo[3].Y = maxAmmo3Y;
+            this.maxAmmo = new NumberWidget[(int)AmmoType.Count];
+            this.maxAmmo[0] = new NumberWidget();
+            this.maxAmmo[0].Patches = this.patches.ShortNumbers;
+            this.maxAmmo[0].Width = StatusBarRenderer.maxAmmo0Width;
+            this.maxAmmo[0].X = StatusBarRenderer.maxAmmo0X;
+            this.maxAmmo[0].Y = StatusBarRenderer.maxAmmo0Y;
+            this.maxAmmo[1] = new NumberWidget();
+            this.maxAmmo[1].Patches = this.patches.ShortNumbers;
+            this.maxAmmo[1].Width = StatusBarRenderer.maxAmmo1Width;
+            this.maxAmmo[1].X = StatusBarRenderer.maxAmmo1X;
+            this.maxAmmo[1].Y = StatusBarRenderer.maxAmmo1Y;
+            this.maxAmmo[2] = new NumberWidget();
+            this.maxAmmo[2].Patches = this.patches.ShortNumbers;
+            this.maxAmmo[2].Width = StatusBarRenderer.maxAmmo2Width;
+            this.maxAmmo[2].X = StatusBarRenderer.maxAmmo2X;
+            this.maxAmmo[2].Y = StatusBarRenderer.maxAmmo2Y;
+            this.maxAmmo[3] = new NumberWidget();
+            this.maxAmmo[3].Patches = this.patches.ShortNumbers;
+            this.maxAmmo[3].Width = StatusBarRenderer.maxAmmo3Width;
+            this.maxAmmo[3].X = StatusBarRenderer.maxAmmo3X;
+            this.maxAmmo[3].Y = StatusBarRenderer.maxAmmo3Y;
 
-            weapons = new MultIconWidget[6];
-            for (var i = 0; i < weapons.Length; i++)
+            this.weapons = new MultIconWidget[6];
+            for (var i = 0; i < this.weapons.Length; i++)
             {
-                weapons[i] = new MultIconWidget();
-                weapons[i].X = armsX + (i % 3) * armsSpaceX;
-                weapons[i].Y = armsY + (i / 3) * armsSpaceY;
-                weapons[i].Patches = patches.Arms[i];
+                this.weapons[i] = new MultIconWidget();
+                this.weapons[i].X = StatusBarRenderer.armsX + (i % 3) * StatusBarRenderer.armsSpaceX;
+                this.weapons[i].Y = StatusBarRenderer.armsY + (i / 3) * StatusBarRenderer.armsSpaceY;
+                this.weapons[i].Patches = this.patches.Arms[i];
             }
 
-            frags = new NumberWidget();
-            frags.Patches = patches.TallNumbers;
-            frags.Width = fragsWidth;
-            frags.X = fragsX;
-            frags.Y = fragsY;
+            this.frags = new NumberWidget();
+            this.frags.Patches = this.patches.TallNumbers;
+            this.frags.Width = StatusBarRenderer.fragsWidth;
+            this.frags.X = StatusBarRenderer.fragsX;
+            this.frags.Y = StatusBarRenderer.fragsY;
 
-            keys = new MultIconWidget[3];
-            keys[0] = new MultIconWidget();
-            keys[0].X = key0X;
-            keys[0].Y = key0Y;
-            keys[0].Patches = patches.Keys;
-            keys[1] = new MultIconWidget();
-            keys[1].X = key1X;
-            keys[1].Y = key1Y;
-            keys[1].Patches = patches.Keys;
-            keys[2] = new MultIconWidget();
-            keys[2].X = key2X;
-            keys[2].Y = key2Y;
-            keys[2].Patches = patches.Keys;
+            this.keys = new MultIconWidget[3];
+            this.keys[0] = new MultIconWidget();
+            this.keys[0].X = StatusBarRenderer.key0X;
+            this.keys[0].Y = StatusBarRenderer.key0Y;
+            this.keys[0].Patches = this.patches.Keys;
+            this.keys[1] = new MultIconWidget();
+            this.keys[1].X = StatusBarRenderer.key1X;
+            this.keys[1].Y = StatusBarRenderer.key1Y;
+            this.keys[1].Patches = this.patches.Keys;
+            this.keys[2] = new MultIconWidget();
+            this.keys[2].X = StatusBarRenderer.key2X;
+            this.keys[2].Y = StatusBarRenderer.key2Y;
+            this.keys[2].Patches = this.patches.Keys;
         }
 
         public void Render(Player player, bool drawBackground)
         {
             if (drawBackground)
             {
-                screen.DrawPatch(
-                    patches.Background,
+                this.screen.DrawPatch(
+                    this.patches.Background,
                     0,
-                    scale * (200 - Height),
-                    scale);
+                    this.scale * (200 - StatusBarRenderer.Height),
+                    this.scale);
             }
 
             if (DoomInfo.WeaponInfos[(int)player.ReadyWeapon].Ammo != AmmoType.NoAmmo)
             {
                 var num = player.Ammo[(int)DoomInfo.WeaponInfos[(int)player.ReadyWeapon].Ammo];
-                DrawNumber(ready, num);
+                this.DrawNumber(this.ready, num);
             }
 
-            DrawPercent(health, player.Health);
-            DrawPercent(armor, player.ArmorPoints);
+            this.DrawPercent(this.health, player.Health);
+            this.DrawPercent(this.armor, player.ArmorPoints);
 
             for (var i = 0; i < (int)AmmoType.Count; i++)
             {
-                DrawNumber(ammo[i], player.Ammo[i]);
-                DrawNumber(maxAmmo[i], player.MaxAmmo[i]);
+                this.DrawNumber(this.ammo[i], player.Ammo[i]);
+                this.DrawNumber(this.maxAmmo[i], player.MaxAmmo[i]);
             }
 
             if (player.Mobj.World.Options.Deathmatch == 0)
             {
                 if (drawBackground)
                 {
-                    screen.DrawPatch(
-                        patches.ArmsBackground,
-                        scale * armsBackgroundX,
-                        scale * armsBackgroundY,
-                        scale);
+                    this.screen.DrawPatch(
+                        this.patches.ArmsBackground,
+                        this.scale * StatusBarRenderer.armsBackgroundX,
+                        this.scale * StatusBarRenderer.armsBackgroundY,
+                        this.scale);
                 }
 
-                for (var i = 0; i < weapons.Length; i++)
+                for (var i = 0; i < this.weapons.Length; i++)
                 {
-                    DrawMultIcon(weapons[i], player.WeaponOwned[i + 1] ? 1 : 0);
+                    this.DrawMultIcon(this.weapons[i], player.WeaponOwned[i + 1] ? 1 : 0);
                 }
             }
             else
@@ -264,36 +266,36 @@ namespace ManagedDoom.SoftwareRendering
                 {
                     sum += player.Frags[i];
                 }
-                DrawNumber(frags, sum);
+                this.DrawNumber(this.frags, sum);
             }
 
             if (drawBackground)
             {
                 if (player.Mobj.World.Options.NetGame)
                 {
-                    screen.DrawPatch(
-                        patches.FaceBackground[player.Number],
-                        scale * faceBackgroundX,
-                        scale * faceBackgroundY,
-                        scale);
+                    this.screen.DrawPatch(
+                        this.patches.FaceBackground[player.Number],
+                        this.scale * StatusBarRenderer.faceBackgroundX,
+                        this.scale * StatusBarRenderer.faceBackgroundY,
+                        this.scale);
                 }
 
-                screen.DrawPatch(
-                    patches.Faces[player.Mobj.World.StatusBar.FaceIndex],
-                    scale * faceX,
-                    scale * faceY,
-                    scale);
+                this.screen.DrawPatch(
+                    this.patches.Faces[player.Mobj.World.StatusBar.FaceIndex],
+                    this.scale * StatusBarRenderer.faceX,
+                    this.scale * StatusBarRenderer.faceY,
+                    this.scale);
             }
 
             for (var i = 0; i < 3; i++)
             {
                 if (player.Cards[i + 3])
                 {
-                    DrawMultIcon(keys[i], i + 3);
+                    this.DrawMultIcon(this.keys[i], i + 3);
                 }
                 else if (player.Cards[i])
                 {
-                    DrawMultIcon(keys[i], i);
+                    this.DrawMultIcon(this.keys[i], i);
                 }
             }
         }
@@ -334,11 +336,11 @@ namespace ManagedDoom.SoftwareRendering
             // In the special case of 0, you draw 0.
             if (num == 0)
             {
-                screen.DrawPatch(
+                this.screen.DrawPatch(
                     widget.Patches[0],
-                    scale * (x - w),
-                    scale * widget.Y,
-                    scale);
+                    this.scale * (x - w),
+                    this.scale * widget.Y,
+                    this.scale);
             }
 
             // Draw the new number.
@@ -346,11 +348,11 @@ namespace ManagedDoom.SoftwareRendering
             {
                 x -= w;
 
-                screen.DrawPatch(
+                this.screen.DrawPatch(
                     widget.Patches[num % 10],
-                    scale * x,
-                    scale * widget.Y,
-                    scale);
+                    this.scale * x,
+                    this.scale * widget.Y,
+                    this.scale);
 
                 num /= 10;
             }
@@ -358,32 +360,32 @@ namespace ManagedDoom.SoftwareRendering
             // Draw a minus sign if necessary.
             if (neg)
             {
-                screen.DrawPatch(
-                    patches.TallMinus,
-                    scale * (x - 8),
-                    scale * widget.Y,
-                    scale);
+                this.screen.DrawPatch(
+                    this.patches.TallMinus,
+                    this.scale * (x - 8),
+                    this.scale * widget.Y,
+                    this.scale);
             }
         }
 
         private void DrawPercent(PercentWidget per, int value)
         {
-            screen.DrawPatch(
+            this.screen.DrawPatch(
                 per.Patch,
-                scale * per.NumberWidget.X,
-                scale * per.NumberWidget.Y,
-                scale);
+                this.scale * per.NumberWidget.X,
+                this.scale * per.NumberWidget.Y,
+                this.scale);
 
-            DrawNumber(per.NumberWidget, value);
+            this.DrawNumber(per.NumberWidget, value);
         }
 
         private void DrawMultIcon(MultIconWidget mi, int value)
         {
-            screen.DrawPatch(
+            this.screen.DrawPatch(
                 mi.Patches[value],
-                scale * mi.X,
-                scale * mi.Y,
-                scale);
+                this.scale * mi.X,
+                this.scale * mi.Y,
+                this.scale);
         }
 
 
@@ -424,55 +426,55 @@ namespace ManagedDoom.SoftwareRendering
 
             public Patches(Wad wad)
             {
-                Background = Patch.FromWad(wad, "STBAR");
+                this.Background = Patch.FromWad(wad, "STBAR");
 
-                TallNumbers = new Patch[10];
-                ShortNumbers = new Patch[10];
+                this.TallNumbers = new Patch[10];
+                this.ShortNumbers = new Patch[10];
                 for (var i = 0; i < 10; i++)
                 {
-                    TallNumbers[i] = Patch.FromWad(wad, "STTNUM" + i);
-                    ShortNumbers[i] = Patch.FromWad(wad, "STYSNUM" + i);
+                    this.TallNumbers[i] = Patch.FromWad(wad, "STTNUM" + i);
+                    this.ShortNumbers[i] = Patch.FromWad(wad, "STYSNUM" + i);
                 }
-                TallMinus = Patch.FromWad(wad, "STTMINUS");
-                TallPercent = Patch.FromWad(wad, "STTPRCNT");
+                this.TallMinus = Patch.FromWad(wad, "STTMINUS");
+                this.TallPercent = Patch.FromWad(wad, "STTPRCNT");
 
-                Keys = new Patch[(int)CardType.Count];
-                for (var i = 0; i < Keys.Length; i++)
+                this.Keys = new Patch[(int)CardType.Count];
+                for (var i = 0; i < this.Keys.Length; i++)
                 {
-                    Keys[i] = Patch.FromWad(wad, "STKEYS" + i);
+                    this.Keys[i] = Patch.FromWad(wad, "STKEYS" + i);
                 }
 
-                ArmsBackground = Patch.FromWad(wad, "STARMS");
-                Arms = new Patch[6][];
+                this.ArmsBackground = Patch.FromWad(wad, "STARMS");
+                this.Arms = new Patch[6][];
                 for (var i = 0; i < 6; i++)
                 {
                     var num = i + 2;
-                    Arms[i] = new Patch[2];
-                    Arms[i][0] = Patch.FromWad(wad, "STGNUM" + num);
-                    Arms[i][1] = ShortNumbers[num];
+                    this.Arms[i] = new Patch[2];
+                    this.Arms[i][0] = Patch.FromWad(wad, "STGNUM" + num);
+                    this.Arms[i][1] = this.ShortNumbers[num];
                 }
 
-                FaceBackground = new Patch[Player.MaxPlayerCount];
-                for (var i = 0; i < FaceBackground.Length; i++)
+                this.FaceBackground = new Patch[Player.MaxPlayerCount];
+                for (var i = 0; i < this.FaceBackground.Length; i++)
                 {
-                    FaceBackground[i] = Patch.FromWad(wad, "STFB" + i);
+                    this.FaceBackground[i] = Patch.FromWad(wad, "STFB" + i);
                 }
-                Faces = new Patch[StatusBar.Face.FaceCount];
+                this.Faces = new Patch[StatusBar.Face.FaceCount];
                 var faceCount = 0;
                 for (var i = 0; i < StatusBar.Face.PainFaceCount; i++)
                 {
                     for (var j = 0; j < StatusBar.Face.StraightFaceCount; j++)
                     {
-                        Faces[faceCount++] = Patch.FromWad(wad, "STFST" + i + j);
+                        this.Faces[faceCount++] = Patch.FromWad(wad, "STFST" + i + j);
                     }
-                    Faces[faceCount++] = Patch.FromWad(wad, "STFTR" + i + "0");
-                    Faces[faceCount++] = Patch.FromWad(wad, "STFTL" + i + "0");
-                    Faces[faceCount++] = Patch.FromWad(wad, "STFOUCH" + i);
-                    Faces[faceCount++] = Patch.FromWad(wad, "STFEVL" + i);
-                    Faces[faceCount++] = Patch.FromWad(wad, "STFKILL" + i);
+                    this.Faces[faceCount++] = Patch.FromWad(wad, "STFTR" + i + "0");
+                    this.Faces[faceCount++] = Patch.FromWad(wad, "STFTL" + i + "0");
+                    this.Faces[faceCount++] = Patch.FromWad(wad, "STFOUCH" + i);
+                    this.Faces[faceCount++] = Patch.FromWad(wad, "STFEVL" + i);
+                    this.Faces[faceCount++] = Patch.FromWad(wad, "STFKILL" + i);
                 }
-                Faces[faceCount++] = Patch.FromWad(wad, "STFGOD0");
-                Faces[faceCount++] = Patch.FromWad(wad, "STFDEAD0");
+                this.Faces[faceCount++] = Patch.FromWad(wad, "STFGOD0");
+                this.Faces[faceCount++] = Patch.FromWad(wad, "STFDEAD0");
             }
         }
     }

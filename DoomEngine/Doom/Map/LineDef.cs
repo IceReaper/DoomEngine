@@ -13,13 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class LineDef
+	using Math;
+	using System;
+	using Wad;
+	using World;
+
+	public sealed class LineDef
     {
         private static readonly int dataSize = 14;
 
@@ -66,37 +67,37 @@ namespace ManagedDoom
             this.frontSide = frontSide;
             this.backSide = backSide;
 
-            dx = vertex2.X - vertex1.X;
-            dy = vertex2.Y - vertex1.Y;
+            this.dx = vertex2.X - vertex1.X;
+            this.dy = vertex2.Y - vertex1.Y;
 
-            if (dx == Fixed.Zero)
+            if (this.dx == Fixed.Zero)
             {
-                slopeType = SlopeType.Vertical;
+                this.slopeType = SlopeType.Vertical;
             }
-            else if (dy == Fixed.Zero)
+            else if (this.dy == Fixed.Zero)
             {
-                slopeType = SlopeType.Horizontal;
+                this.slopeType = SlopeType.Horizontal;
             }
             else
             {
-                if (dy / dx > Fixed.Zero)
+                if (this.dy / this.dx > Fixed.Zero)
                 {
-                    slopeType = SlopeType.Positive;
+                    this.slopeType = SlopeType.Positive;
                 }
                 else
                 {
-                    slopeType = SlopeType.Negative;
+                    this.slopeType = SlopeType.Negative;
                 }
             }
 
-            boundingBox = new Fixed[4];
-            boundingBox[Box.Top] = Fixed.Max(vertex1.Y, vertex2.Y);
-            boundingBox[Box.Bottom] = Fixed.Min(vertex1.Y, vertex2.Y);
-            boundingBox[Box.Left] = Fixed.Min(vertex1.X, vertex2.X);
-            boundingBox[Box.Right] = Fixed.Max(vertex1.X, vertex2.X);
+            this.boundingBox = new Fixed[4];
+            this.boundingBox[Box.Top] = Fixed.Max(vertex1.Y, vertex2.Y);
+            this.boundingBox[Box.Bottom] = Fixed.Min(vertex1.Y, vertex2.Y);
+            this.boundingBox[Box.Left] = Fixed.Min(vertex1.X, vertex2.X);
+            this.boundingBox[Box.Right] = Fixed.Max(vertex1.X, vertex2.X);
 
-            frontSector = frontSide?.Sector;
-            backSector = backSide?.Sector;
+            this.frontSector = frontSide?.Sector;
+            this.backSector = backSide?.Sector;
         }
 
         public static LineDef FromData(byte[] data, int offset, Vertex[] vertices, SideDef[] sides)
@@ -122,74 +123,74 @@ namespace ManagedDoom
         public static LineDef[] FromWad(Wad wad, int lump, Vertex[] vertices, SideDef[] sides)
         {
             var length = wad.GetLumpSize(lump);
-            if (length % dataSize != 0)
+            if (length % LineDef.dataSize != 0)
             {
                 throw new Exception();
             }
 
             var data = wad.ReadLump(lump);
-            var count = length / dataSize;
+            var count = length / LineDef.dataSize;
             var lines = new LineDef[count]; ;
 
             for (var i = 0; i < count; i++)
             {
                 var offset = 14 * i;
-                lines[i] = FromData(data, offset, vertices, sides);
+                lines[i] = LineDef.FromData(data, offset, vertices, sides);
             }
 
             return lines;
         }
 
-        public Vertex Vertex1 => vertex1;
-        public Vertex Vertex2 => vertex2;
+        public Vertex Vertex1 => this.vertex1;
+        public Vertex Vertex2 => this.vertex2;
 
-        public Fixed Dx => dx;
-        public Fixed Dy => dy;
+        public Fixed Dx => this.dx;
+        public Fixed Dy => this.dy;
 
         public LineFlags Flags
         {
-            get => flags;
-            set => flags = value;
+            get => this.flags;
+            set => this.flags = value;
         }
 
         public LineSpecial Special
         {
-            get => special;
-            set => special = value;
+            get => this.special;
+            set => this.special = value;
         }
 
         public short Tag
         {
-            get => tag;
-            set => tag = value;
+            get => this.tag;
+            set => this.tag = value;
         }
 
-        public SideDef FrontSide => frontSide;
-        public SideDef BackSide => backSide;
+        public SideDef FrontSide => this.frontSide;
+        public SideDef BackSide => this.backSide;
 
-        public Fixed[] BoundingBox => boundingBox;
+        public Fixed[] BoundingBox => this.boundingBox;
 
-        public SlopeType SlopeType => slopeType;
+        public SlopeType SlopeType => this.slopeType;
 
-        public Sector FrontSector => frontSector;
-        public Sector BackSector => backSector;
+        public Sector FrontSector => this.frontSector;
+        public Sector BackSector => this.backSector;
 
         public int ValidCount
         {
-            get => validCount;
-            set => validCount = value;
+            get => this.validCount;
+            set => this.validCount = value;
         }
 
         public Thinker SpecialData
         {
-            get => specialData;
-            set => specialData = value;
+            get => this.specialData;
+            set => this.specialData = value;
         }
 
         public Mobj SoundOrigin
         {
-            get => soundOrigin;
-            set => soundOrigin = value;
+            get => this.soundOrigin;
+            set => this.soundOrigin = value;
         }
     }
 }

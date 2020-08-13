@@ -13,15 +13,16 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Diagnostics;
-using System.IO;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom
 {
-    public sealed class DemoPlayback
+	using Common;
+	using Event;
+	using Game;
+	using System;
+	using System.Diagnostics;
+	using System.IO;
+
+	public sealed class DemoPlayback
     {
         private Demo demo;
         private TicCmd[] cmds;
@@ -34,11 +35,11 @@ namespace ManagedDoom
         {
             if (File.Exists(demoName))
             {
-                demo = new Demo(demoName);
+                this.demo = new Demo(demoName);
             }
             else if (File.Exists(demoName + ".lmp"))
             {
-                demo = new Demo(demoName + ".lmp");
+                this.demo = new Demo(demoName + ".lmp");
             }
             else
             {
@@ -47,53 +48,53 @@ namespace ManagedDoom
                 {
                     throw new Exception("Demo '" + demoName + "' was not found!");
                 }
-                demo = new Demo(resource.Wad.ReadLump(lumpName));
+                this.demo = new Demo(resource.Wad.ReadLump(lumpName));
             }
 
-            demo.Options.GameVersion = options.GameVersion;
-            demo.Options.GameMode = options.GameMode;
-            demo.Options.MissionPack = options.MissionPack;
-            demo.Options.Renderer = options.Renderer;
-            demo.Options.Sound = options.Sound;
-            demo.Options.Music = options.Music;
+            this.demo.Options.GameVersion = options.GameVersion;
+            this.demo.Options.GameMode = options.GameMode;
+            this.demo.Options.MissionPack = options.MissionPack;
+            this.demo.Options.Renderer = options.Renderer;
+            this.demo.Options.Sound = options.Sound;
+            this.demo.Options.Music = options.Music;
 
-            cmds = new TicCmd[Player.MaxPlayerCount];
+            this.cmds = new TicCmd[Player.MaxPlayerCount];
             for (var i = 0; i < Player.MaxPlayerCount; i++)
             {
-                cmds[i] = new TicCmd();
+                this.cmds[i] = new TicCmd();
             }
 
-            game = new DoomGame(resource, demo.Options);
-            game.DeferedInitNew();
+            this.game = new DoomGame(resource, this.demo.Options);
+            this.game.DeferedInitNew();
 
-            stopwatch = new Stopwatch();
+            this.stopwatch = new Stopwatch();
         }
 
         public UpdateResult Update()
         {
-            if (!stopwatch.IsRunning)
+            if (!this.stopwatch.IsRunning)
             {
-                stopwatch.Start();
+                this.stopwatch.Start();
             }
 
-            if (!demo.ReadCmd(cmds))
+            if (!this.demo.ReadCmd(this.cmds))
             {
-                stopwatch.Stop();
+                this.stopwatch.Stop();
                 return UpdateResult.Completed;
             }
             else
             {
-                frameCount++;
-                return game.Update(cmds);
+                this.frameCount++;
+                return this.game.Update(this.cmds);
             }
         }
 
         public void DoEvent(DoomEvent e)
         {
-            game.DoEvent(e);
+            this.game.DoEvent(e);
         }
 
-        public DoomGame Game => game;
-        public double Fps => frameCount / stopwatch.Elapsed.TotalSeconds;
+        public DoomGame Game => this.game;
+        public double Fps => this.frameCount / this.stopwatch.Elapsed.TotalSeconds;
     }
 }

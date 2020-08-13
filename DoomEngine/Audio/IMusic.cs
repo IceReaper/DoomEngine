@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.Audio
+namespace DoomEngine.Audio
 {
-    public interface IMusic
+	public interface IMusic
     {
         void StartMusic(Bgm bgm, bool loop);
 

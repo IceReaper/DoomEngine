@@ -13,16 +13,14 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace ManagedDoom
+namespace DoomEngine
 {
-    public sealed class Config
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using UserInput;
+
+	public sealed class Config
     {
         public KeyBinding key_forward;
         public KeyBinding key_backward;
@@ -54,39 +52,39 @@ namespace ManagedDoom
         // Default settings.
         public Config()
         {
-            key_forward = new KeyBinding(
+            this.key_forward = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.Up,
                     DoomKey.W
                 });
-            key_backward = new KeyBinding(
+            this.key_backward = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.Down,
                     DoomKey.S
                 });
-            key_strafeleft = new KeyBinding(
+            this.key_strafeleft = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.A
                 });
-            key_straferight = new KeyBinding(
+            this.key_straferight = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.D
                 });
-            key_turnleft = new KeyBinding(
+            this.key_turnleft = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.Left
                 });
-            key_turnright = new KeyBinding(
+            this.key_turnright = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.Right
                 });
-            key_fire = new KeyBinding(
+            this.key_fire = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.LControl,
@@ -96,7 +94,7 @@ namespace ManagedDoom
                 {
                     DoomMouseButton.Mouse1
                 });
-            key_use = new KeyBinding(
+            this.key_use = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.Space
@@ -105,35 +103,35 @@ namespace ManagedDoom
                 {
                     DoomMouseButton.Mouse2
                 });
-            key_run = new KeyBinding(
+            this.key_run = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.LShift,
                     DoomKey.RShift
                 });
-            key_strafe = new KeyBinding(
+            this.key_strafe = new KeyBinding(
                 new DoomKey[]
                 {
                     DoomKey.LAlt,
                     DoomKey.RAlt
                 });
 
-            mouse_sensitivity = 3;
-            mouse_disableyaxis = false;
+            this.mouse_sensitivity = 3;
+            this.mouse_disableyaxis = false;
 
-            game_alwaysrun = true;
+            this.game_alwaysrun = true;
 
             var vm = ConfigUtilities.GetDefaultVideoMode();
-            video_screenwidth = (int)vm.Width;
-            video_screenheight = (int)vm.Height;
-            video_fullscreen = false;
-            video_highresolution = true;
-            video_gamescreensize = 7;
-            video_displaymessage = true;
-            video_gammacorrection = 0;
+            this.video_screenwidth = (int)vm.Width;
+            this.video_screenheight = (int)vm.Height;
+            this.video_fullscreen = false;
+            this.video_highresolution = true;
+            this.video_gamescreensize = 7;
+            this.video_displaymessage = true;
+            this.video_gammacorrection = 0;
 
-            audio_soundvolume = 8;
-            audio_musicvolume = 8;
+            this.audio_soundvolume = 8;
+            this.audio_musicvolume = 8;
         }
 
         public Config(string path) : this()
@@ -152,32 +150,32 @@ namespace ManagedDoom
                     }
                 }
 
-                key_forward = GetKeyBinding(dic, nameof(key_forward), key_forward);
-                key_backward = GetKeyBinding(dic, nameof(key_backward), key_backward);
-                key_strafeleft = GetKeyBinding(dic, nameof(key_strafeleft), key_strafeleft);
-                key_straferight = GetKeyBinding(dic, nameof(key_straferight), key_straferight);
-                key_turnleft = GetKeyBinding(dic, nameof(key_turnleft), key_turnleft);
-                key_turnright = GetKeyBinding(dic, nameof(key_turnright), key_turnright);
-                key_fire = GetKeyBinding(dic, nameof(key_fire), key_fire);
-                key_use = GetKeyBinding(dic, nameof(key_use), key_use);
-                key_run = GetKeyBinding(dic, nameof(key_run), key_run);
-                key_strafe = GetKeyBinding(dic, nameof(key_strafe), key_strafe);
+                this.key_forward = Config.GetKeyBinding(dic, nameof(this.key_forward), this.key_forward);
+                this.key_backward = Config.GetKeyBinding(dic, nameof(this.key_backward), this.key_backward);
+                this.key_strafeleft = Config.GetKeyBinding(dic, nameof(this.key_strafeleft), this.key_strafeleft);
+                this.key_straferight = Config.GetKeyBinding(dic, nameof(this.key_straferight), this.key_straferight);
+                this.key_turnleft = Config.GetKeyBinding(dic, nameof(this.key_turnleft), this.key_turnleft);
+                this.key_turnright = Config.GetKeyBinding(dic, nameof(this.key_turnright), this.key_turnright);
+                this.key_fire = Config.GetKeyBinding(dic, nameof(this.key_fire), this.key_fire);
+                this.key_use = Config.GetKeyBinding(dic, nameof(this.key_use), this.key_use);
+                this.key_run = Config.GetKeyBinding(dic, nameof(this.key_run), this.key_run);
+                this.key_strafe = Config.GetKeyBinding(dic, nameof(this.key_strafe), this.key_strafe);
 
-                mouse_sensitivity = GetInt(dic, nameof(mouse_sensitivity), mouse_sensitivity);
-                mouse_disableyaxis = GetBool(dic, nameof(mouse_disableyaxis), mouse_disableyaxis);
+                this.mouse_sensitivity = Config.GetInt(dic, nameof(this.mouse_sensitivity), this.mouse_sensitivity);
+                this.mouse_disableyaxis = Config.GetBool(dic, nameof(this.mouse_disableyaxis), this.mouse_disableyaxis);
 
-                game_alwaysrun = GetBool(dic, nameof(game_alwaysrun), game_alwaysrun);
+                this.game_alwaysrun = Config.GetBool(dic, nameof(this.game_alwaysrun), this.game_alwaysrun);
 
-                video_screenwidth = GetInt(dic, nameof(video_screenwidth), video_screenwidth);
-                video_screenheight = GetInt(dic, nameof(video_screenheight), video_screenheight);
-                video_fullscreen = GetBool(dic, nameof(video_fullscreen), video_fullscreen);
-                video_highresolution = GetBool(dic, nameof(video_highresolution), video_highresolution);
-                video_displaymessage = GetBool(dic, nameof(video_displaymessage), video_displaymessage);
-                video_gamescreensize = GetInt(dic, nameof(video_gamescreensize), video_gamescreensize);
-                video_gammacorrection = GetInt(dic, nameof(video_gammacorrection), video_gammacorrection);
+                this.video_screenwidth = Config.GetInt(dic, nameof(this.video_screenwidth), this.video_screenwidth);
+                this.video_screenheight = Config.GetInt(dic, nameof(this.video_screenheight), this.video_screenheight);
+                this.video_fullscreen = Config.GetBool(dic, nameof(this.video_fullscreen), this.video_fullscreen);
+                this.video_highresolution = Config.GetBool(dic, nameof(this.video_highresolution), this.video_highresolution);
+                this.video_displaymessage = Config.GetBool(dic, nameof(this.video_displaymessage), this.video_displaymessage);
+                this.video_gamescreensize = Config.GetInt(dic, nameof(this.video_gamescreensize), this.video_gamescreensize);
+                this.video_gammacorrection = Config.GetInt(dic, nameof(this.video_gammacorrection), this.video_gammacorrection);
 
-                audio_soundvolume = GetInt(dic, nameof(audio_soundvolume), audio_soundvolume);
-                audio_musicvolume = GetInt(dic, nameof(audio_musicvolume), audio_musicvolume);
+                this.audio_soundvolume = Config.GetInt(dic, nameof(this.audio_soundvolume), this.audio_soundvolume);
+                this.audio_musicvolume = Config.GetInt(dic, nameof(this.audio_musicvolume), this.audio_musicvolume);
 
                 Console.WriteLine("OK");
             }
@@ -193,31 +191,31 @@ namespace ManagedDoom
             {
                 using (var writer = new StreamWriter(path))
                 {
-                    writer.WriteLine(nameof(key_forward) + " = " + key_forward);
-                    writer.WriteLine(nameof(key_strafeleft) + " = " + key_strafeleft);
-                    writer.WriteLine(nameof(key_straferight) + " = " + key_straferight);
-                    writer.WriteLine(nameof(key_turnleft) + " = " + key_turnleft);
-                    writer.WriteLine(nameof(key_turnright) + " = " + key_turnright);
-                    writer.WriteLine(nameof(key_fire) + " = " + key_fire);
-                    writer.WriteLine(nameof(key_use) + " = " + key_use);
-                    writer.WriteLine(nameof(key_run) + " = " + key_run);
-                    writer.WriteLine(nameof(key_strafe) + " = " + key_strafe);
+                    writer.WriteLine(nameof(this.key_forward) + " = " + this.key_forward);
+                    writer.WriteLine(nameof(this.key_strafeleft) + " = " + this.key_strafeleft);
+                    writer.WriteLine(nameof(this.key_straferight) + " = " + this.key_straferight);
+                    writer.WriteLine(nameof(this.key_turnleft) + " = " + this.key_turnleft);
+                    writer.WriteLine(nameof(this.key_turnright) + " = " + this.key_turnright);
+                    writer.WriteLine(nameof(this.key_fire) + " = " + this.key_fire);
+                    writer.WriteLine(nameof(this.key_use) + " = " + this.key_use);
+                    writer.WriteLine(nameof(this.key_run) + " = " + this.key_run);
+                    writer.WriteLine(nameof(this.key_strafe) + " = " + this.key_strafe);
 
-                    writer.WriteLine(nameof(mouse_sensitivity) + " = " + mouse_sensitivity);
-                    writer.WriteLine(nameof(mouse_disableyaxis) + " = " + BoolToString(mouse_disableyaxis));
+                    writer.WriteLine(nameof(this.mouse_sensitivity) + " = " + this.mouse_sensitivity);
+                    writer.WriteLine(nameof(this.mouse_disableyaxis) + " = " + Config.BoolToString(this.mouse_disableyaxis));
 
-                    writer.WriteLine(nameof(game_alwaysrun) + " = " + BoolToString(game_alwaysrun));
+                    writer.WriteLine(nameof(this.game_alwaysrun) + " = " + Config.BoolToString(this.game_alwaysrun));
 
-                    writer.WriteLine(nameof(video_screenwidth) + " = " + video_screenwidth);
-                    writer.WriteLine(nameof(video_screenheight) + " = " + video_screenheight);
-                    writer.WriteLine(nameof(video_fullscreen) + " = " + BoolToString(video_fullscreen));
-                    writer.WriteLine(nameof(video_highresolution) + " = " + BoolToString(video_highresolution));
-                    writer.WriteLine(nameof(video_displaymessage) + " = " + BoolToString(video_displaymessage));
-                    writer.WriteLine(nameof(video_gamescreensize) + " = " + video_gamescreensize);
-                    writer.WriteLine(nameof(video_gammacorrection) + " = " + video_gammacorrection);
+                    writer.WriteLine(nameof(this.video_screenwidth) + " = " + this.video_screenwidth);
+                    writer.WriteLine(nameof(this.video_screenheight) + " = " + this.video_screenheight);
+                    writer.WriteLine(nameof(this.video_fullscreen) + " = " + Config.BoolToString(this.video_fullscreen));
+                    writer.WriteLine(nameof(this.video_highresolution) + " = " + Config.BoolToString(this.video_highresolution));
+                    writer.WriteLine(nameof(this.video_displaymessage) + " = " + Config.BoolToString(this.video_displaymessage));
+                    writer.WriteLine(nameof(this.video_gamescreensize) + " = " + this.video_gamescreensize);
+                    writer.WriteLine(nameof(this.video_gammacorrection) + " = " + this.video_gammacorrection);
 
-                    writer.WriteLine(nameof(audio_soundvolume) + " = " + audio_soundvolume);
-                    writer.WriteLine(nameof(audio_musicvolume) + " = " + audio_musicvolume);
+                    writer.WriteLine(nameof(this.audio_soundvolume) + " = " + this.audio_soundvolume);
+                    writer.WriteLine(nameof(this.audio_musicvolume) + " = " + this.audio_musicvolume);
                 }
             }
             catch

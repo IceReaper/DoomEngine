@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Info
 {
-    public static partial class DoomInfo
+	using Common;
+	using System;
+
+	public static partial class DoomInfo
     {
         public static readonly Tuple<DoomString, DoomString>[] SwitchNames = new Tuple<DoomString, DoomString>[]
         {

@@ -13,16 +13,18 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Runtime.ExceptionServices;
-using SFML.Audio;
-using SFML.System;
-
-namespace ManagedDoom.Audio
+namespace DoomEngine.Audio
 {
-    public sealed class SfmlSound : ISound, IDisposable
+	using Doom.Info;
+	using Doom.Math;
+	using Doom.Wad;
+	using Doom.World;
+	using SFML.Audio;
+	using SFML.System;
+	using System;
+	using System.Runtime.ExceptionServices;
+
+	public sealed class SfmlSound : ISound, IDisposable
     {
         private static readonly int channelCount = 8;
 
@@ -31,7 +33,7 @@ namespace ManagedDoom.Audio
 
         private static readonly float clipDist = 1200;
         private static readonly float closeDist = 160;
-        private static readonly float attenuator = clipDist - closeDist;
+        private static readonly float attenuator = SfmlSound.clipDist - SfmlSound.closeDist;
 
         private Config config;
 
@@ -58,10 +60,10 @@ namespace ManagedDoom.Audio
 
                 this.config = config;
 
-                config.audio_soundvolume = Math.Clamp(config.audio_soundvolume, 0, MaxVolume);
+                config.audio_soundvolume = Math.Clamp(config.audio_soundvolume, 0, this.MaxVolume);
 
-                buffers = new SoundBuffer[DoomInfo.SfxNames.Length];
-                amplitudes = new float[DoomInfo.SfxNames.Length];
+                this.buffers = new SoundBuffer[DoomInfo.SfxNames.Length];
+                this.amplitudes = new float[DoomInfo.SfxNames.Length];
 
                 for (var i = 0; i < DoomInfo.SfxNames.Length; i++)
                 {
@@ -74,35 +76,35 @@ namespace ManagedDoom.Audio
 
                     int sampleRate;
                     int sampleCount;
-                    var samples = GetSamples(wad, name, out sampleRate, out sampleCount);
+                    var samples = SfmlSound.GetSamples(wad, name, out sampleRate, out sampleCount);
                     if (samples != null)
                     {
-                        buffers[i] = new SoundBuffer(samples, 1, (uint)sampleRate);
-                        amplitudes[i] = GetAmplitude(samples, sampleRate, sampleCount);
+                        this.buffers[i] = new SoundBuffer(samples, 1, (uint)sampleRate);
+                        this.amplitudes[i] = SfmlSound.GetAmplitude(samples, sampleRate, sampleCount);
                     }
                 }
 
-                channels = new Sound[channelCount];
-                infos = new ChannelInfo[channelCount];
-                for (var i = 0; i < channels.Length; i++)
+                this.channels = new Sound[SfmlSound.channelCount];
+                this.infos = new ChannelInfo[SfmlSound.channelCount];
+                for (var i = 0; i < this.channels.Length; i++)
                 {
-                    channels[i] = new Sound();
-                    infos[i] = new ChannelInfo();
+                    this.channels[i] = new Sound();
+                    this.infos[i] = new ChannelInfo();
                 }
 
-                uiChannel = new Sound();
-                uiReserved = Sfx.NONE;
+                this.uiChannel = new Sound();
+                this.uiReserved = Sfx.NONE;
 
-                masterVolumeDecay = (float)config.audio_soundvolume / MaxVolume;
+                this.masterVolumeDecay = (float)config.audio_soundvolume / this.MaxVolume;
 
-                lastUpdate = DateTime.MinValue;
+                this.lastUpdate = DateTime.MinValue;
 
                 Console.WriteLine("OK");
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed");
-                Dispose();
+                this.Dispose();
                 ExceptionDispatchInfo.Throw(e);
             }
         }
@@ -159,16 +161,16 @@ namespace ManagedDoom.Audio
         public void Update()
         {
             var now = DateTime.Now;
-            if ((now - lastUpdate).TotalSeconds < 0.01)
+            if ((now - this.lastUpdate).TotalSeconds < 0.01)
             {
                 // Don't update so frequently (for timedemo).
                 return;
             }
 
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var info = infos[i];
-                var channel = channels[i];
+                var info = this.infos[i];
+                var channel = this.channels[i];
 
                 if (info.Playing != Sfx.NONE)
                 {
@@ -176,13 +178,13 @@ namespace ManagedDoom.Audio
                     {
                         if (info.Type == SfxType.Diffuse)
                         {
-                            info.Priority *= slowDecay;
+                            info.Priority *= SfmlSound.slowDecay;
                         }
                         else
                         {
-                            info.Priority *= fastDecay;
+                            info.Priority *= SfmlSound.fastDecay;
                         }
-                        SetParam(channel, info);
+                        this.SetParam(channel, info);
                     }
                     else
                     {
@@ -201,53 +203,53 @@ namespace ManagedDoom.Audio
                         channel.Stop();
                     }
 
-                    channel.SoundBuffer = buffers[(int)info.Reserved];
-                    SetParam(channel, info);
+                    channel.SoundBuffer = this.buffers[(int)info.Reserved];
+                    this.SetParam(channel, info);
                     channel.Play();
                     info.Playing = info.Reserved;
                     info.Reserved = Sfx.NONE;
                 }
             }
 
-            if (uiReserved != Sfx.NONE)
+            if (this.uiReserved != Sfx.NONE)
             {
-                if (uiChannel.Status == SoundStatus.Playing)
+                if (this.uiChannel.Status == SoundStatus.Playing)
                 {
-                    uiChannel.Stop();
+                    this.uiChannel.Stop();
                 }
-                uiChannel.Volume = 100 * masterVolumeDecay;
-                uiChannel.SoundBuffer = buffers[(int)uiReserved];
-                uiChannel.Play();
-                uiReserved = Sfx.NONE;
+                this.uiChannel.Volume = 100 * this.masterVolumeDecay;
+                this.uiChannel.SoundBuffer = this.buffers[(int)this.uiReserved];
+                this.uiChannel.Play();
+                this.uiReserved = Sfx.NONE;
             }
 
-            lastUpdate = now;
+            this.lastUpdate = now;
         }
 
         public void StartSound(Sfx sfx)
         {
-            if (buffers[(int)sfx] == null)
+            if (this.buffers[(int)sfx] == null)
             {
                 return;
             }
 
-            uiReserved = sfx;
+            this.uiReserved = sfx;
         }
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
         {
-            StartSound(mobj, sfx, type, 100);
+            this.StartSound(mobj, sfx, type, 100);
         }
 
         public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
         {
-            if (buffers[(int)sfx] == null)
+            if (this.buffers[(int)sfx] == null)
             {
                 return;
             }
 
-            var x = (mobj.X - listener.X).ToFloat();
-            var y = (mobj.Y - listener.Y).ToFloat();
+            var x = (mobj.X - this.listener.X).ToFloat();
+            var y = (mobj.Y - this.listener.Y).ToFloat();
             var dist = MathF.Sqrt(x * x + y * y);
 
             float priority;
@@ -257,7 +259,7 @@ namespace ManagedDoom.Audio
             }
             else
             {
-                priority = amplitudes[(int)sfx] * GetDistanceDecay(dist) * volume;
+                priority = this.amplitudes[(int)sfx] * this.GetDistanceDecay(dist) * volume;
             }
 
             if (priority < 0.001F)
@@ -265,9 +267,9 @@ namespace ManagedDoom.Audio
                 return;
             }
 
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var info = infos[i];
+                var info = this.infos[i];
                 if (info.Source == mobj && info.Type == type)
                 {
                     info.Reserved = sfx;
@@ -277,9 +279,9 @@ namespace ManagedDoom.Audio
                 }
             }
 
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var info = infos[i];
+                var info = this.infos[i];
                 if (info.Reserved == Sfx.NONE && info.Playing == Sfx.NONE)
                 {
                     info.Reserved = sfx;
@@ -293,9 +295,9 @@ namespace ManagedDoom.Audio
 
             var minPriority = float.MaxValue;
             var minChannel = -1;
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var info = infos[i];
+                var info = this.infos[i];
                 if (info.Priority < minPriority)
                 {
                     minPriority = info.Priority;
@@ -304,7 +306,7 @@ namespace ManagedDoom.Audio
             }
             if (priority >= minPriority)
             {
-                var info = infos[minChannel];
+                var info = this.infos[minChannel];
                 info.Reserved = sfx;
                 info.Priority = priority;
                 info.Source = mobj;
@@ -315,9 +317,9 @@ namespace ManagedDoom.Audio
 
         public void StopSound(Mobj mobj)
         {
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var info = infos[i];
+                var info = this.infos[i];
                 if (info.Source == mobj)
                 {
                     info.LastX = info.Source.X;
@@ -330,34 +332,34 @@ namespace ManagedDoom.Audio
 
         public void Reset()
         {
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                channels[i].Stop();
-                infos[i].Clear();
+                this.channels[i].Stop();
+                this.infos[i].Clear();
             }
 
-            listener = null;
+            this.listener = null;
         }
 
         public void Pause()
         {
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var channel = channels[i];
+                var channel = this.channels[i];
 
                 if (channel.Status == SoundStatus.Playing &&
                     channel.SoundBuffer.Duration - channel.PlayingOffset > Time.FromMilliseconds(200))
                 {
-                    channels[i].Pause();
+                    this.channels[i].Pause();
                 }
             }
         }
 
         public void Resume()
         {
-            for (var i = 0; i < infos.Length; i++)
+            for (var i = 0; i < this.infos.Length; i++)
             {
-                var channel = channels[i];
+                var channel = this.channels[i];
 
                 if (channel.Status == SoundStatus.Paused)
                 {
@@ -371,7 +373,7 @@ namespace ManagedDoom.Audio
             if (info.Type == SfxType.Diffuse)
             {
                 sound.Position = new Vector3f(0, 1, 0);
-                sound.Volume = masterVolumeDecay * info.Volume;
+                sound.Volume = this.masterVolumeDecay * info.Volume;
             }
             else
             {
@@ -388,33 +390,33 @@ namespace ManagedDoom.Audio
                     sourceY = info.Source.Y;
                 }
 
-                var x = (sourceX - listener.X).ToFloat();
-                var y = (sourceY - listener.Y).ToFloat();
+                var x = (sourceX - this.listener.X).ToFloat();
+                var y = (sourceY - this.listener.Y).ToFloat();
 
                 if (Math.Abs(x) < 16 && Math.Abs(y) < 16)
                 {
                     sound.Position = new Vector3f(0, 1, 0);
-                    sound.Volume = masterVolumeDecay * info.Volume;
+                    sound.Volume = this.masterVolumeDecay * info.Volume;
                 }
                 else
                 {
                     var dist = MathF.Sqrt(x * x + y * y);
-                    var angle = MathF.Atan2(y, x) - (float)listener.Angle.ToRadian() + MathF.PI / 2;
+                    var angle = MathF.Atan2(y, x) - (float)this.listener.Angle.ToRadian() + MathF.PI / 2;
                     sound.Position = new Vector3f(MathF.Cos(angle), MathF.Sin(angle), 0);
-                    sound.Volume = masterVolumeDecay * GetDistanceDecay(dist) * info.Volume;
+                    sound.Volume = this.masterVolumeDecay * this.GetDistanceDecay(dist) * info.Volume;
                 }
             }
         }
 
         private float GetDistanceDecay(float dist)
         {
-            if (dist < closeDist)
+            if (dist < SfmlSound.closeDist)
             {
                 return 1F;
             }
             else
             {
-                return Math.Max((clipDist - dist) / attenuator, 0F);
+                return Math.Max((SfmlSound.clipDist - dist) / SfmlSound.attenuator, 0F);
             }
         }
 
@@ -422,37 +424,37 @@ namespace ManagedDoom.Audio
         {
             Console.WriteLine("Shutdown sound.");
 
-            if (channels != null)
+            if (this.channels != null)
             {
-                for (var i = 0; i < channels.Length; i++)
+                for (var i = 0; i < this.channels.Length; i++)
                 {
-                    if (channels[i] != null)
+                    if (this.channels[i] != null)
                     {
-                        channels[i].Stop();
-                        channels[i].Dispose();
-                        channels[i] = null;
+                        this.channels[i].Stop();
+                        this.channels[i].Dispose();
+                        this.channels[i] = null;
                     }
                 }
-                channels = null;
+                this.channels = null;
             }
 
-            if (buffers != null)
+            if (this.buffers != null)
             {
-                for (var i = 0; i < buffers.Length; i++)
+                for (var i = 0; i < this.buffers.Length; i++)
                 {
-                    if (buffers[i] != null)
+                    if (this.buffers[i] != null)
                     {
-                        buffers[i].Dispose();
-                        buffers[i] = null;
+                        this.buffers[i].Dispose();
+                        this.buffers[i] = null;
                     }
                 }
-                buffers = null;
+                this.buffers = null;
             }
 
-            if (uiChannel != null)
+            if (this.uiChannel != null)
             {
-                uiChannel.Dispose();
-                uiChannel = null;
+                this.uiChannel.Dispose();
+                this.uiChannel = null;
             }
         }
 
@@ -468,13 +470,13 @@ namespace ManagedDoom.Audio
         {
             get
             {
-                return config.audio_soundvolume;
+                return this.config.audio_soundvolume;
             }
 
             set
             {
-                config.audio_soundvolume = value;
-                masterVolumeDecay = (float)config.audio_soundvolume / MaxVolume;
+                this.config.audio_soundvolume = value;
+                this.masterVolumeDecay = (float)this.config.audio_soundvolume / this.MaxVolume;
             }
         }
 
@@ -494,14 +496,14 @@ namespace ManagedDoom.Audio
 
             public void Clear()
             {
-                Reserved = Sfx.NONE;
-                Playing = Sfx.NONE;
-                Priority = 0;
-                Source = null;
-                Type = 0;
-                Volume = 0;
-                LastX = Fixed.Zero;
-                LastY = Fixed.Zero;
+                this.Reserved = Sfx.NONE;
+                this.Playing = Sfx.NONE;
+                this.Priority = 0;
+                this.Source = null;
+                this.Type = 0;
+                this.Volume = 0;
+                this.LastX = Fixed.Zero;
+                this.LastY = Fixed.Zero;
             }
         }
     }

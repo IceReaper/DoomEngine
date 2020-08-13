@@ -13,13 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Map
 {
-    public sealed class SideDef
+	using Common;
+	using Graphics;
+	using Math;
+	using System;
+	using Wad;
+
+	public sealed class SideDef
     {
         private static readonly int dataSize = 30;
 
@@ -67,19 +69,19 @@ namespace ManagedDoom
         public static SideDef[] FromWad(Wad wad, int lump, TextureLookup textures, Sector[] sectors)
         {
             var length = wad.GetLumpSize(lump);
-            if (length % dataSize != 0)
+            if (length % SideDef.dataSize != 0)
             {
                 throw new Exception();
             }
 
             var data = wad.ReadLump(lump);
-            var count = length / dataSize;
+            var count = length / SideDef.dataSize;
             var sides = new SideDef[count]; ;
 
             for (var i = 0; i < count; i++)
             {
-                var offset = dataSize * i;
-                sides[i] = FromData(data, offset, textures, sectors);
+                var offset = SideDef.dataSize * i;
+                sides[i] = SideDef.FromData(data, offset, textures, sectors);
             }
 
             return sides;
@@ -87,34 +89,34 @@ namespace ManagedDoom
 
         public Fixed TextureOffset
         {
-            get => textureOffset;
-            set => textureOffset = value;
+            get => this.textureOffset;
+            set => this.textureOffset = value;
         }
 
         public Fixed RowOffset
         {
-            get => rowOffset;
-            set => rowOffset = value;
+            get => this.rowOffset;
+            set => this.rowOffset = value;
         }
 
         public int TopTexture
         {
-            get => topTexture;
-            set => topTexture = value;
+            get => this.topTexture;
+            set => this.topTexture = value;
         }
 
         public int BottomTexture
         {
-            get => bottomTexture;
-            set => bottomTexture = value;
+            get => this.bottomTexture;
+            set => this.bottomTexture = value;
         }
 
         public int MiddleTexture
         {
-            get => middleTexture;
-            set => middleTexture = value;
+            get => this.middleTexture;
+            set => this.middleTexture = value;
         }
 
-        public Sector Sector => sector;
+        public Sector Sector => this.sector;
     }
 }

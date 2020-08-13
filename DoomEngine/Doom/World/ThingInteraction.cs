@@ -13,12 +13,15 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Game;
+	using Info;
+	using Map;
+	using Math;
+	using System;
+
 	public sealed class ThingInteraction
 	{
 		private World world;
@@ -27,7 +30,7 @@ namespace ManagedDoom
 		{
 			this.world = world;
 
-			InitRadiusAttack();
+			this.InitRadiusAttack();
 		}
 
 
@@ -59,10 +62,10 @@ namespace ManagedDoom
 					source.Player.Frags[target.Player.Number]++;
 				}
 			}
-			else if (!world.Options.NetGame && (target.Flags & MobjFlags.CountKill) != 0)
+			else if (!this.world.Options.NetGame && (target.Flags & MobjFlags.CountKill) != 0)
 			{
 				// Count all monster deaths, even those caused by other monsters.
-				world.Options.Players[0].KillCount++;
+				this.world.Options.Players[0].KillCount++;
 			}
 
 			if (target.Player != null)
@@ -75,11 +78,11 @@ namespace ManagedDoom
 
 				target.Flags &= ~MobjFlags.Solid;
 				target.Player.PlayerState = PlayerState.Dead;
-				world.PlayerBehavior.DropWeapon(target.Player);
+				this.world.PlayerBehavior.DropWeapon(target.Player);
 
-				var am = world.AutoMap;
+				var am = this.world.AutoMap;
 
-				if (target.Player.Number == world.Options.ConsolePlayer && am.Visible)
+				if (target.Player.Number == this.world.Options.ConsolePlayer && am.Visible)
 				{
 					// Don't die in auto map, switch view prior to dying.
 					am.Close();
@@ -95,7 +98,7 @@ namespace ManagedDoom
 				target.SetState(target.Info.DeathState);
 			}
 
-			target.Tics -= world.Random.Next() & 3;
+			target.Tics -= this.world.Random.Next() & 3;
 			if (target.Tics < 1)
 			{
 				target.Tics = 1;
@@ -123,7 +126,7 @@ namespace ManagedDoom
 					return;
 			}
 
-			var mo = world.ThingAllocation.SpawnMobj(target.X, target.Y, Mobj.OnFloorZ, item);
+			var mo = this.world.ThingAllocation.SpawnMobj(target.X, target.Y, Mobj.OnFloorZ, item);
 
 			// Special versions of items.
 			mo.Flags |= MobjFlags.Dropped;
@@ -161,7 +164,7 @@ namespace ManagedDoom
 			}
 
 			var player = target.Player;
-			if (player != null && world.Options.Skill == GameSkill.Baby)
+			if (player != null && this.world.Options.Skill == GameSkill.Baby)
 			{
 				// Take half damage in trainer mode.
 				damage >>= 1;
@@ -188,7 +191,7 @@ namespace ManagedDoom
 				if (damage < 40 &&
 					damage > target.Health &&
 					target.Z - inflictor.Z > Fixed.FromInt(64) &&
-					(world.Random.Next() & 1) != 0)
+					(this.world.Random.Next() & 1) != 0)
 				{
 					ang += Angle.Ang180;
 					thrust *= 4;
@@ -261,11 +264,11 @@ namespace ManagedDoom
 			target.Health -= damage;
 			if (target.Health <= 0)
 			{
-				KillMobj(source, target);
+				this.KillMobj(source, target);
 				return;
 			}
 
-			if ((world.Random.Next() < target.Info.PainChance) &&
+			if ((this.world.Random.Next() < target.Info.PainChance) &&
 				(target.Flags & MobjFlags.SkullFly) == 0)
 			{
 				// Fight back!
@@ -284,7 +287,7 @@ namespace ManagedDoom
 			{
 				// If not intent on another player, chase after this one.
 				target.Target = source;
-				target.Threshold = baseThreshold;
+				target.Threshold = ThingInteraction.baseThreshold;
 				if (target.State == DoomInfo.States[(int)target.Info.SpawnState] &&
 					target.Info.SeeState != MobjState.Null)
 				{
@@ -303,7 +306,7 @@ namespace ManagedDoom
 
 			thing.SetState(DoomInfo.MobjInfos[(int)thing.Type].DeathState);
 
-			thing.Tics -= world.Random.Next() & 3;
+			thing.Tics -= this.world.Random.Next() & 3;
 
 			if (thing.Tics < 1)
 			{
@@ -314,7 +317,7 @@ namespace ManagedDoom
 
 			if (thing.Info.DeathSound != 0)
 			{
-				world.StartSound(thing, thing.Info.DeathSound, SfxType.Misc);
+				this.world.StartSound(thing, thing.Info.DeathSound, SfxType.Misc);
 			}
 		}
 
@@ -327,7 +330,7 @@ namespace ManagedDoom
 
 		private void InitRadiusAttack()
 		{
-			radiusAttackFunc = DoRadiusAttack;
+			this.radiusAttackFunc = this.DoRadiusAttack;
 		}
 
 		/// <summary>
@@ -346,8 +349,8 @@ namespace ManagedDoom
 				return true;
 			}
 
-			var dx = Fixed.Abs(thing.X - bombSpot.X);
-			var dy = Fixed.Abs(thing.Y - bombSpot.Y);
+			var dx = Fixed.Abs(thing.X - this.bombSpot.X);
+			var dy = Fixed.Abs(thing.Y - this.bombSpot.Y);
 
 			var dist = dx > dy ? dx : dy;
 			dist = new Fixed((dist - thing.Radius).Data >> Fixed.FracBits);
@@ -357,16 +360,16 @@ namespace ManagedDoom
 				dist = Fixed.Zero;
 			}
 
-			if (dist.Data >= bombDamage)
+			if (dist.Data >= this.bombDamage)
 			{
 				// Out of range.
 				return true;
 			}
 
-			if (world.VisibilityCheck.CheckSight(thing, bombSpot))
+			if (this.world.VisibilityCheck.CheckSight(thing, this.bombSpot))
 			{
 				// Must be in direct path.
-				DamageMobj(thing, bombSpot, bombSource, bombDamage - dist.Data);
+				this.DamageMobj(thing, this.bombSpot, this.bombSource, this.bombDamage - dist.Data);
 			}
 
 			return true;
@@ -377,7 +380,7 @@ namespace ManagedDoom
 		/// </summary>
 		public void RadiusAttack(Mobj spot, Mobj source, int damage)
 		{
-			var bm = world.Map.BlockMap;
+			var bm = this.world.Map.BlockMap;
 
 			var dist = Fixed.FromInt(damage + GameConst.MaxThingRadius.Data);
 
@@ -386,15 +389,15 @@ namespace ManagedDoom
 			var blockX1 = bm.GetBlockX(spot.X - dist);
 			var blockX2 = bm.GetBlockX(spot.X + dist);
 
-			bombSpot = spot;
-			bombSource = source;
-			bombDamage = damage;
+			this.bombSpot = spot;
+			this.bombSource = source;
+			this.bombDamage = damage;
 
 			for (var by = blockY1; by <= blockY2; by++)
 			{
 				for (var bx = blockX1; bx <= blockX2; bx++)
 				{
-					bm.IterateThings(bx, by, radiusAttackFunc);
+					bm.IterateThings(bx, by, this.radiusAttackFunc);
 				}
 			}
 		}

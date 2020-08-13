@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class Texture
+	using Common;
+	using System;
+	using System.Collections.Generic;
+
+	public sealed class Texture
     {
         private string name;
         private bool masked;
@@ -41,7 +40,7 @@ namespace ManagedDoom
             this.width = width;
             this.height = height;
             this.patches = patches;
-            composite = GenerateComposite(name, width, height, patches);
+            this.composite = Texture.GenerateComposite(name, width, height, patches);
         }
 
         public static Texture FromData(byte[] data, int offset, Patch[] patchLookup)
@@ -123,7 +122,7 @@ namespace ManagedDoom
                             continue;
                         }
                         var patchColumn = patch.Columns[px];
-                        DrawColumnInCache(
+                        Texture.DrawColumnInCache(
                             patchColumn,
                             column.Data,
                             column.Offset,
@@ -181,14 +180,14 @@ namespace ManagedDoom
 
         public override string ToString()
         {
-            return name;
+            return this.name;
         }
 
-        public string Name => name;
-        public bool Masked => masked;
-        public int Width => width;
-        public int Height => height;
-        public IReadOnlyList<TexturePatch> Patches => patches;
-        public Patch Composite => composite;
+        public string Name => this.name;
+        public bool Masked => this.masked;
+        public int Width => this.width;
+        public int Height => this.height;
+        public IReadOnlyList<TexturePatch> Patches => this.patches;
+        public Patch Composite => this.composite;
     }
 }

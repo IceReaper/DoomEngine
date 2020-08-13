@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Graphics
 {
-    public sealed class Column
+	public sealed class Column
     {
         public const int Last = 0xFF;
 
@@ -36,9 +32,9 @@ namespace ManagedDoom
             this.length = length;
         }
 
-        public int TopDelta => topDelta;
-        public byte[] Data => data;
-        public int Offset => offset;
-        public int Length => length;
+        public int TopDelta => this.topDelta;
+        public byte[] Data => this.data;
+        public int Offset => this.offset;
+        public int Length => this.length;
     }
 }

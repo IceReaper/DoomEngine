@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom.SoftwareRendering
+namespace DoomEngine.SoftwareRendering
 {
-    public sealed class WipeEffect
+	using Doom.Common;
+	using Doom.Game;
+	using System;
+
+	public sealed class WipeEffect
     {
         private short[] y;
         private int height;
@@ -27,25 +27,25 @@ namespace ManagedDoom.SoftwareRendering
 
         public WipeEffect(int width, int height)
         {
-            y = new short[width];
+            this.y = new short[width];
             this.height = height;
-            random = new DoomRandom(DateTime.Now.Millisecond);
+            this.random = new DoomRandom(DateTime.Now.Millisecond);
         }
 
         public void Start()
         {
-            y[0] = (short)(-(random.Next() % 16));
-            for (var i = 1; i < y.Length; i++)
+            this.y[0] = (short)(-(this.random.Next() % 16));
+            for (var i = 1; i < this.y.Length; i++)
             {
-                var r = (random.Next() % 3) - 1;
-                y[i] = (short)(y[i - 1] + r);
-                if (y[i] > 0)
+                var r = (this.random.Next() % 3) - 1;
+                this.y[i] = (short)(this.y[i - 1] + r);
+                if (this.y[i] > 0)
                 {
-                    y[i] = 0;
+                    this.y[i] = 0;
                 }
-                else if (y[i] == -16)
+                else if (this.y[i] == -16)
                 {
-                    y[i] = -15;
+                    this.y[i] = -15;
                 }
             }
         }
@@ -54,21 +54,21 @@ namespace ManagedDoom.SoftwareRendering
         {
             var done = true;
 
-            for (var i = 0; i < y.Length; i++)
+            for (var i = 0; i < this.y.Length; i++)
             {
-                if (y[i] < 0)
+                if (this.y[i] < 0)
                 {
-                    y[i]++;
+                    this.y[i]++;
                     done = false;
                 }
-                else if (y[i] < height)
+                else if (this.y[i] < this.height)
                 {
-                    var dy = (y[i] < 16) ? y[i] + 1 : 8;
-                    if (y[i] + dy >= height)
+                    var dy = (this.y[i] < 16) ? this.y[i] + 1 : 8;
+                    if (this.y[i] + dy >= this.height)
                     {
-                        dy = height - y[i];
+                        dy = this.height - this.y[i];
                     }
-                    y[i] += (short)dy;
+                    this.y[i] += (short)dy;
                     done = false;
                 }
             }
@@ -83,6 +83,6 @@ namespace ManagedDoom.SoftwareRendering
             }
         }
 
-        public short[] Y => y;
+        public short[] Y => this.y;
     }
 }

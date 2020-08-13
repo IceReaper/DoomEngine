@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.World
 {
+	using Audio;
+	using Map;
+	using Math;
+
 	public class VerticalDoor : Thinker
 	{
 		private World world;
@@ -45,33 +45,33 @@ namespace ManagedDoom
 
 		public override void Run()
 		{
-			var sa = world.SectorAction;
+			var sa = this.world.SectorAction;
 
 			SectorActionResult result;
 
-			switch (direction)
+			switch (this.direction)
 			{
 				case 0:
 					// Waiting.
-					if (--topCountDown == 0)
+					if (--this.topCountDown == 0)
 					{
-						switch (type)
+						switch (this.type)
 						{
 							case VerticalDoorType.BlazeRaise:
 								// Time to go back down.
-								direction = -1;
-								world.StartSound(sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+								this.direction = -1;
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
 								break;
 
 							case VerticalDoorType.Normal:
 								// Time to go back down.
-								direction = -1;
-								world.StartSound(sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+								this.direction = -1;
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
-								direction = 1;
-								world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+								this.direction = 1;
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 								break;
 
 							default:
@@ -82,14 +82,14 @@ namespace ManagedDoom
 
 				case 2:
 					// Initial wait.
-					if (--topCountDown == 0)
+					if (--this.topCountDown == 0)
 					{
-						switch (type)
+						switch (this.type)
 						{
 							case VerticalDoorType.RaiseIn5Mins:
-								direction = 1;
-								type = VerticalDoorType.Normal;
-								world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+								this.direction = 1;
+								this.type = VerticalDoorType.Normal;
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 								break;
 
 							default:
@@ -101,32 +101,32 @@ namespace ManagedDoom
 				case -1:
 					// Down.
 					result = sa.MovePlane(
-						sector,
-						speed,
-						sector.FloorHeight,
-						false, 1, direction);
+						this.sector,
+						this.speed,
+						this.sector.FloorHeight,
+						false, 1, this.direction);
 					if (result == SectorActionResult.PastDestination)
 					{
-						switch (type)
+						switch (this.type)
 						{
 							case VerticalDoorType.BlazeRaise:
 							case VerticalDoorType.BlazeClose:
-								sector.SpecialData = null;
+								this.sector.SpecialData = null;
 								// Unlink and free.
-								world.Thinkers.Remove(this);
-								world.StartSound(sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+								this.world.Thinkers.Remove(this);
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
 								break;
 
 							case VerticalDoorType.Normal:
 							case VerticalDoorType.Close:
-								sector.SpecialData = null;
+								this.sector.SpecialData = null;
 								// Unlink and free.
-								world.Thinkers.Remove(this);
+								this.world.Thinkers.Remove(this);
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
-								direction = 0;
-								topCountDown = 35 * 30;
+								this.direction = 0;
+								this.topCountDown = 35 * 30;
 								break;
 
 							default:
@@ -135,15 +135,15 @@ namespace ManagedDoom
 					}
 					else if (result == SectorActionResult.Crushed)
 					{
-						switch (type)
+						switch (this.type)
 						{
 							case VerticalDoorType.BlazeClose:
 							case VerticalDoorType.Close: // Do not go back up!
 								break;
 
 							default:
-								direction = 1;
-								world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+								this.direction = 1;
+								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 								break;
 						}
 					}
@@ -152,28 +152,28 @@ namespace ManagedDoom
 				case 1:
 					// Up.
 					result = sa.MovePlane(
-						sector,
-						speed,
-						topHeight,
-						false, 1, direction);
+						this.sector,
+						this.speed,
+						this.topHeight,
+						false, 1, this.direction);
 
 					if (result == SectorActionResult.PastDestination)
 					{
-						switch (type)
+						switch (this.type)
 						{
 							case VerticalDoorType.BlazeRaise:
 							case VerticalDoorType.Normal:
 								// Wait at top.
-								direction = 0;
-								topCountDown = topWait;
+								this.direction = 0;
+								this.topCountDown = this.topWait;
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
 							case VerticalDoorType.BlazeOpen:
 							case VerticalDoorType.Open:
-								sector.SpecialData = null;
+								this.sector.SpecialData = null;
 								// Unlink and free.
-								world.Thinkers.Remove(this);
+								this.world.Thinkers.Remove(this);
 								break;
 
 							default:
@@ -186,44 +186,44 @@ namespace ManagedDoom
 
 		public VerticalDoorType Type
 		{
-			get => type;
-			set => type = value;
+			get => this.type;
+			set => this.type = value;
 		}
 
 		public Sector Sector
 		{
-			get => sector;
-			set => sector = value;
+			get => this.sector;
+			set => this.sector = value;
 		}
 
 		public Fixed TopHeight
 		{
-			get => topHeight;
-			set => topHeight = value;
+			get => this.topHeight;
+			set => this.topHeight = value;
 		}
 
 		public Fixed Speed
 		{
-			get => speed;
-			set => speed = value;
+			get => this.speed;
+			set => this.speed = value;
 		}
 
 		public int Direction
 		{
-			get => direction;
-			set => direction = value;
+			get => this.direction;
+			set => this.direction = value;
 		}
 
 		public int TopWait
 		{
-			get => topWait;
-			set => topWait = value;
+			get => this.topWait;
+			set => this.topWait = value;
 		}
 
 		public int TopCountDown
 		{
-			get => topCountDown;
-			set => topCountDown = value;
+			get => this.topCountDown;
+			set => this.topCountDown = value;
 		}
 	}
 }

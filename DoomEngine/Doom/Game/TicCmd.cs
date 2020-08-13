@@ -13,13 +13,9 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-
-namespace ManagedDoom
+namespace DoomEngine.Doom.Game
 {
-    public sealed class TicCmd
+	public sealed class TicCmd
     {
         private sbyte forwardMove;
         private sbyte sideMove;
@@ -28,42 +24,42 @@ namespace ManagedDoom
 
         public void Clear()
         {
-            forwardMove = 0;
-            sideMove = 0;
-            angleTurn = 0;
-            buttons = 0;
+            this.forwardMove = 0;
+            this.sideMove = 0;
+            this.angleTurn = 0;
+            this.buttons = 0;
         }
 
         public void CopyFrom(TicCmd cmd)
         {
-            forwardMove = cmd.forwardMove;
-            sideMove = cmd.sideMove;
-            angleTurn = cmd.angleTurn;
-            buttons = cmd.buttons;
+            this.forwardMove = cmd.forwardMove;
+            this.sideMove = cmd.sideMove;
+            this.angleTurn = cmd.angleTurn;
+            this.buttons = cmd.buttons;
         }
 
         public sbyte ForwardMove
         {
-            get => forwardMove;
-            set => forwardMove = value;
+            get => this.forwardMove;
+            set => this.forwardMove = value;
         }
 
         public sbyte SideMove
         {
-            get => sideMove;
-            set => sideMove = value;
+            get => this.sideMove;
+            set => this.sideMove = value;
         }
 
         public short AngleTurn
         {
-            get => angleTurn;
-            set => angleTurn = value;
+            get => this.angleTurn;
+            set => this.angleTurn = value;
         }
 
         public byte Buttons
         {
-            get => buttons;
-            set => buttons = value;
+            get => this.buttons;
+            set => this.buttons = value;
         }
     }
 }

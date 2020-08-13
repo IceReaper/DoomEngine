@@ -13,16 +13,13 @@
 // GNU General Public License for more details.
 //
 
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace ManagedDoom
+namespace DoomEngine.UserInput
 {
-    public sealed class KeyBinding
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+
+	public sealed class KeyBinding
     {
         public static readonly KeyBinding Empty = new KeyBinding();
 
@@ -31,8 +28,8 @@ namespace ManagedDoom
 
         private KeyBinding()
         {
-            keys = Array.Empty<DoomKey>();
-            mouseButtons = Array.Empty<DoomMouseButton>();
+            this.keys = Array.Empty<DoomKey>();
+            this.mouseButtons = Array.Empty<DoomMouseButton>();
         }
 
         public KeyBinding(IReadOnlyList<DoomKey> keys)
@@ -49,8 +46,8 @@ namespace ManagedDoom
 
         public override string ToString()
         {
-            var keyValues = keys.Select(key => DoomKeyEx.ToString(key));
-            var mouseValues = mouseButtons.Select(button => DoomMouseButtonEx.ToString(button));
+            var keyValues = this.keys.Select(key => DoomKeyEx.ToString(key));
+            var mouseValues = this.mouseButtons.Select(button => DoomMouseButtonEx.ToString(button));
             var values = keyValues.Concat(mouseValues).ToArray();
             if (values.Length > 0)
             {
@@ -66,7 +63,7 @@ namespace ManagedDoom
         {
             if (value == "none")
             {
-                return Empty;
+                return KeyBinding.Empty;
             }
 
             var keys = new List<DoomKey>();
@@ -92,7 +89,7 @@ namespace ManagedDoom
             return new KeyBinding(keys, mouseButtons);
         }
 
-        public IReadOnlyList<DoomKey> Keys => keys;
-        public IReadOnlyList<DoomMouseButton> MouseButtons => mouseButtons;
+        public IReadOnlyList<DoomKey> Keys => this.keys;
+        public IReadOnlyList<DoomMouseButton> MouseButtons => this.mouseButtons;
     }
 }
