@@ -34,13 +34,15 @@ namespace DoomEngine
 
 	public sealed class DoomApplication : IDisposable
 	{
-		public static IWritableFileSystem FileSystem;
+		public static DoomApplication Instance;
+
+		public IWritableFileSystem FileSystem;
 
 		private Config config;
 
 		private IWindow window;
 
-		private CommonResource resource;
+		public CommonResource Resource;
 		private IRenderer renderer;
 		private ISound sound;
 		private IMusic music;
@@ -73,7 +75,8 @@ namespace DoomEngine
 
 		public DoomApplication(IPlatform platform, CommandLineArgs args)
 		{
-			DoomApplication.FileSystem = new VirtualFileSystem();
+			DoomApplication.Instance = this;
+			this.FileSystem = new VirtualFileSystem();
 			this.config = new Config(platform, "managed-doom.cfg");
 
 			try
@@ -90,18 +93,18 @@ namespace DoomEngine
 					DeHackEd.ReadFiles(args.deh.Value);
 				}
 
-				this.resource = new CommonResource(this.GetWadPaths(args));
+				this.Resource = new CommonResource(this.GetWadPaths(args));
 
-				this.renderer = platform.CreateRenderer(this.config, this.window, this.resource);
+				this.renderer = platform.CreateRenderer(this.config, this.window, this.Resource);
 
 				if (!args.nosound.Present && !args.nosfx.Present)
 				{
-					this.sound = platform.CreateSound(this.config, this.resource.Wad);
+					this.sound = platform.CreateSound(this.config, this.Resource.Wad);
 				}
 
 				if (!args.nosound.Present && !args.nomusic.Present)
 				{
-					this.music = platform.CreateMusic(this.config, this.resource.Wad);
+					this.music = platform.CreateMusic(this.config, this.Resource.Wad);
 				}
 
 				this.userInput = platform.CreateUserInput(this.config, this.window, !args.nomouse.Present);
@@ -109,9 +112,6 @@ namespace DoomEngine
 				this.events = new List<DoomEvent>();
 
 				this.options = new GameOptions();
-				this.options.GameVersion = this.resource.Wad.GameVersion;
-				this.options.GameMode = this.resource.Wad.GameMode;
-				this.options.MissionPack = this.resource.Wad.MissionPack;
 				this.options.Renderer = this.renderer;
 				this.options.Sound = this.sound;
 				this.options.Music = this.music;
@@ -119,7 +119,7 @@ namespace DoomEngine
 
 				this.menu = new DoomMenu(this);
 
-				this.opening = new OpeningSequence(this.resource, this.options);
+				this.opening = new OpeningSequence(this.Resource, this.options);
 
 				this.cmds = new TicCmd[Player.MaxPlayerCount];
 
@@ -128,7 +128,7 @@ namespace DoomEngine
 					this.cmds[i] = new TicCmd();
 				}
 
-				this.game = new DoomGame(this.resource, this.options);
+				this.game = new DoomGame(this.Resource, this.options);
 
 				this.wipe = new WipeEffect(this.renderer.WipeBandCount, this.renderer.WipeHeight);
 				this.wiping = false;
@@ -233,13 +233,13 @@ namespace DoomEngine
 			if (args.playdemo.Present)
 			{
 				this.nextState = ApplicationState.DemoPlayback;
-				this.demoPlayback = new DemoPlayback(this.resource, this.options, args.playdemo.Value);
+				this.demoPlayback = new DemoPlayback(this.Resource, this.options, args.playdemo.Value);
 			}
 
 			if (args.timedemo.Present)
 			{
 				this.nextState = ApplicationState.DemoPlayback;
-				this.demoPlayback = new DemoPlayback(this.resource, this.options, args.timedemo.Value);
+				this.demoPlayback = new DemoPlayback(this.Resource, this.options, args.timedemo.Value);
 			}
 		}
 
@@ -647,10 +647,10 @@ namespace DoomEngine
 				this.renderer = null;
 			}
 
-			if (this.resource != null)
+			if (this.Resource != null)
 			{
-				this.resource.Dispose();
-				this.resource = null;
+				this.Resource.Dispose();
+				this.Resource = null;
 			}
 
 			if (this.window != null)

@@ -21,10 +21,6 @@ namespace DoomEngine.Doom.Game
 
 	public sealed class GameOptions
 	{
-		private GameVersion gameVersion;
-		private GameMode gameMode;
-		private MissionPack missionPack;
-
 		private Player[] players;
 		private int consolePlayer;
 
@@ -49,10 +45,6 @@ namespace DoomEngine.Doom.Game
 
 		public GameOptions()
 		{
-			this.gameVersion = GameVersion.Version109;
-			this.gameMode = GameMode.Commercial;
-			this.missionPack = MissionPack.Doom2;
-
 			this.players = new Player[Player.MaxPlayerCount];
 
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
@@ -81,24 +73,6 @@ namespace DoomEngine.Doom.Game
 			this.sound = NullSound.GetInstance();
 			this.music = NullMusic.GetInstance();
 			this.userInput = NullUserInput.GetInstance();
-		}
-
-		public GameVersion GameVersion
-		{
-			get => this.gameVersion;
-			set => this.gameVersion = value;
-		}
-
-		public GameMode GameMode
-		{
-			get => this.gameMode;
-			set => this.gameMode = value;
-		}
-
-		public MissionPack MissionPack
-		{
-			get => this.missionPack;
-			set => this.missionPack = value;
 		}
 
 		public Player[] Players

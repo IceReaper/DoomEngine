@@ -19,6 +19,7 @@ namespace DoomEngine.Doom.Menu
 	using Event;
 	using Game;
 	using Info;
+	using System.Linq;
 	using UserInput;
 
 	public sealed class DoomMenu
@@ -82,7 +83,7 @@ namespace DoomEngine.Doom.Menu
 				new SimpleMenuItem("M_NMARE", 16, 122, 48, 127, null, this.nightmareConfirm)
 			);
 
-			if (app.Options.GameMode == GameMode.Retail)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom"))
 			{
 				this.episodeMenu = new SelectableMenu(
 					this,
@@ -98,7 +99,7 @@ namespace DoomEngine.Doom.Menu
 			}
 			else
 			{
-				if (app.Options.GameMode == GameMode.Shareware)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
 				{
 					this.episodeMenu = new SelectableMenu(
 						this,
@@ -214,7 +215,9 @@ namespace DoomEngine.Doom.Menu
 
 			MenuDef newGameMenu;
 
-			if (app.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				newGameMenu = this.skillMenu;
 			}

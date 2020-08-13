@@ -20,6 +20,7 @@ namespace DoomEngine.Doom.World
 	using Info;
 	using Map;
 	using Math;
+	using System.Linq;
 
 	public sealed class WeaponBehavior
 	{
@@ -133,13 +134,17 @@ namespace DoomEngine.Doom.World
 			// Preferences are set here.
 			do
 			{
-				if (player.WeaponOwned[(int) WeaponType.Plasma] && player.Ammo[(int) AmmoType.Cell] > 0 && this.world.Options.GameMode != GameMode.Shareware)
+				if (player.WeaponOwned[(int) WeaponType.Plasma]
+					&& player.Ammo[(int) AmmoType.Cell] > 0
+					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
 				{
 					player.PendingWeapon = WeaponType.Plasma;
 				}
 				else if (player.WeaponOwned[(int) WeaponType.SuperShotgun]
 					&& player.Ammo[(int) AmmoType.Shell] > 2
-					&& this.world.Options.GameMode == GameMode.Commercial)
+					&& (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt")))
 				{
 					player.PendingWeapon = WeaponType.SuperShotgun;
 				}
@@ -163,7 +168,9 @@ namespace DoomEngine.Doom.World
 				{
 					player.PendingWeapon = WeaponType.Missile;
 				}
-				else if (player.WeaponOwned[(int) WeaponType.Bfg] && player.Ammo[(int) AmmoType.Cell] > 40 && this.world.Options.GameMode != GameMode.Shareware)
+				else if (player.WeaponOwned[(int) WeaponType.Bfg]
+					&& player.Ammo[(int) AmmoType.Cell] > 40
+					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
 				{
 					player.PendingWeapon = WeaponType.Bfg;
 				}

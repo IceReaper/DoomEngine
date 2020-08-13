@@ -116,7 +116,7 @@ namespace DoomEngine.Doom.Common
 
 		public static void DumpMobjCsv(string path, World world)
 		{
-			using (var writer = new StreamWriter(DoomApplication.FileSystem.Write(path)))
+			using (var writer = new StreamWriter(DoomApplication.Instance.FileSystem.Write(path)))
 			{
 				foreach (var thinker in world.Thinkers)
 				{

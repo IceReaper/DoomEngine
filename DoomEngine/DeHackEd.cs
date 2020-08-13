@@ -69,7 +69,7 @@ namespace DoomEngine
 			var data = new List<string>();
 			var last = Block.None;
 			
-			using var reader = new StreamReader(DoomApplication.FileSystem.Read(fileName));
+			using var reader = new StreamReader(DoomApplication.Instance.FileSystem.Read(fileName));
 			var lines = reader.ReadToEnd().Split('\n');
 
 			foreach (var line in lines)

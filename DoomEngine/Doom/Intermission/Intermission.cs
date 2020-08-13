@@ -19,6 +19,7 @@ namespace DoomEngine.Doom.Intermission
 	using Common;
 	using Game;
 	using System.Collections.Generic;
+	using System.Linq;
 
 	public sealed class Intermission
 	{
@@ -188,7 +189,9 @@ namespace DoomEngine.Doom.Intermission
 
 		private void InitAnimatedBack()
 		{
-			if (this.options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				return;
 			}
@@ -230,7 +233,9 @@ namespace DoomEngine.Doom.Intermission
 			if (this.bgCount == 1)
 			{
 				// intermission music
-				if (this.options.GameMode == GameMode.Commercial)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 				{
 					this.options.Music.StartMusic(Bgm.DM2INT, true);
 				}
@@ -384,7 +389,9 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SGCOCK);
 
-					if (this.options.GameMode == GameMode.Commercial)
+					if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 					{
 						this.InitNoState();
 					}
@@ -582,7 +589,9 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SGCOCK);
 
-					if (this.options.GameMode == GameMode.Commercial)
+					if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 					{
 						this.InitNoState();
 					}
@@ -699,7 +708,9 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SLOP);
 
-					if (this.options.GameMode == GameMode.Commercial)
+					if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+						|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 					{
 						this.InitNoState();
 					}
@@ -745,7 +756,9 @@ namespace DoomEngine.Doom.Intermission
 
 		private void UpdateAnimatedBack()
 		{
-			if (this.options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				return;
 			}

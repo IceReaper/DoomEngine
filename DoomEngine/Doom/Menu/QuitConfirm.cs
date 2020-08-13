@@ -22,6 +22,7 @@ namespace DoomEngine.Doom.Menu
 	using Info;
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using UserInput;
 
 	public sealed class QuitConfirm : MenuDef
@@ -54,9 +55,11 @@ namespace DoomEngine.Doom.Menu
 		{
 			IReadOnlyList<DoomString> list;
 
-			if (this.app.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
-				if (this.app.Options.MissionPack == MissionPack.Doom2)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2"))
 				{
 					list = DoomInfo.QuitMessages.Doom2;
 				}
@@ -91,7 +94,9 @@ namespace DoomEngine.Doom.Menu
 
 				Sfx sfx;
 
-				if (this.Menu.Options.GameMode == GameMode.Commercial)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 				{
 					sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
 				}

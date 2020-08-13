@@ -18,6 +18,7 @@ namespace DoomEngine.Doom
 	using Audio;
 	using Common;
 	using Game;
+	using System.Linq;
 
 	public sealed class OpeningSequence
 	{
@@ -224,7 +225,9 @@ namespace DoomEngine.Doom
 
 			if (this.state == OpeningSequenceState.Title && this.count == 1)
 			{
-				if (this.options.GameMode == GameMode.Commercial)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 				{
 					this.options.Music.StartMusic(Bgm.DM2TTL, false);
 				}
@@ -252,7 +255,9 @@ namespace DoomEngine.Doom
 
 			this.count = 0;
 
-			if (this.options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				this.timer = 35 * 11;
 			}
@@ -275,9 +280,6 @@ namespace DoomEngine.Doom
 			this.state = OpeningSequenceState.Demo;
 
 			this.demo = new Demo(this.resource.Wad.ReadLump(lump));
-			this.demo.Options.GameVersion = this.options.GameVersion;
-			this.demo.Options.GameMode = this.options.GameMode;
-			this.demo.Options.MissionPack = this.options.MissionPack;
 			this.demo.Options.Renderer = this.options.Renderer;
 			this.demo.Options.Sound = this.options.Sound;
 			this.demo.Options.Music = this.options.Music;

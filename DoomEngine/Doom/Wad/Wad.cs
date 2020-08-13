@@ -16,7 +16,6 @@
 namespace DoomEngine.Doom.Wad
 {
 	using Common;
-	using Game;
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
@@ -28,9 +27,6 @@ namespace DoomEngine.Doom.Wad
 		private List<string> names;
 		private List<Stream> streams;
 		private List<LumpInfo> lumpInfos;
-		private GameVersion gameVersion;
-		private GameMode gameMode;
-		private MissionPack missionPack;
 
 		public Wad(params string[] fileNames)
 		{
@@ -47,10 +43,6 @@ namespace DoomEngine.Doom.Wad
 					this.AddFile(fileName);
 				}
 
-				this.gameMode = Wad.GetGameMode(this.names);
-				this.missionPack = Wad.GetMissionPack(this.names);
-				this.gameVersion = Wad.GetGameVersion(this.names);
-
 				Console.WriteLine("OK (" + string.Join(", ", fileNames.Select(x => Path.GetFileName(x))) + ")");
 			}
 			catch (Exception e)
@@ -65,7 +57,7 @@ namespace DoomEngine.Doom.Wad
 		{
 			this.names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
 
-			var stream = DoomApplication.FileSystem.Read(fileName);
+			var stream = DoomApplication.Instance.FileSystem.Read(fileName);
 			this.streams.Add(stream);
 
 			string identification;
@@ -174,71 +166,7 @@ namespace DoomEngine.Doom.Wad
 			this.streams.Clear();
 		}
 
-		private static GameVersion GetGameVersion(IReadOnlyList<string> names)
-		{
-			foreach (var name in names)
-			{
-				switch (name.ToLower())
-				{
-					case "doom2":
-						return GameVersion.Version109;
-
-					case "doom":
-					case "doom1":
-						return GameVersion.Ultimate;
-
-					case "plutonia":
-					case "tnt":
-						return GameVersion.Final;
-				}
-			}
-
-			return GameVersion.Version109;
-		}
-
-		private static GameMode GetGameMode(IReadOnlyList<string> names)
-		{
-			foreach (var name in names)
-			{
-				switch (name.ToLower())
-				{
-					case "doom2":
-					case "plutonia":
-					case "tnt":
-						return GameMode.Commercial;
-
-					case "doom":
-						return GameMode.Retail;
-
-					case "doom1":
-						return GameMode.Shareware;
-				}
-			}
-
-			return GameMode.Indetermined;
-		}
-
-		private static MissionPack GetMissionPack(IReadOnlyList<string> names)
-		{
-			foreach (var name in names)
-			{
-				switch (name.ToLower())
-				{
-					case "plutonia":
-						return MissionPack.Plutonia;
-
-					case "tnt":
-						return MissionPack.Tnt;
-				}
-			}
-
-			return MissionPack.Doom2;
-		}
-
 		public IReadOnlyList<string> Names => this.names;
 		public IReadOnlyList<LumpInfo> LumpInfos => this.lumpInfos;
-		public GameVersion GameVersion => this.gameVersion;
-		public GameMode GameMode => this.gameMode;
-		public MissionPack MissionPack => this.missionPack;
 	}
 }

@@ -20,6 +20,7 @@ namespace DoomEngine.Doom.World
 	using Map;
 	using Math;
 	using System;
+	using System.Linq;
 
 	public sealed class ThingMovement
 	{
@@ -735,7 +736,7 @@ namespace DoomEngine.Doom.World
 				// The lost soul bounce fix below is based on Chocolate Doom's implementation.
 				//
 
-				var correctLostSoulBounce = this.world.Options.GameVersion >= GameVersion.Ultimate;
+				var correctLostSoulBounce = !DoomApplication.Instance.Resource.Wad.Names.Contains("doom2");
 
 				if (correctLostSoulBounce && (thing.Flags & MobjFlags.SkullFly) != 0)
 				{

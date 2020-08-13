@@ -23,6 +23,7 @@ namespace DoomEngine.Doom.Map
 	using Math;
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using System.Runtime.ExceptionServices;
 	using Wad;
 	using World;
@@ -68,7 +69,9 @@ namespace DoomEngine.Doom.Map
 
 				string name;
 
-				if (wad.GameMode == GameMode.Commercial)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 				{
 					name = "MAP" + options.Map.ToString("00");
 				}
@@ -101,24 +104,21 @@ namespace DoomEngine.Doom.Map
 
 				this.skyTexture = this.GetSkyTextureByMapName(name);
 
-				if (options.GameMode == GameMode.Commercial)
+				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 				{
-					switch (options.MissionPack)
+					if (DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia"))
 					{
-						case MissionPack.Plutonia:
-							this.title = DoomInfo.MapTitles.Plutonia[options.Map - 1];
-
-							break;
-
-						case MissionPack.Tnt:
-							this.title = DoomInfo.MapTitles.Tnt[options.Map - 1];
-
-							break;
-
-						default:
-							this.title = DoomInfo.MapTitles.Doom2[options.Map - 1];
-
-							break;
+						this.title = DoomInfo.MapTitles.Plutonia[options.Map - 1];
+					}
+					else if (DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+					{
+						this.title = DoomInfo.MapTitles.Tnt[options.Map - 1];
+					}
+					else
+					{
+						this.title = DoomInfo.MapTitles.Doom2[options.Map - 1];
 					}
 				}
 				else
@@ -268,7 +268,9 @@ namespace DoomEngine.Doom.Map
 		{
 			Bgm bgm;
 
-			if (options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				bgm = Bgm.RUNNIN + options.Map - 1;
 			}

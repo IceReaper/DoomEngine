@@ -125,7 +125,9 @@ namespace DoomEngine.Doom.World
 		{
 			var player = this.world.ConsolePlayer;
 
-			if (this.world.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				for (var i = 0; i < (int) WeaponType.Count; i++)
 				{
@@ -141,7 +143,7 @@ namespace DoomEngine.Doom.World
 
 				player.WeaponOwned[(int) WeaponType.Chainsaw] = true;
 
-				if (this.world.Options.GameMode != GameMode.Shareware)
+				if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
 				{
 					player.WeaponOwned[(int) WeaponType.Plasma] = true;
 					player.WeaponOwned[(int) WeaponType.Bfg] = true;
@@ -382,7 +384,9 @@ namespace DoomEngine.Doom.World
 
 		private void ChangeLevel(string typed)
 		{
-			if (this.world.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				int map;
 
@@ -418,9 +422,10 @@ namespace DoomEngine.Doom.World
 		private void ChangeMusic(string typed)
 		{
 			var options = new GameOptions();
-			options.GameMode = this.world.Options.GameMode;
 
-			if (this.world.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				int map;
 

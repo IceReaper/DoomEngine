@@ -19,6 +19,7 @@ namespace DoomEngine.Doom.Intermission
 	using Event;
 	using Game;
 	using Info;
+	using System.Linq;
 	using World;
 
 	public sealed class Finale
@@ -54,131 +55,121 @@ namespace DoomEngine.Doom.Intermission
 			string c5Text;
 			string c6Text;
 
-			switch (options.MissionPack)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia"))
 			{
-				case MissionPack.Plutonia:
-					c1Text = DoomInfo.Strings.P1TEXT;
-					c2Text = DoomInfo.Strings.P2TEXT;
-					c3Text = DoomInfo.Strings.P3TEXT;
-					c4Text = DoomInfo.Strings.P4TEXT;
-					c5Text = DoomInfo.Strings.P5TEXT;
-					c6Text = DoomInfo.Strings.P6TEXT;
-
-					break;
-
-				case MissionPack.Tnt:
-					c1Text = DoomInfo.Strings.T1TEXT;
-					c2Text = DoomInfo.Strings.T2TEXT;
-					c3Text = DoomInfo.Strings.T3TEXT;
-					c4Text = DoomInfo.Strings.T4TEXT;
-					c5Text = DoomInfo.Strings.T5TEXT;
-					c6Text = DoomInfo.Strings.T6TEXT;
-
-					break;
-
-				default:
-					c1Text = DoomInfo.Strings.C1TEXT;
-					c2Text = DoomInfo.Strings.C2TEXT;
-					c3Text = DoomInfo.Strings.C3TEXT;
-					c4Text = DoomInfo.Strings.C4TEXT;
-					c5Text = DoomInfo.Strings.C5TEXT;
-					c6Text = DoomInfo.Strings.C6TEXT;
-
-					break;
+				c1Text = DoomInfo.Strings.P1TEXT;
+				c2Text = DoomInfo.Strings.P2TEXT;
+				c3Text = DoomInfo.Strings.P3TEXT;
+				c4Text = DoomInfo.Strings.P4TEXT;
+				c5Text = DoomInfo.Strings.P5TEXT;
+				c6Text = DoomInfo.Strings.P6TEXT;
+			}
+			else if (DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			{
+				c1Text = DoomInfo.Strings.T1TEXT;
+				c2Text = DoomInfo.Strings.T2TEXT;
+				c3Text = DoomInfo.Strings.T3TEXT;
+				c4Text = DoomInfo.Strings.T4TEXT;
+				c5Text = DoomInfo.Strings.T5TEXT;
+				c6Text = DoomInfo.Strings.T6TEXT;
+			}
+			else
+			{
+				c1Text = DoomInfo.Strings.C1TEXT;
+				c2Text = DoomInfo.Strings.C2TEXT;
+				c3Text = DoomInfo.Strings.C3TEXT;
+				c4Text = DoomInfo.Strings.C4TEXT;
+				c5Text = DoomInfo.Strings.C5TEXT;
+				c6Text = DoomInfo.Strings.C6TEXT;
 			}
 
-			switch (options.GameMode)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom") || DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
 			{
-				case GameMode.Shareware:
-				case GameMode.Registered:
-				case GameMode.Retail:
-					options.Music.StartMusic(Bgm.VICTOR, true);
+				options.Music.StartMusic(Bgm.VICTOR, true);
 
-					switch (options.Episode)
-					{
-						case 1:
-							this.flat = "FLOOR4_8";
-							this.text = DoomInfo.Strings.E1TEXT;
+				switch (options.Episode)
+				{
+					case 1:
+						this.flat = "FLOOR4_8";
+						this.text = DoomInfo.Strings.E1TEXT;
 
-							break;
+						break;
 
-						case 2:
-							this.flat = "SFLR6_1";
-							this.text = DoomInfo.Strings.E2TEXT;
+					case 2:
+						this.flat = "SFLR6_1";
+						this.text = DoomInfo.Strings.E2TEXT;
 
-							break;
+						break;
 
-						case 3:
-							this.flat = "MFLR8_4";
-							this.text = DoomInfo.Strings.E3TEXT;
+					case 3:
+						this.flat = "MFLR8_4";
+						this.text = DoomInfo.Strings.E3TEXT;
 
-							break;
+						break;
 
-						case 4:
-							this.flat = "MFLR8_3";
-							this.text = DoomInfo.Strings.E4TEXT;
+					case 4:
+						this.flat = "MFLR8_3";
+						this.text = DoomInfo.Strings.E4TEXT;
 
-							break;
+						break;
 
-						default:
-							break;
-					}
+					default:
+						break;
+				}
+			}
+			else if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			{
+				options.Music.StartMusic(Bgm.READ_M, true);
 
-					break;
+				switch (options.Map)
+				{
+					case 6:
+						this.flat = "SLIME16";
+						this.text = c1Text;
 
-				case GameMode.Commercial:
-					options.Music.StartMusic(Bgm.READ_M, true);
+						break;
 
-					switch (options.Map)
-					{
-						case 6:
-							this.flat = "SLIME16";
-							this.text = c1Text;
+					case 11:
+						this.flat = "RROCK14";
+						this.text = c2Text;
 
-							break;
+						break;
 
-						case 11:
-							this.flat = "RROCK14";
-							this.text = c2Text;
+					case 20:
+						this.flat = "RROCK07";
+						this.text = c3Text;
 
-							break;
+						break;
 
-						case 20:
-							this.flat = "RROCK07";
-							this.text = c3Text;
+					case 30:
+						this.flat = "RROCK17";
+						this.text = c4Text;
 
-							break;
+						break;
 
-						case 30:
-							this.flat = "RROCK17";
-							this.text = c4Text;
+					case 15:
+						this.flat = "RROCK13";
+						this.text = c5Text;
 
-							break;
+						break;
 
-						case 15:
-							this.flat = "RROCK13";
-							this.text = c5Text;
+					case 31:
+						this.flat = "RROCK19";
+						this.text = c6Text;
 
-							break;
+						break;
 
-						case 31:
-							this.flat = "RROCK19";
-							this.text = c6Text;
-
-							break;
-
-						default:
-							break;
-					}
-
-					break;
-
-				default:
-					options.Music.StartMusic(Bgm.READ_M, true);
-					this.flat = "F_SKY1";
-					this.text = DoomInfo.Strings.C1TEXT;
-
-					break;
+					default:
+						break;
+				}
+			}
+			else
+			{
+				options.Music.StartMusic(Bgm.READ_M, true);
+				this.flat = "F_SKY1";
+				this.text = DoomInfo.Strings.C1TEXT;
 			}
 
 			this.stage = 0;
@@ -194,7 +185,10 @@ namespace DoomEngine.Doom.Intermission
 			this.updateResult = UpdateResult.None;
 
 			// Check for skipping.
-			if (this.options.GameMode == GameMode.Commercial && this.count > 50)
+			if ((DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				&& this.count > 50)
 			{
 				int i;
 
@@ -230,7 +224,9 @@ namespace DoomEngine.Doom.Intermission
 				return this.updateResult;
 			}
 
-			if (this.options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				return this.updateResult;
 			}

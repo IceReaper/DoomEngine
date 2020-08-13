@@ -63,7 +63,7 @@ namespace DoomEngine.Doom.Game
 			var options = game.Options;
 			game.InitNew(options.Skill, options.Episode, options.Map);
 
-			using var reader = new BinaryReader(DoomApplication.FileSystem.Read(path));
+			using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(path));
 
 			var lg = new LoadGame(reader.ReadBytes((int) reader.BaseStream.Length));
 			lg.Load(game);
@@ -132,7 +132,7 @@ namespace DoomEngine.Doom.Game
 
 				this.data[this.ptr++] = 0x1d;
 
-				using (var writer = DoomApplication.FileSystem.Write(path))
+				using (var writer = DoomApplication.Instance.FileSystem.Write(path))
 				{
 					writer.Write(this.data, 0, this.ptr);
 				}

@@ -33,14 +33,14 @@ namespace DoomEngine.Doom
 
 		public DemoPlayback(CommonResource resource, GameOptions options, string demoName)
 		{
-			if (DoomApplication.FileSystem.Exists(demoName))
+			if (DoomApplication.Instance.FileSystem.Exists(demoName))
 			{
-				using var reader = new BinaryReader(DoomApplication.FileSystem.Read(demoName));
+				using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(demoName));
 				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
 			}
-			else if (DoomApplication.FileSystem.Exists(demoName + ".lmp"))
+			else if (DoomApplication.Instance.FileSystem.Exists(demoName + ".lmp"))
 			{
-				using var reader = new BinaryReader(DoomApplication.FileSystem.Read(demoName + ".lmp"));
+				using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(demoName + ".lmp"));
 				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
 			}
 			else
@@ -55,9 +55,6 @@ namespace DoomEngine.Doom
 				this.demo = new Demo(resource.Wad.ReadLump(lumpName));
 			}
 
-			this.demo.Options.GameVersion = options.GameVersion;
-			this.demo.Options.GameMode = options.GameMode;
-			this.demo.Options.MissionPack = options.MissionPack;
 			this.demo.Options.Renderer = options.Renderer;
 			this.demo.Options.Sound = options.Sound;
 			this.demo.Options.Music = options.Music;

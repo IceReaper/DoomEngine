@@ -34,9 +34,9 @@ namespace DoomEngine.Doom.Menu
 			{
 				var path = "doomsav" + i + ".dsg";
 
-				if (DoomApplication.FileSystem.Exists(path))
+				if (DoomApplication.Instance.FileSystem.Exists(path))
 				{
-					using (var reader = DoomApplication.FileSystem.Read(path))
+					using (var reader = DoomApplication.Instance.FileSystem.Read(path))
 					{
 						reader.Read(buffer, 0, buffer.Length);
 						this.slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);

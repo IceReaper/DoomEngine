@@ -25,7 +25,7 @@ namespace DoomEngine
 
 			foreach (var name in names)
 			{
-				if (DoomApplication.FileSystem.Exists(name))
+				if (DoomApplication.Instance.FileSystem.Exists(name))
 				{
 					return name;
 				}

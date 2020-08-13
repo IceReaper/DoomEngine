@@ -21,6 +21,7 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Wad;
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 
 	public sealed class IntermissionRenderer
 	{
@@ -167,7 +168,9 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawBackground(Intermission im)
 		{
-			if (im.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				this.DrawPatch("INTERPIC", 0, 0);
 			}
@@ -446,7 +449,9 @@ namespace DoomEngine.SoftwareRendering
 			// Draw animated background.
 			this.DrawBackgroundAnimation(im);
 
-			if (im.Options.GameMode != GameMode.Commercial)
+			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				if (im.Info.Episode > 2)
 				{
@@ -483,7 +488,10 @@ namespace DoomEngine.SoftwareRendering
 			}
 
 			// Draw next level name.
-			if ((im.Options.GameMode != GameMode.Commercial) || im.Info.NextLevel != 30)
+			if ((!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				|| im.Info.NextLevel != 30)
 			{
 				this.DrawEnteringLevelName(im);
 			}
@@ -496,7 +504,9 @@ namespace DoomEngine.SoftwareRendering
 
 			string levelName;
 
-			if (intermission.Options.GameMode != GameMode.Commercial)
+			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				var e = intermission.Options.Episode - 1;
 				levelName = IntermissionRenderer.doomLevels[e][wbs.LastLevel];
@@ -522,7 +532,9 @@ namespace DoomEngine.SoftwareRendering
 
 			string levelName;
 
-			if (im.Options.GameMode != GameMode.Commercial)
+			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				var e = im.Options.Episode - 1;
 				levelName = IntermissionRenderer.doomLevels[e][wbs.NextLevel];
@@ -644,7 +656,9 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawBackgroundAnimation(Intermission im)
 		{
-			if (im.Options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				return;
 			}

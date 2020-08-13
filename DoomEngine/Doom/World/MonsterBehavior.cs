@@ -21,6 +21,7 @@ namespace DoomEngine.Doom.World
 	using Map;
 	using Math;
 	using System;
+	using System.Linq;
 
 	public sealed class MonsterBehavior
 	{
@@ -1507,7 +1508,9 @@ namespace DoomEngine.Doom.World
 		{
 			var options = this.world.Options;
 
-			if (options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				if (options.Map != 7)
 				{
@@ -1633,7 +1636,9 @@ namespace DoomEngine.Doom.World
 			}
 
 			// Victory!
-			if (options.GameMode == GameMode.Commercial)
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				if (options.Map == 7)
 				{
