@@ -15,10 +15,9 @@
 
 namespace DoomEngine.Doom.Game
 {
-	using Audio;
 	using Intermission;
-	using SoftwareRendering;
-	using UserInput;
+	using Platform;
+	using Platform.Null;
 
 	public sealed class GameOptions
 	{

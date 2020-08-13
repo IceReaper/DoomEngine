@@ -18,15 +18,16 @@ namespace DoomEngine.SoftwareRendering
 	using Doom;
 	using Doom.Graphics;
 	using Doom.Wad;
+	using Platform;
 
 	public class OpeningSequenceRenderer
 	{
 		private DrawScreen screen;
-		private SfmlRenderer parent;
+		private IRenderer parent;
 
 		private PatchCache cache;
 
-		public OpeningSequenceRenderer(Wad wad, DrawScreen screen, SfmlRenderer parent)
+		public OpeningSequenceRenderer(Wad wad, DrawScreen screen, IRenderer parent)
 		{
 			this.screen = screen;
 			this.parent = parent;

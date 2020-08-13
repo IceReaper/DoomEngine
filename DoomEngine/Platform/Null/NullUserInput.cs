@@ -13,13 +13,54 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.Audio
+namespace DoomEngine.Platform.Null
 {
-	public interface IMusic
-	{
-		void StartMusic(Bgm bgm, bool loop);
+	using Doom.Game;
 
-		public int MaxVolume { get; }
-		public int Volume { get; set; }
+	public sealed class NullUserInput : IUserInput
+	{
+		private static NullUserInput instance;
+
+		public static NullUserInput GetInstance()
+		{
+			if (NullUserInput.instance == null)
+			{
+				NullUserInput.instance = new NullUserInput();
+			}
+
+			return NullUserInput.instance;
+		}
+
+		public void BuildTicCmd(TicCmd cmd)
+		{
+		}
+
+		public void Reset()
+		{
+		}
+
+		public int MaxMouseSensitivity
+		{
+			get
+			{
+				return 9;
+			}
+		}
+
+		public int MouseSensitivity
+		{
+			get
+			{
+				return 3;
+			}
+
+			set
+			{
+			}
+		}
+
+		public void Dispose()
+		{
+		}
 	}
 }

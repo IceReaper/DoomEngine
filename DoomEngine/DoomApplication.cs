@@ -22,11 +22,11 @@ namespace DoomEngine
 	using Doom.Game;
 	using Doom.Info;
 	using Doom.Menu;
-	using SFML.Graphics;
-	using SFML.Window;
+	using Platform;
 	using SoftwareRendering;
 	using System;
 	using System.Collections.Generic;
+	using System.Drawing;
 	using System.Runtime.ExceptionServices;
 	using UserInput;
 	using EventType = Doom.Event.EventType;
@@ -35,13 +35,13 @@ namespace DoomEngine
 	{
 		private Config config;
 
-		private RenderWindow window;
+		private IWindow window;
 
 		private CommonResource resource;
-		private SfmlRenderer renderer;
-		private SfmlSound sound;
-		private SfmlMusic music;
-		private SfmlUserInput userInput;
+		private IRenderer renderer;
+		private ISound sound;
+		private IMusic music;
+		private IUserInput userInput;
 
 		private List<DoomEvent> events;
 
@@ -68,24 +68,17 @@ namespace DoomEngine
 		private bool quit;
 		private string quitMessage;
 
-		public DoomApplication(CommandLineArgs args)
+		public DoomApplication(IPlatform platform, CommandLineArgs args)
 		{
-			this.config = new Config(ConfigUtilities.GetConfigPath());
+			this.config = new Config(platform, ConfigUtilities.GetConfigPath());
 
 			try
 			{
 				this.config.video_screenwidth = Math.Clamp(this.config.video_screenwidth, 320, 3200);
 				this.config.video_screenheight = Math.Clamp(this.config.video_screenheight, 200, 2000);
-				var videoMode = new VideoMode((uint) this.config.video_screenwidth, (uint) this.config.video_screenheight);
-				var style = Styles.Close | Styles.Titlebar;
 
-				if (this.config.video_fullscreen)
-				{
-					style = Styles.Fullscreen;
-				}
-
-				this.window = new RenderWindow(videoMode, ApplicationInfo.Title, style);
-				this.window.Clear(new Color(64, 64, 64));
+				this.window = platform.CreateWindow(ApplicationInfo.Title, this.config);
+				this.window.Clear(Color.FromArgb(64, 64, 64));
 				this.window.Display();
 
 				if (args.deh.Present)
@@ -95,19 +88,19 @@ namespace DoomEngine
 
 				this.resource = new CommonResource(this.GetWadPaths(args));
 
-				this.renderer = new SfmlRenderer(this.config, this.window, this.resource);
+				this.renderer = platform.CreateRenderer(this.config, this.window, this.resource);
 
 				if (!args.nosound.Present && !args.nosfx.Present)
 				{
-					this.sound = new SfmlSound(this.config, this.resource.Wad);
+					this.sound = platform.CreateSound(this.config, this.resource.Wad);
 				}
 
 				if (!args.nosound.Present && !args.nomusic.Present)
 				{
-					this.music = ConfigUtilities.GetSfmlMusicInstance(this.config, this.resource.Wad);
+					this.music = platform.CreateMusic(this.config, this.resource.Wad);
 				}
 
-				this.userInput = new SfmlUserInput(this.config, this.window, !args.nomouse.Present);
+				this.userInput = platform.CreateUserInput(this.config, this.window, !args.nomouse.Present);
 
 				this.events = new List<DoomEvent>();
 
@@ -554,19 +547,19 @@ namespace DoomEngine
 			return UpdateResult.None;
 		}
 
-		private void KeyPressed(object sender, KeyEventArgs e)
+		private void KeyPressed(object sender, DoomKey code)
 		{
 			if (this.events.Count < 64)
 			{
-				this.events.Add(new DoomEvent(EventType.KeyDown, (DoomKey) e.Code));
+				this.events.Add(new DoomEvent(EventType.KeyDown, code));
 			}
 		}
 
-		private void KeyReleased(object sender, KeyEventArgs e)
+		private void KeyReleased(object sender, DoomKey code)
 		{
 			if (this.events.Count < 64)
 			{
-				this.events.Add(new DoomEvent(EventType.KeyUp, (DoomKey) e.Code));
+				this.events.Add(new DoomEvent(EventType.KeyUp, code));
 			}
 		}
 

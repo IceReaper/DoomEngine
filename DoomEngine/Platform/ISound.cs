@@ -13,11 +13,13 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.Audio
+namespace DoomEngine.Platform
 {
+	using Audio;
 	using Doom.World;
+	using System;
 
-	public interface ISound
+	public interface ISound : IDisposable
 	{
 		public void SetListener(Mobj listener);
 		public void Update();

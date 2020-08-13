@@ -13,17 +13,19 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.UserInput
+namespace DoomEngine.Platform.Desktop
 {
 	using Doom.Game;
 	using Doom.World;
+	using Platform;
 	using SFML.Graphics;
 	using SFML.System;
 	using SFML.Window;
 	using System;
 	using System.Runtime.ExceptionServices;
+	using UserInput;
 
-	public sealed class SfmlUserInput : IUserInput, IDisposable
+	public sealed class SfmlUserInput : IUserInput
 	{
 		private Config config;
 

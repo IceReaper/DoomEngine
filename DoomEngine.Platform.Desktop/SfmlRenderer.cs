@@ -13,7 +13,7 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.SoftwareRendering
+namespace DoomEngine.Platform.Desktop
 {
 	using Doom;
 	using Doom.Common;
@@ -23,13 +23,14 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.World;
 	using SFML.Graphics;
 	using SFML.System;
+	using SoftwareRendering;
 	using System;
 	using System.Runtime.ExceptionServices;
 	using System.Runtime.InteropServices;
 	using Sprite = SFML.Graphics.Sprite;
 	using Texture = SFML.Graphics.Texture;
 
-	public sealed class SfmlRenderer : IRenderer, IDisposable
+	public sealed class SfmlRenderer : IRenderer
 	{
 		private static double[] gammaCorrectionParameters = new double[] {1.00, 0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50};
 

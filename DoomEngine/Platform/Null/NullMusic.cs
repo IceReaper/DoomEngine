@@ -13,57 +13,25 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.Audio
+namespace DoomEngine.Platform.Null
 {
-	using Doom.World;
+	using Audio;
 
-	public sealed class NullSound : ISound
+	public sealed class NullMusic : IMusic
 	{
-		private static NullSound instance;
+		private static NullMusic instance;
 
-		public static NullSound GetInstance()
+		public static NullMusic GetInstance()
 		{
-			if (NullSound.instance == null)
+			if (NullMusic.instance == null)
 			{
-				NullSound.instance = new NullSound();
+				NullMusic.instance = new NullMusic();
 			}
 
-			return NullSound.instance;
+			return NullMusic.instance;
 		}
 
-		public void SetListener(Mobj listerner)
-		{
-		}
-
-		public void Update()
-		{
-		}
-
-		public void StartSound(Sfx sfx)
-		{
-		}
-
-		public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
-		{
-		}
-
-		public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
-		{
-		}
-
-		public void StopSound(Mobj mobj)
-		{
-		}
-
-		public void Reset()
-		{
-		}
-
-		public void Pause()
-		{
-		}
-
-		public void Resume()
+		public void StartMusic(Bgm bgm, bool loop)
 		{
 		}
 
@@ -85,6 +53,10 @@ namespace DoomEngine.Audio
 			set
 			{
 			}
+		}
+
+		public void Dispose()
+		{
 		}
 	}
 }

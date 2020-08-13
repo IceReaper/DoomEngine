@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoomEngine", "DoomEngine\Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpSynth", "CSharpSynth\CSharpSynth.csproj", "{A0CA02F7-62FB-4406-99AD-597BD79987A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoomEngine.Platform.Desktop", "DoomEngine.Platform.Desktop\DoomEngine.Platform.Desktop.csproj", "{8CE1F6D5-2143-4D72-B042-8DC9EFE2564B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A0CA02F7-62FB-4406-99AD-597BD79987A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0CA02F7-62FB-4406-99AD-597BD79987A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0CA02F7-62FB-4406-99AD-597BD79987A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CE1F6D5-2143-4D72-B042-8DC9EFE2564B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CE1F6D5-2143-4D72-B042-8DC9EFE2564B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CE1F6D5-2143-4D72-B042-8DC9EFE2564B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CE1F6D5-2143-4D72-B042-8DC9EFE2564B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

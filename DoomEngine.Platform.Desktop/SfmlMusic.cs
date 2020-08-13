@@ -13,8 +13,9 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.Audio
+namespace DoomEngine.Platform.Desktop
 {
+	using Audio;
 	using AudioSynthesis.Midi;
 	using AudioSynthesis.Sequencer;
 	using AudioSynthesis.Synthesis;
@@ -26,7 +27,7 @@ namespace DoomEngine.Audio
 	using System.IO;
 	using System.Runtime.ExceptionServices;
 
-	public sealed class SfmlMusic : IMusic, IDisposable
+	public sealed class SfmlMusic : IMusic
 	{
 		private Config config;
 		private Wad wad;

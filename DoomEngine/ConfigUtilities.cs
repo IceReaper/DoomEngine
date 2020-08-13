@@ -15,9 +15,6 @@
 
 namespace DoomEngine
 {
-	using Audio;
-	using Doom.Wad;
-	using SFML.Window;
 	using System;
 	using System.Diagnostics;
 	using System.IO;
@@ -32,33 +29,6 @@ namespace DoomEngine
 		public static string GetConfigPath()
 		{
 			return Path.Combine(ConfigUtilities.GetExeDirectory(), "managed-doom.cfg");
-		}
-
-		public static VideoMode GetDefaultVideoMode()
-		{
-			var desktop = VideoMode.DesktopMode;
-
-			var baseWidth = 640;
-			var baseHeight = 400;
-
-			var currentWidth = baseWidth;
-			var currentHeight = baseHeight;
-
-			while (true)
-			{
-				var nextWidth = currentWidth + baseWidth;
-				var nextHeight = currentHeight + baseHeight;
-
-				if (nextWidth >= 0.9 * desktop.Width || nextHeight >= 0.9 * desktop.Height)
-				{
-					break;
-				}
-
-				currentWidth = nextWidth;
-				currentHeight = nextHeight;
-			}
-
-			return new VideoMode((uint) currentWidth, (uint) currentHeight);
 		}
 
 		public static string GetDefaultIwadPath()
@@ -90,20 +60,6 @@ namespace DoomEngine
 			}
 
 			throw new Exception("No IWAD was found!");
-		}
-
-		public static SfmlMusic GetSfmlMusicInstance(Config config, Wad wad)
-		{
-			var sfPath = Path.Combine(ConfigUtilities.GetExeDirectory(), "TimGM6mb.sf2");
-
-			if (File.Exists(sfPath))
-			{
-				return new SfmlMusic(config, wad, sfPath);
-			}
-			else
-			{
-				return null;
-			}
 		}
 	}
 }

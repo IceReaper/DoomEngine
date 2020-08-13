@@ -15,6 +15,7 @@
 
 namespace DoomEngine
 {
+	using Platform;
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
@@ -50,7 +51,7 @@ namespace DoomEngine
 		public int audio_musicvolume;
 
 		// Default settings.
-		public Config()
+		public Config(IPlatform platform)
 		{
 			this.key_forward = new KeyBinding(new DoomKey[] {DoomKey.Up, DoomKey.W});
 			this.key_backward = new KeyBinding(new DoomKey[] {DoomKey.Down, DoomKey.S});
@@ -68,9 +69,9 @@ namespace DoomEngine
 
 			this.game_alwaysrun = true;
 
-			var vm = ConfigUtilities.GetDefaultVideoMode();
-			this.video_screenwidth = (int) vm.Width;
-			this.video_screenheight = (int) vm.Height;
+			var vm = platform.GetDefaultVideoMode();
+			this.video_screenwidth = vm[0];
+			this.video_screenheight = vm[1];
 			this.video_fullscreen = false;
 			this.video_highresolution = true;
 			this.video_gamescreensize = 7;
@@ -81,8 +82,8 @@ namespace DoomEngine
 			this.audio_musicvolume = 8;
 		}
 
-		public Config(string path)
-			: this()
+		public Config(IPlatform platform, string path)
+			: this(platform)
 		{
 			try
 			{

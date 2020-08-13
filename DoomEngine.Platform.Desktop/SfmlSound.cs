@@ -13,18 +13,20 @@
 // GNU General Public License for more details.
 //
 
-namespace DoomEngine.Audio
+namespace DoomEngine.Platform.Desktop
 {
+	using Audio;
 	using Doom.Info;
 	using Doom.Math;
 	using Doom.Wad;
 	using Doom.World;
+	using Platform;
 	using SFML.Audio;
 	using SFML.System;
 	using System;
 	using System.Runtime.ExceptionServices;
 
-	public sealed class SfmlSound : ISound, IDisposable
+	public sealed class SfmlSound : ISound
 	{
 		private static readonly int channelCount = 8;
 
