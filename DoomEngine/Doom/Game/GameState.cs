@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.Game
 {
 	public enum GameState
-    {
-        Level,
-        Intermission,
-        Finale
-    }
+	{
+		Level,
+		Intermission,
+		Finale
+	}
 }

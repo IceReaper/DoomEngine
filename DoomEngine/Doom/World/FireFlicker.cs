@@ -18,62 +18,62 @@ namespace DoomEngine.Doom.World
 	using Map;
 
 	public sealed class FireFlicker : Thinker
-    {
-        private World world;
+	{
+		private World world;
 
-        private Sector sector;
-        private int count;
-        private int maxLight;
-        private int minLight;
+		private Sector sector;
+		private int count;
+		private int maxLight;
+		private int minLight;
 
-        public FireFlicker(World world)
-        {
-            this.world = world;
-        }
+		public FireFlicker(World world)
+		{
+			this.world = world;
+		}
 
-        public override void Run()
-        {
-            if (--this.count > 0)
-            {
-                return;
-            }
+		public override void Run()
+		{
+			if (--this.count > 0)
+			{
+				return;
+			}
 
-            var amount = (this.world.Random.Next() & 3) * 16;
+			var amount = (this.world.Random.Next() & 3) * 16;
 
-            if (this.sector.LightLevel - amount < this.minLight)
-            {
-                this.sector.LightLevel = this.minLight;
-            }
-            else
-            {
-                this.sector.LightLevel = this.maxLight - amount;
-            }
+			if (this.sector.LightLevel - amount < this.minLight)
+			{
+				this.sector.LightLevel = this.minLight;
+			}
+			else
+			{
+				this.sector.LightLevel = this.maxLight - amount;
+			}
 
-            this.count = 4;
-        }
+			this.count = 4;
+		}
 
-        public Sector Sector
-        {
-            get => this.sector;
-            set => this.sector = value;
-        }
+		public Sector Sector
+		{
+			get => this.sector;
+			set => this.sector = value;
+		}
 
-        public int Count
-        {
-            get => this.count;
-            set => this.count = value;
-        }
+		public int Count
+		{
+			get => this.count;
+			set => this.count = value;
+		}
 
-        public int MaxLight
-        {
-            get => this.maxLight;
-            set => this.maxLight = value;
-        }
+		public int MaxLight
+		{
+			get => this.maxLight;
+			set => this.maxLight = value;
+		}
 
-        public int MinLight
-        {
-            get => this.minLight;
-            set => this.minLight = value;
-        }
-    }
+		public int MinLight
+		{
+			get => this.minLight;
+			set => this.minLight = value;
+		}
+	}
 }

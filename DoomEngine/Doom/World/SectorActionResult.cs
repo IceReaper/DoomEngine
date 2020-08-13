@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.World
 {
 	public enum SectorActionResult
-    {
-        OK,
-        Crushed,
-        PastDestination
-    }
+	{
+		OK,
+		Crushed,
+		PastDestination
+	}
 }

@@ -16,50 +16,50 @@
 namespace DoomEngine.Doom.Game
 {
 	public sealed class TicCmd
-    {
-        private sbyte forwardMove;
-        private sbyte sideMove;
-        private short angleTurn;
-        private byte buttons;
+	{
+		private sbyte forwardMove;
+		private sbyte sideMove;
+		private short angleTurn;
+		private byte buttons;
 
-        public void Clear()
-        {
-            this.forwardMove = 0;
-            this.sideMove = 0;
-            this.angleTurn = 0;
-            this.buttons = 0;
-        }
+		public void Clear()
+		{
+			this.forwardMove = 0;
+			this.sideMove = 0;
+			this.angleTurn = 0;
+			this.buttons = 0;
+		}
 
-        public void CopyFrom(TicCmd cmd)
-        {
-            this.forwardMove = cmd.forwardMove;
-            this.sideMove = cmd.sideMove;
-            this.angleTurn = cmd.angleTurn;
-            this.buttons = cmd.buttons;
-        }
+		public void CopyFrom(TicCmd cmd)
+		{
+			this.forwardMove = cmd.forwardMove;
+			this.sideMove = cmd.sideMove;
+			this.angleTurn = cmd.angleTurn;
+			this.buttons = cmd.buttons;
+		}
 
-        public sbyte ForwardMove
-        {
-            get => this.forwardMove;
-            set => this.forwardMove = value;
-        }
+		public sbyte ForwardMove
+		{
+			get => this.forwardMove;
+			set => this.forwardMove = value;
+		}
 
-        public sbyte SideMove
-        {
-            get => this.sideMove;
-            set => this.sideMove = value;
-        }
+		public sbyte SideMove
+		{
+			get => this.sideMove;
+			set => this.sideMove = value;
+		}
 
-        public short AngleTurn
-        {
-            get => this.angleTurn;
-            set => this.angleTurn = value;
-        }
+		public short AngleTurn
+		{
+			get => this.angleTurn;
+			set => this.angleTurn = value;
+		}
 
-        public byte Buttons
-        {
-            get => this.buttons;
-            set => this.buttons = value;
-        }
-    }
+		public byte Buttons
+		{
+			get => this.buttons;
+			set => this.buttons = value;
+		}
+	}
 }

@@ -16,41 +16,41 @@
 namespace DoomEngine.Audio
 {
 	public sealed class NullMusic : IMusic
-    {
-        private static NullMusic instance;
+	{
+		private static NullMusic instance;
 
-        public static NullMusic GetInstance()
-        {
-            if (NullMusic.instance == null)
-            {
-                NullMusic.instance = new NullMusic();
-            }
+		public static NullMusic GetInstance()
+		{
+			if (NullMusic.instance == null)
+			{
+				NullMusic.instance = new NullMusic();
+			}
 
-            return NullMusic.instance;
-        }
+			return NullMusic.instance;
+		}
 
-        public void StartMusic(Bgm bgm, bool loop)
-        {
-        }
+		public void StartMusic(Bgm bgm, bool loop)
+		{
+		}
 
-        public int MaxVolume
-        {
-            get
-            {
-                return 15;
-            }
-        }
+		public int MaxVolume
+		{
+			get
+			{
+				return 15;
+			}
+		}
 
-        public int Volume
-        {
-            get
-            {
-                return 0;
-            }
+		public int Volume
+		{
+			get
+			{
+				return 0;
+			}
 
-            set
-            {
-            }
-        }
-    }
+			set
+			{
+			}
+		}
+	}
 }

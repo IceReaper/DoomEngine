@@ -16,22 +16,21 @@
 namespace DoomEngine.Doom.World
 {
 	public enum AmmoType
-    {
-        // Pistol / chaingun ammo.
-        Clip,
+	{
+		// Pistol / chaingun ammo.
+		Clip,
 
-        // Shotgun / double barreled shotgun.
-        Shell,
+		// Shotgun / double barreled shotgun.
+		Shell,
 
-        // Plasma rifle, BFG.
-        Cell,
+		// Plasma rifle, BFG.
+		Cell,
 
-        // Missile launcher.
-        Missile,
+		// Missile launcher.
+		Missile,
+		Count,
 
-        Count,
-
-        // Unlimited for chainsaw / fist.
-        NoAmmo
-    }
+		// Unlimited for chainsaw / fist.
+		NoAmmo
+	}
 }

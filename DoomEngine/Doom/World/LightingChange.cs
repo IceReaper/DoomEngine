@@ -18,126 +18,128 @@ namespace DoomEngine.Doom.World
 	using Map;
 
 	public sealed class LightingChange
-    {
-        private World world;
+	{
+		private World world;
 
-        public LightingChange(World world)
-        {
-            this.world = world;
-        }
+		public LightingChange(World world)
+		{
+			this.world = world;
+		}
 
-        public void SpawnFireFlicker(Sector sector)
-        {
-            // Note that we are resetting sector attributes.
-            // Nothing special about it during gameplay.
-            sector.Special = 0;
+		public void SpawnFireFlicker(Sector sector)
+		{
+			// Note that we are resetting sector attributes.
+			// Nothing special about it during gameplay.
+			sector.Special = 0;
 
-            var flicker = new FireFlicker(this.world);
+			var flicker = new FireFlicker(this.world);
 
-            this.world.Thinkers.Add(flicker);
+			this.world.Thinkers.Add(flicker);
 
-            flicker.Sector = sector;
-            flicker.MaxLight = sector.LightLevel;
-            flicker.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel) + 16;
-            flicker.Count = 4;
-        }
+			flicker.Sector = sector;
+			flicker.MaxLight = sector.LightLevel;
+			flicker.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel) + 16;
+			flicker.Count = 4;
+		}
 
-        public void SpawnLightFlash(Sector sector)
-        {
-            // Nothing special about it during gameplay.
-            sector.Special = 0;
+		public void SpawnLightFlash(Sector sector)
+		{
+			// Nothing special about it during gameplay.
+			sector.Special = 0;
 
-            var light = new LightFlash(this.world);
+			var light = new LightFlash(this.world);
 
-            this.world.Thinkers.Add(light);
+			this.world.Thinkers.Add(light);
 
-            light.Sector = sector;
-            light.MaxLight = sector.LightLevel;
+			light.Sector = sector;
+			light.MaxLight = sector.LightLevel;
 
-            light.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
-            light.MaxTime = 64;
-            light.MinTime = 7;
-            light.Count = (this.world.Random.Next() & light.MaxTime) + 1;
-        }
+			light.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
+			light.MaxTime = 64;
+			light.MinTime = 7;
+			light.Count = (this.world.Random.Next() & light.MaxTime) + 1;
+		}
 
-        public void SpawnStrobeFlash(Sector sector, int fastOrSlow, int inSync)
-        {
-            var strobe = new StrobeFlash(this.world);
+		public void SpawnStrobeFlash(Sector sector, int fastOrSlow, int inSync)
+		{
+			var strobe = new StrobeFlash(this.world);
 
-            this.world.Thinkers.Add(strobe);
+			this.world.Thinkers.Add(strobe);
 
-            strobe.Sector = sector;
-            strobe.DarkTime = fastOrSlow;
-            strobe.BrightTime = StrobeFlash.StrobeBright;
-            strobe.MaxLight = sector.LightLevel;
-            strobe.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
+			strobe.Sector = sector;
+			strobe.DarkTime = fastOrSlow;
+			strobe.BrightTime = StrobeFlash.StrobeBright;
+			strobe.MaxLight = sector.LightLevel;
+			strobe.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
 
-            if (strobe.MinLight == strobe.MaxLight)
-            {
-                strobe.MinLight = 0;
-            }
+			if (strobe.MinLight == strobe.MaxLight)
+			{
+				strobe.MinLight = 0;
+			}
 
-            // Nothing special about it during gameplay.
-            sector.Special = 0;
+			// Nothing special about it during gameplay.
+			sector.Special = 0;
 
-            if (inSync == 0)
-            {
-                strobe.Count = (this.world.Random.Next() & 7) + 1;
-            }
-            else
-            {
-                strobe.Count = 1;
-            }
-        }
+			if (inSync == 0)
+			{
+				strobe.Count = (this.world.Random.Next() & 7) + 1;
+			}
+			else
+			{
+				strobe.Count = 1;
+			}
+		}
 
-        public void SpawnGlowingLight(Sector sector)
-        {
-            var glowing = new GlowingLight(this.world);
+		public void SpawnGlowingLight(Sector sector)
+		{
+			var glowing = new GlowingLight(this.world);
 
-            this.world.Thinkers.Add(glowing);
+			this.world.Thinkers.Add(glowing);
 
-            glowing.Sector = sector;
-            glowing.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
-            glowing.MaxLight = sector.LightLevel;
-            glowing.Direction = -1;
+			glowing.Sector = sector;
+			glowing.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
+			glowing.MaxLight = sector.LightLevel;
+			glowing.Direction = -1;
 
-            sector.Special = 0;
-        }
+			sector.Special = 0;
+		}
 
-        private int FindMinSurroundingLight(Sector sector, int max)
-        {
-            var min = max;
-            for (var i = 0; i < sector.Lines.Length; i++)
-            {
-                var line = sector.Lines[i];
-                var check = this.GetNextSector(line, sector);
+		private int FindMinSurroundingLight(Sector sector, int max)
+		{
+			var min = max;
 
-                if (check == null)
-                {
-                    continue;
-                }
+			for (var i = 0; i < sector.Lines.Length; i++)
+			{
+				var line = sector.Lines[i];
+				var check = this.GetNextSector(line, sector);
 
-                if (check.LightLevel < min)
-                {
-                    min = check.LightLevel;
-                }
-            }
-            return min;
-        }
+				if (check == null)
+				{
+					continue;
+				}
 
-        private Sector GetNextSector(LineDef line, Sector sector)
-        {
-            if ((line.Flags & LineFlags.TwoSided) == 0)
-            {
-                return null;
-            }
+				if (check.LightLevel < min)
+				{
+					min = check.LightLevel;
+				}
+			}
 
-            if (line.FrontSector == sector)
-            {
-                return line.BackSector;
-            }
+			return min;
+		}
 
-            return line.FrontSector;
-        }
-    }
+		private Sector GetNextSector(LineDef line, Sector sector)
+		{
+			if ((line.Flags & LineFlags.TwoSided) == 0)
+			{
+				return null;
+			}
+
+			if (line.FrontSector == sector)
+			{
+				return line.BackSector;
+			}
+
+			return line.FrontSector;
+		}
+	}
 }

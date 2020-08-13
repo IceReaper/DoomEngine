@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.Game
 {
 	public enum MissionPack
-    {
-        Doom2,
-        Plutonia,
-        Tnt
-    }
+	{
+		Doom2,
+		Plutonia,
+		Tnt
+	}
 }

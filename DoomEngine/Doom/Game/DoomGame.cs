@@ -55,7 +55,6 @@ namespace DoomEngine.Doom.Game
 			this.random = new DoomRandom();
 		}
 
-
 		////////////////////////////////////////////////////////////
 		// Public methods to control the game state
 		////////////////////////////////////////////////////////////
@@ -109,6 +108,7 @@ namespace DoomEngine.Doom.Game
 		{
 			// Do player reborns if needed.
 			var players = this.options.Players;
+
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				if (players[i].InGame && players[i].PlayerState == PlayerState.Reborn)
@@ -124,25 +124,39 @@ namespace DoomEngine.Doom.Game
 				{
 					case GameAction.LoadLevel:
 						this.DoLoadLevel();
+
 						break;
+
 					case GameAction.NewGame:
 						this.DoNewGame();
+
 						break;
+
 					case GameAction.LoadGame:
 						this.DoLoadGame();
+
 						break;
+
 					case GameAction.SaveGame:
 						this.DoSaveGame();
+
 						break;
+
 					case GameAction.Completed:
 						this.DoCompleted();
+
 						break;
+
 					case GameAction.Victory:
 						this.DoFinale();
+
 						break;
+
 					case GameAction.WorldDone:
 						this.DoWorldDone();
+
 						break;
+
 					case GameAction.Nothing:
 						break;
 				}
@@ -163,9 +177,7 @@ namespace DoomEngine.Doom.Game
 					*/
 
 					// Check for turbo cheats.
-					if (cmd.ForwardMove > GameConst.TurboThreshold &&
-						(this.world.LevelTime & 31) == 0 &&
-						((this.world.LevelTime >> 5) & 3) == i)
+					if (cmd.ForwardMove > GameConst.TurboThreshold && (this.world.LevelTime & 31) == 0 && ((this.world.LevelTime >> 5) & 3) == i)
 					{
 						var player = players[this.options.ConsolePlayer];
 						player.SendMessage(players[i].Name + " is turbo!");
@@ -183,6 +195,7 @@ namespace DoomEngine.Doom.Game
 						if ((players[i].Cmd.Buttons & TicCmdButtons.SpecialMask) == TicCmdButtons.Pause)
 						{
 							this.paused = !this.paused;
+
 							if (this.paused)
 							{
 								this.options.Sound.Pause();
@@ -198,21 +211,25 @@ namespace DoomEngine.Doom.Game
 
 			// Do main actions.
 			var result = UpdateResult.None;
+
 			switch (this.gameState)
 			{
 				case GameState.Level:
 					if (!this.paused || this.world.FirstTicIsNotYetDone)
 					{
 						result = this.world.Update();
+
 						if (result == UpdateResult.Completed)
 						{
 							this.gameAction = GameAction.Completed;
 						}
 					}
+
 					break;
 
 				case GameState.Intermission:
 					result = this.intermission.Update();
+
 					if (result == UpdateResult.Completed)
 					{
 						this.gameAction = GameAction.WorldDone;
@@ -232,6 +249,7 @@ namespace DoomEngine.Doom.Game
 								case 30:
 									this.DoFinale();
 									result = UpdateResult.NeedWipe;
+
 									break;
 
 								case 15:
@@ -241,18 +259,22 @@ namespace DoomEngine.Doom.Game
 										this.DoFinale();
 										result = UpdateResult.NeedWipe;
 									}
+
 									break;
 							}
 						}
 					}
+
 					break;
 
 				case GameState.Finale:
 					result = this.finale.Update();
+
 					if (result == UpdateResult.Completed)
 					{
 						this.gameAction = GameAction.WorldDone;
 					}
+
 					break;
 			}
 
@@ -267,7 +289,6 @@ namespace DoomEngine.Doom.Game
 				return UpdateResult.None;
 			}
 		}
-
 
 		////////////////////////////////////////////////////////////
 		// Actual game actions
@@ -289,12 +310,14 @@ namespace DoomEngine.Doom.Game
 			this.gameState = GameState.Level;
 
 			var players = this.options.Players;
+
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				if (players[i].InGame && players[i].PlayerState == PlayerState.Dead)
 				{
 					players[i].PlayerState = PlayerState.Reborn;
 				}
+
 				Array.Clear(players[i].Frags, 0, players[i].Frags.Length);
 			}
 
@@ -352,12 +375,15 @@ namespace DoomEngine.Doom.Game
 				{
 					case 8:
 						this.gameAction = GameAction.Victory;
+
 						return;
+
 					case 9:
 						for (var i = 0; i < Player.MaxPlayerCount; i++)
 						{
 							this.options.Players[i].DidSecret = true;
 						}
+
 						break;
 				}
 			}
@@ -366,6 +392,7 @@ namespace DoomEngine.Doom.Game
 			{
 				// Victory.
 				this.gameAction = GameAction.Victory;
+
 				return;
 			}
 
@@ -393,9 +420,12 @@ namespace DoomEngine.Doom.Game
 					{
 						case 15:
 							imInfo.NextLevel = 30;
+
 							break;
+
 						case 31:
 							imInfo.NextLevel = 31;
+
 							break;
 					}
 				}
@@ -406,9 +436,12 @@ namespace DoomEngine.Doom.Game
 						case 31:
 						case 32:
 							imInfo.NextLevel = 15;
+
 							break;
+
 						default:
 							imInfo.NextLevel = this.options.Map;
+
 							break;
 					}
 				}
@@ -427,15 +460,22 @@ namespace DoomEngine.Doom.Game
 					{
 						case 1:
 							imInfo.NextLevel = 3;
+
 							break;
+
 						case 2:
 							imInfo.NextLevel = 5;
+
 							break;
+
 						case 3:
 							imInfo.NextLevel = 6;
+
 							break;
+
 						case 4:
 							imInfo.NextLevel = 2;
+
 							break;
 					}
 				}
@@ -450,6 +490,7 @@ namespace DoomEngine.Doom.Game
 			imInfo.MaxItemCount = this.world.TotalItems;
 			imInfo.MaxSecretCount = this.world.TotalSecrets;
 			imInfo.TotalFrags = 0;
+
 			if (this.options.GameMode == GameMode.Commercial)
 			{
 				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom2[this.options.Map - 1];
@@ -460,6 +501,7 @@ namespace DoomEngine.Doom.Game
 			}
 
 			var players = this.options.Players;
+
 			for (var i = 0; i < Player.MaxPlayerCount; i++)
 			{
 				imInfo.Players[i].InGame = players[i].InGame;
@@ -491,14 +533,13 @@ namespace DoomEngine.Doom.Game
 			this.finale = new Finale(this.options);
 		}
 
-
 		////////////////////////////////////////////////////////////
 		// Miscellaneous things
 		////////////////////////////////////////////////////////////
 
 		public void InitNew(GameSkill skill, int episode, int map)
 		{
-			skill = (GameSkill)Math.Clamp((int)skill, (int)GameSkill.Baby, (int)GameSkill.Nightmare);
+			skill = (GameSkill) Math.Clamp((int) skill, (int) GameSkill.Baby, (int) GameSkill.Nightmare);
 
 			if (this.options.GameMode == GameMode.Retail)
 			{
@@ -567,12 +608,14 @@ namespace DoomEngine.Doom.Game
 				if (this.options.Deathmatch != 0)
 				{
 					ta.DeathMatchSpawnPlayer(playerNumber);
+
 					return;
 				}
 
 				if (ta.CheckSpot(playerNumber, ta.PlayerStarts[playerNumber]))
 				{
 					ta.SpawnPlayer(ta.PlayerStarts[playerNumber]);
+
 					return;
 				}
 
@@ -599,7 +642,6 @@ namespace DoomEngine.Doom.Game
 			}
 		}
 
-
 		public GameOptions Options => this.options;
 		public Player[] Players => this.options.Players;
 		public GameState State => this.gameState;
@@ -609,8 +651,6 @@ namespace DoomEngine.Doom.Game
 		public Intermission Intermission => this.intermission;
 		public Finale Finale => this.finale;
 		public bool Paused => this.paused;
-
-
 
 		private enum GameAction
 		{

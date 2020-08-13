@@ -20,48 +20,50 @@ namespace DoomEngine.Doom.Map
 	using Wad;
 
 	public sealed class Vertex
-    {
-        private static readonly int dataSize = 4;
+	{
+		private static readonly int dataSize = 4;
 
-        private Fixed x;
-        private Fixed y;
+		private Fixed x;
+		private Fixed y;
 
-        public Vertex(Fixed x, Fixed y)
-        {
-            this.x = x;
-            this.y = y;
-        }
+		public Vertex(Fixed x, Fixed y)
+		{
+			this.x = x;
+			this.y = y;
+		}
 
-        public static Vertex FromData(byte[] data, int offset)
-        {
-            var x = BitConverter.ToInt16(data, offset);
-            var y = BitConverter.ToInt16(data, offset + 2);
+		public static Vertex FromData(byte[] data, int offset)
+		{
+			var x = BitConverter.ToInt16(data, offset);
+			var y = BitConverter.ToInt16(data, offset + 2);
 
-            return new Vertex(Fixed.FromInt(x), Fixed.FromInt(y));
-        }
+			return new Vertex(Fixed.FromInt(x), Fixed.FromInt(y));
+		}
 
-        public static Vertex[] FromWad(Wad wad, int lump)
-        {
-            var length = wad.GetLumpSize(lump);
-            if (length % Vertex.dataSize != 0)
-            {
-                throw new Exception();
-            }
+		public static Vertex[] FromWad(Wad wad, int lump)
+		{
+			var length = wad.GetLumpSize(lump);
 
-            var data = wad.ReadLump(lump);
-            var count = length / Vertex.dataSize;
-            var vertices = new Vertex[count]; ;
+			if (length % Vertex.dataSize != 0)
+			{
+				throw new Exception();
+			}
 
-            for (var i = 0; i < count; i++)
-            {
-                var offset = Vertex.dataSize * i;
-                vertices[i] = Vertex.FromData(data, offset);
-            }
+			var data = wad.ReadLump(lump);
+			var count = length / Vertex.dataSize;
+			var vertices = new Vertex[count];
+			;
 
-            return vertices;
-        }
+			for (var i = 0; i < count; i++)
+			{
+				var offset = Vertex.dataSize * i;
+				vertices[i] = Vertex.FromData(data, offset);
+			}
 
-        public Fixed X => this.x;
-        public Fixed Y => this.y;
-    }
+			return vertices;
+		}
+
+		public Fixed X => this.x;
+		public Fixed Y => this.y;
+	}
 }

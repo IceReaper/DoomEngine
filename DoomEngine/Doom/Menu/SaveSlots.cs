@@ -19,50 +19,52 @@ namespace DoomEngine.Doom.Menu
 	using System.IO;
 
 	public sealed class SaveSlots
-    {
-        private static readonly int slotCount = 6;
-        private static readonly int descriptionSize = 24;
+	{
+		private static readonly int slotCount = 6;
+		private static readonly int descriptionSize = 24;
 
-        private string[] slots;
+		private string[] slots;
 
-        private void ReadSlots()
-        {
-            this.slots = new string[SaveSlots.slotCount];
+		private void ReadSlots()
+		{
+			this.slots = new string[SaveSlots.slotCount];
 
-            var directory = ConfigUtilities.GetExeDirectory();
-            var buffer = new byte[SaveSlots.descriptionSize];
-            for (var i = 0; i < this.slots.Length; i++)
-            {
-                var path = Path.Combine(directory, "doomsav" + i + ".dsg");
-                if (File.Exists(path))
-                {
-                    using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
-                    {
-                        reader.Read(buffer, 0, buffer.Length);
-                        this.slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);
-                    }
-                }
-            }
-        }
+			var directory = ConfigUtilities.GetExeDirectory();
+			var buffer = new byte[SaveSlots.descriptionSize];
 
-        public string this[int number]
-        {
-            get
-            {
-                if (this.slots == null)
-                {
-                    this.ReadSlots();
-                }
+			for (var i = 0; i < this.slots.Length; i++)
+			{
+				var path = Path.Combine(directory, "doomsav" + i + ".dsg");
 
-                return this.slots[number];
-            }
+				if (File.Exists(path))
+				{
+					using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
+					{
+						reader.Read(buffer, 0, buffer.Length);
+						this.slots[i] = DoomInterop.ToString(buffer, 0, buffer.Length);
+					}
+				}
+			}
+		}
 
-            set
-            {
-                this.slots[number] = value;
-            }
-        }
+		public string this[int number]
+		{
+			get
+			{
+				if (this.slots == null)
+				{
+					this.ReadSlots();
+				}
 
-        public int Count => this.slots.Length;
-    }
+				return this.slots[number];
+			}
+
+			set
+			{
+				this.slots[number] = value;
+			}
+		}
+
+		public int Count => this.slots.Length;
+	}
 }

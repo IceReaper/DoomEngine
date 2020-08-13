@@ -16,14 +16,13 @@
 namespace DoomEngine.Doom.World
 {
 	public enum PowerType
-    {
-        Invulnerability,
-        Strength,
-        Invisibility,
-        IronFeet,
-        AllMap,
-        Infrared,
-
-        Count
-    }
+	{
+		Invulnerability,
+		Strength,
+		Invisibility,
+		IronFeet,
+		AllMap,
+		Infrared,
+		Count
+	}
 }

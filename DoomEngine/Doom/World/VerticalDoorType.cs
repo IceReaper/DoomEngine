@@ -16,14 +16,14 @@
 namespace DoomEngine.Doom.World
 {
 	public enum VerticalDoorType
-    {
-        Normal,
-        Close30ThenOpen,
-        Close,
-        Open,
-        RaiseIn5Mins,
-        BlazeRaise,
-        BlazeOpen,
-        BlazeClose
-    }
+	{
+		Normal,
+		Close30ThenOpen,
+		Close,
+		Open,
+		RaiseIn5Mins,
+		BlazeRaise,
+		BlazeOpen,
+		BlazeClose
+	}
 }

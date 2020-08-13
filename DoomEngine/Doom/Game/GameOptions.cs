@@ -21,210 +21,212 @@ namespace DoomEngine.Doom.Game
 	using UserInput;
 
 	public sealed class GameOptions
-    {
-        private GameVersion gameVersion;
-        private GameMode gameMode;
-        private MissionPack missionPack;
+	{
+		private GameVersion gameVersion;
+		private GameMode gameMode;
+		private MissionPack missionPack;
 
-        private Player[] players;
-        private int consolePlayer;
+		private Player[] players;
+		private int consolePlayer;
 
-        private int episode;
-        private int map;
-        private GameSkill skill;
+		private int episode;
+		private int map;
+		private GameSkill skill;
 
-        private bool demoPlayback;
-        private bool netGame;
+		private bool demoPlayback;
+		private bool netGame;
 
-        private int deathmatch;
-        private bool fastMonsters;
-        private bool respawnMonsters;
-        private bool noMonsters;
+		private int deathmatch;
+		private bool fastMonsters;
+		private bool respawnMonsters;
+		private bool noMonsters;
 
-        private IntermissionInfo intermissionInfo;
+		private IntermissionInfo intermissionInfo;
 
-        private IRenderer renderer;
-        private ISound sound;
-        private IMusic music;
-        private IUserInput userInput;
+		private IRenderer renderer;
+		private ISound sound;
+		private IMusic music;
+		private IUserInput userInput;
 
-        public GameOptions()
-        {
-            this.gameVersion = GameVersion.Version109;
-            this.gameMode = GameMode.Commercial;
-            this.missionPack = MissionPack.Doom2;
+		public GameOptions()
+		{
+			this.gameVersion = GameVersion.Version109;
+			this.gameMode = GameMode.Commercial;
+			this.missionPack = MissionPack.Doom2;
 
-            this.players = new Player[Player.MaxPlayerCount];
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                this.players[i] = new Player(i);
-            }
-            this.players[0].InGame = true;
-            this.consolePlayer = 0;
+			this.players = new Player[Player.MaxPlayerCount];
 
-            this.episode = 1;
-            this.map = 1;
-            this.skill = GameSkill.Medium;
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				this.players[i] = new Player(i);
+			}
 
-            this.demoPlayback = false;
-            this.netGame = false;
+			this.players[0].InGame = true;
+			this.consolePlayer = 0;
 
-            this.deathmatch = 0;
-            this.fastMonsters = false;
-            this.respawnMonsters = false;
-            this.noMonsters = false;
+			this.episode = 1;
+			this.map = 1;
+			this.skill = GameSkill.Medium;
 
-            this.intermissionInfo = new IntermissionInfo();
+			this.demoPlayback = false;
+			this.netGame = false;
 
-            this.renderer = null;
-            this.sound = NullSound.GetInstance();
-            this.music = NullMusic.GetInstance();
-            this.userInput = NullUserInput.GetInstance();
-        }
+			this.deathmatch = 0;
+			this.fastMonsters = false;
+			this.respawnMonsters = false;
+			this.noMonsters = false;
 
-        public GameVersion GameVersion
-        {
-            get => this.gameVersion;
-            set => this.gameVersion = value;
-        }
+			this.intermissionInfo = new IntermissionInfo();
 
-        public GameMode GameMode
-        {
-            get => this.gameMode;
-            set => this.gameMode = value;
-        }
+			this.renderer = null;
+			this.sound = NullSound.GetInstance();
+			this.music = NullMusic.GetInstance();
+			this.userInput = NullUserInput.GetInstance();
+		}
 
-        public MissionPack MissionPack
-        {
-            get => this.missionPack;
-            set => this.missionPack = value;
-        }
+		public GameVersion GameVersion
+		{
+			get => this.gameVersion;
+			set => this.gameVersion = value;
+		}
 
-        public Player[] Players
-        {
-            get => this.players;
-        }
+		public GameMode GameMode
+		{
+			get => this.gameMode;
+			set => this.gameMode = value;
+		}
 
-        public int ConsolePlayer
-        {
-            get => this.consolePlayer;
-            set => this.consolePlayer = value;
-        }
+		public MissionPack MissionPack
+		{
+			get => this.missionPack;
+			set => this.missionPack = value;
+		}
 
-        public int Episode
-        {
-            get => this.episode;
-            set => this.episode = value;
-        }
+		public Player[] Players
+		{
+			get => this.players;
+		}
 
-        public int Map
-        {
-            get => this.map;
-            set => this.map = value;
-        }
+		public int ConsolePlayer
+		{
+			get => this.consolePlayer;
+			set => this.consolePlayer = value;
+		}
 
-        public GameSkill Skill
-        {
-            get => this.skill;
-            set => this.skill = value;
-        }
+		public int Episode
+		{
+			get => this.episode;
+			set => this.episode = value;
+		}
 
-        public bool DemoPlayback
-        {
-            get => this.demoPlayback;
-            set => this.demoPlayback = value;
-        }
+		public int Map
+		{
+			get => this.map;
+			set => this.map = value;
+		}
 
-        public bool NetGame
-        {
-            get => this.netGame;
-            set => this.netGame = value;
-        }
+		public GameSkill Skill
+		{
+			get => this.skill;
+			set => this.skill = value;
+		}
 
-        public int Deathmatch
-        {
-            get => this.deathmatch;
-            set => this.deathmatch = value;
-        }
+		public bool DemoPlayback
+		{
+			get => this.demoPlayback;
+			set => this.demoPlayback = value;
+		}
 
-        public bool FastMonsters
-        {
-            get => this.fastMonsters;
-            set => this.fastMonsters = value;
-        }
+		public bool NetGame
+		{
+			get => this.netGame;
+			set => this.netGame = value;
+		}
 
-        public bool RespawnMonsters
-        {
-            get => this.respawnMonsters;
-            set => this.respawnMonsters = value;
-        }
+		public int Deathmatch
+		{
+			get => this.deathmatch;
+			set => this.deathmatch = value;
+		}
 
-        public bool NoMonsters
-        {
-            get => this.noMonsters;
-            set => this.noMonsters = value;
-        }
+		public bool FastMonsters
+		{
+			get => this.fastMonsters;
+			set => this.fastMonsters = value;
+		}
 
-        public IntermissionInfo IntermissionInfo
-        {
-            get => this.intermissionInfo;
-        }
+		public bool RespawnMonsters
+		{
+			get => this.respawnMonsters;
+			set => this.respawnMonsters = value;
+		}
 
-        public IRenderer Renderer
-        {
-            get => this.renderer;
-            set => this.renderer = value;
-        }
+		public bool NoMonsters
+		{
+			get => this.noMonsters;
+			set => this.noMonsters = value;
+		}
 
-        public ISound Sound
-        {
-            get => this.sound;
+		public IntermissionInfo IntermissionInfo
+		{
+			get => this.intermissionInfo;
+		}
 
-            set
-            {
-                if (value != null)
-                {
-                    this.sound = value;
-                }
-                else
-                {
-                    this.sound = NullSound.GetInstance();
-                }
-            }
-        }
+		public IRenderer Renderer
+		{
+			get => this.renderer;
+			set => this.renderer = value;
+		}
 
-        public IMusic Music
-        {
-            get => this.music;
+		public ISound Sound
+		{
+			get => this.sound;
 
-            set
-            {
-                if (value != null)
-                {
-                    this.music = value;
-                }
-                else
-                {
-                    this.music = NullMusic.GetInstance();
-                }
-            }
-        }
+			set
+			{
+				if (value != null)
+				{
+					this.sound = value;
+				}
+				else
+				{
+					this.sound = NullSound.GetInstance();
+				}
+			}
+		}
 
-        public IUserInput UserInput
-        {
-            get => this.userInput;
+		public IMusic Music
+		{
+			get => this.music;
 
-            set
-            {
-                if (value != null)
-                {
-                    this.userInput = value;
-                }
-                else
-                {
-                    this.userInput = NullUserInput.GetInstance();
-                }
-            }
-        }
-    }
+			set
+			{
+				if (value != null)
+				{
+					this.music = value;
+				}
+				else
+				{
+					this.music = NullMusic.GetInstance();
+				}
+			}
+		}
+
+		public IUserInput UserInput
+		{
+			get => this.userInput;
+
+			set
+			{
+				if (value != null)
+				{
+					this.userInput = value;
+				}
+				else
+				{
+					this.userInput = NullUserInput.GetInstance();
+				}
+			}
+		}
+	}
 }

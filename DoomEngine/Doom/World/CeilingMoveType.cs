@@ -16,12 +16,12 @@
 namespace DoomEngine.Doom.World
 {
 	public enum CeilingMoveType
-    {
-        LowerToFloor,
-        RaiseToHighest,
-        LowerAndCrush,
-        CrushAndRaise,
-        FastCrushAndRaise,
-        SilentCrushAndRaise
-    }
+	{
+		LowerToFloor,
+		RaiseToHighest,
+		LowerAndCrush,
+		CrushAndRaise,
+		FastCrushAndRaise,
+		SilentCrushAndRaise
+	}
 }

@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.Game
 {
 	public enum UpdateResult
-    {
-        None,
-        Completed,
-        NeedWipe
-    }
+	{
+		None,
+		Completed,
+		NeedWipe
+	}
 }

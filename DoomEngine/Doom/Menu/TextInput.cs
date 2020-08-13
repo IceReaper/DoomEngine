@@ -22,66 +22,68 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class TextInput
-    {
-        private List<char> text;
-        private Action<IReadOnlyList<char>> typed;
-        private Action<IReadOnlyList<char>> finished;
-        private Action canceled;
+	{
+		private List<char> text;
+		private Action<IReadOnlyList<char>> typed;
+		private Action<IReadOnlyList<char>> finished;
+		private Action canceled;
 
-        private TextInputState state;
+		private TextInputState state;
 
-        public TextInput(
-            IReadOnlyList<char> initialText,
-            Action<IReadOnlyList<char>> typed,
-            Action<IReadOnlyList<char>> finished,
-            Action canceled)
-        {
-            this.text = initialText.ToList();
-            this.typed = typed;
-            this.finished = finished;
-            this.canceled = canceled;
+		public TextInput(IReadOnlyList<char> initialText, Action<IReadOnlyList<char>> typed, Action<IReadOnlyList<char>> finished, Action canceled)
+		{
+			this.text = initialText.ToList();
+			this.typed = typed;
+			this.finished = finished;
+			this.canceled = canceled;
 
-            this.state = TextInputState.Typing;
-        }
+			this.state = TextInputState.Typing;
+		}
 
-        public bool DoEvent(DoomEvent e)
-        {
-            var ch = e.Key.GetChar();
-            if (ch != 0)
-            {
-                this.text.Add(ch);
-                this.typed(this.text);
-                return true;
-            }
+		public bool DoEvent(DoomEvent e)
+		{
+			var ch = e.Key.GetChar();
 
-            if (e.Key == DoomKey.Backspace && e.Type == EventType.KeyDown)
-            {
-                if (this.text.Count > 0)
-                {
-                    this.text.RemoveAt(this.text.Count - 1);
-                }
-                this.typed(this.text);
-                return true;
-            }
+			if (ch != 0)
+			{
+				this.text.Add(ch);
+				this.typed(this.text);
 
-            if (e.Key == DoomKey.Enter && e.Type == EventType.KeyDown)
-            {
-                this.finished(this.text);
-                this.state = TextInputState.Finished;
-                return true;
-            }
+				return true;
+			}
 
-            if (e.Key == DoomKey.Escape && e.Type == EventType.KeyDown)
-            {
-                this.canceled();
-                this.state = TextInputState.Canceled;
-                return true;
-            }
+			if (e.Key == DoomKey.Backspace && e.Type == EventType.KeyDown)
+			{
+				if (this.text.Count > 0)
+				{
+					this.text.RemoveAt(this.text.Count - 1);
+				}
 
-            return true;
-        }
+				this.typed(this.text);
 
-        public IReadOnlyList<char> Text => this.text;
-        public TextInputState State => this.state;
-    }
+				return true;
+			}
+
+			if (e.Key == DoomKey.Enter && e.Type == EventType.KeyDown)
+			{
+				this.finished(this.text);
+				this.state = TextInputState.Finished;
+
+				return true;
+			}
+
+			if (e.Key == DoomKey.Escape && e.Type == EventType.KeyDown)
+			{
+				this.canceled();
+				this.state = TextInputState.Canceled;
+
+				return true;
+			}
+
+			return true;
+		}
+
+		public IReadOnlyList<char> Text => this.text;
+		public TextInputState State => this.state;
+	}
 }

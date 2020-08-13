@@ -43,13 +43,7 @@ namespace DoomEngine.Doom.World
 
 			var sa = this.world.SectorAction;
 
-			result = sa.MovePlane(
-				this.sector,
-				this.speed,
-				this.floorDestHeight,
-				this.crush,
-				0,
-				this.direction);
+			result = sa.MovePlane(this.sector, this.speed, this.floorDestHeight, this.crush, 0, this.direction);
 
 			if (((this.world.LevelTime + this.sector.Number) & 7) == 0)
 			{
@@ -67,6 +61,7 @@ namespace DoomEngine.Doom.World
 						case FloorMoveType.DonutRaise:
 							this.sector.Special = this.newSpecial;
 							this.sector.FloorFlat = this.texture;
+
 							break;
 					}
 				}
@@ -77,6 +72,7 @@ namespace DoomEngine.Doom.World
 						case FloorMoveType.LowerAndChange:
 							this.sector.Special = this.newSpecial;
 							this.sector.FloorFlat = this.texture;
+
 							break;
 					}
 				}

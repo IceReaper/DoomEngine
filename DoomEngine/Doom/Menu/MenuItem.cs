@@ -16,24 +16,24 @@
 namespace DoomEngine.Doom.Menu
 {
 	public abstract class MenuItem
-    {
-        private int skullX;
-        private int skullY;
-        private MenuDef next;
+	{
+		private int skullX;
+		private int skullY;
+		private MenuDef next;
 
-        private MenuItem()
-        {
-        }
+		private MenuItem()
+		{
+		}
 
-        public MenuItem(int skullX, int skullY, MenuDef next)
-        {
-            this.skullX = skullX;
-            this.skullY = skullY;
-            this.next = next;
-        }
+		public MenuItem(int skullX, int skullY, MenuDef next)
+		{
+			this.skullX = skullX;
+			this.skullY = skullY;
+			this.next = next;
+		}
 
-        public int SkullX => this.skullX;
-        public int SkullY => this.skullY;
-        public MenuDef Next => this.next;
-    }
+		public int SkullX => this.skullX;
+		public int SkullY => this.skullY;
+		public MenuDef Next => this.next;
+	}
 }

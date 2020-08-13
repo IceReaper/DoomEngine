@@ -18,69 +18,73 @@ namespace DoomEngine.Doom.World
 	using Map;
 
 	public sealed class GlowingLight : Thinker
-    {
-        private static readonly int glowSpeed = 8;
+	{
+		private static readonly int glowSpeed = 8;
 
-        private World world;
+		private World world;
 
-        private Sector sector;
-        private int minLight;
-        private int maxLight;
-        private int direction;
+		private Sector sector;
+		private int minLight;
+		private int maxLight;
+		private int direction;
 
-        public GlowingLight(World world)
-        {
-            this.world = world;
-        }
+		public GlowingLight(World world)
+		{
+			this.world = world;
+		}
 
-        public override void Run()
-        {
-            switch (this.direction)
-            {
-                case -1:
-                    // Down.
-                    this.sector.LightLevel -= GlowingLight.glowSpeed;
-                    if (this.sector.LightLevel <= this.minLight)
-                    {
-                        this.sector.LightLevel += GlowingLight.glowSpeed;
-                        this.direction = 1;
-                    }
-                    break;
+		public override void Run()
+		{
+			switch (this.direction)
+			{
+				case -1:
+					// Down.
+					this.sector.LightLevel -= GlowingLight.glowSpeed;
 
-                case 1:
-                    // Up.
-                    this.sector.LightLevel += GlowingLight.glowSpeed;
-                    if (this.sector.LightLevel >= this.maxLight)
-                    {
-                        this.sector.LightLevel -= GlowingLight.glowSpeed;
-                        this.direction = -1;
-                    }
-                    break;
-            }
-        }
+					if (this.sector.LightLevel <= this.minLight)
+					{
+						this.sector.LightLevel += GlowingLight.glowSpeed;
+						this.direction = 1;
+					}
 
-        public Sector Sector
-        {
-            get => this.sector;
-            set => this.sector = value;
-        }
+					break;
 
-        public int MinLight
-        {
-            get => this.minLight;
-            set => this.minLight = value;
-        }
+				case 1:
+					// Up.
+					this.sector.LightLevel += GlowingLight.glowSpeed;
 
-        public int MaxLight
-        {
-            get => this.maxLight;
-            set => this.maxLight = value;
-        }
+					if (this.sector.LightLevel >= this.maxLight)
+					{
+						this.sector.LightLevel -= GlowingLight.glowSpeed;
+						this.direction = -1;
+					}
 
-        public int Direction
-        {
-            get => this.direction;
-            set => this.direction = value;
-        }
-    }
+					break;
+			}
+		}
+
+		public Sector Sector
+		{
+			get => this.sector;
+			set => this.sector = value;
+		}
+
+		public int MinLight
+		{
+			get => this.minLight;
+			set => this.minLight = value;
+		}
+
+		public int MaxLight
+		{
+			get => this.maxLight;
+			set => this.maxLight = value;
+		}
+
+		public int Direction
+		{
+			get => this.direction;
+			set => this.direction = value;
+		}
+	}
 }

@@ -16,13 +16,13 @@
 namespace DoomEngine.SoftwareRendering
 {
 	public interface IRenderer
-    {
-        public int MaxWindowSize { get; }
-        public int WindowSize { get; set; }
+	{
+		public int MaxWindowSize { get; }
+		public int WindowSize { get; set; }
 
-        public bool DisplayMessage { get; set; }
+		public bool DisplayMessage { get; set; }
 
-        public int MaxGammaCorrectionLevel { get; }
-        public int GammaCorrectionLevel { get; set; }
-    }
+		public int MaxGammaCorrectionLevel { get; }
+		public int GammaCorrectionLevel { get; set; }
+	}
 }

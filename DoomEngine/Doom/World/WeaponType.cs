@@ -16,20 +16,19 @@
 namespace DoomEngine.Doom.World
 {
 	public enum WeaponType
-    {
-        Fist,
-        Pistol,
-        Shotgun,
-        Chaingun,
-        Missile,
-        Plasma,
-        Bfg,
-        Chainsaw,
-        SuperShotgun,
+	{
+		Fist,
+		Pistol,
+		Shotgun,
+		Chaingun,
+		Missile,
+		Plasma,
+		Bfg,
+		Chainsaw,
+		SuperShotgun,
+		Count,
 
-        Count,
-
-        // No pending weapon change.
-        NoChange
-    }
+		// No pending weapon change.
+		NoChange
+	}
 }

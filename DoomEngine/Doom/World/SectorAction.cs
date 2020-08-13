@@ -47,8 +47,6 @@ namespace DoomEngine.Doom.World
 			this.InitSectorChange();
 		}
 
-
-
 		private bool crushChange;
 		private bool noFit;
 		private Func<Mobj, bool> crushThingFunc;
@@ -65,6 +63,7 @@ namespace DoomEngine.Doom.World
 			var tm = this.world.ThingMovement;
 
 			tm.CheckPosition(thing, thing.X, thing.Y);
+
 			// What about stranding a monster partially off an edge?
 
 			thing.FloorZ = tm.CurrentFloorZ;
@@ -134,11 +133,7 @@ namespace DoomEngine.Doom.World
 				this.world.ThingInteraction.DamageMobj(thing, null, null, 10);
 
 				// Spray blood in a random direction.
-				var blood = this.world.ThingAllocation.SpawnMobj(
-					thing.X,
-					thing.Y,
-					thing.Z + thing.Height / 2,
-					MobjType.Blood);
+				var blood = this.world.ThingAllocation.SpawnMobj(thing.X, thing.Y, thing.Z + thing.Height / 2, MobjType.Blood);
 
 				var random = this.world.Random;
 				blood.MomX = new Fixed((random.Next() - random.Next()) << 12);
@@ -172,13 +167,7 @@ namespace DoomEngine.Doom.World
 		/// <summary>
 		/// Move a plane (floor or ceiling) and check for crushing.
 		/// </summary>
-		public SectorActionResult MovePlane(
-			Sector sector,
-			Fixed speed,
-			Fixed dest,
-			bool crush,
-			int floorOrCeiling,
-			int direction)
+		public SectorActionResult MovePlane(Sector sector, Fixed speed, Fixed dest, bool crush, int floorOrCeiling, int direction)
 		{
 			switch (floorOrCeiling)
 			{
@@ -192,6 +181,7 @@ namespace DoomEngine.Doom.World
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight = dest;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
@@ -204,6 +194,7 @@ namespace DoomEngine.Doom.World
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight -= speed;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
@@ -221,6 +212,7 @@ namespace DoomEngine.Doom.World
 							{
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight = dest;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									sector.FloorHeight = lastPos;
@@ -234,12 +226,14 @@ namespace DoomEngine.Doom.World
 								// Could get crushed.
 								var lastPos = sector.FloorHeight;
 								sector.FloorHeight += speed;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									if (crush)
 									{
 										return SectorActionResult.Crushed;
 									}
+
 									sector.FloorHeight = lastPos;
 									this.ChangeSector(sector, crush);
 
@@ -249,6 +243,7 @@ namespace DoomEngine.Doom.World
 
 							break;
 					}
+
 					break;
 
 				case 1:
@@ -261,6 +256,7 @@ namespace DoomEngine.Doom.World
 							{
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight = dest;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									sector.CeilingHeight = lastPos;
@@ -274,12 +270,14 @@ namespace DoomEngine.Doom.World
 								// Could get crushed.
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight -= speed;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									if (crush)
 									{
 										return SectorActionResult.Crushed;
 									}
+
 									sector.CeilingHeight = lastPos;
 									this.ChangeSector(sector, crush);
 
@@ -295,6 +293,7 @@ namespace DoomEngine.Doom.World
 							{
 								var lastPos = sector.CeilingHeight;
 								sector.CeilingHeight = dest;
+
 								if (this.ChangeSector(sector, crush))
 								{
 									sector.CeilingHeight = lastPos;
@@ -342,6 +341,7 @@ namespace DoomEngine.Doom.World
 				var check = sector.Lines[i];
 
 				var other = this.GetNextSector(check, sector);
+
 				if (other == null)
 				{
 					continue;
@@ -365,6 +365,7 @@ namespace DoomEngine.Doom.World
 				var check = sector.Lines[i];
 
 				var other = this.GetNextSector(check, sector);
+
 				if (other == null)
 				{
 					continue;
@@ -388,6 +389,7 @@ namespace DoomEngine.Doom.World
 				var check = sector.Lines[i];
 
 				var other = this.GetNextSector(check, sector);
+
 				if (other == null)
 				{
 					continue;
@@ -411,6 +413,7 @@ namespace DoomEngine.Doom.World
 				var check = sector.Lines[i];
 
 				var other = this.GetNextSector(check, sector);
+
 				if (other == null)
 				{
 					continue;
@@ -440,8 +443,6 @@ namespace DoomEngine.Doom.World
 			return -1;
 		}
 
-
-
 		////////////////////////////////////////////////////////////
 		// Door
 		////////////////////////////////////////////////////////////
@@ -457,7 +458,7 @@ namespace DoomEngine.Doom.World
 			//	Check for locks.
 			var player = thing.Player;
 
-			switch ((int)line.Special)
+			switch ((int) line.Special)
 			{
 				// Blue Lock.
 				case 26:
@@ -467,13 +468,14 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int)CardType.BlueCard] &&
-						!player.Cards[(int)CardType.BlueSkull])
+					if (!player.Cards[(int) CardType.BlueCard] && !player.Cards[(int) CardType.BlueSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return;
 					}
+
 					break;
 
 				// Yellow Lock.
@@ -484,13 +486,14 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int)CardType.YellowCard] &&
-						!player.Cards[(int)CardType.YellowSkull])
+					if (!player.Cards[(int) CardType.YellowCard] && !player.Cards[(int) CardType.YellowSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return;
 					}
+
 					break;
 
 				// Red Lock.
@@ -501,13 +504,14 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int)CardType.RedCard] &&
-						!player.Cards[(int)CardType.RedSkull])
+					if (!player.Cards[(int) CardType.RedCard] && !player.Cards[(int) CardType.RedSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return;
 					}
+
 					break;
 			}
 
@@ -516,8 +520,9 @@ namespace DoomEngine.Doom.World
 			// If the sector has an active thinker, use it.
 			if (sector.SpecialData != null)
 			{
-				var door = (VerticalDoor)sector.SpecialData;
-				switch ((int)line.Special)
+				var door = (VerticalDoor) sector.SpecialData;
+
+				switch ((int) line.Special)
 				{
 					// Only for "raise" doors, not "open"s.
 					case 1:
@@ -541,12 +546,13 @@ namespace DoomEngine.Doom.World
 							// Start going down immediately.
 							door.Direction = -1;
 						}
+
 						return;
 				}
 			}
 
 			// For proper sound.
-			switch ((int)line.Special)
+			switch ((int) line.Special)
 			{
 				// Blazing door raise.
 				case 117:
@@ -554,17 +560,20 @@ namespace DoomEngine.Doom.World
 				// Blazing door open.
 				case 118:
 					this.world.StartSound(sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
+
 					break;
 
 				// Normal door sound.
 				case 1:
 				case 31:
 					this.world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+
 					break;
 
 				// Locked door sound.
 				default:
 					this.world.StartSound(sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+
 					break;
 			}
 
@@ -577,13 +586,14 @@ namespace DoomEngine.Doom.World
 			newDoor.Speed = SectorAction.doorSpeed;
 			newDoor.TopWait = SectorAction.doorWait;
 
-			switch ((int)line.Special)
+			switch ((int) line.Special)
 			{
 				case 1:
 				case 26:
 				case 27:
 				case 28:
 					newDoor.Type = VerticalDoorType.Normal;
+
 					break;
 
 				case 31:
@@ -592,12 +602,14 @@ namespace DoomEngine.Doom.World
 				case 34:
 					newDoor.Type = VerticalDoorType.Open;
 					line.Special = 0;
+
 					break;
 
 				// Blazing door raise.
 				case 117:
 					newDoor.Type = VerticalDoorType.BlazeRaise;
 					newDoor.Speed = SectorAction.doorSpeed * 4;
+
 					break;
 
 				// Blazing door open.
@@ -605,6 +617,7 @@ namespace DoomEngine.Doom.World
 					newDoor.Type = VerticalDoorType.BlazeOpen;
 					line.Special = 0;
 					newDoor.Speed = SectorAction.doorSpeed * 4;
+
 					break;
 			}
 
@@ -622,6 +635,7 @@ namespace DoomEngine.Doom.World
 			while ((setcorNumber = this.FindSectorFromLineTag(line, setcorNumber)) >= 0)
 			{
 				var sector = sectors[setcorNumber];
+
 				if (sector.SpecialData != null)
 				{
 					continue;
@@ -646,6 +660,7 @@ namespace DoomEngine.Doom.World
 						door.Direction = -1;
 						door.Speed = SectorAction.doorSpeed * 4;
 						this.world.StartSound(door.Sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+
 						break;
 
 					case VerticalDoorType.Close:
@@ -653,12 +668,14 @@ namespace DoomEngine.Doom.World
 						door.TopHeight -= Fixed.FromInt(4);
 						door.Direction = -1;
 						this.world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+
 						break;
 
 					case VerticalDoorType.Close30ThenOpen:
 						door.TopHeight = sector.CeilingHeight;
 						door.Direction = -1;
 						this.world.StartSound(door.Sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+
 						break;
 
 					case VerticalDoorType.BlazeRaise:
@@ -667,10 +684,12 @@ namespace DoomEngine.Doom.World
 						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
 						door.Speed = SectorAction.doorSpeed * 4;
+
 						if (door.TopHeight != sector.CeilingHeight)
 						{
 							this.world.StartSound(door.Sector.SoundOrigin, Sfx.BDOPN, SfxType.Misc);
 						}
+
 						break;
 
 					case VerticalDoorType.Normal:
@@ -678,16 +697,17 @@ namespace DoomEngine.Doom.World
 						door.Direction = 1;
 						door.TopHeight = this.FindLowestCeilingSurrounding(sector);
 						door.TopHeight -= Fixed.FromInt(4);
+
 						if (door.TopHeight != sector.CeilingHeight)
 						{
 							this.world.StartSound(door.Sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
 						}
+
 						break;
 
 					default:
 						break;
 				}
-
 			}
 
 			return result;
@@ -696,12 +716,13 @@ namespace DoomEngine.Doom.World
 		public bool DoLockedDoor(LineDef line, VerticalDoorType type, Mobj thing)
 		{
 			var player = thing.Player;
+
 			if (player == null)
 			{
 				return false;
 			}
 
-			switch ((int)line.Special)
+			switch ((int) line.Special)
 			{
 				// Blue Lock.
 				case 99:
@@ -710,13 +731,15 @@ namespace DoomEngine.Doom.World
 					{
 						return false;
 					}
-					if (!player.Cards[(int)CardType.BlueCard] &&
-						!player.Cards[(int)CardType.BlueSkull])
+
+					if (!player.Cards[(int) CardType.BlueCard] && !player.Cards[(int) CardType.BlueSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return false;
 					}
+
 					break;
 
 				// Red Lock.
@@ -726,13 +749,15 @@ namespace DoomEngine.Doom.World
 					{
 						return false;
 					}
-					if (!player.Cards[(int)CardType.RedCard] &&
-						!player.Cards[(int)CardType.RedSkull])
+
+					if (!player.Cards[(int) CardType.RedCard] && !player.Cards[(int) CardType.RedSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return false;
 					}
+
 					break;
 
 				// Yellow Lock.
@@ -742,20 +767,20 @@ namespace DoomEngine.Doom.World
 					{
 						return false;
 					}
-					if (!player.Cards[(int)CardType.YellowCard] &&
-						!player.Cards[(int)CardType.YellowSkull])
+
+					if (!player.Cards[(int) CardType.YellowCard] && !player.Cards[(int) CardType.YellowSkull])
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
+
 						return false;
 					}
+
 					break;
 			}
 
 			return this.DoDoor(line, type);
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Platform
@@ -775,6 +800,7 @@ namespace DoomEngine.Doom.World
 				var check = sector.Lines[i];
 
 				var other = this.GetNextSector(check, sector);
+
 				if (other == null)
 				{
 					continue;
@@ -813,7 +839,6 @@ namespace DoomEngine.Doom.World
 			return min;
 		}
 
-
 		private static readonly int platformWait = 3;
 		private static readonly Fixed platformSpeed = Fixed.One;
 
@@ -824,6 +849,7 @@ namespace DoomEngine.Doom.World
 			{
 				case PlatformType.PerpetualRaise:
 					this.ActivateInStasis(line.Tag);
+
 					break;
 
 				default:
@@ -837,6 +863,7 @@ namespace DoomEngine.Doom.World
 			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
+
 				if (sector.SpecialData != null)
 				{
 					continue;
@@ -861,9 +888,11 @@ namespace DoomEngine.Doom.World
 						plat.High = this.FindNextHighestFloor(sector, sector.FloorHeight);
 						plat.Wait = 0;
 						plat.Status = PlatformState.Up;
+
 						// No more damage, if applicable.
 						sector.Special = 0;
 						this.world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+
 						break;
 
 					case PlatformType.RaiseAndChange:
@@ -873,49 +902,61 @@ namespace DoomEngine.Doom.World
 						plat.Wait = 0;
 						plat.Status = PlatformState.Up;
 						this.world.StartSound(sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+
 						break;
 
 					case PlatformType.DownWaitUpStay:
 						plat.Speed = SectorAction.platformSpeed * 4;
 						plat.Low = this.FindLowestFloorSurrounding(sector);
+
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
+
 						plat.High = sector.FloorHeight;
 						plat.Wait = 35 * SectorAction.platformWait;
 						plat.Status = PlatformState.Down;
 						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+
 						break;
 
 					case PlatformType.BlazeDwus:
 						plat.Speed = SectorAction.platformSpeed * 8;
 						plat.Low = this.FindLowestFloorSurrounding(sector);
+
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
+
 						plat.High = sector.FloorHeight;
 						plat.Wait = 35 * SectorAction.platformWait;
 						plat.Status = PlatformState.Down;
 						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+
 						break;
 
 					case PlatformType.PerpetualRaise:
 						plat.Speed = SectorAction.platformSpeed;
 						plat.Low = this.FindLowestFloorSurrounding(sector);
+
 						if (plat.Low > sector.FloorHeight)
 						{
 							plat.Low = sector.FloorHeight;
 						}
+
 						plat.High = this.FindHighestFloorSurrounding(sector);
+
 						if (plat.High < sector.FloorHeight)
 						{
 							plat.High = sector.FloorHeight;
 						}
+
 						plat.Wait = 35 * SectorAction.platformWait;
-						plat.Status = (PlatformState)(this.world.Random.Next() & 1);
+						plat.Status = (PlatformState) (this.world.Random.Next() & 1);
 						this.world.StartSound(sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
+
 						break;
 				}
 
@@ -925,7 +966,6 @@ namespace DoomEngine.Doom.World
 			return result;
 		}
 
-
 		private static readonly int maxPlatformCount = 60;
 		private Platform[] activePlatforms = new Platform[SectorAction.maxPlatformCount];
 
@@ -933,9 +973,7 @@ namespace DoomEngine.Doom.World
 		{
 			for (var i = 0; i < this.activePlatforms.Length; i++)
 			{
-				if (this.activePlatforms[i] != null &&
-					this.activePlatforms[i].Tag == tag &&
-					this.activePlatforms[i].Status == PlatformState.InStasis)
+				if (this.activePlatforms[i] != null && this.activePlatforms[i].Tag == tag && this.activePlatforms[i].Status == PlatformState.InStasis)
 				{
 					this.activePlatforms[i].Status = this.activePlatforms[i].OldStatus;
 					this.activePlatforms[i].ThinkerState = ThinkerState.Active;
@@ -947,9 +985,7 @@ namespace DoomEngine.Doom.World
 		{
 			for (var j = 0; j < this.activePlatforms.Length; j++)
 			{
-				if (this.activePlatforms[j] != null &&
-					this.activePlatforms[j].Status != PlatformState.InStasis &&
-					this.activePlatforms[j].Tag == line.Tag)
+				if (this.activePlatforms[j] != null && this.activePlatforms[j].Status != PlatformState.InStasis && this.activePlatforms[j].Tag == line.Tag)
 				{
 					this.activePlatforms[j].OldStatus = this.activePlatforms[j].Status;
 					this.activePlatforms[j].Status = PlatformState.InStasis;
@@ -982,14 +1018,13 @@ namespace DoomEngine.Doom.World
 					this.activePlatforms[i].Sector.SpecialData = null;
 					this.world.Thinkers.Remove(this.activePlatforms[i]);
 					this.activePlatforms[i] = null;
+
 					return;
 				}
 			}
 
 			throw new Exception("The platform was not found!");
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Floor
@@ -1029,6 +1064,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = this.FindHighestFloorSurrounding(sector);
+
 						break;
 
 					case FloorMoveType.LowerFloorToLowest:
@@ -1036,6 +1072,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = this.FindLowestFloorSurrounding(sector);
+
 						break;
 
 					case FloorMoveType.TurboLower:
@@ -1043,10 +1080,12 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed * 4;
 						floor.FloorDestHeight = this.FindHighestFloorSurrounding(sector);
+
 						if (floor.FloorDestHeight != sector.FloorHeight)
 						{
 							floor.FloorDestHeight += Fixed.FromInt(8);
 						}
+
 						break;
 
 					case FloorMoveType.RaiseFloorCrush:
@@ -1055,15 +1094,19 @@ namespace DoomEngine.Doom.World
 						{
 							floor.Crush = true;
 						}
+
 						floor.Direction = 1;
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = this.FindLowestCeilingSurrounding(sector);
+
 						if (floor.FloorDestHeight > sector.CeilingHeight)
 						{
 							floor.FloorDestHeight = sector.CeilingHeight;
 						}
+
 						floor.FloorDestHeight -= Fixed.FromInt(8) * (type == FloorMoveType.RaiseFloorCrush ? 1 : 0);
+
 						break;
 
 					case FloorMoveType.RaiseFloorTurbo:
@@ -1071,6 +1114,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed * 4;
 						floor.FloorDestHeight = this.FindNextHighestFloor(sector, sector.FloorHeight);
+
 						break;
 
 					case FloorMoveType.RaiseFloorToNearest:
@@ -1078,6 +1122,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = this.FindNextHighestFloor(sector, sector.FloorHeight);
+
 						break;
 
 					case FloorMoveType.RaiseFloor24:
@@ -1085,6 +1130,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(24);
+
 						break;
 
 					case FloorMoveType.RaiseFloor512:
@@ -1092,6 +1138,7 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(512);
+
 						break;
 
 					case FloorMoveType.RaiseFloor24AndChange:
@@ -1101,6 +1148,7 @@ namespace DoomEngine.Doom.World
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(24);
 						sector.FloorFlat = line.FrontSector.FloorFlat;
 						sector.Special = line.FrontSector.Special;
+
 						break;
 
 					case FloorMoveType.RaiseToTexture:
@@ -1109,11 +1157,13 @@ namespace DoomEngine.Doom.World
 						floor.Sector = sector;
 						floor.Speed = SectorAction.floorSpeed;
 						var textures = this.world.Map.Textures;
+
 						for (var i = 0; i < sector.Lines.Length; i++)
 						{
 							if ((sector.Lines[i].Flags & LineFlags.TwoSided) != 0)
 							{
 								var frontSide = sector.Lines[i].FrontSide;
+
 								if (frontSide.BottomTexture >= 0)
 								{
 									if (textures[frontSide.BottomTexture].Height < min)
@@ -1121,7 +1171,9 @@ namespace DoomEngine.Doom.World
 										min = textures[frontSide.BottomTexture].Height;
 									}
 								}
+
 								var backSide = sector.Lines[i].BackSide;
+
 								if (backSide.BottomTexture >= 0)
 								{
 									if (textures[backSide.BottomTexture].Height < min)
@@ -1131,7 +1183,9 @@ namespace DoomEngine.Doom.World
 								}
 							}
 						}
+
 						floor.FloorDestHeight = floor.Sector.FloorHeight + Fixed.FromInt(min);
+
 						break;
 
 					case FloorMoveType.LowerAndChange:
@@ -1140,6 +1194,7 @@ namespace DoomEngine.Doom.World
 						floor.Speed = SectorAction.floorSpeed;
 						floor.FloorDestHeight = this.FindLowestFloorSurrounding(sector);
 						floor.Texture = sector.FloorFlat;
+
 						for (var i = 0; i < sector.Lines.Length; i++)
 						{
 							if ((sector.Lines[i].Flags & LineFlags.TwoSided) != 0)
@@ -1147,32 +1202,36 @@ namespace DoomEngine.Doom.World
 								if (sector.Lines[i].FrontSide.Sector.Number == sectorNumber)
 								{
 									sector = sector.Lines[i].BackSide.Sector;
+
 									if (sector.FloorHeight == floor.FloorDestHeight)
 									{
 										floor.Texture = sector.FloorFlat;
 										floor.NewSpecial = sector.Special;
+
 										break;
 									}
 								}
 								else
 								{
 									sector = sector.Lines[i].FrontSide.Sector;
+
 									if (sector.FloorHeight == floor.FloorDestHeight)
 									{
 										floor.Texture = sector.FloorFlat;
 										floor.NewSpecial = sector.Special;
+
 										break;
 									}
 								}
 							}
 						}
+
 						break;
 				}
 			}
 
 			return result;
 		}
-
 
 		public bool BuildStairs(LineDef line, StairType type)
 		{
@@ -1201,16 +1260,21 @@ namespace DoomEngine.Doom.World
 
 				Fixed speed;
 				Fixed stairSize;
+
 				switch (type)
 				{
 					case StairType.Build8:
 						speed = SectorAction.floorSpeed / 4;
 						stairSize = Fixed.FromInt(8);
+
 						break;
+
 					case StairType.Turbo16:
 						speed = SectorAction.floorSpeed * 4;
 						stairSize = Fixed.FromInt(16);
+
 						break;
+
 					default:
 						throw new Exception("Unknown stair type!");
 				}
@@ -1225,6 +1289,7 @@ namespace DoomEngine.Doom.World
 				//     1. Find 2-sided line with same sector side[0].
 				//     2. Other side is the next sector to raise.
 				bool ok;
+
 				do
 				{
 					ok = false;
@@ -1271,15 +1336,15 @@ namespace DoomEngine.Doom.World
 						floor.Speed = speed;
 						floor.FloorDestHeight = height;
 						ok = true;
+
 						break;
 					}
-				} while (ok);
+				}
+				while (ok);
 			}
 
 			return result;
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Ceiling
@@ -1294,6 +1359,7 @@ namespace DoomEngine.Doom.World
 				case CeilingMoveType.SilentCrushAndRaise:
 				case CeilingMoveType.CrushAndRaise:
 					this.ActivateInStasisCeiling(line);
+
 					break;
 
 				default:
@@ -1307,6 +1373,7 @@ namespace DoomEngine.Doom.World
 			while ((sectorNumber = this.FindSectorFromLineTag(line, sectorNumber)) >= 0)
 			{
 				var sector = sectors[sectorNumber];
+
 				if (sector.SpecialData != null)
 				{
 					continue;
@@ -1329,31 +1396,36 @@ namespace DoomEngine.Doom.World
 						ceiling.BottomHeight = sector.FloorHeight + Fixed.FromInt(8);
 						ceiling.Direction = -1;
 						ceiling.Speed = SectorAction.CeilingSpeed * 2;
+
 						break;
 
 					case CeilingMoveType.SilentCrushAndRaise:
 					case CeilingMoveType.CrushAndRaise:
 					case CeilingMoveType.LowerAndCrush:
 					case CeilingMoveType.LowerToFloor:
-						if (type == CeilingMoveType.SilentCrushAndRaise
-							|| type == CeilingMoveType.CrushAndRaise)
+						if (type == CeilingMoveType.SilentCrushAndRaise || type == CeilingMoveType.CrushAndRaise)
 						{
 							ceiling.Crush = true;
 							ceiling.TopHeight = sector.CeilingHeight;
 						}
+
 						ceiling.BottomHeight = sector.FloorHeight;
+
 						if (type != CeilingMoveType.LowerToFloor)
 						{
 							ceiling.BottomHeight += Fixed.FromInt(8);
 						}
+
 						ceiling.Direction = -1;
 						ceiling.Speed = SectorAction.CeilingSpeed;
+
 						break;
 
 					case CeilingMoveType.RaiseToHighest:
 						ceiling.TopHeight = this.FindHighestCeilingSurrounding(sector);
 						ceiling.Direction = 1;
 						ceiling.Speed = SectorAction.CeilingSpeed;
+
 						break;
 				}
 
@@ -1364,7 +1436,6 @@ namespace DoomEngine.Doom.World
 
 			return result;
 		}
-
 
 		public static readonly Fixed CeilingSpeed = Fixed.One;
 		public static readonly int CeilingWwait = 150;
@@ -1395,6 +1466,7 @@ namespace DoomEngine.Doom.World
 					this.activeCeilings[i].Sector.SpecialData = null;
 					this.world.Thinkers.Remove(this.activeCeilings[i]);
 					this.activeCeilings[i] = null;
+
 					break;
 				}
 			}
@@ -1422,9 +1494,7 @@ namespace DoomEngine.Doom.World
 		{
 			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (this.activeCeilings[i] != null &&
-					this.activeCeilings[i].Tag == line.Tag &&
-					this.activeCeilings[i].Direction == 0)
+				if (this.activeCeilings[i] != null && this.activeCeilings[i].Tag == line.Tag && this.activeCeilings[i].Direction == 0)
 				{
 					this.activeCeilings[i].Direction = this.activeCeilings[i].OldDirection;
 					this.activeCeilings[i].ThinkerState = ThinkerState.Active;
@@ -1438,9 +1508,7 @@ namespace DoomEngine.Doom.World
 
 			for (var i = 0; i < this.activeCeilings.Length; i++)
 			{
-				if (this.activeCeilings[i] != null &&
-					this.activeCeilings[i].Tag == line.Tag &&
-					this.activeCeilings[i].Direction != 0)
+				if (this.activeCeilings[i] != null && this.activeCeilings[i].Tag == line.Tag && this.activeCeilings[i].Direction != 0)
 				{
 					this.activeCeilings[i].OldDirection = this.activeCeilings[i].Direction;
 					this.activeCeilings[i].ThinkerState = ThinkerState.InStasis;
@@ -1451,8 +1519,6 @@ namespace DoomEngine.Doom.World
 
 			return result;
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Teleport
@@ -1526,20 +1592,12 @@ namespace DoomEngine.Doom.World
 						var ta = this.world.ThingAllocation;
 
 						// Spawn teleport fog at source position.
-						var fog1 = ta.SpawnMobj(
-							oldX,
-							oldY,
-							oldZ,
-							MobjType.Tfog);
+						var fog1 = ta.SpawnMobj(oldX, oldY, oldZ, MobjType.Tfog);
 						this.world.StartSound(fog1, Sfx.TELEPT, SfxType.Misc);
 
 						// Destination position.
 						var angle = dest.Angle;
-						var fog2 = ta.SpawnMobj(
-							dest.X + 20 * Trig.Cos(angle),
-							dest.Y + 20 * Trig.Sin(angle),
-							thing.Z,
-							MobjType.Tfog);
+						var fog2 = ta.SpawnMobj(dest.X + 20 * Trig.Cos(angle), dest.Y + 20 * Trig.Sin(angle), thing.Z, MobjType.Tfog);
 						this.world.StartSound(fog2, Sfx.TELEPT, SfxType.Misc);
 
 						if (thing.Player != null)
@@ -1558,8 +1616,6 @@ namespace DoomEngine.Doom.World
 
 			return false;
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Lighting
@@ -1580,6 +1636,7 @@ namespace DoomEngine.Doom.World
 					for (var j = 0; j < sector.Lines.Length; j++)
 					{
 						var target = this.GetNextSector(sector.Lines[j], sector);
+
 						if (target == null)
 						{
 							continue;
@@ -1612,6 +1669,7 @@ namespace DoomEngine.Doom.World
 						for (var j = 0; j < sector.Lines.Length; j++)
 						{
 							var target = this.GetNextSector(sector.Lines[j], sector);
+
 							if (target == null)
 							{
 								continue;
@@ -1628,7 +1686,6 @@ namespace DoomEngine.Doom.World
 				}
 			}
 		}
-
 
 		public void StartLightStrobing(LineDef line)
 		{
@@ -1647,8 +1704,6 @@ namespace DoomEngine.Doom.World
 				this.world.LightingChange.SpawnStrobeFlash(sector, StrobeFlash.SlowDark, 0);
 			}
 		}
-
-
 
 		////////////////////////////////////////////////////////////
 		// Miscellaneous
@@ -1730,7 +1785,6 @@ namespace DoomEngine.Doom.World
 
 			return result;
 		}
-
 
 		public void SpawnDoorCloseIn30(Sector sector)
 		{

@@ -61,23 +61,27 @@ namespace DoomEngine.Doom.World
 								// Time to go back down.
 								this.direction = -1;
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+
 								break;
 
 							case VerticalDoorType.Normal:
 								// Time to go back down.
 								this.direction = -1;
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.DORCLS, SfxType.Misc);
+
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
 								this.direction = 1;
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+
 								break;
 
 							default:
 								break;
 						}
 					}
+
 					break;
 
 				case 2:
@@ -90,21 +94,20 @@ namespace DoomEngine.Doom.World
 								this.direction = 1;
 								this.type = VerticalDoorType.Normal;
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+
 								break;
 
 							default:
 								break;
 						}
 					}
+
 					break;
 
 				case -1:
 					// Down.
-					result = sa.MovePlane(
-						this.sector,
-						this.speed,
-						this.sector.FloorHeight,
-						false, 1, this.direction);
+					result = sa.MovePlane(this.sector, this.speed, this.sector.FloorHeight, false, 1, this.direction);
+
 					if (result == SectorActionResult.PastDestination)
 					{
 						switch (this.type)
@@ -112,21 +115,26 @@ namespace DoomEngine.Doom.World
 							case VerticalDoorType.BlazeRaise:
 							case VerticalDoorType.BlazeClose:
 								this.sector.SpecialData = null;
+
 								// Unlink and free.
 								this.world.Thinkers.Remove(this);
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.BDCLS, SfxType.Misc);
+
 								break;
 
 							case VerticalDoorType.Normal:
 							case VerticalDoorType.Close:
 								this.sector.SpecialData = null;
+
 								// Unlink and free.
 								this.world.Thinkers.Remove(this);
+
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
 								this.direction = 0;
 								this.topCountDown = 35 * 30;
+
 								break;
 
 							default:
@@ -144,18 +152,16 @@ namespace DoomEngine.Doom.World
 							default:
 								this.direction = 1;
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.DOROPN, SfxType.Misc);
+
 								break;
 						}
 					}
+
 					break;
 
 				case 1:
 					// Up.
-					result = sa.MovePlane(
-						this.sector,
-						this.speed,
-						this.topHeight,
-						false, 1, this.direction);
+					result = sa.MovePlane(this.sector, this.speed, this.topHeight, false, 1, this.direction);
 
 					if (result == SectorActionResult.PastDestination)
 					{
@@ -166,20 +172,24 @@ namespace DoomEngine.Doom.World
 								// Wait at top.
 								this.direction = 0;
 								this.topCountDown = this.topWait;
+
 								break;
 
 							case VerticalDoorType.Close30ThenOpen:
 							case VerticalDoorType.BlazeOpen:
 							case VerticalDoorType.Open:
 								this.sector.SpecialData = null;
+
 								// Unlink and free.
 								this.world.Thinkers.Remove(this);
+
 								break;
 
 							default:
 								break;
 						}
 					}
+
 					break;
 			}
 		}

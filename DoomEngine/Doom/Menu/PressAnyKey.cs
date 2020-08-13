@@ -21,34 +21,35 @@ namespace DoomEngine.Doom.Menu
 	using System.Collections.Generic;
 
 	public sealed class PressAnyKey : MenuDef
-    {
-        private string[] text;
-        private Action action;
+	{
+		private string[] text;
+		private Action action;
 
-        public PressAnyKey(DoomMenu menu, string text, Action action) : base(menu)
-        {
-            this.text = text.Split('\n');
-            this.action = action;
-        }
+		public PressAnyKey(DoomMenu menu, string text, Action action)
+			: base(menu)
+		{
+			this.text = text.Split('\n');
+			this.action = action;
+		}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type == EventType.KeyDown)
-            {
-                if (this.action != null)
-                {
-                    this.action();
-                }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type == EventType.KeyDown)
+			{
+				if (this.action != null)
+				{
+					this.action();
+				}
 
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
 
-                return true;
-            }
+				return true;
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        public IReadOnlyList<string> Text => this.text;
-    }
+		public IReadOnlyList<string> Text => this.text;
+	}
 }

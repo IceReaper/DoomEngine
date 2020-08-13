@@ -16,10 +16,10 @@
 namespace DoomEngine
 {
 	public enum ApplicationState
-    {
-        None,
-        Opening,
-        DemoPlayback,
-        Game
-    }
+	{
+		None,
+		Opening,
+		DemoPlayback,
+		Game
+	}
 }

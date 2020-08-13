@@ -23,146 +23,147 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class SaveMenu : MenuDef
-    {
-        private string[] name;
-        private int[] titleX;
-        private int[] titleY;
-        private TextBoxMenuItem[] items;
+	{
+		private string[] name;
+		private int[] titleX;
+		private int[] titleY;
+		private TextBoxMenuItem[] items;
 
-        private int index;
-        private TextBoxMenuItem choice;
+		private int index;
+		private TextBoxMenuItem choice;
 
-        private TextInput textInput;
+		private TextInput textInput;
 
-        private int lastSaveSlot;
+		private int lastSaveSlot;
 
-        public SaveMenu(
-            DoomMenu menu,
-            string name, int titleX, int titleY,
-            int firstChoice,
-            params TextBoxMenuItem[] items) : base(menu)
-        {
-            this.name = new[] { name };
-            this.titleX = new[] { titleX };
-            this.titleY = new[] { titleY };
-            this.items = items;
+		public SaveMenu(DoomMenu menu, string name, int titleX, int titleY, int firstChoice, params TextBoxMenuItem[] items)
+			: base(menu)
+		{
+			this.name = new[] {name};
+			this.titleX = new[] {titleX};
+			this.titleY = new[] {titleY};
+			this.items = items;
 
-            this.index = firstChoice;
-            this.choice = items[this.index];
+			this.index = firstChoice;
+			this.choice = items[this.index];
 
-            this.lastSaveSlot = -1;
-        }
+			this.lastSaveSlot = -1;
+		}
 
-        public override void Open()
-        {
-            if (this.Menu.Application.State != ApplicationState.Game ||
-                this.Menu.Application.Game.State != GameState.Level)
-            {
-                this.Menu.NotifySaveFailed();
-                return;
-            }
+		public override void Open()
+		{
+			if (this.Menu.Application.State != ApplicationState.Game || this.Menu.Application.Game.State != GameState.Level)
+			{
+				this.Menu.NotifySaveFailed();
 
-            for (var i = 0; i < this.items.Length; i++)
-            {
-                this.items[i].SetText(this.Menu.SaveSlots[i]);
-            }
-        }
+				return;
+			}
 
-        private void Up()
-        {
-            this.index--;
-            if (this.index < 0)
-            {
-                this.index = this.items.Length - 1;
-            }
+			for (var i = 0; i < this.items.Length; i++)
+			{
+				this.items[i].SetText(this.Menu.SaveSlots[i]);
+			}
+		}
 
-            this.choice = this.items[this.index];
-        }
+		private void Up()
+		{
+			this.index--;
 
-        private void Down()
-        {
-            this.index++;
-            if (this.index >= this.items.Length)
-            {
-                this.index = 0;
-            }
+			if (this.index < 0)
+			{
+				this.index = this.items.Length - 1;
+			}
 
-            this.choice = this.items[this.index];
-        }
+			this.choice = this.items[this.index];
+		}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+		private void Down()
+		{
+			this.index++;
 
-            if (this.textInput != null)
-            {
-                var result = this.textInput.DoEvent(e);
+			if (this.index >= this.items.Length)
+			{
+				this.index = 0;
+			}
 
-                if (this.textInput.State == TextInputState.Canceled)
-                {
-                    this.textInput = null;
-                }
-                else if (this.textInput.State == TextInputState.Finished)
-                {
-                    this.textInput = null;
-                }
+			this.choice = this.items[this.index];
+		}
 
-                if (result)
-                {
-                    return true;
-                }
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Up)
-            {
-                this.Up();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+			if (this.textInput != null)
+			{
+				var result = this.textInput.DoEvent(e);
 
-            if (e.Key == DoomKey.Down)
-            {
-                this.Down();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+				if (this.textInput.State == TextInputState.Canceled)
+				{
+					this.textInput = null;
+				}
+				else if (this.textInput.State == TextInputState.Finished)
+				{
+					this.textInput = null;
+				}
 
-            if (e.Key == DoomKey.Enter)
-            {
-                this.textInput = this.choice.Edit(() => this.DoSave(this.index));
-                this.Menu.StartSound(Sfx.PISTOL);
-            }
+				if (result)
+				{
+					return true;
+				}
+			}
 
-            if (e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+			if (e.Key == DoomKey.Up)
+			{
+				this.Up();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-            return true;
-        }
+			if (e.Key == DoomKey.Down)
+			{
+				this.Down();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-        public void DoSave(int slotNumber)
-        {
-            this.Menu.SaveSlots[slotNumber] = new string(this.items[slotNumber].Text.ToArray());
-            if (this.Menu.Application.SaveGame(slotNumber, this.Menu.SaveSlots[slotNumber]))
-            {
-                this.Menu.Close();
-                this.lastSaveSlot = slotNumber;
-            }
-            else
-            {
-                this.Menu.NotifySaveFailed();
-            }
-            this.Menu.StartSound(Sfx.PISTOL);
-        }
+			if (e.Key == DoomKey.Enter)
+			{
+				this.textInput = this.choice.Edit(() => this.DoSave(this.index));
+				this.Menu.StartSound(Sfx.PISTOL);
+			}
 
-        public IReadOnlyList<string> Name => this.name;
-        public IReadOnlyList<int> TitleX => this.titleX;
-        public IReadOnlyList<int> TitleY => this.titleY;
-        public IReadOnlyList<MenuItem> Items => this.items;
-        public MenuItem Choice => this.choice;
-        public int LastSaveSlot => this.lastSaveSlot;
-    }
+			if (e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
+
+			return true;
+		}
+
+		public void DoSave(int slotNumber)
+		{
+			this.Menu.SaveSlots[slotNumber] = new string(this.items[slotNumber].Text.ToArray());
+
+			if (this.Menu.Application.SaveGame(slotNumber, this.Menu.SaveSlots[slotNumber]))
+			{
+				this.Menu.Close();
+				this.lastSaveSlot = slotNumber;
+			}
+			else
+			{
+				this.Menu.NotifySaveFailed();
+			}
+
+			this.Menu.StartSound(Sfx.PISTOL);
+		}
+
+		public IReadOnlyList<string> Name => this.name;
+		public IReadOnlyList<int> TitleX => this.titleX;
+		public IReadOnlyList<int> TitleY => this.titleY;
+		public IReadOnlyList<MenuItem> Items => this.items;
+		public MenuItem Choice => this.choice;
+		public int LastSaveSlot => this.lastSaveSlot;
+	}
 }

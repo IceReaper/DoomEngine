@@ -28,254 +28,263 @@ namespace DoomEngine.Doom.Map
 	using World;
 
 	public sealed class Map
-    {
-        private TextureLookup textures;
-        private FlatLookup flats;
-        private TextureAnimation animation;
+	{
+		private TextureLookup textures;
+		private FlatLookup flats;
+		private TextureAnimation animation;
 
-        private World world;
+		private World world;
 
-        private Vertex[] vertices;
-        private Sector[] sectors;
-        private SideDef[] sides;
-        private LineDef[] lines;
-        private Seg[] segs;
-        private Subsector[] subsectors;
-        private Node[] nodes;
-        private MapThing[] things;
-        private BlockMap blockMap;
-        private Reject reject;
+		private Vertex[] vertices;
+		private Sector[] sectors;
+		private SideDef[] sides;
+		private LineDef[] lines;
+		private Seg[] segs;
+		private Subsector[] subsectors;
+		private Node[] nodes;
+		private MapThing[] things;
+		private BlockMap blockMap;
+		private Reject reject;
 
-        private Texture skyTexture;
+		private Texture skyTexture;
 
-        private string title;
+		private string title;
 
-        public Map(CommonResource resorces, World world)
-            : this(resorces.Wad, resorces.Textures, resorces.Flats, resorces.Animation, world)
-        {
-        }
+		public Map(CommonResource resorces, World world)
+			: this(resorces.Wad, resorces.Textures, resorces.Flats, resorces.Animation, world)
+		{
+		}
 
-        public Map(Wad wad, TextureLookup textures, FlatLookup flats, TextureAnimation animation, World world)
-        {
-            try
-            {
-                this.textures = textures;
-                this.flats = flats;
-                this.animation = animation;
-                this.world = world;
+		public Map(Wad wad, TextureLookup textures, FlatLookup flats, TextureAnimation animation, World world)
+		{
+			try
+			{
+				this.textures = textures;
+				this.flats = flats;
+				this.animation = animation;
+				this.world = world;
 
-                var options = world.Options;
+				var options = world.Options;
 
-                string name;
-                if (wad.GameMode == GameMode.Commercial)
-                {
-                    name = "MAP" + options.Map.ToString("00");
-                }
-                else
-                {
-                    name = "E" + options.Episode + "M" + options.Map;
-                }
+				string name;
 
-                Console.Write("Load map '" + name + "': ");
+				if (wad.GameMode == GameMode.Commercial)
+				{
+					name = "MAP" + options.Map.ToString("00");
+				}
+				else
+				{
+					name = "E" + options.Episode + "M" + options.Map;
+				}
 
-                var map = wad.GetLumpNumber(name);
+				Console.Write("Load map '" + name + "': ");
 
-                if (map == -1)
-                {
-                    throw new Exception("Map '" + name + "' was not found!");
-                }
+				var map = wad.GetLumpNumber(name);
 
-                this.vertices = Vertex.FromWad(wad, map + 4);
-                this.sectors = Sector.FromWad(wad, map + 8, flats);
-                this.sides = SideDef.FromWad(wad, map + 3, textures, this.sectors);
-                this.lines = LineDef.FromWad(wad, map + 2, this.vertices, this.sides);
-                this.segs = Seg.FromWad(wad, map + 5, this.vertices, this.lines);
-                this.subsectors = Subsector.FromWad(wad, map + 6, this.segs);
-                this.nodes = Node.FromWad(wad, map + 7, this.subsectors);
-                this.things = MapThing.FromWad(wad, map + 1);
-                this.blockMap = BlockMap.FromWad(wad, map + 10, this.lines);
-                this.reject = Reject.FromWad(wad, map + 9, this.sectors);
+				if (map == -1)
+				{
+					throw new Exception("Map '" + name + "' was not found!");
+				}
 
-                this.GroupLines();
+				this.vertices = Vertex.FromWad(wad, map + 4);
+				this.sectors = Sector.FromWad(wad, map + 8, flats);
+				this.sides = SideDef.FromWad(wad, map + 3, textures, this.sectors);
+				this.lines = LineDef.FromWad(wad, map + 2, this.vertices, this.sides);
+				this.segs = Seg.FromWad(wad, map + 5, this.vertices, this.lines);
+				this.subsectors = Subsector.FromWad(wad, map + 6, this.segs);
+				this.nodes = Node.FromWad(wad, map + 7, this.subsectors);
+				this.things = MapThing.FromWad(wad, map + 1);
+				this.blockMap = BlockMap.FromWad(wad, map + 10, this.lines);
+				this.reject = Reject.FromWad(wad, map + 9, this.sectors);
 
-                this.skyTexture = this.GetSkyTextureByMapName(name);
+				this.GroupLines();
 
-                if (options.GameMode == GameMode.Commercial)
-                {
-                    switch (options.MissionPack)
-                    {
-                        case MissionPack.Plutonia:
-                            this.title = DoomInfo.MapTitles.Plutonia[options.Map - 1];
-                            break;
-                        case MissionPack.Tnt:
-                            this.title = DoomInfo.MapTitles.Tnt[options.Map - 1];
-                            break;
-                        default:
-                            this.title = DoomInfo.MapTitles.Doom2[options.Map - 1];
-                            break;
-                    }
-                }
-                else
-                {
-                    this.title = DoomInfo.MapTitles.Doom[options.Episode - 1][options.Map - 1];
-                }
+				this.skyTexture = this.GetSkyTextureByMapName(name);
 
-                Console.WriteLine("OK");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed");
-                ExceptionDispatchInfo.Throw(e);
-            }
-        }
+				if (options.GameMode == GameMode.Commercial)
+				{
+					switch (options.MissionPack)
+					{
+						case MissionPack.Plutonia:
+							this.title = DoomInfo.MapTitles.Plutonia[options.Map - 1];
 
-        private void GroupLines()
-        {
-            var sectorLines = new List<LineDef>();
-            var boundingBox = new Fixed[4];
+							break;
 
-            foreach (var line in this.lines)
-            {
-                if (line.Special != 0)
-                {
-                    var so = new Mobj(this.world);
-                    so.X = (line.Vertex1.X + line.Vertex2.X) / 2;
-                    so.Y = (line.Vertex1.Y + line.Vertex2.Y) / 2;
-                    line.SoundOrigin = so;
-                }
-            }
+						case MissionPack.Tnt:
+							this.title = DoomInfo.MapTitles.Tnt[options.Map - 1];
 
-            foreach (var sector in this.sectors)
-            {
-                sectorLines.Clear();
-                Box.Clear(boundingBox);
+							break;
 
-                foreach (var line in this.lines)
-                {
-                    if (line.FrontSector == sector || line.BackSector == sector)
-                    {
-                        sectorLines.Add(line);
-                        Box.AddPoint(boundingBox, line.Vertex1.X, line.Vertex1.Y);
-                        Box.AddPoint(boundingBox, line.Vertex2.X, line.Vertex2.Y);
-                    }
-                }
+						default:
+							this.title = DoomInfo.MapTitles.Doom2[options.Map - 1];
 
-                sector.Lines = sectorLines.ToArray();
+							break;
+					}
+				}
+				else
+				{
+					this.title = DoomInfo.MapTitles.Doom[options.Episode - 1][options.Map - 1];
+				}
 
-                // Set the degenmobj_t to the middle of the bounding box.
-                sector.SoundOrigin = new Mobj(this.world);
-                sector.SoundOrigin.X = (boundingBox[Box.Right] + boundingBox[Box.Left]) / 2;
-                sector.SoundOrigin.Y = (boundingBox[Box.Top] + boundingBox[Box.Bottom]) / 2;
+				Console.WriteLine("OK");
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Failed");
+				ExceptionDispatchInfo.Throw(e);
+			}
+		}
 
-                sector.BlockBox = new int[4];
-                int block;
+		private void GroupLines()
+		{
+			var sectorLines = new List<LineDef>();
+			var boundingBox = new Fixed[4];
 
-                // Adjust bounding box to map blocks.
-                block = (boundingBox[Box.Top] - this.blockMap.OriginY + GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
-                block = block >= this.blockMap.Height ? this.blockMap.Height - 1 : block;
-                sector.BlockBox[Box.Top] = block;
+			foreach (var line in this.lines)
+			{
+				if (line.Special != 0)
+				{
+					var so = new Mobj(this.world);
+					so.X = (line.Vertex1.X + line.Vertex2.X) / 2;
+					so.Y = (line.Vertex1.Y + line.Vertex2.Y) / 2;
+					line.SoundOrigin = so;
+				}
+			}
 
-                block = (boundingBox[Box.Bottom] - this.blockMap.OriginY - GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
-                block = block < 0 ? 0 : block;
-                sector.BlockBox[Box.Bottom] = block;
+			foreach (var sector in this.sectors)
+			{
+				sectorLines.Clear();
+				Box.Clear(boundingBox);
 
-                block = (boundingBox[Box.Right] - this.blockMap.OriginX + GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
-                block = block >= this.blockMap.Width ? this.blockMap.Width - 1 : block;
-                sector.BlockBox[Box.Right] = block;
+				foreach (var line in this.lines)
+				{
+					if (line.FrontSector == sector || line.BackSector == sector)
+					{
+						sectorLines.Add(line);
+						Box.AddPoint(boundingBox, line.Vertex1.X, line.Vertex1.Y);
+						Box.AddPoint(boundingBox, line.Vertex2.X, line.Vertex2.Y);
+					}
+				}
 
-                block = (boundingBox[Box.Left] - this.blockMap.OriginX - GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
-                block = block < 0 ? 0 : block;
-                sector.BlockBox[Box.Left] = block;
-            }
-        }
+				sector.Lines = sectorLines.ToArray();
 
-        private Texture GetSkyTextureByMapName(string name)
-        {
-            if (name.Length == 4)
-            {
-                switch (name[1])
-                {
-                    case '1':
-                        return this.textures["SKY1"];
-                    case '2':
-                        return this.textures["SKY2"];
-                    case '3':
-                        return this.textures["SKY3"];
-                    default:
-                        return this.textures["SKY4"];
-                }
-            }
-            else
-            {
-                var number = int.Parse(name.Substring(3));
-                if (number <= 11)
-                {
-                    return this.textures["SKY1"];
-                }
-                else if (number <= 21)
-                {
-                    return this.textures["SKY2"];
-                }
-                else
-                {
-                    return this.textures["SKY3"];
-                }
-            }
-        }
+				// Set the degenmobj_t to the middle of the bounding box.
+				sector.SoundOrigin = new Mobj(this.world);
+				sector.SoundOrigin.X = (boundingBox[Box.Right] + boundingBox[Box.Left]) / 2;
+				sector.SoundOrigin.Y = (boundingBox[Box.Top] + boundingBox[Box.Bottom]) / 2;
 
-        public TextureLookup Textures => this.textures;
-        public FlatLookup Flats => this.flats;
-        public TextureAnimation Animation => this.animation;
+				sector.BlockBox = new int[4];
+				int block;
 
-        public Vertex[] Vertices => this.vertices;
-        public Sector[] Sectors => this.sectors;
-        public SideDef[] Sides => this.sides;
-        public LineDef[] Lines => this.lines;
-        public Seg[] Segs => this.segs;
-        public Subsector[] Subsectors => this.subsectors;
-        public Node[] Nodes => this.nodes;
-        public MapThing[] Things => this.things;
-        public BlockMap BlockMap => this.blockMap;
-        public Reject Reject => this.reject;
-        public Texture SkyTexture => this.skyTexture;
-        public int SkyFlatNumber => this.flats.SkyFlatNumber;
-        public string Title => this.title;
+				// Adjust bounding box to map blocks.
+				block = (boundingBox[Box.Top] - this.blockMap.OriginY + GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
+				block = block >= this.blockMap.Height ? this.blockMap.Height - 1 : block;
+				sector.BlockBox[Box.Top] = block;
 
+				block = (boundingBox[Box.Bottom] - this.blockMap.OriginY - GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
+				block = block < 0 ? 0 : block;
+				sector.BlockBox[Box.Bottom] = block;
 
+				block = (boundingBox[Box.Right] - this.blockMap.OriginX + GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
+				block = block >= this.blockMap.Width ? this.blockMap.Width - 1 : block;
+				sector.BlockBox[Box.Right] = block;
 
-        private static readonly Bgm[] e4BgmList = new Bgm[]
-        {
-            Bgm.E3M4, // American   e4m1
-            Bgm.E3M2, // Romero     e4m2
-            Bgm.E3M3, // Shawn      e4m3
-            Bgm.E1M5, // American   e4m4
-            Bgm.E2M7, // Tim        e4m5
-            Bgm.E2M4, // Romero     e4m6
-            Bgm.E2M6, // J.Anderson e4m7 CHIRON.WAD
-            Bgm.E2M5, // Shawn      e4m8
-            Bgm.E1M9  // Tim        e4m9
-        };
+				block = (boundingBox[Box.Left] - this.blockMap.OriginX - GameConst.MaxThingRadius).Data >> BlockMap.FracToBlockShift;
+				block = block < 0 ? 0 : block;
+				sector.BlockBox[Box.Left] = block;
+			}
+		}
 
-        public static Bgm GetMapBgm(GameOptions options)
-        {
-            Bgm bgm;
-            if (options.GameMode == GameMode.Commercial)
-            {
-                bgm = Bgm.RUNNIN + options.Map - 1;
-            }
-            else
-            {
-                if (options.Episode < 4)
-                {
-                    bgm = Bgm.E1M1 + (options.Episode - 1) * 9 + options.Map - 1;
-                }
-                else
-                {
-                    bgm = Map.e4BgmList[options.Map - 1];
-                }
-            }
+		private Texture GetSkyTextureByMapName(string name)
+		{
+			if (name.Length == 4)
+			{
+				switch (name[1])
+				{
+					case '1':
+						return this.textures["SKY1"];
 
-            return bgm;
-        }
-    }
+					case '2':
+						return this.textures["SKY2"];
+
+					case '3':
+						return this.textures["SKY3"];
+
+					default:
+						return this.textures["SKY4"];
+				}
+			}
+			else
+			{
+				var number = int.Parse(name.Substring(3));
+
+				if (number <= 11)
+				{
+					return this.textures["SKY1"];
+				}
+				else if (number <= 21)
+				{
+					return this.textures["SKY2"];
+				}
+				else
+				{
+					return this.textures["SKY3"];
+				}
+			}
+		}
+
+		public TextureLookup Textures => this.textures;
+		public FlatLookup Flats => this.flats;
+		public TextureAnimation Animation => this.animation;
+
+		public Vertex[] Vertices => this.vertices;
+		public Sector[] Sectors => this.sectors;
+		public SideDef[] Sides => this.sides;
+		public LineDef[] Lines => this.lines;
+		public Seg[] Segs => this.segs;
+		public Subsector[] Subsectors => this.subsectors;
+		public Node[] Nodes => this.nodes;
+		public MapThing[] Things => this.things;
+		public BlockMap BlockMap => this.blockMap;
+		public Reject Reject => this.reject;
+		public Texture SkyTexture => this.skyTexture;
+		public int SkyFlatNumber => this.flats.SkyFlatNumber;
+		public string Title => this.title;
+
+		private static readonly Bgm[] e4BgmList = new Bgm[]
+		{
+			Bgm.E3M4, // American   e4m1
+			Bgm.E3M2, // Romero     e4m2
+			Bgm.E3M3, // Shawn      e4m3
+			Bgm.E1M5, // American   e4m4
+			Bgm.E2M7, // Tim        e4m5
+			Bgm.E2M4, // Romero     e4m6
+			Bgm.E2M6, // J.Anderson e4m7 CHIRON.WAD
+			Bgm.E2M5, // Shawn      e4m8
+			Bgm.E1M9 // Tim        e4m9
+		};
+
+		public static Bgm GetMapBgm(GameOptions options)
+		{
+			Bgm bgm;
+
+			if (options.GameMode == GameMode.Commercial)
+			{
+				bgm = Bgm.RUNNIN + options.Map - 1;
+			}
+			else
+			{
+				if (options.Episode < 4)
+				{
+					bgm = Bgm.E1M1 + (options.Episode - 1) * 9 + options.Map - 1;
+				}
+				else
+				{
+					bgm = Map.e4BgmList[options.Map - 1];
+				}
+			}
+
+			return bgm;
+		}
+	}
 }

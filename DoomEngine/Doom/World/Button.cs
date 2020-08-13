@@ -18,50 +18,50 @@ namespace DoomEngine.Doom.World
 	using Map;
 
 	public sealed class Button
-    {
-        private LineDef line;
-        private ButtonPosition position;
-        private int texture;
-        private int timer;
-        private Mobj soundOrigin;
+	{
+		private LineDef line;
+		private ButtonPosition position;
+		private int texture;
+		private int timer;
+		private Mobj soundOrigin;
 
-        public void Clear()
-        {
-            this.line = null;
-            this.position = 0;
-            this.texture = 0;
-            this.timer = 0;
-            this.soundOrigin = null;
-        }
+		public void Clear()
+		{
+			this.line = null;
+			this.position = 0;
+			this.texture = 0;
+			this.timer = 0;
+			this.soundOrigin = null;
+		}
 
-        public LineDef Line
-        {
-            get => this.line;
-            set => this.line = value;
-        }
+		public LineDef Line
+		{
+			get => this.line;
+			set => this.line = value;
+		}
 
-        public ButtonPosition Position
-        {
-            get => this.position;
-            set => this.position = value;
-        }
+		public ButtonPosition Position
+		{
+			get => this.position;
+			set => this.position = value;
+		}
 
-        public int Texture
-        {
-            get => this.texture;
-            set => this.texture = value;
-        }
+		public int Texture
+		{
+			get => this.texture;
+			set => this.texture = value;
+		}
 
-        public int Timer
-        {
-            get => this.timer;
-            set => this.timer = value;
-        }
+		public int Timer
+		{
+			get => this.timer;
+			set => this.timer = value;
+		}
 
-        public Mobj SoundOrigin
-        {
-            get => this.soundOrigin;
-            set => this.soundOrigin = value;
-        }
-    }
+		public Mobj SoundOrigin
+		{
+			get => this.soundOrigin;
+			set => this.soundOrigin = value;
+		}
+	}
 }

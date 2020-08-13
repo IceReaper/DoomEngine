@@ -18,17 +18,17 @@ namespace DoomEngine.Doom.Event
 	using UserInput;
 
 	public sealed class DoomEvent
-    {
-        private EventType type;
-        private DoomKey key;
+	{
+		private EventType type;
+		private DoomKey key;
 
-        public DoomEvent(EventType type, DoomKey key)
-        {
-            this.type = type;
-            this.key = key;
-        }
+		public DoomEvent(EventType type, DoomKey key)
+		{
+			this.type = type;
+			this.key = key;
+		}
 
-        public EventType Type => this.type;
-        public DoomKey Key => this.key;
-    }
+		public EventType Type => this.type;
+		public DoomKey Key => this.key;
+	}
 }

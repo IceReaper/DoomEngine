@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.World
 {
 	public enum PlayerSprite
-    {
-        Weapon,
-        Flash,
-        Count
-    }
+	{
+		Weapon,
+		Flash,
+		Count
+	}
 }

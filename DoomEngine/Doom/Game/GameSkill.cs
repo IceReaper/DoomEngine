@@ -16,11 +16,11 @@
 namespace DoomEngine.Doom.Game
 {
 	public enum GameSkill
-    {
-        Baby,
-        Easy,
-        Medium,
-        Hard,
-        Nightmare
-    }
+	{
+		Baby,
+		Easy,
+		Medium,
+		Hard,
+		Nightmare
+	}
 }

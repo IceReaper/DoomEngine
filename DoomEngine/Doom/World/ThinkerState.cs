@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.World
 {
 	public enum ThinkerState
-    {
-        Active,
-        InStasis,
-        Removed
-    }
+	{
+		Active,
+		InStasis,
+		Removed
+	}
 }

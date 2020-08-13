@@ -18,53 +18,53 @@ namespace DoomEngine.Doom.Math
 	using System.Runtime.CompilerServices;
 
 	public static partial class Trig
-    {
-        public const int FineAngleCount = 8192;
-        public const int FineMask = Trig.FineAngleCount - 1;
-        public const int AngleToFineShift = 19;
+	{
+		public const int FineAngleCount = 8192;
+		public const int FineMask = Trig.FineAngleCount - 1;
+		public const int AngleToFineShift = 19;
 
-        private const int fineCosineOffset = Trig.FineAngleCount / 4;
+		private const int fineCosineOffset = Trig.FineAngleCount / 4;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Tan(Angle anglePlus90)
-        {
-            return new Fixed(Trig.fineTangent[anglePlus90.Data >> Trig.AngleToFineShift]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Tan(Angle anglePlus90)
+		{
+			return new Fixed(Trig.fineTangent[anglePlus90.Data >> Trig.AngleToFineShift]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Tan(int fineAnglePlus90)
-        {
-            return new Fixed(Trig.fineTangent[fineAnglePlus90]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Tan(int fineAnglePlus90)
+		{
+			return new Fixed(Trig.fineTangent[fineAnglePlus90]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Sin(Angle angle)
-        {
-            return new Fixed(Trig.fineSine[angle.Data >> Trig.AngleToFineShift]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Sin(Angle angle)
+		{
+			return new Fixed(Trig.fineSine[angle.Data >> Trig.AngleToFineShift]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Sin(int fineAngle)
-        {
-            return new Fixed(Trig.fineSine[fineAngle]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Sin(int fineAngle)
+		{
+			return new Fixed(Trig.fineSine[fineAngle]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Cos(Angle angle)
-        {
-            return new Fixed(Trig.fineSine[(angle.Data >> Trig.AngleToFineShift) + Trig.fineCosineOffset]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Cos(Angle angle)
+		{
+			return new Fixed(Trig.fineSine[(angle.Data >> Trig.AngleToFineShift) + Trig.fineCosineOffset]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Cos(int fineAngle)
-        {
-            return new Fixed(Trig.fineSine[fineAngle + Trig.fineCosineOffset]);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Cos(int fineAngle)
+		{
+			return new Fixed(Trig.fineSine[fineAngle + Trig.fineCosineOffset]);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle TanToAngle(uint tan)
-        {
-            return new Angle(Trig.tanToAngle[tan]);
-        }
-    }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle TanToAngle(uint tan)
+		{
+			return new Angle(Trig.tanToAngle[tan]);
+		}
+	}
 }

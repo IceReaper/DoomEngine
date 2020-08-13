@@ -16,27 +16,27 @@
 namespace DoomEngine.Doom.Graphics
 {
 	public sealed class Flat
-    {
-        private string name;
-        private byte[] data;
+	{
+		private string name;
+		private byte[] data;
 
-        public Flat(string name, byte[] data)
-        {
-            this.name = name;
-            this.data = data;
-        }
+		public Flat(string name, byte[] data)
+		{
+			this.name = name;
+			this.data = data;
+		}
 
-        public static Flat FromData(string name, byte[] data)
-        {
-            return new Flat(name, data);
-        }
+		public static Flat FromData(string name, byte[] data)
+		{
+			return new Flat(name, data);
+		}
 
-        public override string ToString()
-        {
-            return this.name;
-        }
+		public override string ToString()
+		{
+			return this.name;
+		}
 
-        public string Name => this.name;
-        public byte[] Data => this.data;
-    }
+		public string Name => this.name;
+		public byte[] Data => this.data;
+	}
 }

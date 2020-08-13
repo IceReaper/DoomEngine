@@ -19,252 +19,252 @@ namespace DoomEngine.Doom.Math
 	using System.Runtime.CompilerServices;
 
 	public struct Fixed
-    {
-        public const int FracBits = 16;
-        public const int FracUnit = 1 << Fixed.FracBits;
+	{
+		public const int FracBits = 16;
+		public const int FracUnit = 1 << Fixed.FracBits;
 
-        public static readonly Fixed Zero = new Fixed(0);
-        public static readonly Fixed One = new Fixed(Fixed.FracUnit);
+		public static readonly Fixed Zero = new Fixed(0);
+		public static readonly Fixed One = new Fixed(Fixed.FracUnit);
 
-        public static readonly Fixed MaxValue = new Fixed(int.MaxValue);
-        public static readonly Fixed MinValue = new Fixed(int.MinValue);
+		public static readonly Fixed MaxValue = new Fixed(int.MaxValue);
+		public static readonly Fixed MinValue = new Fixed(int.MinValue);
 
-        public static readonly Fixed Epsilon = new Fixed(1);
-        public static readonly Fixed OnePlusEpsilon = new Fixed(Fixed.FracUnit + 1);
-        public static readonly Fixed OneMinusEpsilon = new Fixed(Fixed.FracUnit - 1);
+		public static readonly Fixed Epsilon = new Fixed(1);
+		public static readonly Fixed OnePlusEpsilon = new Fixed(Fixed.FracUnit + 1);
+		public static readonly Fixed OneMinusEpsilon = new Fixed(Fixed.FracUnit - 1);
 
-        private int data;
+		private int data;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Fixed(int data)
-        {
-            this.data = data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Fixed(int data)
+		{
+			this.data = data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed FromInt(int value)
-        {
-            return new Fixed(value << Fixed.FracBits);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed FromInt(int value)
+		{
+			return new Fixed(value << Fixed.FracBits);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed FromFloat(float value)
-        {
-            return new Fixed((int)(Fixed.FracUnit * value));
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed FromFloat(float value)
+		{
+			return new Fixed((int) (Fixed.FracUnit * value));
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed FromDouble(double value)
-        {
-            return new Fixed((int)(Fixed.FracUnit * value));
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed FromDouble(double value)
+		{
+			return new Fixed((int) (Fixed.FracUnit * value));
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float ToFloat()
-        {
-            return (float)this.data / Fixed.FracUnit;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public float ToFloat()
+		{
+			return (float) this.data / Fixed.FracUnit;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double ToDouble()
-        {
-            return (double)this.data / Fixed.FracUnit;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public double ToDouble()
+		{
+			return (double) this.data / Fixed.FracUnit;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Abs(Fixed a)
-        {
-            if (a.data < 0)
-            {
-                return new Fixed(-a.data);
-            }
-            else
-            {
-                return a;
-            }
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Abs(Fixed a)
+		{
+			if (a.data < 0)
+			{
+				return new Fixed(-a.data);
+			}
+			else
+			{
+				return a;
+			}
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator +(Fixed a)
-        {
-            return a;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator +(Fixed a)
+		{
+			return a;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator -(Fixed a)
-        {
-            return new Fixed(-a.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator -(Fixed a)
+		{
+			return new Fixed(-a.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator +(Fixed a, Fixed b)
-        {
-            return new Fixed(a.data + b.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator +(Fixed a, Fixed b)
+		{
+			return new Fixed(a.data + b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator -(Fixed a, Fixed b)
-        {
-            return new Fixed(a.data - b.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator -(Fixed a, Fixed b)
+		{
+			return new Fixed(a.data - b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator *(Fixed a, Fixed b)
-        {
-            return new Fixed((int)(((long)a.data * (long)b.data) >> Fixed.FracBits));
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator *(Fixed a, Fixed b)
+		{
+			return new Fixed((int) (((long) a.data * (long) b.data) >> Fixed.FracBits));
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator *(int a, Fixed b)
-        {
-            return new Fixed(a * b.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator *(int a, Fixed b)
+		{
+			return new Fixed(a * b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator *(Fixed a, int b)
-        {
-            return new Fixed(a.data * b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator *(Fixed a, int b)
+		{
+			return new Fixed(a.data * b);
+		}
 
-        public static Fixed operator /(Fixed a, Fixed b)
-        {
-            if ((Math.Abs(a.data) >> 14) >= Math.Abs(b.data))
-            {
-                return new Fixed((a.data ^ b.data) < 0 ? int.MinValue : int.MaxValue);
-            }
+		public static Fixed operator /(Fixed a, Fixed b)
+		{
+			if ((Math.Abs(a.data) >> 14) >= Math.Abs(b.data))
+			{
+				return new Fixed((a.data ^ b.data) < 0 ? int.MinValue : int.MaxValue);
+			}
 
-            return Fixed.FixedDiv2(a, b);
-        }
+			return Fixed.FixedDiv2(a, b);
+		}
 
-        private static Fixed FixedDiv2(Fixed a, Fixed b)
-        {
-            var c = ((double)a.data) / ((double)b.data) * Fixed.FracUnit;
+		private static Fixed FixedDiv2(Fixed a, Fixed b)
+		{
+			var c = ((double) a.data) / ((double) b.data) * Fixed.FracUnit;
 
-            if (c >= 2147483648.0 || c < -2147483648.0)
-            {
-                throw new DivideByZeroException();
-            }
+			if (c >= 2147483648.0 || c < -2147483648.0)
+			{
+				throw new DivideByZeroException();
+			}
 
-            return new Fixed((int)c);
-        }
+			return new Fixed((int) c);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator /(int a, Fixed b)
-        {
-            return Fixed.FromInt(a) / b;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator /(int a, Fixed b)
+		{
+			return Fixed.FromInt(a) / b;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator /(Fixed a, int b)
-        {
-            return new Fixed(a.data / b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator /(Fixed a, int b)
+		{
+			return new Fixed(a.data / b);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator <<(Fixed a, int b)
-        {
-            return new Fixed(a.data << b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator <<(Fixed a, int b)
+		{
+			return new Fixed(a.data << b);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed operator >>(Fixed a, int b)
-        {
-            return new Fixed(a.data >> b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed operator >>(Fixed a, int b)
+		{
+			return new Fixed(a.data >> b);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Fixed a, Fixed b)
-        {
-            return a.data == b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(Fixed a, Fixed b)
+		{
+			return a.data == b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(Fixed a, Fixed b)
-        {
-            return a.data != b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(Fixed a, Fixed b)
+		{
+			return a.data != b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <(Fixed a, Fixed b)
-        {
-            return a.data < b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <(Fixed a, Fixed b)
+		{
+			return a.data < b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >(Fixed a, Fixed b)
-        {
-            return a.data > b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >(Fixed a, Fixed b)
+		{
+			return a.data > b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <=(Fixed a, Fixed b)
-        {
-            return a.data <= b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <=(Fixed a, Fixed b)
+		{
+			return a.data <= b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >=(Fixed a, Fixed b)
-        {
-            return a.data >= b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >=(Fixed a, Fixed b)
+		{
+			return a.data >= b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Min(Fixed a, Fixed b)
-        {
-            if (a < b)
-            {
-                return a;
-            }
-            else
-            {
-                return b;
-            }
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Min(Fixed a, Fixed b)
+		{
+			if (a < b)
+			{
+				return a;
+			}
+			else
+			{
+				return b;
+			}
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Fixed Max(Fixed a, Fixed b)
-        {
-            if (a < b)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Fixed Max(Fixed a, Fixed b)
+		{
+			if (a < b)
+			{
+				return b;
+			}
+			else
+			{
+				return a;
+			}
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ToIntFloor()
-        {
-            return this.data >> Fixed.FracBits;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int ToIntFloor()
+		{
+			return this.data >> Fixed.FracBits;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ToIntCeiling()
-        {
-            return (this.data + Fixed.FracUnit - 1) >> Fixed.FracBits;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int ToIntCeiling()
+		{
+			return (this.data + Fixed.FracUnit - 1) >> Fixed.FracBits;
+		}
 
-        public override bool Equals(object obj)
-        {
-            throw new NotSupportedException();
-        }
+		public override bool Equals(object obj)
+		{
+			throw new NotSupportedException();
+		}
 
-        public override int GetHashCode()
-        {
-            return this.data.GetHashCode();
-        }
+		public override int GetHashCode()
+		{
+			return this.data.GetHashCode();
+		}
 
-        public override string ToString()
-        {
-            return ((double)this.data / Fixed.FracUnit).ToString();
-        }
+		public override string ToString()
+		{
+			return ((double) this.data / Fixed.FracUnit).ToString();
+		}
 
-        public int Data
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.data;
-        }
-    }
+		public int Data
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => this.data;
+		}
+	}
 }

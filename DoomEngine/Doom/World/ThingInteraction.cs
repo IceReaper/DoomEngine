@@ -33,7 +33,6 @@ namespace DoomEngine.Doom.World
 			this.InitRadiusAttack();
 		}
 
-
 		/// <summary>
 		/// Called when the target is killed.
 		/// </summary>
@@ -99,6 +98,7 @@ namespace DoomEngine.Doom.World
 			}
 
 			target.Tics -= this.world.Random.Next() & 3;
+
 			if (target.Tics < 1)
 			{
 				target.Tics = 1;
@@ -107,19 +107,23 @@ namespace DoomEngine.Doom.World
 			// Drop stuff.
 			// This determines the kind of object spawned during the death frame of a thing.
 			MobjType item;
+
 			switch (target.Type)
 			{
 				case MobjType.Wolfss:
 				case MobjType.Possessed:
 					item = MobjType.Clip;
+
 					break;
 
 				case MobjType.Shotguy:
 					item = MobjType.Shotgun;
+
 					break;
 
 				case MobjType.Chainguy:
 					item = MobjType.Chaingun;
+
 					break;
 
 				default:
@@ -131,7 +135,6 @@ namespace DoomEngine.Doom.World
 			// Special versions of items.
 			mo.Flags |= MobjFlags.Dropped;
 		}
-
 
 		private static readonly int baseThreshold = 100;
 
@@ -164,6 +167,7 @@ namespace DoomEngine.Doom.World
 			}
 
 			var player = target.Player;
+
 			if (player != null && this.world.Options.Skill == GameSkill.Baby)
 			{
 				// Take half damage in trainer mode.
@@ -172,26 +176,16 @@ namespace DoomEngine.Doom.World
 
 			// Some close combat weapons should not inflict thrust and
 			// push the victim out of reach, thus kick away unless using the chainsaw.
-			var notChainsawAttack =
-				source == null ||
-				source.Player == null ||
-				source.Player.ReadyWeapon != WeaponType.Chainsaw;
+			var notChainsawAttack = source == null || source.Player == null || source.Player.ReadyWeapon != WeaponType.Chainsaw;
 
 			if (inflictor != null && (target.Flags & MobjFlags.NoClip) == 0 && notChainsawAttack)
 			{
-				var ang = Geometry.PointToAngle(
-					inflictor.X,
-					inflictor.Y,
-					target.X,
-					target.Y);
+				var ang = Geometry.PointToAngle(inflictor.X, inflictor.Y, target.X, target.Y);
 
 				var thrust = new Fixed(damage * (Fixed.FracUnit >> 3) * 100 / target.Info.Mass);
 
 				// Make fall forwards sometimes.
-				if (damage < 40 &&
-					damage > target.Health &&
-					target.Z - inflictor.Z > Fixed.FromInt(64) &&
-					(this.world.Random.Next() & 1) != 0)
+				if (damage < 40 && damage > target.Health && target.Z - inflictor.Z > Fixed.FromInt(64) && (this.world.Random.Next() & 1) != 0)
 				{
 					ang += Angle.Ang180;
 					thrust *= 4;
@@ -205,14 +199,13 @@ namespace DoomEngine.Doom.World
 			if (player != null)
 			{
 				// End of game hell hack.
-				if (target.Subsector.Sector.Special == (SectorSpecial)11 && damage >= target.Health)
+				if (target.Subsector.Sector.Special == (SectorSpecial) 11 && damage >= target.Health)
 				{
 					damage = target.Health - 1;
 				}
 
 				// Below certain threshold, ignore damage in GOD mode, or with INVUL power.
-				if (damage < 1000 && ((player.Cheats & CheatFlags.GodMode) != 0 ||
-					player.Powers[(int)PowerType.Invulnerability] > 0))
+				if (damage < 1000 && ((player.Cheats & CheatFlags.GodMode) != 0 || player.Powers[(int) PowerType.Invulnerability] > 0))
 				{
 					return;
 				}
@@ -243,6 +236,7 @@ namespace DoomEngine.Doom.World
 
 				// Mirror mobj health here for Dave.
 				player.Health -= damage;
+
 				if (player.Health < 0)
 				{
 					player.Health = 0;
@@ -262,14 +256,15 @@ namespace DoomEngine.Doom.World
 
 			// Do the damage.
 			target.Health -= damage;
+
 			if (target.Health <= 0)
 			{
 				this.KillMobj(source, target);
+
 				return;
 			}
 
-			if ((this.world.Random.Next() < target.Info.PainChance) &&
-				(target.Flags & MobjFlags.SkullFly) == 0)
+			if ((this.world.Random.Next() < target.Info.PainChance) && (target.Flags & MobjFlags.SkullFly) == 0)
 			{
 				// Fight back!
 				target.Flags |= MobjFlags.JustHit;
@@ -280,22 +275,18 @@ namespace DoomEngine.Doom.World
 			// We're awake now...
 			target.ReactionTime = 0;
 
-			if ((target.Threshold == 0 || target.Type == MobjType.Vile) &&
-				source != null &&
-				source != target &&
-				source.Type != MobjType.Vile)
+			if ((target.Threshold == 0 || target.Type == MobjType.Vile) && source != null && source != target && source.Type != MobjType.Vile)
 			{
 				// If not intent on another player, chase after this one.
 				target.Target = source;
 				target.Threshold = ThingInteraction.baseThreshold;
-				if (target.State == DoomInfo.States[(int)target.Info.SpawnState] &&
-					target.Info.SeeState != MobjState.Null)
+
+				if (target.State == DoomInfo.States[(int) target.Info.SpawnState] && target.Info.SeeState != MobjState.Null)
 				{
 					target.SetState(target.Info.SeeState);
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// Called when the missile hits something (wall or thing).
@@ -304,7 +295,7 @@ namespace DoomEngine.Doom.World
 		{
 			thing.MomX = thing.MomY = thing.MomZ = Fixed.Zero;
 
-			thing.SetState(DoomInfo.MobjInfos[(int)thing.Type].DeathState);
+			thing.SetState(DoomInfo.MobjInfos[(int) thing.Type].DeathState);
 
 			thing.Tics -= this.world.Random.Next() & 3;
 
@@ -320,7 +311,6 @@ namespace DoomEngine.Doom.World
 				this.world.StartSound(thing, thing.Info.DeathSound, SfxType.Misc);
 			}
 		}
-
 
 		private Mobj bombSource;
 		private Mobj bombSpot;

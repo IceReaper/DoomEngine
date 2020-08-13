@@ -19,175 +19,177 @@ namespace DoomEngine
 	using System.Linq;
 
 	public sealed class CommandLineArgs
-    {
-        public readonly Arg<string> iwad;
-        public readonly Arg<string[]> file;
-        public readonly Arg<string[]> deh;
+	{
+		public readonly Arg<string> iwad;
+		public readonly Arg<string[]> file;
+		public readonly Arg<string[]> deh;
 
-        public readonly Arg<Tuple<int, int>> warp;
-        public readonly Arg<int> skill;
+		public readonly Arg<Tuple<int, int>> warp;
+		public readonly Arg<int> skill;
 
-        public readonly Arg deathmatch;
-        public readonly Arg altdeath;
-        public readonly Arg fast;
-        public readonly Arg respawn;
-        public readonly Arg nomonsters;
+		public readonly Arg deathmatch;
+		public readonly Arg altdeath;
+		public readonly Arg fast;
+		public readonly Arg respawn;
+		public readonly Arg nomonsters;
 
-        public readonly Arg<string> playdemo;
-        public readonly Arg<string> timedemo;
+		public readonly Arg<string> playdemo;
+		public readonly Arg<string> timedemo;
 
-        public readonly Arg<int> loadgame;
+		public readonly Arg<int> loadgame;
 
-        public readonly Arg nomouse;
-        public readonly Arg nosound;
-        public readonly Arg nosfx;
-        public readonly Arg nomusic;
+		public readonly Arg nomouse;
+		public readonly Arg nosound;
+		public readonly Arg nosfx;
+		public readonly Arg nomusic;
 
-        public CommandLineArgs(string[] args)
-        {
-            this.iwad = CommandLineArgs.GetString(args, "-iwad");
-            this.file = CommandLineArgs.Check_file(args);
-            this.deh = CommandLineArgs.Check_deh(args);
+		public CommandLineArgs(string[] args)
+		{
+			this.iwad = CommandLineArgs.GetString(args, "-iwad");
+			this.file = CommandLineArgs.Check_file(args);
+			this.deh = CommandLineArgs.Check_deh(args);
 
-            this.warp = CommandLineArgs.Check_warp(args);
-            this.skill = CommandLineArgs.GetInt(args, "-skill");
+			this.warp = CommandLineArgs.Check_warp(args);
+			this.skill = CommandLineArgs.GetInt(args, "-skill");
 
-            this.deathmatch = new Arg(args.Contains("-deathmatch"));
-            this.altdeath = new Arg(args.Contains("-altdeath"));
-            this.fast = new Arg(args.Contains("-fast"));
-            this.respawn = new Arg(args.Contains("-respawn"));
-            this.nomonsters = new Arg(args.Contains("-nomonsters"));
+			this.deathmatch = new Arg(args.Contains("-deathmatch"));
+			this.altdeath = new Arg(args.Contains("-altdeath"));
+			this.fast = new Arg(args.Contains("-fast"));
+			this.respawn = new Arg(args.Contains("-respawn"));
+			this.nomonsters = new Arg(args.Contains("-nomonsters"));
 
-            this.playdemo = CommandLineArgs.GetString(args, "-playdemo");
-            this.timedemo = CommandLineArgs.GetString(args, "-timedemo");
+			this.playdemo = CommandLineArgs.GetString(args, "-playdemo");
+			this.timedemo = CommandLineArgs.GetString(args, "-timedemo");
 
-            this.loadgame = CommandLineArgs.GetInt(args, "-loadgame");
+			this.loadgame = CommandLineArgs.GetInt(args, "-loadgame");
 
-            this.nomouse = new Arg(args.Contains("-nomouse"));
-            this.nosound = new Arg(args.Contains("-nosound"));
-            this.nosfx = new Arg(args.Contains("-nosfx"));
-            this.nomusic = new Arg(args.Contains("-nomusic"));
-        }
+			this.nomouse = new Arg(args.Contains("-nomouse"));
+			this.nosound = new Arg(args.Contains("-nosound"));
+			this.nosfx = new Arg(args.Contains("-nosfx"));
+			this.nomusic = new Arg(args.Contains("-nomusic"));
+		}
 
-        private static Arg<string[]> Check_file(string[] args)
-        {
-            var values = CommandLineArgs.GetValues(args, "-file");
-            if (values.Length >= 1)
-            {
-                return new Arg<string[]>(values);
-            }
+		private static Arg<string[]> Check_file(string[] args)
+		{
+			var values = CommandLineArgs.GetValues(args, "-file");
 
-            return new Arg<string[]>();
-        }
+			if (values.Length >= 1)
+			{
+				return new Arg<string[]>(values);
+			}
 
-        private static Arg<string[]> Check_deh(string[] args)
-        {
-            var values = CommandLineArgs.GetValues(args, "-deh");
-            if (values.Length >= 1)
-            {
-                return new Arg<string[]>(values);
-            }
+			return new Arg<string[]>();
+		}
 
-            return new Arg<string[]>();
-        }
+		private static Arg<string[]> Check_deh(string[] args)
+		{
+			var values = CommandLineArgs.GetValues(args, "-deh");
 
-        private static Arg<Tuple<int, int>> Check_warp(string[] args)
-        {
-            var values = CommandLineArgs.GetValues(args, "-warp");
-            if (values.Length == 1)
-            {
-                int map;
-                if (int.TryParse(values[0], out map))
-                {
-                    return new Arg<Tuple<int, int>>(Tuple.Create(1, map));
-                }
-            }
-            else if (values.Length == 2)
-            {
-                int episode;
-                int map;
-                if (int.TryParse(values[0], out episode) && int.TryParse(values[1], out map))
-                {
-                    return new Arg<Tuple<int, int>>(Tuple.Create(episode, map));
-                }
-            }
+			if (values.Length >= 1)
+			{
+				return new Arg<string[]>(values);
+			}
 
-            return new Arg<Tuple<int, int>>();
-        }
+			return new Arg<string[]>();
+		}
 
-        private static Arg<string> GetString(string[] args, string name)
-        {
-            var values = CommandLineArgs.GetValues(args, name);
-            if (values.Length == 1)
-            {
-                return new Arg<string>(values[0]);
-            }
+		private static Arg<Tuple<int, int>> Check_warp(string[] args)
+		{
+			var values = CommandLineArgs.GetValues(args, "-warp");
 
-            return new Arg<string>();
-        }
+			if (values.Length == 1)
+			{
+				int map;
 
-        private static Arg<int> GetInt(string[] args, string name)
-        {
-            var values = CommandLineArgs.GetValues(args, name);
-            if (values.Length == 1)
-            {
-                int result;
-                if (int.TryParse(values[0], out result))
-                {
-                    return new Arg<int>(result);
-                }
-            }
+				if (int.TryParse(values[0], out map))
+				{
+					return new Arg<Tuple<int, int>>(Tuple.Create(1, map));
+				}
+			}
+			else if (values.Length == 2)
+			{
+				int episode;
+				int map;
 
-            return new Arg<int>();
-        }
+				if (int.TryParse(values[0], out episode) && int.TryParse(values[1], out map))
+				{
+					return new Arg<Tuple<int, int>>(Tuple.Create(episode, map));
+				}
+			}
 
-        private static string[] GetValues(string[] args, string name)
-        {
-            return args
-                .SkipWhile(arg => arg != name)
-                .Skip(1)
-                .TakeWhile(arg => arg[0] != '-')
-                .ToArray();
-        }
+			return new Arg<Tuple<int, int>>();
+		}
 
+		private static Arg<string> GetString(string[] args, string name)
+		{
+			var values = CommandLineArgs.GetValues(args, name);
 
+			if (values.Length == 1)
+			{
+				return new Arg<string>(values[0]);
+			}
 
-        public class Arg
-        {
-            private bool present;
+			return new Arg<string>();
+		}
 
-            public Arg()
-            {
-                this.present = false;
-            }
+		private static Arg<int> GetInt(string[] args, string name)
+		{
+			var values = CommandLineArgs.GetValues(args, name);
 
-            public Arg(bool present)
-            {
-                this.present = present;
-            }
+			if (values.Length == 1)
+			{
+				int result;
 
-            public bool Present => this.present;
-        }
+				if (int.TryParse(values[0], out result))
+				{
+					return new Arg<int>(result);
+				}
+			}
 
-        public class Arg<T>
-        {
-            private bool present;
-            private T value;
+			return new Arg<int>();
+		}
 
-            public Arg()
-            {
-                this.present = false;
-                this.value = default;
-            }
+		private static string[] GetValues(string[] args, string name)
+		{
+			return args.SkipWhile(arg => arg != name).Skip(1).TakeWhile(arg => arg[0] != '-').ToArray();
+		}
 
-            public Arg(T value)
-            {
-                this.present = true;
-                this.value = value;
-            }
+		public class Arg
+		{
+			private bool present;
 
-            public bool Present => this.present;
-            public T Value => this.value;
-        }
-    }
+			public Arg()
+			{
+				this.present = false;
+			}
+
+			public Arg(bool present)
+			{
+				this.present = present;
+			}
+
+			public bool Present => this.present;
+		}
+
+		public class Arg<T>
+		{
+			private bool present;
+			private T value;
+
+			public Arg()
+			{
+				this.present = false;
+				this.value = default;
+			}
+
+			public Arg(T value)
+			{
+				this.present = true;
+				this.value = value;
+			}
+
+			public bool Present => this.present;
+			public T Value => this.value;
+		}
+	}
 }

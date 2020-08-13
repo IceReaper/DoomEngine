@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.Map
 {
 	public enum LineSpecial
-    {
-        Normal = 0
-    }
+	{
+		Normal = 0
+	}
 }

@@ -23,78 +23,83 @@ namespace DoomEngine.Doom
 	using System.IO;
 
 	public sealed class DemoPlayback
-    {
-        private Demo demo;
-        private TicCmd[] cmds;
-        private DoomGame game;
+	{
+		private Demo demo;
+		private TicCmd[] cmds;
+		private DoomGame game;
 
-        private Stopwatch stopwatch;
-        private int frameCount;
+		private Stopwatch stopwatch;
+		private int frameCount;
 
-        public DemoPlayback(CommonResource resource, GameOptions options, string demoName)
-        {
-            if (File.Exists(demoName))
-            {
-                this.demo = new Demo(demoName);
-            }
-            else if (File.Exists(demoName + ".lmp"))
-            {
-                this.demo = new Demo(demoName + ".lmp");
-            }
-            else
-            {
-                var lumpName = demoName.ToUpper();
-                if (resource.Wad.GetLumpNumber(lumpName) == -1)
-                {
-                    throw new Exception("Demo '" + demoName + "' was not found!");
-                }
-                this.demo = new Demo(resource.Wad.ReadLump(lumpName));
-            }
+		public DemoPlayback(CommonResource resource, GameOptions options, string demoName)
+		{
+			if (File.Exists(demoName))
+			{
+				this.demo = new Demo(demoName);
+			}
+			else if (File.Exists(demoName + ".lmp"))
+			{
+				this.demo = new Demo(demoName + ".lmp");
+			}
+			else
+			{
+				var lumpName = demoName.ToUpper();
 
-            this.demo.Options.GameVersion = options.GameVersion;
-            this.demo.Options.GameMode = options.GameMode;
-            this.demo.Options.MissionPack = options.MissionPack;
-            this.demo.Options.Renderer = options.Renderer;
-            this.demo.Options.Sound = options.Sound;
-            this.demo.Options.Music = options.Music;
+				if (resource.Wad.GetLumpNumber(lumpName) == -1)
+				{
+					throw new Exception("Demo '" + demoName + "' was not found!");
+				}
 
-            this.cmds = new TicCmd[Player.MaxPlayerCount];
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                this.cmds[i] = new TicCmd();
-            }
+				this.demo = new Demo(resource.Wad.ReadLump(lumpName));
+			}
 
-            this.game = new DoomGame(resource, this.demo.Options);
-            this.game.DeferedInitNew();
+			this.demo.Options.GameVersion = options.GameVersion;
+			this.demo.Options.GameMode = options.GameMode;
+			this.demo.Options.MissionPack = options.MissionPack;
+			this.demo.Options.Renderer = options.Renderer;
+			this.demo.Options.Sound = options.Sound;
+			this.demo.Options.Music = options.Music;
 
-            this.stopwatch = new Stopwatch();
-        }
+			this.cmds = new TicCmd[Player.MaxPlayerCount];
 
-        public UpdateResult Update()
-        {
-            if (!this.stopwatch.IsRunning)
-            {
-                this.stopwatch.Start();
-            }
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				this.cmds[i] = new TicCmd();
+			}
 
-            if (!this.demo.ReadCmd(this.cmds))
-            {
-                this.stopwatch.Stop();
-                return UpdateResult.Completed;
-            }
-            else
-            {
-                this.frameCount++;
-                return this.game.Update(this.cmds);
-            }
-        }
+			this.game = new DoomGame(resource, this.demo.Options);
+			this.game.DeferedInitNew();
 
-        public void DoEvent(DoomEvent e)
-        {
-            this.game.DoEvent(e);
-        }
+			this.stopwatch = new Stopwatch();
+		}
 
-        public DoomGame Game => this.game;
-        public double Fps => this.frameCount / this.stopwatch.Elapsed.TotalSeconds;
-    }
+		public UpdateResult Update()
+		{
+			if (!this.stopwatch.IsRunning)
+			{
+				this.stopwatch.Start();
+			}
+
+			if (!this.demo.ReadCmd(this.cmds))
+			{
+				this.stopwatch.Stop();
+
+				return UpdateResult.Completed;
+			}
+			else
+			{
+				this.frameCount++;
+
+				return this.game.Update(this.cmds);
+			}
+		}
+
+		public void DoEvent(DoomEvent e)
+		{
+			this.game.DoEvent(e);
+		}
+
+		public DoomGame Game => this.game;
+		public double Fps => this.frameCount / this.stopwatch.Elapsed.TotalSeconds;
+	}
 }

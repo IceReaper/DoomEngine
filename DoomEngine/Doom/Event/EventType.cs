@@ -16,10 +16,10 @@
 namespace DoomEngine.Doom.Event
 {
 	public enum EventType
-    {
-        KeyDown,
-        KeyUp,
-        Mouse,
-        Joystick
-    }
+	{
+		KeyDown,
+		KeyUp,
+		Mouse,
+		Joystick
+	}
 }

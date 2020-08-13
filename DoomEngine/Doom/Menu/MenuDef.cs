@@ -18,24 +18,24 @@ namespace DoomEngine.Doom.Menu
 	using Event;
 
 	public abstract class MenuDef
-    {
-        private DoomMenu menu;
+	{
+		private DoomMenu menu;
 
-        public MenuDef(DoomMenu menu)
-        {
-            this.menu = menu;
-        }
+		public MenuDef(DoomMenu menu)
+		{
+			this.menu = menu;
+		}
 
-        public virtual void Open()
-        {
-        }
+		public virtual void Open()
+		{
+		}
 
-        public virtual void Update()
-        {
-        }
+		public virtual void Update()
+		{
+		}
 
-        public abstract bool DoEvent(DoomEvent e);
+		public abstract bool DoEvent(DoomEvent e);
 
-        public DoomMenu Menu => this.menu;
-    }
+		public DoomMenu Menu => this.menu;
+	}
 }

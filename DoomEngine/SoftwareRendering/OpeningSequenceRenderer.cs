@@ -20,36 +20,41 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Wad;
 
 	public class OpeningSequenceRenderer
-    {
-        private DrawScreen screen;
-        private SfmlRenderer parent;
+	{
+		private DrawScreen screen;
+		private SfmlRenderer parent;
 
-        private PatchCache cache;
+		private PatchCache cache;
 
-        public OpeningSequenceRenderer(Wad wad, DrawScreen screen, SfmlRenderer parent)
-        {
-            this.screen = screen;
-            this.parent = parent;
+		public OpeningSequenceRenderer(Wad wad, DrawScreen screen, SfmlRenderer parent)
+		{
+			this.screen = screen;
+			this.parent = parent;
 
-            this.cache = new PatchCache(wad);
-        }
+			this.cache = new PatchCache(wad);
+		}
 
-        public void Render(OpeningSequence sequence)
-        {
-            var scale = this.screen.Width / 320;
+		public void Render(OpeningSequence sequence)
+		{
+			var scale = this.screen.Width / 320;
 
-            switch (sequence.State)
-            {
-                case OpeningSequenceState.Title:
-                    this.screen.DrawPatch(this.cache["TITLEPIC"], 0, 0, scale);
-                    break;
-                case OpeningSequenceState.Demo:
-                    this.parent.RenderGame(sequence.DemoGame);
-                    break;
-                case OpeningSequenceState.Credit:
-                    this.screen.DrawPatch(this.cache["CREDIT"], 0, 0, scale);
-                    break;
-            }
-        }
-    }
+			switch (sequence.State)
+			{
+				case OpeningSequenceState.Title:
+					this.screen.DrawPatch(this.cache["TITLEPIC"], 0, 0, scale);
+
+					break;
+
+				case OpeningSequenceState.Demo:
+					this.parent.RenderGame(sequence.DemoGame);
+
+					break;
+
+				case OpeningSequenceState.Credit:
+					this.screen.DrawPatch(this.cache["CREDIT"], 0, 0, scale);
+
+					break;
+			}
+		}
+	}
 }

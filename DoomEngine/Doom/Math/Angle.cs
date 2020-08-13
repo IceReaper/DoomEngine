@@ -19,160 +19,163 @@ namespace DoomEngine.Doom.Math
 	using System.Runtime.CompilerServices;
 
 	public struct Angle
-    {
-        public static readonly Angle Ang0 = new Angle(0x00000000);
-        public static readonly Angle Ang45 = new Angle(0x20000000);
-        public static readonly Angle Ang90 = new Angle(0x40000000);
-        public static readonly Angle Ang180 = new Angle(0x80000000);
-        public static readonly Angle Ang270 = new Angle(0xC0000000);
+	{
+		public static readonly Angle Ang0 = new Angle(0x00000000);
+		public static readonly Angle Ang45 = new Angle(0x20000000);
+		public static readonly Angle Ang90 = new Angle(0x40000000);
+		public static readonly Angle Ang180 = new Angle(0x80000000);
+		public static readonly Angle Ang270 = new Angle(0xC0000000);
 
-        private uint data;
+		private uint data;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Angle(uint data)
-        {
-            this.data = data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Angle(uint data)
+		{
+			this.data = data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Angle(int data)
-        {
-            this.data = (uint)data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Angle(int data)
+		{
+			this.data = (uint) data;
+		}
 
-        public static Angle FromRadian(double radian)
-        {
-            var data = Math.Round(0x100000000 * (radian / (2 * Math.PI)));
-            return new Angle((uint)data);
-        }
+		public static Angle FromRadian(double radian)
+		{
+			var data = Math.Round(0x100000000 * (radian / (2 * Math.PI)));
 
-        public static Angle FromDegree(double degree)
-        {
-            var data = Math.Round(0x100000000 * (degree / 360));
-            return new Angle((uint)data);
-        }
+			return new Angle((uint) data);
+		}
 
-        public double ToRadian()
-        {
-            return 2 * Math.PI * ((double)this.data / 0x100000000);
-        }
+		public static Angle FromDegree(double degree)
+		{
+			var data = Math.Round(0x100000000 * (degree / 360));
 
-        public double ToDegree()
-        {
-            return 360 * ((double)this.data / 0x100000000);
-        }
+			return new Angle((uint) data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle Abs(Angle angle)
-        {
-            var data = (int)angle.data;
-            if (data < 0)
-            {
-                return new Angle((uint)-data);
-            }
-            else
-            {
-                return angle;
-            }
-        }
+		public double ToRadian()
+		{
+			return 2 * Math.PI * ((double) this.data / 0x100000000);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator +(Angle a)
-        {
-            return a;
-        }
+		public double ToDegree()
+		{
+			return 360 * ((double) this.data / 0x100000000);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator -(Angle a)
-        {
-            return new Angle((uint)-(int)a.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle Abs(Angle angle)
+		{
+			var data = (int) angle.data;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator +(Angle a, Angle b)
-        {
-            return new Angle(a.data + b.data);
-        }
+			if (data < 0)
+			{
+				return new Angle((uint) -data);
+			}
+			else
+			{
+				return angle;
+			}
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator -(Angle a, Angle b)
-        {
-            return new Angle(a.data - b.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator +(Angle a)
+		{
+			return a;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator *(uint a, Angle b)
-        {
-            return new Angle(a * b.data);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator -(Angle a)
+		{
+			return new Angle((uint) -(int) a.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator *(Angle a, uint b)
-        {
-            return new Angle(a.data * b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator +(Angle a, Angle b)
+		{
+			return new Angle(a.data + b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Angle operator /(Angle a, uint b)
-        {
-            return new Angle(a.data / b);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator -(Angle a, Angle b)
+		{
+			return new Angle(a.data - b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Angle a, Angle b)
-        {
-            return a.data == b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator *(uint a, Angle b)
+		{
+			return new Angle(a * b.data);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(Angle a, Angle b)
-        {
-            return a.data != b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator *(Angle a, uint b)
+		{
+			return new Angle(a.data * b);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <(Angle a, Angle b)
-        {
-            return a.data < b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Angle operator /(Angle a, uint b)
+		{
+			return new Angle(a.data / b);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >(Angle a, Angle b)
-        {
-            return a.data > b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(Angle a, Angle b)
+		{
+			return a.data == b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <=(Angle a, Angle b)
-        {
-            return a.data <= b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(Angle a, Angle b)
+		{
+			return a.data != b.data;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >=(Angle a, Angle b)
-        {
-            return a.data >= b.data;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <(Angle a, Angle b)
+		{
+			return a.data < b.data;
+		}
 
-        public override bool Equals(object obj)
-        {
-            throw new NotSupportedException();
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >(Angle a, Angle b)
+		{
+			return a.data > b.data;
+		}
 
-        public override int GetHashCode()
-        {
-            return this.data.GetHashCode();
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <=(Angle a, Angle b)
+		{
+			return a.data <= b.data;
+		}
 
-        public override string ToString()
-        {
-            return this.ToDegree().ToString();
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >=(Angle a, Angle b)
+		{
+			return a.data >= b.data;
+		}
 
-        public uint Data
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.data;
-        }
-    }
+		public override bool Equals(object obj)
+		{
+			throw new NotSupportedException();
+		}
+
+		public override int GetHashCode()
+		{
+			return this.data.GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			return this.ToDegree().ToString();
+		}
+
+		public uint Data
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => this.data;
+		}
+	}
 }

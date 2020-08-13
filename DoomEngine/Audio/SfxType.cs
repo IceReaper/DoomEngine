@@ -16,11 +16,11 @@
 namespace DoomEngine.Audio
 {
 	public enum SfxType
-    {
-        Diffuse,
-        Weapon,
-        Voice,
-        Footstep,
-        Misc
-    }
+	{
+		Diffuse,
+		Weapon,
+		Voice,
+		Footstep,
+		Misc
+	}
 }

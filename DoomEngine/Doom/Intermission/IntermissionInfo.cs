@@ -19,93 +19,94 @@ namespace DoomEngine.Doom.Intermission
 	using System;
 
 	public class IntermissionInfo
-    {
-        // Episode number (0-2).
-        private int episode;
+	{
+		// Episode number (0-2).
+		private int episode;
 
-        // If true, splash the secret level.
-        private bool didSecret;
+		// If true, splash the secret level.
+		private bool didSecret;
 
-        // Previous and next levels, origin 0.
-        private int lastLevel;
-        private int nextLevel;
+		// Previous and next levels, origin 0.
+		private int lastLevel;
+		private int nextLevel;
 
-        private int maxKillCount;
-        private int maxItemCount;
-        private int maxSecretCount;
-        private int totalFrags;
+		private int maxKillCount;
+		private int maxItemCount;
+		private int maxSecretCount;
+		private int totalFrags;
 
-        // The par time.
-        private int parTime;
+		// The par time.
+		private int parTime;
 
-        private PlayerScores[] players;
+		private PlayerScores[] players;
 
-        public IntermissionInfo()
-        {
-            this.players = new PlayerScores[Player.MaxPlayerCount];
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                this.players[i] = new PlayerScores();
-            }
-        }
+		public IntermissionInfo()
+		{
+			this.players = new PlayerScores[Player.MaxPlayerCount];
 
-        public int Episode
-        {
-            get => this.episode;
-            set => this.episode = value;
-        }
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				this.players[i] = new PlayerScores();
+			}
+		}
 
-        public bool DidSecret
-        {
-            get => this.didSecret;
-            set => this.didSecret = value;
-        }
+		public int Episode
+		{
+			get => this.episode;
+			set => this.episode = value;
+		}
 
-        public int LastLevel
-        {
-            get => this.lastLevel;
-            set => this.lastLevel = value;
-        }
+		public bool DidSecret
+		{
+			get => this.didSecret;
+			set => this.didSecret = value;
+		}
 
-        public int NextLevel
-        {
-            get => this.nextLevel;
-            set => this.nextLevel = value;
-        }
+		public int LastLevel
+		{
+			get => this.lastLevel;
+			set => this.lastLevel = value;
+		}
 
-        public int MaxKillCount
-        {
-            get => Math.Max(this.maxKillCount, 1);
-            set => this.maxKillCount = value;
-        }
+		public int NextLevel
+		{
+			get => this.nextLevel;
+			set => this.nextLevel = value;
+		}
 
-        public int MaxItemCount
-        {
-            get => Math.Max(this.maxItemCount, 1);
-            set => this.maxItemCount = value;
-        }
+		public int MaxKillCount
+		{
+			get => Math.Max(this.maxKillCount, 1);
+			set => this.maxKillCount = value;
+		}
 
-        public int MaxSecretCount
-        {
-            get => Math.Max(this.maxSecretCount, 1);
-            set => this.maxSecretCount = value;
-        }
+		public int MaxItemCount
+		{
+			get => Math.Max(this.maxItemCount, 1);
+			set => this.maxItemCount = value;
+		}
 
-        public int TotalFrags
-        {
-            get => Math.Max(this.totalFrags, 1);
-            set => this.totalFrags = value;
-        }
+		public int MaxSecretCount
+		{
+			get => Math.Max(this.maxSecretCount, 1);
+			set => this.maxSecretCount = value;
+		}
 
-        public int ParTime
-        {
-            get => this.parTime;
-            set => this.parTime = value;
-        }
+		public int TotalFrags
+		{
+			get => Math.Max(this.totalFrags, 1);
+			set => this.totalFrags = value;
+		}
 
-        public PlayerScores[] Players
-        {
-            get => this.players;
-        }
-    }
+		public int ParTime
+		{
+			get => this.parTime;
+			set => this.parTime = value;
+		}
+
+		public PlayerScores[] Players
+		{
+			get => this.players;
+		}
+	}
 }

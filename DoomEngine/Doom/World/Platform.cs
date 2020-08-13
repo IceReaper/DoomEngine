@@ -51,8 +51,7 @@ namespace DoomEngine.Doom.World
 				case PlatformState.Up:
 					result = sa.MovePlane(this.sector, this.speed, this.high, this.crush, 0, 1);
 
-					if (this.type == PlatformType.RaiseAndChange ||
-						this.type == PlatformType.RaiseToNearestAndChange)
+					if (this.type == PlatformType.RaiseAndChange || this.type == PlatformType.RaiseToNearestAndChange)
 					{
 						if (((this.world.LevelTime + this.sector.Number) & 7) == 0)
 						{
@@ -79,11 +78,13 @@ namespace DoomEngine.Doom.World
 								case PlatformType.BlazeDwus:
 								case PlatformType.DownWaitUpStay:
 									sa.RemoveActivePlatform(this);
+
 									break;
 
 								case PlatformType.RaiseAndChange:
 								case PlatformType.RaiseToNearestAndChange:
 									sa.RemoveActivePlatform(this);
+
 									break;
 
 								default:
@@ -117,6 +118,7 @@ namespace DoomEngine.Doom.World
 						{
 							this.status = PlatformState.Down;
 						}
+
 						this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTART, SfxType.Misc);
 					}
 

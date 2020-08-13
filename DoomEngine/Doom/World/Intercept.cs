@@ -19,32 +19,32 @@ namespace DoomEngine.Doom.World
 	using Math;
 
 	public sealed class Intercept
-    {
-        private Fixed frac;
-        private Mobj thing;
-        private LineDef line;
+	{
+		private Fixed frac;
+		private Mobj thing;
+		private LineDef line;
 
-        public void Make(Fixed frac, Mobj thing)
-        {
-            this.frac = frac;
-            this.thing = thing;
-            this.line = null;
-        }
+		public void Make(Fixed frac, Mobj thing)
+		{
+			this.frac = frac;
+			this.thing = thing;
+			this.line = null;
+		}
 
-        public void Make(Fixed frac, LineDef line)
-        {
-            this.frac = frac;
-            this.thing = null;
-            this.line = line;
-        }
+		public void Make(Fixed frac, LineDef line)
+		{
+			this.frac = frac;
+			this.thing = null;
+			this.line = line;
+		}
 
-        public Fixed Frac
-        {
-            get => this.frac;
-            set => this.frac = value;
-        }
+		public Fixed Frac
+		{
+			get => this.frac;
+			set => this.frac = value;
+		}
 
-        public Mobj Thing => this.thing;
-        public LineDef Line => this.line;
-    }
+		public Mobj Thing => this.thing;
+		public LineDef Line => this.line;
+	}
 }

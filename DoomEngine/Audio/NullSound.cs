@@ -18,73 +18,73 @@ namespace DoomEngine.Audio
 	using Doom.World;
 
 	public sealed class NullSound : ISound
-    {
-        private static NullSound instance;
+	{
+		private static NullSound instance;
 
-        public static NullSound GetInstance()
-        {
-            if (NullSound.instance == null)
-            {
-                NullSound.instance = new NullSound();
-            }
+		public static NullSound GetInstance()
+		{
+			if (NullSound.instance == null)
+			{
+				NullSound.instance = new NullSound();
+			}
 
-            return NullSound.instance;
-        }
+			return NullSound.instance;
+		}
 
-        public void SetListener(Mobj listerner)
-        {
-        }
+		public void SetListener(Mobj listerner)
+		{
+		}
 
-        public void Update()
-        {
-        }
+		public void Update()
+		{
+		}
 
-        public void StartSound(Sfx sfx)
-        {
-        }
+		public void StartSound(Sfx sfx)
+		{
+		}
 
-        public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
-        {
-        }
+		public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
+		{
+		}
 
-        public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
-        {
-        }
+		public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
+		{
+		}
 
-        public void StopSound(Mobj mobj)
-        {
-        }
+		public void StopSound(Mobj mobj)
+		{
+		}
 
-        public void Reset()
-        {
-        }
+		public void Reset()
+		{
+		}
 
-        public void Pause()
-        {
-        }
+		public void Pause()
+		{
+		}
 
-        public void Resume()
-        {
-        }
+		public void Resume()
+		{
+		}
 
-        public int MaxVolume
-        {
-            get
-            {
-                return 15;
-            }
-        }
+		public int MaxVolume
+		{
+			get
+			{
+				return 15;
+			}
+		}
 
-        public int Volume
-        {
-            get
-            {
-                return 0;
-            }
+		public int Volume
+		{
+			get
+			{
+				return 0;
+			}
 
-            set
-            {
-            }
-        }
-    }
+			set
+			{
+			}
+		}
+	}
 }

@@ -23,90 +23,87 @@ namespace DoomEngine
 	using System.IO;
 
 	public static class ConfigUtilities
-    {
-        public static string GetExeDirectory()
-        {
-            return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-        }
+	{
+		public static string GetExeDirectory()
+		{
+			return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+		}
 
-        public static string GetConfigPath()
-        {
-            return Path.Combine(ConfigUtilities.GetExeDirectory(), "managed-doom.cfg");
-        }
+		public static string GetConfigPath()
+		{
+			return Path.Combine(ConfigUtilities.GetExeDirectory(), "managed-doom.cfg");
+		}
 
-        public static VideoMode GetDefaultVideoMode()
-        {
-            var desktop = VideoMode.DesktopMode;
+		public static VideoMode GetDefaultVideoMode()
+		{
+			var desktop = VideoMode.DesktopMode;
 
-            var baseWidth = 640;
-            var baseHeight = 400;
+			var baseWidth = 640;
+			var baseHeight = 400;
 
-            var currentWidth = baseWidth;
-            var currentHeight = baseHeight;
+			var currentWidth = baseWidth;
+			var currentHeight = baseHeight;
 
-            while (true)
-            {
-                var nextWidth = currentWidth + baseWidth;
-                var nextHeight = currentHeight + baseHeight;
+			while (true)
+			{
+				var nextWidth = currentWidth + baseWidth;
+				var nextHeight = currentHeight + baseHeight;
 
-                if (nextWidth >= 0.9 * desktop.Width ||
-                    nextHeight >= 0.9 * desktop.Height)
-                {
-                    break;
-                }
+				if (nextWidth >= 0.9 * desktop.Width || nextHeight >= 0.9 * desktop.Height)
+				{
+					break;
+				}
 
-                currentWidth = nextWidth;
-                currentHeight = nextHeight;
-            }
+				currentWidth = nextWidth;
+				currentHeight = nextHeight;
+			}
 
-            return new VideoMode((uint)currentWidth, (uint)currentHeight);
-        }
+			return new VideoMode((uint) currentWidth, (uint) currentHeight);
+		}
 
-        public static string GetDefaultIwadPath()
-        {
-            var names = new string[]
-            {
-                "DOOM2.WAD",
-                "PLUTONIA.WAD",
-                "TNT.WAD",
-                "DOOM.WAD",
-                "DOOM1.WAD"
-            };
+		public static string GetDefaultIwadPath()
+		{
+			var names = new string[] {"DOOM2.WAD", "PLUTONIA.WAD", "TNT.WAD", "DOOM.WAD", "DOOM1.WAD"};
 
-            var exeDirectory = ConfigUtilities.GetExeDirectory();
-            foreach (var name in names)
-            {
-                var path = Path.Combine(exeDirectory, name);
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
+			var exeDirectory = ConfigUtilities.GetExeDirectory();
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            foreach (var name in names)
-            {
-                var path = Path.Combine(currentDirectory, name);
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
+			foreach (var name in names)
+			{
+				var path = Path.Combine(exeDirectory, name);
 
-            throw new Exception("No IWAD was found!");
-        }
+				if (File.Exists(path))
+				{
+					return path;
+				}
+			}
 
-        public static SfmlMusic GetSfmlMusicInstance(Config config, Wad wad)
-        {
-            var sfPath = Path.Combine(ConfigUtilities.GetExeDirectory(), "TimGM6mb.sf2");
-            if (File.Exists(sfPath))
-            {
-                return new SfmlMusic(config, wad, sfPath);
-            }
-            else
-            {
-                return null;
-            }
-        }
-    }
+			var currentDirectory = Directory.GetCurrentDirectory();
+
+			foreach (var name in names)
+			{
+				var path = Path.Combine(currentDirectory, name);
+
+				if (File.Exists(path))
+				{
+					return path;
+				}
+			}
+
+			throw new Exception("No IWAD was found!");
+		}
+
+		public static SfmlMusic GetSfmlMusicInstance(Config config, Wad wad)
+		{
+			var sfPath = Path.Combine(ConfigUtilities.GetExeDirectory(), "TimGM6mb.sf2");
+
+			if (File.Exists(sfPath))
+			{
+				return new SfmlMusic(config, wad, sfPath);
+			}
+			else
+			{
+				return null;
+			}
+		}
+	}
 }

@@ -24,208 +24,221 @@ namespace DoomEngine.Doom.Wad
 	using System.Runtime.ExceptionServices;
 
 	public sealed class Wad : IDisposable
-    {
-        private List<string> names;
-        private List<Stream> streams;
-        private List<LumpInfo> lumpInfos;
-        private GameVersion gameVersion;
-        private GameMode gameMode;
-        private MissionPack missionPack;
+	{
+		private List<string> names;
+		private List<Stream> streams;
+		private List<LumpInfo> lumpInfos;
+		private GameVersion gameVersion;
+		private GameMode gameMode;
+		private MissionPack missionPack;
 
-        public Wad(params string[] fileNames)
-        {
-            try
-            {
-                Console.Write("Open wad files: ");
+		public Wad(params string[] fileNames)
+		{
+			try
+			{
+				Console.Write("Open wad files: ");
 
-                this.names = new List<string>();
-                this.streams = new List<Stream>();
-                this.lumpInfos = new List<LumpInfo>();
+				this.names = new List<string>();
+				this.streams = new List<Stream>();
+				this.lumpInfos = new List<LumpInfo>();
 
-                foreach (var fileName in fileNames)
-                {
-                    this.AddFile(fileName);
-                }
+				foreach (var fileName in fileNames)
+				{
+					this.AddFile(fileName);
+				}
 
-                this.gameMode = Wad.GetGameMode(this.names);
-                this.missionPack = Wad.GetMissionPack(this.names);
-                this.gameVersion = Wad.GetGameVersion(this.names);
+				this.gameMode = Wad.GetGameMode(this.names);
+				this.missionPack = Wad.GetMissionPack(this.names);
+				this.gameVersion = Wad.GetGameVersion(this.names);
 
-                Console.WriteLine("OK (" + string.Join(", ", fileNames.Select(x => Path.GetFileName(x))) + ")");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed");
-                this.Dispose();
-                ExceptionDispatchInfo.Throw(e);
-            }
-        }
+				Console.WriteLine("OK (" + string.Join(", ", fileNames.Select(x => Path.GetFileName(x))) + ")");
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Failed");
+				this.Dispose();
+				ExceptionDispatchInfo.Throw(e);
+			}
+		}
 
-        private void AddFile(string fileName)
-        {
-            this.names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
+		private void AddFile(string fileName)
+		{
+			this.names.Add(Path.GetFileNameWithoutExtension(fileName).ToLower());
 
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            this.streams.Add(stream);
+			var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+			this.streams.Add(stream);
 
-            string identification;
-            int lumpCount;
-            int lumpInfoTableOffset;
-            {
-                var data = new byte[12];
-                if (stream.Read(data, 0, data.Length) != data.Length)
-                {
-                    throw new Exception("Failed to read the WAD file.");
-                }
+			string identification;
+			int lumpCount;
+			int lumpInfoTableOffset;
 
-                identification = DoomInterop.ToString(data, 0, 4);
-                lumpCount = BitConverter.ToInt32(data, 4);
-                lumpInfoTableOffset = BitConverter.ToInt32(data, 8);
-                if (identification != "IWAD" && identification != "PWAD")
-                {
-                    throw new Exception("The file is not a WAD file.");
-                }
-            }
+			{
+				var data = new byte[12];
 
-            {
-                var data = new byte[LumpInfo.DataSize * lumpCount];
-                stream.Seek(lumpInfoTableOffset, SeekOrigin.Begin);
-                if (stream.Read(data, 0, data.Length) != data.Length)
-                {
-                    throw new Exception("Failed to read the WAD file.");
-                }
+				if (stream.Read(data, 0, data.Length) != data.Length)
+				{
+					throw new Exception("Failed to read the WAD file.");
+				}
 
-                for (var i = 0; i < lumpCount; i++)
-                {
-                    var offset = LumpInfo.DataSize * i;
-                    var lumpInfo = new LumpInfo(
-                        DoomInterop.ToString(data, offset + 8, 8),
-                        stream,
-                        BitConverter.ToInt32(data, offset),
-                        BitConverter.ToInt32(data, offset + 4));
-                    this.lumpInfos.Add(lumpInfo);
-                }
-            }
-        }
+				identification = DoomInterop.ToString(data, 0, 4);
+				lumpCount = BitConverter.ToInt32(data, 4);
+				lumpInfoTableOffset = BitConverter.ToInt32(data, 8);
 
-        public int GetLumpNumber(string name)
-        {
-            for (var i = this.lumpInfos.Count - 1; i >= 0; i--)
-            {
-                if (this.lumpInfos[i].Name == name)
-                {
-                    return i;
-                }
-            }
+				if (identification != "IWAD" && identification != "PWAD")
+				{
+					throw new Exception("The file is not a WAD file.");
+				}
+			}
 
-            return -1;
-        }
+			{
+				var data = new byte[LumpInfo.DataSize * lumpCount];
+				stream.Seek(lumpInfoTableOffset, SeekOrigin.Begin);
 
-        public int GetLumpSize(int number)
-        {
-            return this.lumpInfos[number].Size;
-        }
+				if (stream.Read(data, 0, data.Length) != data.Length)
+				{
+					throw new Exception("Failed to read the WAD file.");
+				}
 
-        public byte[] ReadLump(int number)
-        {
-            var lumpInfo = this.lumpInfos[number];
+				for (var i = 0; i < lumpCount; i++)
+				{
+					var offset = LumpInfo.DataSize * i;
 
-            var data = new byte[lumpInfo.Size];
+					var lumpInfo = new LumpInfo(
+						DoomInterop.ToString(data, offset + 8, 8),
+						stream,
+						BitConverter.ToInt32(data, offset),
+						BitConverter.ToInt32(data, offset + 4)
+					);
 
-            lumpInfo.Stream.Seek(lumpInfo.Position, SeekOrigin.Begin);
-            var read = lumpInfo.Stream.Read(data, 0, lumpInfo.Size);
-            if (read != lumpInfo.Size)
-            {
-                throw new Exception("Failed to read the lump " + number + ".");
-            }
+					this.lumpInfos.Add(lumpInfo);
+				}
+			}
+		}
 
-            return data;
-        }
+		public int GetLumpNumber(string name)
+		{
+			for (var i = this.lumpInfos.Count - 1; i >= 0; i--)
+			{
+				if (this.lumpInfos[i].Name == name)
+				{
+					return i;
+				}
+			}
 
-        public byte[] ReadLump(string name)
-        {
-            var lumpNumber = this.GetLumpNumber(name);
+			return -1;
+		}
 
-            if (lumpNumber == -1)
-            {
-                throw new Exception("The lump '" + name + "' was not found.");
-            }
+		public int GetLumpSize(int number)
+		{
+			return this.lumpInfos[number].Size;
+		}
 
-            return this.ReadLump(lumpNumber);
-        }
+		public byte[] ReadLump(int number)
+		{
+			var lumpInfo = this.lumpInfos[number];
 
-        public void Dispose()
-        {
-            Console.WriteLine("Close wad files.");
+			var data = new byte[lumpInfo.Size];
 
-            foreach (var stream in this.streams)
-            {
-                stream.Dispose();
-            }
+			lumpInfo.Stream.Seek(lumpInfo.Position, SeekOrigin.Begin);
+			var read = lumpInfo.Stream.Read(data, 0, lumpInfo.Size);
 
-            this.streams.Clear();
-        }
+			if (read != lumpInfo.Size)
+			{
+				throw new Exception("Failed to read the lump " + number + ".");
+			}
 
-        private static GameVersion GetGameVersion(IReadOnlyList<string> names)
-        {
-            foreach (var name in names)
-            {
-                switch (name.ToLower())
-                {
-                    case "doom2":
-                        return GameVersion.Version109;
-                    case "doom":
-                    case "doom1":
-                        return GameVersion.Ultimate;
-                    case "plutonia":
-                    case "tnt":
-                        return GameVersion.Final;
-                }
-            }
+			return data;
+		}
 
-            return GameVersion.Version109;
-        }
+		public byte[] ReadLump(string name)
+		{
+			var lumpNumber = this.GetLumpNumber(name);
 
-        private static GameMode GetGameMode(IReadOnlyList<string> names)
-        {
-            foreach (var name in names)
-            {
-                switch (name.ToLower())
-                {
-                    case "doom2":
-                    case "plutonia":
-                    case "tnt":
-                        return GameMode.Commercial;
-                    case "doom":
-                        return GameMode.Retail;
-                    case "doom1":
-                        return GameMode.Shareware;
-                }
-            }
+			if (lumpNumber == -1)
+			{
+				throw new Exception("The lump '" + name + "' was not found.");
+			}
 
-            return GameMode.Indetermined;
-        }
+			return this.ReadLump(lumpNumber);
+		}
 
-        private static MissionPack GetMissionPack(IReadOnlyList<string> names)
-        {
-            foreach (var name in names)
-            {
-                switch (name.ToLower())
-                {
-                    case "plutonia":
-                        return MissionPack.Plutonia;
-                    case "tnt":
-                        return MissionPack.Tnt;
-                }
-            }
+		public void Dispose()
+		{
+			Console.WriteLine("Close wad files.");
 
-            return MissionPack.Doom2;
-        }
+			foreach (var stream in this.streams)
+			{
+				stream.Dispose();
+			}
 
-        public IReadOnlyList<string> Names => this.names;
-        public IReadOnlyList<LumpInfo> LumpInfos => this.lumpInfos;
-        public GameVersion GameVersion => this.gameVersion;
-        public GameMode GameMode => this.gameMode;
-        public MissionPack MissionPack => this.missionPack;
-    }
+			this.streams.Clear();
+		}
+
+		private static GameVersion GetGameVersion(IReadOnlyList<string> names)
+		{
+			foreach (var name in names)
+			{
+				switch (name.ToLower())
+				{
+					case "doom2":
+						return GameVersion.Version109;
+
+					case "doom":
+					case "doom1":
+						return GameVersion.Ultimate;
+
+					case "plutonia":
+					case "tnt":
+						return GameVersion.Final;
+				}
+			}
+
+			return GameVersion.Version109;
+		}
+
+		private static GameMode GetGameMode(IReadOnlyList<string> names)
+		{
+			foreach (var name in names)
+			{
+				switch (name.ToLower())
+				{
+					case "doom2":
+					case "plutonia":
+					case "tnt":
+						return GameMode.Commercial;
+
+					case "doom":
+						return GameMode.Retail;
+
+					case "doom1":
+						return GameMode.Shareware;
+				}
+			}
+
+			return GameMode.Indetermined;
+		}
+
+		private static MissionPack GetMissionPack(IReadOnlyList<string> names)
+		{
+			foreach (var name in names)
+			{
+				switch (name.ToLower())
+				{
+					case "plutonia":
+						return MissionPack.Plutonia;
+
+					case "tnt":
+						return MissionPack.Tnt;
+				}
+			}
+
+			return MissionPack.Doom2;
+		}
+
+		public IReadOnlyList<string> Names => this.names;
+		public IReadOnlyList<LumpInfo> LumpInfos => this.lumpInfos;
+		public GameVersion GameVersion => this.gameVersion;
+		public GameMode GameMode => this.gameMode;
+		public MissionPack MissionPack => this.missionPack;
+	}
 }

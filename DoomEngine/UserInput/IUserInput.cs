@@ -18,11 +18,11 @@ namespace DoomEngine.UserInput
 	using Doom.Game;
 
 	public interface IUserInput
-    {
-        void BuildTicCmd(TicCmd cmd);
-        void Reset();
+	{
+		void BuildTicCmd(TicCmd cmd);
+		void Reset();
 
-        public int MaxMouseSensitivity { get; }
-        public int MouseSensitivity { get; set; }
-    }
+		public int MaxMouseSensitivity { get; }
+		public int MouseSensitivity { get; set; }
+	}
 }

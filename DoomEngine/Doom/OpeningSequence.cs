@@ -20,243 +20,273 @@ namespace DoomEngine.Doom
 	using Game;
 
 	public sealed class OpeningSequence
-    {
-        private CommonResource resource;
-        private GameOptions options;
+	{
+		private CommonResource resource;
+		private GameOptions options;
 
-        private OpeningSequenceState state;
+		private OpeningSequenceState state;
 
-        private int currentStage;
-        private int nextStage;
+		private int currentStage;
+		private int nextStage;
 
-        private int count;
-        private int timer;
+		private int count;
+		private int timer;
 
-        private TicCmd[] cmds;
-        private Demo demo;
-        private DoomGame game;
+		private TicCmd[] cmds;
+		private Demo demo;
+		private DoomGame game;
 
-        private bool reset;
+		private bool reset;
 
-        public OpeningSequence(CommonResource resource, GameOptions options)
-        {
-            this.resource = resource;
-            this.options = options;
+		public OpeningSequence(CommonResource resource, GameOptions options)
+		{
+			this.resource = resource;
+			this.options = options;
 
-            this.cmds = new TicCmd[Player.MaxPlayerCount];
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                this.cmds[i] = new TicCmd();
-            }
+			this.cmds = new TicCmd[Player.MaxPlayerCount];
 
-            this.currentStage = 0;
-            this.nextStage = 0;
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				this.cmds[i] = new TicCmd();
+			}
 
-            this.reset = false;
+			this.currentStage = 0;
+			this.nextStage = 0;
 
-            this.StartTitleScreen();
-        }
+			this.reset = false;
 
-        public void Reset()
-        {
-            this.currentStage = 0;
-            this.nextStage = 0;
+			this.StartTitleScreen();
+		}
 
-            this.demo = null;
-            this.game = null;
+		public void Reset()
+		{
+			this.currentStage = 0;
+			this.nextStage = 0;
 
-            this.reset = true;
+			this.demo = null;
+			this.game = null;
 
-            this.StartTitleScreen();
-        }
+			this.reset = true;
 
-        public UpdateResult Update()
-        {
-            var updateResult = UpdateResult.None;
+			this.StartTitleScreen();
+		}
 
-            if (this.nextStage != this.currentStage)
-            {
-                switch (this.nextStage)
-                {
-                    case 0:
-                        this.StartTitleScreen();
-                        break;
-                    case 1:
-                        this.StartDemo("DEMO1");
-                        break;
-                    case 2:
-                        this.StartCreditScreen();
-                        break;
-                    case 3:
-                        this.StartDemo("DEMO2");
-                        break;
-                    case 4:
-                        this.StartTitleScreen();
-                        break;
-                    case 5:
-                        this.StartDemo("DEMO3");
-                        break;
-                    case 6:
-                        this.StartCreditScreen();
-                        break;
-                    case 7:
-                        this.StartDemo("DEMO4");
-                        break;
-                }
+		public UpdateResult Update()
+		{
+			var updateResult = UpdateResult.None;
 
-                this.currentStage = this.nextStage;
-                updateResult = UpdateResult.NeedWipe;
-            }
+			if (this.nextStage != this.currentStage)
+			{
+				switch (this.nextStage)
+				{
+					case 0:
+						this.StartTitleScreen();
 
-            switch (this.currentStage)
-            {
-                case 0:
-                    this.count++;
-                    if (this.count == this.timer)
-                    {
-                        this.nextStage = 1;
-                    }
-                    break;
+						break;
 
-                case 1:
-                    if (!this.demo.ReadCmd(this.cmds))
-                    {
-                        this.nextStage = 2;
-                    }
-                    else
-                    {
-                        this.game.Update(this.cmds);
-                    }
-                    break;
+					case 1:
+						this.StartDemo("DEMO1");
 
-                case 2:
-                    this.count++;
-                    if (this.count == this.timer)
-                    {
-                        this.nextStage = 3;
-                    }
-                    break;
+						break;
 
-                case 3:
-                    if (!this.demo.ReadCmd(this.cmds))
-                    {
-                        this.nextStage = 4;
-                    }
-                    else
-                    {
-                        this.game.Update(this.cmds);
-                    }
-                    break;
+					case 2:
+						this.StartCreditScreen();
 
-                case 4:
-                    this.count++;
-                    if (this.count == this.timer)
-                    {
-                        this.nextStage = 5;
-                    }
-                    break;
+						break;
 
-                case 5:
-                    if (!this.demo.ReadCmd(this.cmds))
-                    {
-                        if (this.resource.Wad.GetLumpNumber("DEMO4") == -1)
-                        {
-                            this.nextStage = 0;
-                        }
-                        else
-                        {
-                            this.nextStage = 6;
-                        }
-                    }
-                    else
-                    {
-                        this.game.Update(this.cmds);
-                    }
-                    break;
+					case 3:
+						this.StartDemo("DEMO2");
 
-                case 6:
-                    this.count++;
-                    if (this.count == this.timer)
-                    {
-                        this.nextStage = 7;
-                    }
-                    break;
+						break;
 
-                case 7:
-                    if (!this.demo.ReadCmd(this.cmds))
-                    {
-                        this.nextStage = 0;
-                    }
-                    else
-                    {
-                        this.game.Update(this.cmds);
-                    }
-                    break;
-            }
+					case 4:
+						this.StartTitleScreen();
 
-            if (this.state == OpeningSequenceState.Title && this.count == 1)
-            {
-                if (this.options.GameMode == GameMode.Commercial)
-                {
-                    this.options.Music.StartMusic(Bgm.DM2TTL, false);
-                }
-                else
-                {
-                    this.options.Music.StartMusic(Bgm.INTRO, false);
-                }
-            }
+						break;
 
-            if (this.reset)
-            {
-                this.reset = false;
-                return UpdateResult.NeedWipe;
-            }
-            else
-            {
-                return updateResult;
-            }
-        }
+					case 5:
+						this.StartDemo("DEMO3");
 
-        private void StartTitleScreen()
-        {
-            this.state = OpeningSequenceState.Title;
+						break;
 
-            this.count = 0;
-            if (this.options.GameMode == GameMode.Commercial)
-            {
-                this.timer = 35 * 11;
-            }
-            else
-            {
-                this.timer = 170;
-            }
-        }
+					case 6:
+						this.StartCreditScreen();
 
-        private void StartCreditScreen()
-        {
-            this.state = OpeningSequenceState.Credit;
+						break;
 
-            this.count = 0;
-            this.timer = 200;
-        }
+					case 7:
+						this.StartDemo("DEMO4");
 
-        private void StartDemo(string lump)
-        {
-            this.state = OpeningSequenceState.Demo;
+						break;
+				}
 
-            this.demo = new Demo(this.resource.Wad.ReadLump(lump));
-            this.demo.Options.GameVersion = this.options.GameVersion;
-            this.demo.Options.GameMode = this.options.GameMode;
-            this.demo.Options.MissionPack = this.options.MissionPack;
-            this.demo.Options.Renderer = this.options.Renderer;
-            this.demo.Options.Sound = this.options.Sound;
-            this.demo.Options.Music = this.options.Music;
+				this.currentStage = this.nextStage;
+				updateResult = UpdateResult.NeedWipe;
+			}
 
-            this.game = new DoomGame(this.resource, this.demo.Options);
-            this.game.DeferedInitNew();
-        }
+			switch (this.currentStage)
+			{
+				case 0:
+					this.count++;
 
-        public OpeningSequenceState State => this.state;
-        public DoomGame DemoGame => this.game;
-    }
+					if (this.count == this.timer)
+					{
+						this.nextStage = 1;
+					}
+
+					break;
+
+				case 1:
+					if (!this.demo.ReadCmd(this.cmds))
+					{
+						this.nextStage = 2;
+					}
+					else
+					{
+						this.game.Update(this.cmds);
+					}
+
+					break;
+
+				case 2:
+					this.count++;
+
+					if (this.count == this.timer)
+					{
+						this.nextStage = 3;
+					}
+
+					break;
+
+				case 3:
+					if (!this.demo.ReadCmd(this.cmds))
+					{
+						this.nextStage = 4;
+					}
+					else
+					{
+						this.game.Update(this.cmds);
+					}
+
+					break;
+
+				case 4:
+					this.count++;
+
+					if (this.count == this.timer)
+					{
+						this.nextStage = 5;
+					}
+
+					break;
+
+				case 5:
+					if (!this.demo.ReadCmd(this.cmds))
+					{
+						if (this.resource.Wad.GetLumpNumber("DEMO4") == -1)
+						{
+							this.nextStage = 0;
+						}
+						else
+						{
+							this.nextStage = 6;
+						}
+					}
+					else
+					{
+						this.game.Update(this.cmds);
+					}
+
+					break;
+
+				case 6:
+					this.count++;
+
+					if (this.count == this.timer)
+					{
+						this.nextStage = 7;
+					}
+
+					break;
+
+				case 7:
+					if (!this.demo.ReadCmd(this.cmds))
+					{
+						this.nextStage = 0;
+					}
+					else
+					{
+						this.game.Update(this.cmds);
+					}
+
+					break;
+			}
+
+			if (this.state == OpeningSequenceState.Title && this.count == 1)
+			{
+				if (this.options.GameMode == GameMode.Commercial)
+				{
+					this.options.Music.StartMusic(Bgm.DM2TTL, false);
+				}
+				else
+				{
+					this.options.Music.StartMusic(Bgm.INTRO, false);
+				}
+			}
+
+			if (this.reset)
+			{
+				this.reset = false;
+
+				return UpdateResult.NeedWipe;
+			}
+			else
+			{
+				return updateResult;
+			}
+		}
+
+		private void StartTitleScreen()
+		{
+			this.state = OpeningSequenceState.Title;
+
+			this.count = 0;
+
+			if (this.options.GameMode == GameMode.Commercial)
+			{
+				this.timer = 35 * 11;
+			}
+			else
+			{
+				this.timer = 170;
+			}
+		}
+
+		private void StartCreditScreen()
+		{
+			this.state = OpeningSequenceState.Credit;
+
+			this.count = 0;
+			this.timer = 200;
+		}
+
+		private void StartDemo(string lump)
+		{
+			this.state = OpeningSequenceState.Demo;
+
+			this.demo = new Demo(this.resource.Wad.ReadLump(lump));
+			this.demo.Options.GameVersion = this.options.GameVersion;
+			this.demo.Options.GameMode = this.options.GameMode;
+			this.demo.Options.MissionPack = this.options.MissionPack;
+			this.demo.Options.Renderer = this.options.Renderer;
+			this.demo.Options.Sound = this.options.Sound;
+			this.demo.Options.Music = this.options.Music;
+
+			this.game = new DoomGame(this.resource, this.demo.Options);
+			this.game.DeferedInitNew();
+		}
+
+		public OpeningSequenceState State => this.state;
+		public DoomGame DemoGame => this.game;
+	}
 }

@@ -18,55 +18,55 @@ namespace DoomEngine.Doom.Intermission
 	using Game;
 
 	public class PlayerScores
-    {
-        // Whether the player is in game.
-        private bool inGame;
-    
-        // Player stats, kills, collected items etc.
-        private int killCount;
-        private int itemCount;
-        private int secretCount;
-        private int time;
-        private int[] frags;
+	{
+		// Whether the player is in game.
+		private bool inGame;
 
-        public PlayerScores()
-        {
-            this.frags = new int[Player.MaxPlayerCount];
-        }
+		// Player stats, kills, collected items etc.
+		private int killCount;
+		private int itemCount;
+		private int secretCount;
+		private int time;
+		private int[] frags;
 
-        public bool InGame
-        {
-            get => this.inGame;
-            set => this.inGame = value;
-        }
+		public PlayerScores()
+		{
+			this.frags = new int[Player.MaxPlayerCount];
+		}
 
-        public int KillCount
-        {
-            get => this.killCount;
-            set => this.killCount = value;
-        }
+		public bool InGame
+		{
+			get => this.inGame;
+			set => this.inGame = value;
+		}
 
-        public int ItemCount
-        {
-            get => this.itemCount;
-            set => this.itemCount = value;
-        }
+		public int KillCount
+		{
+			get => this.killCount;
+			set => this.killCount = value;
+		}
 
-        public int SecretCount
-        {
-            get => this.secretCount;
-            set => this.secretCount = value;
-        }
+		public int ItemCount
+		{
+			get => this.itemCount;
+			set => this.itemCount = value;
+		}
 
-        public int Time
-        {
-            get => this.time;
-            set => this.time = value;
-        }
+		public int SecretCount
+		{
+			get => this.secretCount;
+			set => this.secretCount = value;
+		}
 
-        public int[] Frags
-        {
-            get => this.frags;
-        }
-    }
+		public int Time
+		{
+			get => this.time;
+			set => this.time = value;
+		}
+
+		public int[] Frags
+		{
+			get => this.frags;
+		}
+	}
 }

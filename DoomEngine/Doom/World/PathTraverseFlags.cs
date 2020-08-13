@@ -18,10 +18,10 @@ namespace DoomEngine.Doom.World
 	using System;
 
 	[Flags]
-    public enum PathTraverseFlags
-    {
-        AddLines = 1,
-        AddThings = 2,
-        EarlyOut = 4
-    }
+	public enum PathTraverseFlags
+	{
+		AddLines = 1,
+		AddThings = 2,
+		EarlyOut = 4
+	}
 }

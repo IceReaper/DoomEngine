@@ -25,119 +25,106 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class QuitConfirm : MenuDef
-    {
-        private static readonly Sfx[] doomQuitSoundList = new Sfx[]
-        {
-            Sfx.PLDETH,
-            Sfx.DMPAIN,
-            Sfx.POPAIN,
-            Sfx.SLOP,
-            Sfx.TELEPT,
-            Sfx.POSIT1,
-            Sfx.POSIT3,
-            Sfx.SGTATK
-        };
+	{
+		private static readonly Sfx[] doomQuitSoundList = new Sfx[]
+		{
+			Sfx.PLDETH, Sfx.DMPAIN, Sfx.POPAIN, Sfx.SLOP, Sfx.TELEPT, Sfx.POSIT1, Sfx.POSIT3, Sfx.SGTATK
+		};
 
-        private static readonly Sfx[] doom2QuitSoundList = new Sfx[]
-        {
-            Sfx.VILACT,
-            Sfx.GETPOW,
-            Sfx.BOSCUB,
-            Sfx.SLOP,
-            Sfx.SKESWG,
-            Sfx.KNTDTH,
-            Sfx.BSPACT,
-            Sfx.SGTATK
-        };
+		private static readonly Sfx[] doom2QuitSoundList = new Sfx[]
+		{
+			Sfx.VILACT, Sfx.GETPOW, Sfx.BOSCUB, Sfx.SLOP, Sfx.SKESWG, Sfx.KNTDTH, Sfx.BSPACT, Sfx.SGTATK
+		};
 
-        private DoomApplication app;
-        private DoomRandom random;
-        private string[] text;
+		private DoomApplication app;
+		private DoomRandom random;
+		private string[] text;
 
-        private int endCount;
+		private int endCount;
 
-        public QuitConfirm(DoomMenu menu, DoomApplication app) : base(menu)
-        {
-            this.app = app;
-            this.random = new DoomRandom(DateTime.Now.Millisecond);
-            this.endCount = -1;
-        }
+		public QuitConfirm(DoomMenu menu, DoomApplication app)
+			: base(menu)
+		{
+			this.app = app;
+			this.random = new DoomRandom(DateTime.Now.Millisecond);
+			this.endCount = -1;
+		}
 
-        public override void Open()
-        {
-            IReadOnlyList<DoomString> list;
-            if (this.app.Options.GameMode == GameMode.Commercial)
-            {
-                if (this.app.Options.MissionPack == MissionPack.Doom2)
-                {
-                    list = DoomInfo.QuitMessages.Doom2;
-                }
-                else
-                {
-                    list = DoomInfo.QuitMessages.FinalDoom;
-                }
-            }
-            else
-            {
-                list = DoomInfo.QuitMessages.Doom;
-            }
+		public override void Open()
+		{
+			IReadOnlyList<DoomString> list;
 
-            this.text = (list[this.random.Next() % list.Count] + "\n\n" + DoomInfo.Strings.PRESSYN).Split('\n');
-        }
+			if (this.app.Options.GameMode == GameMode.Commercial)
+			{
+				if (this.app.Options.MissionPack == MissionPack.Doom2)
+				{
+					list = DoomInfo.QuitMessages.Doom2;
+				}
+				else
+				{
+					list = DoomInfo.QuitMessages.FinalDoom;
+				}
+			}
+			else
+			{
+				list = DoomInfo.QuitMessages.Doom;
+			}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (this.endCount != -1)
-            {
-                return true;
-            }
+			this.text = (list[this.random.Next() % list.Count] + "\n\n" + DoomInfo.Strings.PRESSYN).Split('\n');
+		}
 
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (this.endCount != -1)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Y ||
-                e.Key == DoomKey.Enter ||
-                e.Key == DoomKey.Space)
-            {
-                this.endCount = 0;
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-                Sfx sfx;
-                if (this.Menu.Options.GameMode == GameMode.Commercial)
-                {
-                    sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
-                }
-                else
-                {
-                    sfx = QuitConfirm.doomQuitSoundList[this.random.Next() % QuitConfirm.doomQuitSoundList.Length];
-                }
-                this.Menu.StartSound(sfx);
-            }
+			if (e.Key == DoomKey.Y || e.Key == DoomKey.Enter || e.Key == DoomKey.Space)
+			{
+				this.endCount = 0;
 
-            if (e.Key == DoomKey.N ||
-                e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+				Sfx sfx;
 
-            return true;
-        }
+				if (this.Menu.Options.GameMode == GameMode.Commercial)
+				{
+					sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
+				}
+				else
+				{
+					sfx = QuitConfirm.doomQuitSoundList[this.random.Next() % QuitConfirm.doomQuitSoundList.Length];
+				}
 
-        public override void Update()
-        {
-            if (this.endCount != -1)
-            {
-                this.endCount++;
-            }
+				this.Menu.StartSound(sfx);
+			}
 
-            if (this.endCount == 50)
-            {
-                this.app.Quit();
-            }
-        }
+			if (e.Key == DoomKey.N || e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
 
-        public IReadOnlyList<string> Text => this.text;
-    }
+			return true;
+		}
+
+		public override void Update()
+		{
+			if (this.endCount != -1)
+			{
+				this.endCount++;
+			}
+
+			if (this.endCount == 50)
+			{
+				this.app.Quit();
+			}
+		}
+
+		public IReadOnlyList<string> Text => this.text;
+	}
 }

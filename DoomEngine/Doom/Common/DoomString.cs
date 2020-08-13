@@ -18,48 +18,49 @@ namespace DoomEngine.Doom.Common
 	using System.Collections.Generic;
 
 	public sealed class DoomString
-    {
-        private static Dictionary<string, DoomString> table = new Dictionary<string, DoomString>();
+	{
+		private static Dictionary<string, DoomString> table = new Dictionary<string, DoomString>();
 
-        private string original;
-        private string replaced;
+		private string original;
+		private string replaced;
 
-        public DoomString(string original)
-        {
-            this.original = original;
-            this.replaced = original;
+		public DoomString(string original)
+		{
+			this.original = original;
+			this.replaced = original;
 
-            if (!DoomString.table.ContainsKey(original))
-            {
-                DoomString.table.Add(original, this);
-            }
-        }
+			if (!DoomString.table.ContainsKey(original))
+			{
+				DoomString.table.Add(original, this);
+			}
+		}
 
-        public override string ToString()
-        {
-            return this.replaced;
-        }
+		public override string ToString()
+		{
+			return this.replaced;
+		}
 
-        public char this[int index]
-        {
-            get
-            {
-                return this.replaced[index];
-            }
-        }
+		public char this[int index]
+		{
+			get
+			{
+				return this.replaced[index];
+			}
+		}
 
-        public static implicit operator string(DoomString ds)
-        {
-            return ds.replaced;
-        }
+		public static implicit operator string(DoomString ds)
+		{
+			return ds.replaced;
+		}
 
-        public static void Replace(string original, string replaced)
-        {
-            DoomString ds;
-            if (DoomString.table.TryGetValue(original, out ds))
-            {
-                ds.replaced = replaced;
-            }
-        }
-    }
+		public static void Replace(string original, string replaced)
+		{
+			DoomString ds;
+
+			if (DoomString.table.TryGetValue(original, out ds))
+			{
+				ds.replaced = replaced;
+			}
+		}
+	}
 }

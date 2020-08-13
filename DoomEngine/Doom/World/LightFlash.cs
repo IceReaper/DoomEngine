@@ -18,74 +18,74 @@ namespace DoomEngine.Doom.World
 	using Map;
 
 	public sealed class LightFlash : Thinker
-    {
-        private World world;
+	{
+		private World world;
 
-        private Sector sector;
-        private int count;
-        private int maxLight;
-        private int minLight;
-        private int maxTime;
-        private int minTime;
+		private Sector sector;
+		private int count;
+		private int maxLight;
+		private int minLight;
+		private int maxTime;
+		private int minTime;
 
-        public LightFlash(World world)
-        {
-            this.world = world;
-        }
+		public LightFlash(World world)
+		{
+			this.world = world;
+		}
 
-        public override void Run()
-        {
-            if (--this.count > 0)
-            {
-                return;
-            }
+		public override void Run()
+		{
+			if (--this.count > 0)
+			{
+				return;
+			}
 
-            if (this.sector.LightLevel == this.maxLight)
-            {
-                this.sector.LightLevel = this.minLight;
-                this.count = (this.world.Random.Next() & this.minTime) + 1;
-            }
-            else
-            {
-                this.sector.LightLevel = this.maxLight;
-                this.count = (this.world.Random.Next() & this.maxTime) + 1;
-            }
-        }
+			if (this.sector.LightLevel == this.maxLight)
+			{
+				this.sector.LightLevel = this.minLight;
+				this.count = (this.world.Random.Next() & this.minTime) + 1;
+			}
+			else
+			{
+				this.sector.LightLevel = this.maxLight;
+				this.count = (this.world.Random.Next() & this.maxTime) + 1;
+			}
+		}
 
-        public Sector Sector
-        {
-            get => this.sector;
-            set => this.sector = value;
-        }
+		public Sector Sector
+		{
+			get => this.sector;
+			set => this.sector = value;
+		}
 
-        public int Count
-        {
-            get => this.count;
-            set => this.count = value;
-        }
+		public int Count
+		{
+			get => this.count;
+			set => this.count = value;
+		}
 
-        public int MaxLight
-        {
-            get => this.maxLight;
-            set => this.maxLight = value;
-        }
+		public int MaxLight
+		{
+			get => this.maxLight;
+			set => this.maxLight = value;
+		}
 
-        public int MinLight
-        {
-            get => this.minLight;
-            set => this.minLight = value;
-        }
+		public int MinLight
+		{
+			get => this.minLight;
+			set => this.minLight = value;
+		}
 
-        public int MaxTime
-        {
-            get => this.maxTime;
-            set => this.maxTime = value;
-        }
+		public int MaxTime
+		{
+			get => this.maxTime;
+			set => this.maxTime = value;
+		}
 
-        public int MinTime
-        {
-            get => this.minTime;
-            set => this.minTime = value;
-        }
-    }
+		public int MinTime
+		{
+			get => this.minTime;
+			set => this.minTime = value;
+		}
+	}
 }

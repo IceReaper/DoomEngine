@@ -19,42 +19,42 @@ namespace DoomEngine.Doom.World
 	using Math;
 
 	public sealed class DivLine
-    {
-        private Fixed x;
-        private Fixed y;
-        private Fixed dx;
-        private Fixed dy;
+	{
+		private Fixed x;
+		private Fixed y;
+		private Fixed dx;
+		private Fixed dy;
 
-        public void MakeFrom(LineDef line)
-        {
-            this.x = line.Vertex1.X;
-            this.y = line.Vertex1.Y;
-            this.dx = line.Dx;
-            this.dy = line.Dy;
-        }
+		public void MakeFrom(LineDef line)
+		{
+			this.x = line.Vertex1.X;
+			this.y = line.Vertex1.Y;
+			this.dx = line.Dx;
+			this.dy = line.Dy;
+		}
 
-        public Fixed X
-        {
-            get => this.x;
-            set => this.x = value;
-        }
+		public Fixed X
+		{
+			get => this.x;
+			set => this.x = value;
+		}
 
-        public Fixed Y
-        {
-            get => this.y;
-            set => this.y = value;
-        }
+		public Fixed Y
+		{
+			get => this.y;
+			set => this.y = value;
+		}
 
-        public Fixed Dx
-        {
-            get => this.dx;
-            set => this.dx = value;
-        }
+		public Fixed Dx
+		{
+			get => this.dx;
+			set => this.dx = value;
+		}
 
-        public Fixed Dy
-        {
-            get => this.dy;
-            set => this.dy = value;
-        }
-    }
+		public Fixed Dy
+		{
+			get => this.dy;
+			set => this.dy = value;
+		}
+	}
 }

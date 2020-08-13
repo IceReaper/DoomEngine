@@ -19,39 +19,41 @@ namespace DoomEngine.Doom.Graphics
 	using Wad;
 
 	public sealed class PatchCache
-    {
-        private Wad wad;
-        private Dictionary<string, Patch> cache;
+	{
+		private Wad wad;
+		private Dictionary<string, Patch> cache;
 
-        public PatchCache(Wad wad)
-        {
-            this.wad = wad;
+		public PatchCache(Wad wad)
+		{
+			this.wad = wad;
 
-            this.cache = new Dictionary<string, Patch>();
-        }
+			this.cache = new Dictionary<string, Patch>();
+		}
 
-        public Patch this[string name]
-        {
-            get
-            {
-                Patch patch;
-                if (!this.cache.TryGetValue(name, out patch))
-                {
-                    patch = Patch.FromWad(this.wad, name);
-                    this.cache.Add(name, patch);
-                }
-                return patch;
-            }
-        }
+		public Patch this[string name]
+		{
+			get
+			{
+				Patch patch;
 
-        public int GetWidth(string name)
-        {
-            return this[name].Width;
-        }
+				if (!this.cache.TryGetValue(name, out patch))
+				{
+					patch = Patch.FromWad(this.wad, name);
+					this.cache.Add(name, patch);
+				}
 
-        public int GetHeight(string name)
-        {
-            return this[name].Height;
-        }
-    }
+				return patch;
+			}
+		}
+
+		public int GetWidth(string name)
+		{
+			return this[name].Width;
+		}
+
+		public int GetHeight(string name)
+		{
+			return this[name].Height;
+		}
+	}
 }

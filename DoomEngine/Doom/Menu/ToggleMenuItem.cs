@@ -18,83 +18,89 @@ namespace DoomEngine.Doom.Menu
 	using System;
 
 	public class ToggleMenuItem : MenuItem
-    {
-        private string name;
-        private int itemX;
-        private int itemY;
+	{
+		private string name;
+		private int itemX;
+		private int itemY;
 
-        private string[] states;
-        private int stateX;
+		private string[] states;
+		private int stateX;
 
-        private int stateNumber;
+		private int stateNumber;
 
-        private Func<int> reset;
-        private Action<int> action;
+		private Func<int> reset;
+		private Action<int> action;
 
-        public ToggleMenuItem(
-            string name,
-            int skullX, int skullY,
-            int itemX, int itemY,
-            string state1, string state2,
-            int stateX,
-            Func<int> reset,
-            Action<int> action)
-            : base(skullX, skullY, null)
-        {
-            this.name = name;
-            this.itemX = itemX;
-            this.itemY = itemY;
+		public ToggleMenuItem(
+			string name,
+			int skullX,
+			int skullY,
+			int itemX,
+			int itemY,
+			string state1,
+			string state2,
+			int stateX,
+			Func<int> reset,
+			Action<int> action
+		)
+			: base(skullX, skullY, null)
+		{
+			this.name = name;
+			this.itemX = itemX;
+			this.itemY = itemY;
 
-            this.states = new[] { state1, state2 };
-            this.stateX = stateX;
+			this.states = new[] {state1, state2};
+			this.stateX = stateX;
 
-            this.stateNumber = 0;
+			this.stateNumber = 0;
 
-            this.action = action;
-            this.reset = reset;
-        }
+			this.action = action;
+			this.reset = reset;
+		}
 
-        public void Reset()
-        {
-            if (this.reset != null)
-            {
-                this.stateNumber = this.reset();
-            }
-        }
+		public void Reset()
+		{
+			if (this.reset != null)
+			{
+				this.stateNumber = this.reset();
+			}
+		}
 
-        public void Up()
-        {
-            this.stateNumber++;
-            if (this.stateNumber == this.states.Length)
-            {
-                this.stateNumber = 0;
-            }
+		public void Up()
+		{
+			this.stateNumber++;
 
-            if (this.action != null)
-            {
-                this.action(this.stateNumber);
-            }
-        }
+			if (this.stateNumber == this.states.Length)
+			{
+				this.stateNumber = 0;
+			}
 
-        public void Down()
-        {
-            this.stateNumber--;
-            if (this.stateNumber == -1)
-            {
-                this.stateNumber = this.states.Length - 1;
-            }
+			if (this.action != null)
+			{
+				this.action(this.stateNumber);
+			}
+		}
 
-            if (this.action != null)
-            {
-                this.action(this.stateNumber);
-            }
-        }
+		public void Down()
+		{
+			this.stateNumber--;
 
-        public string Name => this.name;
-        public int ItemX => this.itemX;
-        public int ItemY => this.itemY;
+			if (this.stateNumber == -1)
+			{
+				this.stateNumber = this.states.Length - 1;
+			}
 
-        public string State => this.states[this.stateNumber];
-        public int StateX => this.stateX;
-    }
+			if (this.action != null)
+			{
+				this.action(this.stateNumber);
+			}
+		}
+
+		public string Name => this.name;
+		public int ItemX => this.itemX;
+		public int ItemY => this.itemY;
+
+		public string State => this.states[this.stateNumber];
+		public int StateX => this.stateX;
+	}
 }

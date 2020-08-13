@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.Menu
 {
 	public enum TextInputState
-    {
-        Typing,
-        Finished,
-        Canceled
-    }
+	{
+		Typing,
+		Finished,
+		Canceled
+	}
 }

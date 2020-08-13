@@ -16,10 +16,10 @@
 namespace DoomEngine.Doom.Game
 {
 	public enum GameVersion
-    {
-        Version109,
-        Ultimate,
-        Final,
-        Final2
-    }
+	{
+		Version109,
+		Ultimate,
+		Final,
+		Final2
+	}
 }

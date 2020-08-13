@@ -22,101 +22,98 @@ namespace DoomEngine.Doom.Map
 	using Wad;
 
 	public sealed class SideDef
-    {
-        private static readonly int dataSize = 30;
+	{
+		private static readonly int dataSize = 30;
 
-        private Fixed textureOffset;
-        private Fixed rowOffset;
-        private int topTexture;
-        private int bottomTexture;
-        private int middleTexture;
-        private Sector sector;
+		private Fixed textureOffset;
+		private Fixed rowOffset;
+		private int topTexture;
+		private int bottomTexture;
+		private int middleTexture;
+		private Sector sector;
 
-        public SideDef(
-            Fixed textureOffset,
-            Fixed rowOffset,
-            int topTexture,
-            int bottomTexture,
-            int middleTexture,
-            Sector sector)
-        {
-            this.textureOffset = textureOffset;
-            this.rowOffset = rowOffset;
-            this.topTexture = topTexture;
-            this.bottomTexture = bottomTexture;
-            this.middleTexture = middleTexture;
-            this.sector = sector;
-        }
+		public SideDef(Fixed textureOffset, Fixed rowOffset, int topTexture, int bottomTexture, int middleTexture, Sector sector)
+		{
+			this.textureOffset = textureOffset;
+			this.rowOffset = rowOffset;
+			this.topTexture = topTexture;
+			this.bottomTexture = bottomTexture;
+			this.middleTexture = middleTexture;
+			this.sector = sector;
+		}
 
-        public static SideDef FromData(byte[] data, int offset, TextureLookup textures, Sector[] sectors)
-        {
-            var textureOffset = BitConverter.ToInt16(data, offset);
-            var rowOffset = BitConverter.ToInt16(data, offset + 2);
-            var topTextureName = DoomInterop.ToString(data, offset + 4, 8);
-            var bottomTextureName = DoomInterop.ToString(data, offset + 12, 8);
-            var middleTextureName = DoomInterop.ToString(data, offset + 20, 8);
-            var sectorNum = BitConverter.ToInt16(data, offset + 28);
+		public static SideDef FromData(byte[] data, int offset, TextureLookup textures, Sector[] sectors)
+		{
+			var textureOffset = BitConverter.ToInt16(data, offset);
+			var rowOffset = BitConverter.ToInt16(data, offset + 2);
+			var topTextureName = DoomInterop.ToString(data, offset + 4, 8);
+			var bottomTextureName = DoomInterop.ToString(data, offset + 12, 8);
+			var middleTextureName = DoomInterop.ToString(data, offset + 20, 8);
+			var sectorNum = BitConverter.ToInt16(data, offset + 28);
 
-            return new SideDef(
-                Fixed.FromInt(textureOffset),
-                Fixed.FromInt(rowOffset),
-                textures.GetNumber(topTextureName),
-                textures.GetNumber(bottomTextureName),
-                textures.GetNumber(middleTextureName),
-                sectorNum != -1 ? sectors[sectorNum] : null);
-        }
+			return new SideDef(
+				Fixed.FromInt(textureOffset),
+				Fixed.FromInt(rowOffset),
+				textures.GetNumber(topTextureName),
+				textures.GetNumber(bottomTextureName),
+				textures.GetNumber(middleTextureName),
+				sectorNum != -1 ? sectors[sectorNum] : null
+			);
+		}
 
-        public static SideDef[] FromWad(Wad wad, int lump, TextureLookup textures, Sector[] sectors)
-        {
-            var length = wad.GetLumpSize(lump);
-            if (length % SideDef.dataSize != 0)
-            {
-                throw new Exception();
-            }
+		public static SideDef[] FromWad(Wad wad, int lump, TextureLookup textures, Sector[] sectors)
+		{
+			var length = wad.GetLumpSize(lump);
 
-            var data = wad.ReadLump(lump);
-            var count = length / SideDef.dataSize;
-            var sides = new SideDef[count]; ;
+			if (length % SideDef.dataSize != 0)
+			{
+				throw new Exception();
+			}
 
-            for (var i = 0; i < count; i++)
-            {
-                var offset = SideDef.dataSize * i;
-                sides[i] = SideDef.FromData(data, offset, textures, sectors);
-            }
+			var data = wad.ReadLump(lump);
+			var count = length / SideDef.dataSize;
+			var sides = new SideDef[count];
+			;
 
-            return sides;
-        }
+			for (var i = 0; i < count; i++)
+			{
+				var offset = SideDef.dataSize * i;
+				sides[i] = SideDef.FromData(data, offset, textures, sectors);
+			}
 
-        public Fixed TextureOffset
-        {
-            get => this.textureOffset;
-            set => this.textureOffset = value;
-        }
+			return sides;
+		}
 
-        public Fixed RowOffset
-        {
-            get => this.rowOffset;
-            set => this.rowOffset = value;
-        }
+		public Fixed TextureOffset
+		{
+			get => this.textureOffset;
+			set => this.textureOffset = value;
+		}
 
-        public int TopTexture
-        {
-            get => this.topTexture;
-            set => this.topTexture = value;
-        }
+		public Fixed RowOffset
+		{
+			get => this.rowOffset;
+			set => this.rowOffset = value;
+		}
 
-        public int BottomTexture
-        {
-            get => this.bottomTexture;
-            set => this.bottomTexture = value;
-        }
+		public int TopTexture
+		{
+			get => this.topTexture;
+			set => this.topTexture = value;
+		}
 
-        public int MiddleTexture
-        {
-            get => this.middleTexture;
-            set => this.middleTexture = value;
-        }
+		public int BottomTexture
+		{
+			get => this.bottomTexture;
+			set => this.bottomTexture = value;
+		}
 
-        public Sector Sector => this.sector;
-    }
+		public int MiddleTexture
+		{
+			get => this.middleTexture;
+			set => this.middleTexture = value;
+		}
+
+		public Sector Sector => this.sector;
+	}
 }

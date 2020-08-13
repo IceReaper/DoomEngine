@@ -20,53 +20,55 @@ namespace DoomEngine.Doom.Graphics
 	using Wad;
 
 	public sealed class ColorMap
-    {
-        public static readonly int Inverse = 32;
+	{
+		public static readonly int Inverse = 32;
 
-        private byte[][] data;
+		private byte[][] data;
 
-        public ColorMap(Wad wad)
-        {
-            try
-            {
-                Console.Write("Load color map: ");
+		public ColorMap(Wad wad)
+		{
+			try
+			{
+				Console.Write("Load color map: ");
 
-                var raw = wad.ReadLump("COLORMAP");
-                var num = raw.Length / 256;
-                this.data = new byte[num][];
-                for (var i = 0; i < num; i++)
-                {
-                    this.data[i] = new byte[256];
-                    var offset = 256 * i;
-                    for (var c = 0; c < 256; c++)
-                    {
-                        this.data[i][c] = raw[offset + c];
-                    }
-                }
+				var raw = wad.ReadLump("COLORMAP");
+				var num = raw.Length / 256;
+				this.data = new byte[num][];
 
-                Console.WriteLine("OK");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed");
-                ExceptionDispatchInfo.Throw(e);
-            }
-        }
+				for (var i = 0; i < num; i++)
+				{
+					this.data[i] = new byte[256];
+					var offset = 256 * i;
 
-        public byte[] this[int index]
-        {
-            get
-            {
-                return this.data[index];
-            }
-        }
+					for (var c = 0; c < 256; c++)
+					{
+						this.data[i][c] = raw[offset + c];
+					}
+				}
 
-        public byte[] FullBright
-        {
-            get
-            {
-                return this.data[0];
-            }
-        }
-    }
+				Console.WriteLine("OK");
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Failed");
+				ExceptionDispatchInfo.Throw(e);
+			}
+		}
+
+		public byte[] this[int index]
+		{
+			get
+			{
+				return this.data[index];
+			}
+		}
+
+		public byte[] FullBright
+		{
+			get
+			{
+				return this.data[0];
+			}
+		}
+	}
 }

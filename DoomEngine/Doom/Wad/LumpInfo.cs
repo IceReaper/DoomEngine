@@ -18,25 +18,25 @@ namespace DoomEngine.Doom.Wad
 	using System.IO;
 
 	public sealed class LumpInfo
-    {
-        public const int DataSize = 16;
+	{
+		public const int DataSize = 16;
 
-        private string name;
-        private Stream stream;
-        private int position;
-        private int size;
+		private string name;
+		private Stream stream;
+		private int position;
+		private int size;
 
-        public LumpInfo(string name, Stream stream, int position, int size)
-        {
-            this.name = name;
-            this.stream = stream;
-            this.position = position;
-            this.size = size;
-        }
+		public LumpInfo(string name, Stream stream, int position, int size)
+		{
+			this.name = name;
+			this.stream = stream;
+			this.position = position;
+			this.size = size;
+		}
 
-        public string Name => this.name;
-        public Stream Stream => this.stream;
-        public int Position => this.position;
-        public int Size => this.size;
-    }
+		public string Name => this.name;
+		public Stream Stream => this.stream;
+		public int Position => this.position;
+		public int Size => this.size;
+	}
 }

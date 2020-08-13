@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.World
 {
 	public enum ButtonPosition
-    {
-        Top,
-        Middle,
-        Bottom
-    }
+	{
+		Top,
+		Middle,
+		Bottom
+	}
 }

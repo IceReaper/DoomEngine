@@ -119,14 +119,14 @@ namespace DoomEngine.Doom.World
 				var back = seg.BackSector;
 
 				// No wall to block sight with?
-				if (front.FloorHeight == back.FloorHeight &&
-					front.CeilingHeight == back.CeilingHeight)
+				if (front.FloorHeight == back.FloorHeight && front.CeilingHeight == back.CeilingHeight)
 				{
 					continue;
 				}
 
 				// Possible occluder because of ceiling height differences.
 				Fixed openTop;
+
 				if (front.CeilingHeight < back.CeilingHeight)
 				{
 					openTop = front.CeilingHeight;
@@ -138,6 +138,7 @@ namespace DoomEngine.Doom.World
 
 				// Because of ceiling height differences.
 				Fixed openBottom;
+
 				if (front.FloorHeight > back.FloorHeight)
 				{
 					openBottom = front.FloorHeight;
@@ -159,6 +160,7 @@ namespace DoomEngine.Doom.World
 				if (front.FloorHeight != back.FloorHeight)
 				{
 					var slope = (openBottom - this.sightZStart) / frac;
+
 					if (slope > this.bottomSlope)
 					{
 						this.bottomSlope = slope;
@@ -168,6 +170,7 @@ namespace DoomEngine.Doom.World
 				if (front.CeilingHeight != back.CeilingHeight)
 				{
 					var slope = (openTop - this.sightZStart) / frac;
+
 					if (slope < this.topSlope)
 					{
 						this.topSlope = slope;
@@ -206,6 +209,7 @@ namespace DoomEngine.Doom.World
 
 			// Decide which side the start point is on.
 			var side = Geometry.DivLineSide(this.trace.X, this.trace.Y, node);
+
 			if (side == 2)
 			{
 				// An "on" should cross both sides.

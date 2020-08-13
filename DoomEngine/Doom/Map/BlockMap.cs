@@ -21,150 +21,140 @@ namespace DoomEngine.Doom.Map
 	using World;
 
 	public sealed class BlockMap
-    {
-        public static readonly int IntBlockSize = 128;
-        public static readonly Fixed BlockSize = Fixed.FromInt(BlockMap.IntBlockSize);
-        public static readonly int BlockMask = BlockMap.BlockSize.Data - 1;
-        public static readonly int FracToBlockShift = Fixed.FracBits + 7;
-        public static readonly int BlockToFracShift = BlockMap.FracToBlockShift - Fixed.FracBits;
+	{
+		public static readonly int IntBlockSize = 128;
+		public static readonly Fixed BlockSize = Fixed.FromInt(BlockMap.IntBlockSize);
+		public static readonly int BlockMask = BlockMap.BlockSize.Data - 1;
+		public static readonly int FracToBlockShift = Fixed.FracBits + 7;
+		public static readonly int BlockToFracShift = BlockMap.FracToBlockShift - Fixed.FracBits;
 
-        private Fixed originX;
-        private Fixed originY;
+		private Fixed originX;
+		private Fixed originY;
 
-        private int width;
-        private int height;
+		private int width;
+		private int height;
 
-        private short[] table;
+		private short[] table;
 
-        private LineDef[] lines;
+		private LineDef[] lines;
 
-        private Mobj[] thingLists;
+		private Mobj[] thingLists;
 
-        private BlockMap(
-            Fixed originX,
-            Fixed originY,
-            int width,
-            int height,
-            short[] table,
-            LineDef[] lines)
-        {
-            this.originX = originX;
-            this.originY = originY;
-            this.width = width;
-            this.height = height;
-            this.table = table;
-            this.lines = lines;
+		private BlockMap(Fixed originX, Fixed originY, int width, int height, short[] table, LineDef[] lines)
+		{
+			this.originX = originX;
+			this.originY = originY;
+			this.width = width;
+			this.height = height;
+			this.table = table;
+			this.lines = lines;
 
-            this.thingLists = new Mobj[width * height];
-        }
+			this.thingLists = new Mobj[width * height];
+		}
 
-        public static BlockMap FromWad(Wad wad, int lump, LineDef[] lines)
-        {
-            var data = wad.ReadLump(lump);
+		public static BlockMap FromWad(Wad wad, int lump, LineDef[] lines)
+		{
+			var data = wad.ReadLump(lump);
 
-            var table = new short[data.Length / 2];
-            for (var i = 0; i < table.Length; i++)
-            {
-                var offset = 2 * i;
-                table[i] = BitConverter.ToInt16(data, offset);
-            }
+			var table = new short[data.Length / 2];
 
-            var originX = Fixed.FromInt(table[0]);
-            var originY = Fixed.FromInt(table[1]);
-            var width = table[2];
-            var height = table[3];
+			for (var i = 0; i < table.Length; i++)
+			{
+				var offset = 2 * i;
+				table[i] = BitConverter.ToInt16(data, offset);
+			}
 
-            return new BlockMap(
-                originX,
-                originY,
-                width,
-                height,
-                table,
-                lines);
-        }
+			var originX = Fixed.FromInt(table[0]);
+			var originY = Fixed.FromInt(table[1]);
+			var width = table[2];
+			var height = table[3];
 
-        public int GetBlockX(Fixed x)
-        {
-            return (x - this.originX).Data >> BlockMap.FracToBlockShift;
-        }
+			return new BlockMap(originX, originY, width, height, table, lines);
+		}
 
-        public int GetBlockY(Fixed y)
-        {
-            return (y - this.originY).Data >> BlockMap.FracToBlockShift;
-        }
+		public int GetBlockX(Fixed x)
+		{
+			return (x - this.originX).Data >> BlockMap.FracToBlockShift;
+		}
 
-        public int GetIndex(int blockX, int blockY)
-        {
-            if (0 <= blockX && blockX < this.width && 0 <= blockY && blockY < this.height)
-            {
-                return this.width * blockY + blockX;
-            }
-            else
-            {
-                return -1;
-            }
-        }
+		public int GetBlockY(Fixed y)
+		{
+			return (y - this.originY).Data >> BlockMap.FracToBlockShift;
+		}
 
-        public int GetIndex(Fixed x, Fixed y)
-        {
-            var blockX = this.GetBlockX(x);
-            var blockY = this.GetBlockY(y);
-            return this.GetIndex(blockX, blockY);
-        }
+		public int GetIndex(int blockX, int blockY)
+		{
+			if (0 <= blockX && blockX < this.width && 0 <= blockY && blockY < this.height)
+			{
+				return this.width * blockY + blockX;
+			}
+			else
+			{
+				return -1;
+			}
+		}
 
-        public bool IterateLines(int blockX, int blockY, Func<LineDef, bool> func, int validCount)
-        {
-            var index = this.GetIndex(blockX, blockY);
+		public int GetIndex(Fixed x, Fixed y)
+		{
+			var blockX = this.GetBlockX(x);
+			var blockY = this.GetBlockY(y);
 
-            if (index == -1)
-            {
-                return true;
-            }
+			return this.GetIndex(blockX, blockY);
+		}
 
-            for (var offset = this.table[4 + index]; this.table[offset] != -1; offset++)
-            {
-                var line = this.lines[this.table[offset]];
+		public bool IterateLines(int blockX, int blockY, Func<LineDef, bool> func, int validCount)
+		{
+			var index = this.GetIndex(blockX, blockY);
 
-                if (line.ValidCount == validCount)
-                {
-                    continue;
-                }
+			if (index == -1)
+			{
+				return true;
+			}
 
-                line.ValidCount = validCount;
+			for (var offset = this.table[4 + index]; this.table[offset] != -1; offset++)
+			{
+				var line = this.lines[this.table[offset]];
 
-                if (!func(line))
-                {
-                    return false;
-                }
-            }
+				if (line.ValidCount == validCount)
+				{
+					continue;
+				}
 
-            return true;
-        }
+				line.ValidCount = validCount;
 
-        public bool IterateThings(int blockX, int blockY, Func<Mobj, bool> func)
-        {
-            var index = this.GetIndex(blockX, blockY);
+				if (!func(line))
+				{
+					return false;
+				}
+			}
 
-            if (index == -1)
-            {
-                return true;
-            }
+			return true;
+		}
 
-            for (var mobj = this.thingLists[index]; mobj != null; mobj = mobj.BlockNext)
-            {
-                if (!func(mobj))
-                {
-                    return false;
-                }
-            }
+		public bool IterateThings(int blockX, int blockY, Func<Mobj, bool> func)
+		{
+			var index = this.GetIndex(blockX, blockY);
 
-            return true;
-        }
+			if (index == -1)
+			{
+				return true;
+			}
 
-        public Fixed OriginX => this.originX;
-        public Fixed OriginY => this.originY;
-        public int Width => this.width;
-        public int Height => this.height;
-        public Mobj[] ThingLists => this.thingLists;
-    }
+			for (var mobj = this.thingLists[index]; mobj != null; mobj = mobj.BlockNext)
+			{
+				if (!func(mobj))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public Fixed OriginX => this.originX;
+		public Fixed OriginY => this.originY;
+		public int Width => this.width;
+		public int Height => this.height;
+		public Mobj[] ThingLists => this.thingLists;
+	}
 }

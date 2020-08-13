@@ -18,45 +18,45 @@ namespace DoomEngine.UserInput
 	using Doom.Game;
 
 	public sealed class NullUserInput : IUserInput
-    {
-        private static NullUserInput instance;
+	{
+		private static NullUserInput instance;
 
-        public static NullUserInput GetInstance()
-        {
-            if (NullUserInput.instance == null)
-            {
-                NullUserInput.instance = new NullUserInput();
-            }
+		public static NullUserInput GetInstance()
+		{
+			if (NullUserInput.instance == null)
+			{
+				NullUserInput.instance = new NullUserInput();
+			}
 
-            return NullUserInput.instance;
-        }
+			return NullUserInput.instance;
+		}
 
-        public void BuildTicCmd(TicCmd cmd)
-        {
-        }
+		public void BuildTicCmd(TicCmd cmd)
+		{
+		}
 
-        public void Reset()
-        {
-        }
+		public void Reset()
+		{
+		}
 
-        public int MaxMouseSensitivity
-        {
-            get
-            {
-                return 9;
-            }
-        }
+		public int MaxMouseSensitivity
+		{
+			get
+			{
+				return 9;
+			}
+		}
 
-        public int MouseSensitivity
-        {
-            get
-            {
-                return 3;
-            }
+		public int MouseSensitivity
+		{
+			get
+			{
+				return 3;
+			}
 
-            set
-            {
-            }
-        }
-    }
+			set
+			{
+			}
+		}
+	}
 }

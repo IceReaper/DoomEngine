@@ -21,176 +21,172 @@ namespace DoomEngine.Doom.Map
 	using World;
 
 	public sealed class LineDef
-    {
-        private static readonly int dataSize = 14;
+	{
+		private static readonly int dataSize = 14;
 
-        private Vertex vertex1;
-        private Vertex vertex2;
+		private Vertex vertex1;
+		private Vertex vertex2;
 
-        private Fixed dx;
-        private Fixed dy;
+		private Fixed dx;
+		private Fixed dy;
 
-        private LineFlags flags;
-        private LineSpecial special;
-        private short tag;
+		private LineFlags flags;
+		private LineSpecial special;
+		private short tag;
 
-        private SideDef frontSide;
-        private SideDef backSide;
+		private SideDef frontSide;
+		private SideDef backSide;
 
-        private Fixed[] boundingBox;
+		private Fixed[] boundingBox;
 
-        private SlopeType slopeType;
+		private SlopeType slopeType;
 
-        private Sector frontSector;
-        private Sector backSector;
+		private Sector frontSector;
+		private Sector backSector;
 
-        private int validCount;
+		private int validCount;
 
-        private Thinker specialData;
+		private Thinker specialData;
 
-        private Mobj soundOrigin;
+		private Mobj soundOrigin;
 
-        public LineDef(
-            Vertex vertex1,
-            Vertex vertex2,
-            LineFlags flags,
-            LineSpecial special,
-            short tag,
-            SideDef frontSide,
-            SideDef backSide)
-        {
-            this.vertex1 = vertex1;
-            this.vertex2 = vertex2;
-            this.flags = flags;
-            this.special = special;
-            this.tag = tag;
-            this.frontSide = frontSide;
-            this.backSide = backSide;
+		public LineDef(Vertex vertex1, Vertex vertex2, LineFlags flags, LineSpecial special, short tag, SideDef frontSide, SideDef backSide)
+		{
+			this.vertex1 = vertex1;
+			this.vertex2 = vertex2;
+			this.flags = flags;
+			this.special = special;
+			this.tag = tag;
+			this.frontSide = frontSide;
+			this.backSide = backSide;
 
-            this.dx = vertex2.X - vertex1.X;
-            this.dy = vertex2.Y - vertex1.Y;
+			this.dx = vertex2.X - vertex1.X;
+			this.dy = vertex2.Y - vertex1.Y;
 
-            if (this.dx == Fixed.Zero)
-            {
-                this.slopeType = SlopeType.Vertical;
-            }
-            else if (this.dy == Fixed.Zero)
-            {
-                this.slopeType = SlopeType.Horizontal;
-            }
-            else
-            {
-                if (this.dy / this.dx > Fixed.Zero)
-                {
-                    this.slopeType = SlopeType.Positive;
-                }
-                else
-                {
-                    this.slopeType = SlopeType.Negative;
-                }
-            }
+			if (this.dx == Fixed.Zero)
+			{
+				this.slopeType = SlopeType.Vertical;
+			}
+			else if (this.dy == Fixed.Zero)
+			{
+				this.slopeType = SlopeType.Horizontal;
+			}
+			else
+			{
+				if (this.dy / this.dx > Fixed.Zero)
+				{
+					this.slopeType = SlopeType.Positive;
+				}
+				else
+				{
+					this.slopeType = SlopeType.Negative;
+				}
+			}
 
-            this.boundingBox = new Fixed[4];
-            this.boundingBox[Box.Top] = Fixed.Max(vertex1.Y, vertex2.Y);
-            this.boundingBox[Box.Bottom] = Fixed.Min(vertex1.Y, vertex2.Y);
-            this.boundingBox[Box.Left] = Fixed.Min(vertex1.X, vertex2.X);
-            this.boundingBox[Box.Right] = Fixed.Max(vertex1.X, vertex2.X);
+			this.boundingBox = new Fixed[4];
+			this.boundingBox[Box.Top] = Fixed.Max(vertex1.Y, vertex2.Y);
+			this.boundingBox[Box.Bottom] = Fixed.Min(vertex1.Y, vertex2.Y);
+			this.boundingBox[Box.Left] = Fixed.Min(vertex1.X, vertex2.X);
+			this.boundingBox[Box.Right] = Fixed.Max(vertex1.X, vertex2.X);
 
-            this.frontSector = frontSide?.Sector;
-            this.backSector = backSide?.Sector;
-        }
+			this.frontSector = frontSide?.Sector;
+			this.backSector = backSide?.Sector;
+		}
 
-        public static LineDef FromData(byte[] data, int offset, Vertex[] vertices, SideDef[] sides)
-        {
-            var vertex1Number = BitConverter.ToInt16(data, offset);
-            var vertex2Number = BitConverter.ToInt16(data, offset + 2);
-            var flags = BitConverter.ToInt16(data, offset + 4);
-            var special = BitConverter.ToInt16(data, offset + 6);
-            var tag = BitConverter.ToInt16(data, offset + 8);
-            var side0Number = BitConverter.ToInt16(data, offset + 10);
-            var side1Number = BitConverter.ToInt16(data, offset + 12);
+		public static LineDef FromData(byte[] data, int offset, Vertex[] vertices, SideDef[] sides)
+		{
+			var vertex1Number = BitConverter.ToInt16(data, offset);
+			var vertex2Number = BitConverter.ToInt16(data, offset + 2);
+			var flags = BitConverter.ToInt16(data, offset + 4);
+			var special = BitConverter.ToInt16(data, offset + 6);
+			var tag = BitConverter.ToInt16(data, offset + 8);
+			var side0Number = BitConverter.ToInt16(data, offset + 10);
+			var side1Number = BitConverter.ToInt16(data, offset + 12);
 
-            return new LineDef(
-                vertices[vertex1Number],
-                vertices[vertex2Number],
-                (LineFlags)flags,
-                (LineSpecial)special,
-                tag,
-                sides[side0Number],
-                side1Number != -1 ? sides[side1Number] : null);
-        }
+			return new LineDef(
+				vertices[vertex1Number],
+				vertices[vertex2Number],
+				(LineFlags) flags,
+				(LineSpecial) special,
+				tag,
+				sides[side0Number],
+				side1Number != -1 ? sides[side1Number] : null
+			);
+		}
 
-        public static LineDef[] FromWad(Wad wad, int lump, Vertex[] vertices, SideDef[] sides)
-        {
-            var length = wad.GetLumpSize(lump);
-            if (length % LineDef.dataSize != 0)
-            {
-                throw new Exception();
-            }
+		public static LineDef[] FromWad(Wad wad, int lump, Vertex[] vertices, SideDef[] sides)
+		{
+			var length = wad.GetLumpSize(lump);
 
-            var data = wad.ReadLump(lump);
-            var count = length / LineDef.dataSize;
-            var lines = new LineDef[count]; ;
+			if (length % LineDef.dataSize != 0)
+			{
+				throw new Exception();
+			}
 
-            for (var i = 0; i < count; i++)
-            {
-                var offset = 14 * i;
-                lines[i] = LineDef.FromData(data, offset, vertices, sides);
-            }
+			var data = wad.ReadLump(lump);
+			var count = length / LineDef.dataSize;
+			var lines = new LineDef[count];
+			;
 
-            return lines;
-        }
+			for (var i = 0; i < count; i++)
+			{
+				var offset = 14 * i;
+				lines[i] = LineDef.FromData(data, offset, vertices, sides);
+			}
 
-        public Vertex Vertex1 => this.vertex1;
-        public Vertex Vertex2 => this.vertex2;
+			return lines;
+		}
 
-        public Fixed Dx => this.dx;
-        public Fixed Dy => this.dy;
+		public Vertex Vertex1 => this.vertex1;
+		public Vertex Vertex2 => this.vertex2;
 
-        public LineFlags Flags
-        {
-            get => this.flags;
-            set => this.flags = value;
-        }
+		public Fixed Dx => this.dx;
+		public Fixed Dy => this.dy;
 
-        public LineSpecial Special
-        {
-            get => this.special;
-            set => this.special = value;
-        }
+		public LineFlags Flags
+		{
+			get => this.flags;
+			set => this.flags = value;
+		}
 
-        public short Tag
-        {
-            get => this.tag;
-            set => this.tag = value;
-        }
+		public LineSpecial Special
+		{
+			get => this.special;
+			set => this.special = value;
+		}
 
-        public SideDef FrontSide => this.frontSide;
-        public SideDef BackSide => this.backSide;
+		public short Tag
+		{
+			get => this.tag;
+			set => this.tag = value;
+		}
 
-        public Fixed[] BoundingBox => this.boundingBox;
+		public SideDef FrontSide => this.frontSide;
+		public SideDef BackSide => this.backSide;
 
-        public SlopeType SlopeType => this.slopeType;
+		public Fixed[] BoundingBox => this.boundingBox;
 
-        public Sector FrontSector => this.frontSector;
-        public Sector BackSector => this.backSector;
+		public SlopeType SlopeType => this.slopeType;
 
-        public int ValidCount
-        {
-            get => this.validCount;
-            set => this.validCount = value;
-        }
+		public Sector FrontSector => this.frontSector;
+		public Sector BackSector => this.backSector;
 
-        public Thinker SpecialData
-        {
-            get => this.specialData;
-            set => this.specialData = value;
-        }
+		public int ValidCount
+		{
+			get => this.validCount;
+			set => this.validCount = value;
+		}
 
-        public Mobj SoundOrigin
-        {
-            get => this.soundOrigin;
-            set => this.soundOrigin = value;
-        }
-    }
+		public Thinker SpecialData
+		{
+			get => this.specialData;
+			set => this.specialData = value;
+		}
+
+		public Mobj SoundOrigin
+		{
+			get => this.soundOrigin;
+			set => this.soundOrigin = value;
+		}
+	}
 }

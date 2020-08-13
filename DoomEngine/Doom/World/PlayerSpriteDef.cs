@@ -18,42 +18,42 @@ namespace DoomEngine.Doom.World
 	using Math;
 
 	public sealed class PlayerSpriteDef
-    {
-        private MobjStateDef state;
-        private int tics;
-        private Fixed sx;
-        private Fixed sy;
+	{
+		private MobjStateDef state;
+		private int tics;
+		private Fixed sx;
+		private Fixed sy;
 
-        public void Clear()
-        {
-            this.state = null;
-            this.tics = 0;
-            this.sx = Fixed.Zero;
-            this.sy = Fixed.Zero;
-        }
+		public void Clear()
+		{
+			this.state = null;
+			this.tics = 0;
+			this.sx = Fixed.Zero;
+			this.sy = Fixed.Zero;
+		}
 
-        public MobjStateDef State
-        {
-            get => this.state;
-            set => this.state = value;
-        }
+		public MobjStateDef State
+		{
+			get => this.state;
+			set => this.state = value;
+		}
 
-        public int Tics
-        {
-            get => this.tics;
-            set => this.tics = value;
-        }
+		public int Tics
+		{
+			get => this.tics;
+			set => this.tics = value;
+		}
 
-        public Fixed Sx
-        {
-            get => this.sx;
-            set => this.sx = value;
-        }
+		public Fixed Sx
+		{
+			get => this.sx;
+			set => this.sx = value;
+		}
 
-        public Fixed Sy
-        {
-            get => this.sy;
-            set => this.sy = value;
-        }
-    }
+		public Fixed Sy
+		{
+			get => this.sy;
+			set => this.sy = value;
+		}
+	}
 }

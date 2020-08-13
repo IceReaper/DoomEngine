@@ -16,26 +16,26 @@
 namespace DoomEngine.Doom.Graphics
 {
 	public sealed class TextureAnimationInfo
-    {
-        private bool isTexture;
-        private int picNum;
-        private int basePic;
-        private int numPics;
-        private int speed;
+	{
+		private bool isTexture;
+		private int picNum;
+		private int basePic;
+		private int numPics;
+		private int speed;
 
-        public TextureAnimationInfo(bool isTexture, int picNum, int basePic, int numPics, int speed)
-        {
-            this.isTexture = isTexture;
-            this.picNum = picNum;
-            this.basePic = basePic;
-            this.numPics = numPics;
-            this.speed = speed;
-        }
+		public TextureAnimationInfo(bool isTexture, int picNum, int basePic, int numPics, int speed)
+		{
+			this.isTexture = isTexture;
+			this.picNum = picNum;
+			this.basePic = basePic;
+			this.numPics = numPics;
+			this.speed = speed;
+		}
 
-        public bool IsTexture => this.isTexture;
-        public int PicNum => this.picNum;
-        public int BasePic => this.basePic;
-        public int NumPics => this.numPics;
-        public int Speed => this.speed;
-    }
+		public bool IsTexture => this.isTexture;
+		public int PicNum => this.picNum;
+		public int BasePic => this.basePic;
+		public int NumPics => this.numPics;
+		public int Speed => this.speed;
+	}
 }

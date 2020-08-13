@@ -16,14 +16,13 @@
 namespace DoomEngine.Doom.World
 {
 	public enum CardType
-    {
-        BlueCard,
-        YellowCard,
-        RedCard,
-        BlueSkull,
-        YellowSkull,
-        RedSkull,
-
-        Count
-    }
+	{
+		BlueCard,
+		YellowCard,
+		RedCard,
+		BlueSkull,
+		YellowSkull,
+		RedSkull,
+		Count
+	}
 }

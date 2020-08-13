@@ -19,56 +19,67 @@ namespace DoomEngine.Doom.Menu
 	using System.Collections.Generic;
 
 	public class TextBoxMenuItem : MenuItem
-    {
-        private int itemX;
-        private int itemY;
+	{
+		private int itemX;
+		private int itemY;
 
-        private IReadOnlyList<char> text;
-        private TextInput edit;
+		private IReadOnlyList<char> text;
+		private TextInput edit;
 
-        public TextBoxMenuItem(int skullX, int skullY, int itemX, int itemY)
-            : base(skullX, skullY, null)
-        {
-            this.itemX = itemX;
-            this.itemY = itemY;
-        }
+		public TextBoxMenuItem(int skullX, int skullY, int itemX, int itemY)
+			: base(skullX, skullY, null)
+		{
+			this.itemX = itemX;
+			this.itemY = itemY;
+		}
 
-        public TextInput Edit(Action finished)
-        {
-            this.edit = new TextInput(
-                this.text != null ? this.text : new char[0],
-                cs => { },
-                cs => { this.text = cs; this.edit = null; finished(); },
-                () => { this.edit = null; });
+		public TextInput Edit(Action finished)
+		{
+			this.edit = new TextInput(
+				this.text != null ? this.text : new char[0],
+				cs =>
+				{
+				},
+				cs =>
+				{
+					this.text = cs;
+					this.edit = null;
+					finished();
+				},
+				() =>
+				{
+					this.edit = null;
+				}
+			);
 
-            return this.edit;
-        }
+			return this.edit;
+		}
 
-        public void SetText(string text)
-        {
-            if (text != null)
-            {
-                this.text = text.ToCharArray();
-            }
-        }
+		public void SetText(string text)
+		{
+			if (text != null)
+			{
+				this.text = text.ToCharArray();
+			}
+		}
 
-        public IReadOnlyList<char> Text
-        {
-            get
-            {
-                if (this.edit == null)
-                {
-                    return this.text;
-                }
-                else
-                {
-                    return this.edit.Text;
-                }
-            }
-        }
+		public IReadOnlyList<char> Text
+		{
+			get
+			{
+				if (this.edit == null)
+				{
+					return this.text;
+				}
+				else
+				{
+					return this.edit.Text;
+				}
+			}
+		}
 
-        public int ItemX => this.itemX;
-        public int ItemY => this.itemY;
-        public bool Editing => this.edit != null;
-    }
+		public int ItemX => this.itemX;
+		public int ItemY => this.itemY;
+		public bool Editing => this.edit != null;
+	}
 }

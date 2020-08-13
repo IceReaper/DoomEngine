@@ -16,23 +16,23 @@
 namespace DoomEngine.Doom.Graphics
 {
 	public sealed class AnimationDef
-    {
-        private bool isTexture;
-        private string endName;
-        private string startName;
-        private int speed;
+	{
+		private bool isTexture;
+		private string endName;
+		private string startName;
+		private int speed;
 
-        public AnimationDef(bool isTexture, string endName, string startName, int speed)
-        {
-            this.isTexture = isTexture;
-            this.endName = endName;
-            this.startName = startName;
-            this.speed = speed;
-        }
+		public AnimationDef(bool isTexture, string endName, string startName, int speed)
+		{
+			this.isTexture = isTexture;
+			this.endName = endName;
+			this.startName = startName;
+			this.speed = speed;
+		}
 
-        public bool IsTexture => this.isTexture;
-        public string EndName => this.endName;
-        public string StartName => this.startName;
-        public int Speed => this.speed;
-    }
+		public bool IsTexture => this.isTexture;
+		public string EndName => this.endName;
+		public string StartName => this.startName;
+		public int Speed => this.speed;
+	}
 }

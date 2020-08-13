@@ -16,11 +16,11 @@
 namespace DoomEngine.Doom.Info
 {
 	public static partial class DoomInfo
-    {
-        // This is to ensure the static members initialized.
-        public static void Initialize()
-        {
-            DoomInfo.SpriteNames[0].Equals(null);
-        }
-    }
+	{
+		// This is to ensure the static members initialized.
+		public static void Initialize()
+		{
+			DoomInfo.SpriteNames[0].Equals(null);
+		}
+	}
 }

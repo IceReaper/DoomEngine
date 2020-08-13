@@ -57,13 +57,7 @@ namespace DoomEngine.Doom.World
 
 				case 1:
 					// Up.
-					result = sa.MovePlane(
-						this.sector,
-						this.speed,
-						this.topHeight,
-						false,
-						1,
-						this.direction);
+					result = sa.MovePlane(this.sector, this.speed, this.topHeight, false, 1, this.direction);
 
 					if ((this.world.LevelTime & 7) == 0)
 					{
@@ -74,6 +68,7 @@ namespace DoomEngine.Doom.World
 
 							default:
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+
 								break;
 						}
 					}
@@ -84,6 +79,7 @@ namespace DoomEngine.Doom.World
 						{
 							case CeilingMoveType.RaiseToHighest:
 								sa.RemoveActiveCeiling(this);
+
 								break;
 
 							case CeilingMoveType.SilentCrushAndRaise:
@@ -93,25 +89,21 @@ namespace DoomEngine.Doom.World
 								{
 									this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
 								}
+
 								this.direction = -1;
+
 								break;
 
 							default:
 								break;
 						}
-
 					}
+
 					break;
 
 				case -1:
 					// Down.
-					result = sa.MovePlane(
-						this.sector,
-						this.speed,
-						this.bottomHeight,
-						this.crush,
-						1,
-						this.direction);
+					result = sa.MovePlane(this.sector, this.speed, this.bottomHeight, this.crush, 1, this.direction);
 
 					if ((this.world.LevelTime & 7) == 0)
 					{
@@ -122,6 +114,7 @@ namespace DoomEngine.Doom.World
 
 							default:
 								this.world.StartSound(this.sector.SoundOrigin, Sfx.STNMOV, SfxType.Misc);
+
 								break;
 						}
 					}
@@ -137,16 +130,20 @@ namespace DoomEngine.Doom.World
 								{
 									this.world.StartSound(this.sector.SoundOrigin, Sfx.PSTOP, SfxType.Misc);
 								}
+
 								if (this.type == CeilingMoveType.CrushAndRaise)
 								{
 									this.speed = SectorAction.CeilingSpeed;
 								}
+
 								this.direction = 1;
+
 								break;
 
 							case CeilingMoveType.LowerAndCrush:
 							case CeilingMoveType.LowerToFloor:
 								sa.RemoveActiveCeiling(this);
+
 								break;
 
 							default:
@@ -163,6 +160,7 @@ namespace DoomEngine.Doom.World
 								case CeilingMoveType.CrushAndRaise:
 								case CeilingMoveType.LowerAndCrush:
 									this.speed = SectorAction.CeilingSpeed / 8;
+
 									break;
 
 								default:
@@ -170,6 +168,7 @@ namespace DoomEngine.Doom.World
 							}
 						}
 					}
+
 					break;
 			}
 		}

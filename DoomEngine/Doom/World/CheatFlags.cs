@@ -16,14 +16,14 @@
 namespace DoomEngine.Doom.World
 {
 	public enum CheatFlags
-    {
-        // No clipping, walk through barriers.
-        NoClip = 1,
+	{
+		// No clipping, walk through barriers.
+		NoClip = 1,
 
-        // No damage, no health loss.
-        GodMode = 2,
+		// No damage, no health loss.
+		GodMode = 2,
 
-        // Not really a cheat, just a debug aid.
-        NoMomentum = 4
-    }
+		// Not really a cheat, just a debug aid.
+		NoMomentum = 4
+	}
 }

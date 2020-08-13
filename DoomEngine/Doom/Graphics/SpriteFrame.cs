@@ -16,20 +16,20 @@
 namespace DoomEngine.Doom.Graphics
 {
 	public sealed class SpriteFrame
-    {
-        private bool rotate;
-        private Patch[] patches;
-        private bool[] flip;
+	{
+		private bool rotate;
+		private Patch[] patches;
+		private bool[] flip;
 
-        public SpriteFrame(bool rotate, Patch[] patches, bool[] flip)
-        {
-            this.rotate = rotate;
-            this.patches = patches;
-            this.flip = flip;
-        }
+		public SpriteFrame(bool rotate, Patch[] patches, bool[] flip)
+		{
+			this.rotate = rotate;
+			this.patches = patches;
+			this.flip = flip;
+		}
 
-        public bool Rotate => this.rotate;
-        public Patch[] Patches => this.patches;
-        public bool[] Flip => this.flip;
-    }
+		public bool Rotate => this.rotate;
+		public Patch[] Patches => this.patches;
+		public bool[] Flip => this.flip;
+	}
 }

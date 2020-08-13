@@ -45,6 +45,7 @@ namespace DoomEngine.Doom.Intermission
 			this.data = info.Data;
 
 			this.patches = new string[this.frameCount];
+
 			for (var i = 0; i < this.frameCount; i++)
 			{
 				// MONDO HACK!
@@ -90,11 +91,14 @@ namespace DoomEngine.Doom.Intermission
 						{
 							this.patchNumber = 0;
 						}
+
 						this.nextTic = bgCount + this.period;
+
 						break;
 
 					case AnimationType.Random:
 						this.patchNumber++;
+
 						if (this.patchNumber == this.frameCount)
 						{
 							this.patchNumber = -1;
@@ -104,6 +108,7 @@ namespace DoomEngine.Doom.Intermission
 						{
 							this.nextTic = bgCount + this.period;
 						}
+
 						break;
 
 					case AnimationType.Level:
@@ -111,12 +116,15 @@ namespace DoomEngine.Doom.Intermission
 						if (!(this.im.State == IntermissionState.StatCount && this.number == 7) && this.im.Info.NextLevel == this.Data)
 						{
 							this.patchNumber++;
+
 							if (this.patchNumber == this.frameCount)
 							{
 								this.patchNumber--;
 							}
+
 							this.nextTic = bgCount + this.period;
 						}
+
 						break;
 				}
 			}

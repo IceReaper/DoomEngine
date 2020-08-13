@@ -16,35 +16,35 @@
 namespace DoomEngine.Doom.World
 {
 	public class Thinker
-    {
-        private Thinker prev;
-        private Thinker next;
-        private ThinkerState thinkerState;
+	{
+		private Thinker prev;
+		private Thinker next;
+		private ThinkerState thinkerState;
 
-        public Thinker()
-        {
-        }
+		public Thinker()
+		{
+		}
 
-        public virtual void Run()
-        {
-        }
+		public virtual void Run()
+		{
+		}
 
-        public Thinker Prev
-        {
-            get => this.prev;
-            set => this.prev = value;
-        }
+		public Thinker Prev
+		{
+			get => this.prev;
+			set => this.prev = value;
+		}
 
-        public Thinker Next
-        {
-            get => this.next;
-            set => this.next = value;
-        }
+		public Thinker Next
+		{
+			get => this.next;
+			set => this.next = value;
+		}
 
-        public ThinkerState ThinkerState
-        {
-            get => this.thinkerState;
-            set => this.thinkerState = value;
-        }
-    }
+		public ThinkerState ThinkerState
+		{
+			get => this.thinkerState;
+			set => this.thinkerState = value;
+		}
+	}
 }

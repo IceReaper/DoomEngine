@@ -22,42 +22,40 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class YesNoConfirm : MenuDef
-    {
-        private string[] text;
-        private Action action;
+	{
+		private string[] text;
+		private Action action;
 
-        public YesNoConfirm(DoomMenu menu, string text, Action action) : base(menu)
-        {
-            this.text = text.Split('\n');
-            this.action = action;
-        }
+		public YesNoConfirm(DoomMenu menu, string text, Action action)
+			: base(menu)
+		{
+			this.text = text.Split('\n');
+			this.action = action;
+		}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Y ||
-                e.Key == DoomKey.Enter ||
-                e.Key == DoomKey.Space)
-            {
-                this.action();
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.PISTOL);
-            }
+			if (e.Key == DoomKey.Y || e.Key == DoomKey.Enter || e.Key == DoomKey.Space)
+			{
+				this.action();
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.PISTOL);
+			}
 
-            if (e.Key == DoomKey.N ||
-                e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+			if (e.Key == DoomKey.N || e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        public IReadOnlyList<string> Text => this.text;
-    }
+		public IReadOnlyList<string> Text => this.text;
+	}
 }

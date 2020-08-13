@@ -53,10 +53,7 @@ namespace DoomEngine.Doom.World
 
 			this.oldHealth = -1;
 			this.oldWeaponsOwned = new bool[DoomInfo.WeaponInfos.Length];
-			Array.Copy(
-				world.ConsolePlayer.WeaponOwned,
-				this.oldWeaponsOwned,
-				DoomInfo.WeaponInfos.Length);
+			Array.Copy(world.ConsolePlayer.WeaponOwned, this.oldWeaponsOwned, DoomInfo.WeaponInfos.Length);
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -70,10 +67,7 @@ namespace DoomEngine.Doom.World
 		public void Reset()
 		{
 			this.oldHealth = -1;
-			Array.Copy(
-				this.world.ConsolePlayer.WeaponOwned,
-				this.oldWeaponsOwned,
-				DoomInfo.WeaponInfos.Length);
+			Array.Copy(this.world.ConsolePlayer.WeaponOwned, this.oldWeaponsOwned, DoomInfo.WeaponInfos.Length);
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -131,9 +125,7 @@ namespace DoomEngine.Doom.World
 
 			if (this.priority < 8)
 			{
-				if (player.DamageCount != 0 &&
-					player.Attacker != null &&
-					player.Attacker != player.Mobj)
+				if (player.DamageCount != 0 && player.Attacker != null && player.Attacker != player.Mobj)
 				{
 					// Being attacked.
 					this.priority = 7;
@@ -145,12 +137,11 @@ namespace DoomEngine.Doom.World
 					}
 					else
 					{
-						var attackerAngle = Geometry.PointToAngle(
-							player.Mobj.X, player.Mobj.Y,
-							player.Attacker.X, player.Attacker.Y);
+						var attackerAngle = Geometry.PointToAngle(player.Mobj.X, player.Mobj.Y, player.Attacker.X, player.Attacker.Y);
 
 						Angle diff;
 						bool right;
+
 						if (attackerAngle > player.Mobj.Angle)
 						{
 							// Whether right or left.
@@ -232,8 +223,7 @@ namespace DoomEngine.Doom.World
 			if (this.priority < 5)
 			{
 				// Invulnerability.
-				if ((player.Cheats & CheatFlags.GodMode) != 0 ||
-					player.Powers[(int)PowerType.Invulnerability] != 0)
+				if ((player.Cheats & CheatFlags.GodMode) != 0 || player.Powers[(int) PowerType.Invulnerability] != 0)
 				{
 					this.priority = 4;
 
@@ -261,8 +251,7 @@ namespace DoomEngine.Doom.World
 
 			if (health != this.oldHealth)
 			{
-				this.lastPainOffset = Face.Stride *
-					(((100 - health) * Face.PainFaceCount) / 101);
+				this.lastPainOffset = Face.Stride * (((100 - health) * Face.PainFaceCount) / 101);
 				this.oldHealth = health;
 			}
 
@@ -270,8 +259,6 @@ namespace DoomEngine.Doom.World
 		}
 
 		public int FaceIndex => this.faceIndex;
-
-
 
 		public static class Face
 		{

@@ -21,211 +21,227 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class SelectableMenu : MenuDef
-    {
-        private string[] name;
-        private int[] titleX;
-        private int[] titleY;
-        private MenuItem[] items;
+	{
+		private string[] name;
+		private int[] titleX;
+		private int[] titleY;
+		private MenuItem[] items;
 
-        private int index;
-        private MenuItem choice;
+		private int index;
+		private MenuItem choice;
 
-        private TextInput textInput;
+		private TextInput textInput;
 
-        public SelectableMenu(
-            DoomMenu menu,
-            string name, int titleX, int titleY,
-            int firstChoice,
-            params MenuItem[] items) : base(menu)
-        {
-            this.name = new[] { name };
-            this.titleX = new[] { titleX };
-            this.titleY = new[] { titleY };
-            this.items = items;
+		public SelectableMenu(DoomMenu menu, string name, int titleX, int titleY, int firstChoice, params MenuItem[] items)
+			: base(menu)
+		{
+			this.name = new[] {name};
+			this.titleX = new[] {titleX};
+			this.titleY = new[] {titleY};
+			this.items = items;
 
-            this.index = firstChoice;
-            this.choice = items[this.index];
-        }
+			this.index = firstChoice;
+			this.choice = items[this.index];
+		}
 
-        public SelectableMenu(
-            DoomMenu menu,
-            string name1, int titleX1, int titleY1,
-            string name2, int titleX2, int titleY2,
-            int firstChoice,
-            params MenuItem[] items) : base(menu)
-        {
-            this.name = new[] { name1, name2 };
-            this.titleX = new[] { titleX1, titleX2 };
-            this.titleY = new[] { titleY1, titleY2 };
-            this.items = items;
+		public SelectableMenu(
+			DoomMenu menu,
+			string name1,
+			int titleX1,
+			int titleY1,
+			string name2,
+			int titleX2,
+			int titleY2,
+			int firstChoice,
+			params MenuItem[] items
+		)
+			: base(menu)
+		{
+			this.name = new[] {name1, name2};
+			this.titleX = new[] {titleX1, titleX2};
+			this.titleY = new[] {titleY1, titleY2};
+			this.items = items;
 
-            this.index = firstChoice;
-            this.choice = items[this.index];
-        }
+			this.index = firstChoice;
+			this.choice = items[this.index];
+		}
 
-        public override void Open()
-        {
-            foreach (var item in this.items)
-            {
-                var toggle = item as ToggleMenuItem;
-                if (toggle != null)
-                {
-                    toggle.Reset();
-                }
+		public override void Open()
+		{
+			foreach (var item in this.items)
+			{
+				var toggle = item as ToggleMenuItem;
 
-                var slider = item as SliderMenuItem;
-                if (slider != null)
-                {
-                    slider.Reset();
-                }
-            }
-        }
+				if (toggle != null)
+				{
+					toggle.Reset();
+				}
 
-        private void Up()
-        {
-            this.index--;
-            if (this.index < 0)
-            {
-                this.index = this.items.Length - 1;
-            }
+				var slider = item as SliderMenuItem;
 
-            this.choice = this.items[this.index];
-        }
+				if (slider != null)
+				{
+					slider.Reset();
+				}
+			}
+		}
 
-        private void Down()
-        {
-            this.index++;
-            if (this.index >= this.items.Length)
-            {
-                this.index = 0;
-            }
+		private void Up()
+		{
+			this.index--;
 
-            this.choice = this.items[this.index];
-        }
+			if (this.index < 0)
+			{
+				this.index = this.items.Length - 1;
+			}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+			this.choice = this.items[this.index];
+		}
 
-            if (this.textInput != null)
-            {
-                var result = this.textInput.DoEvent(e);
+		private void Down()
+		{
+			this.index++;
 
-                if (this.textInput.State == TextInputState.Canceled)
-                {
-                    this.textInput = null;
-                }
-                else if (this.textInput.State == TextInputState.Finished)
-                {
-                    this.textInput = null;
-                }
+			if (this.index >= this.items.Length)
+			{
+				this.index = 0;
+			}
 
-                if (result)
-                {
-                    return true;
-                }
-            }
+			this.choice = this.items[this.index];
+		}
 
-            if (e.Key == DoomKey.Up)
-            {
-                this.Up();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Down)
-            {
-                this.Down();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+			if (this.textInput != null)
+			{
+				var result = this.textInput.DoEvent(e);
 
-            if (e.Key == DoomKey.Left)
-            {
-                var toggle = this.choice as ToggleMenuItem;
-                if (toggle != null)
-                {
-                    toggle.Down();
-                    this.Menu.StartSound(Sfx.PISTOL);
-                }
+				if (this.textInput.State == TextInputState.Canceled)
+				{
+					this.textInput = null;
+				}
+				else if (this.textInput.State == TextInputState.Finished)
+				{
+					this.textInput = null;
+				}
 
-                var slider = this.choice as SliderMenuItem;
-                if (slider != null)
-                {
-                    slider.Down();
-                    this.Menu.StartSound(Sfx.STNMOV);
-                }
-            }
+				if (result)
+				{
+					return true;
+				}
+			}
 
-            if (e.Key == DoomKey.Right)
-            {
-                var toggle = this.choice as ToggleMenuItem;
-                if (toggle != null)
-                {
-                    toggle.Up();
-                    this.Menu.StartSound(Sfx.PISTOL);
-                }
+			if (e.Key == DoomKey.Up)
+			{
+				this.Up();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-                var slider = this.choice as SliderMenuItem;
-                if (slider != null)
-                {
-                    slider.Up();
-                    this.Menu.StartSound(Sfx.STNMOV);
-                }
-            }
+			if (e.Key == DoomKey.Down)
+			{
+				this.Down();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-            if (e.Key == DoomKey.Enter)
-            {
-                var toggle = this.choice as ToggleMenuItem;
-                if (toggle != null)
-                {
-                    toggle.Up();
-                    this.Menu.StartSound(Sfx.PISTOL);
-                }
+			if (e.Key == DoomKey.Left)
+			{
+				var toggle = this.choice as ToggleMenuItem;
 
-                var simple = this.choice as SimpleMenuItem;
-                if (simple != null)
-                {
-                    if (simple.Selectable)
-                    {
-                        if (simple.Action != null)
-                        {
-                            simple.Action();
-                        }
-                        if (simple.Next != null)
-                        {
-                            this.Menu.SetCurrent(simple.Next);
-                        }
-                        else
-                        {
-                            this.Menu.Close();
-                        }
-                    }
-                    this.Menu.StartSound(Sfx.PISTOL);
-                    return true;
-                }
+				if (toggle != null)
+				{
+					toggle.Down();
+					this.Menu.StartSound(Sfx.PISTOL);
+				}
 
-                if (this.choice.Next != null)
-                {
-                    this.Menu.SetCurrent(this.choice.Next);
-                    this.Menu.StartSound(Sfx.PISTOL);
-                }
-            }
+				var slider = this.choice as SliderMenuItem;
 
-            if (e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+				if (slider != null)
+				{
+					slider.Down();
+					this.Menu.StartSound(Sfx.STNMOV);
+				}
+			}
 
-            return true;
-        }
+			if (e.Key == DoomKey.Right)
+			{
+				var toggle = this.choice as ToggleMenuItem;
 
-        public IReadOnlyList<string> Name => this.name;
-        public IReadOnlyList<int> TitleX => this.titleX;
-        public IReadOnlyList<int> TitleY => this.titleY;
-        public IReadOnlyList<MenuItem> Items => this.items;
-        public MenuItem Choice => this.choice;
-    }
+				if (toggle != null)
+				{
+					toggle.Up();
+					this.Menu.StartSound(Sfx.PISTOL);
+				}
+
+				var slider = this.choice as SliderMenuItem;
+
+				if (slider != null)
+				{
+					slider.Up();
+					this.Menu.StartSound(Sfx.STNMOV);
+				}
+			}
+
+			if (e.Key == DoomKey.Enter)
+			{
+				var toggle = this.choice as ToggleMenuItem;
+
+				if (toggle != null)
+				{
+					toggle.Up();
+					this.Menu.StartSound(Sfx.PISTOL);
+				}
+
+				var simple = this.choice as SimpleMenuItem;
+
+				if (simple != null)
+				{
+					if (simple.Selectable)
+					{
+						if (simple.Action != null)
+						{
+							simple.Action();
+						}
+
+						if (simple.Next != null)
+						{
+							this.Menu.SetCurrent(simple.Next);
+						}
+						else
+						{
+							this.Menu.Close();
+						}
+					}
+
+					this.Menu.StartSound(Sfx.PISTOL);
+
+					return true;
+				}
+
+				if (this.choice.Next != null)
+				{
+					this.Menu.SetCurrent(this.choice.Next);
+					this.Menu.StartSound(Sfx.PISTOL);
+				}
+			}
+
+			if (e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
+
+			return true;
+		}
+
+		public IReadOnlyList<string> Name => this.name;
+		public IReadOnlyList<int> TitleX => this.titleX;
+		public IReadOnlyList<int> TitleY => this.titleY;
+		public IReadOnlyList<MenuItem> Items => this.items;
+		public MenuItem Choice => this.choice;
+	}
 }

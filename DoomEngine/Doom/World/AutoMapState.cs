@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.World
 {
 	public enum AutoMapState
-    {
-        None,
-        AllMap,
-        AllThings
-    }
+	{
+		None,
+		AllMap,
+		AllThings
+	}
 }

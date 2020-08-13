@@ -20,25 +20,26 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class HelpScreen : MenuDef
-    {
-        public HelpScreen(DoomMenu menu) : base(menu)
-        {
-        }
+	{
+		public HelpScreen(DoomMenu menu)
+			: base(menu)
+		{
+		}
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+			if (e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
 
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 }

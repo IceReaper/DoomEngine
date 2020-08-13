@@ -19,60 +19,61 @@ namespace DoomEngine.Doom.World
 	using Math;
 
 	public sealed class MapCollision
-    {
-        private World world;
+	{
+		private World world;
 
-        private Fixed openTop;
-        private Fixed openBottom;
-        private Fixed openRange;
-        private Fixed lowFloor;
+		private Fixed openTop;
+		private Fixed openBottom;
+		private Fixed openRange;
+		private Fixed lowFloor;
 
-        public MapCollision(World world)
-        {
-            this.world = world;
-        }
+		public MapCollision(World world)
+		{
+			this.world = world;
+		}
 
-        /// <summary>
-        /// Sets opentop and openbottom to the window through a two sided line.
-        /// </summary>
-        public void LineOpening(LineDef line)
-        {
-            if (line.BackSide == null)
-            {
-                // If the line is single sided, nothing can pass through.
-                this.openRange = Fixed.Zero;
-                return;
-            }
+		/// <summary>
+		/// Sets opentop and openbottom to the window through a two sided line.
+		/// </summary>
+		public void LineOpening(LineDef line)
+		{
+			if (line.BackSide == null)
+			{
+				// If the line is single sided, nothing can pass through.
+				this.openRange = Fixed.Zero;
 
-            var front = line.FrontSector;
-            var back = line.BackSector;
+				return;
+			}
 
-            if (front.CeilingHeight < back.CeilingHeight)
-            {
-                this.openTop = front.CeilingHeight;
-            }
-            else
-            {
-                this.openTop = back.CeilingHeight;
-            }
+			var front = line.FrontSector;
+			var back = line.BackSector;
 
-            if (front.FloorHeight > back.FloorHeight)
-            {
-                this.openBottom = front.FloorHeight;
-                this.lowFloor = back.FloorHeight;
-            }
-            else
-            {
-                this.openBottom = back.FloorHeight;
-                this.lowFloor = front.FloorHeight;
-            }
+			if (front.CeilingHeight < back.CeilingHeight)
+			{
+				this.openTop = front.CeilingHeight;
+			}
+			else
+			{
+				this.openTop = back.CeilingHeight;
+			}
 
-            this.openRange = this.openTop - this.openBottom;
-        }
+			if (front.FloorHeight > back.FloorHeight)
+			{
+				this.openBottom = front.FloorHeight;
+				this.lowFloor = back.FloorHeight;
+			}
+			else
+			{
+				this.openBottom = back.FloorHeight;
+				this.lowFloor = front.FloorHeight;
+			}
 
-        public Fixed OpenTop => this.openTop;
-        public Fixed OpenBottom => this.openBottom;
-        public Fixed OpenRange => this.openRange;
-        public Fixed LowFloor => this.lowFloor;
-    }
+			this.openRange = this.openTop - this.openBottom;
+		}
+
+		public Fixed OpenTop => this.openTop;
+		public Fixed OpenBottom => this.openBottom;
+		public Fixed OpenRange => this.openRange;
+		public Fixed LowFloor => this.lowFloor;
+	}
 }

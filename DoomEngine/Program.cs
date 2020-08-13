@@ -18,56 +18,56 @@ namespace DoomEngine
 	using System;
 
 	public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine(ApplicationInfo.Title);
-            Console.ResetColor();
+	{
+		public static void Main(string[] args)
+		{
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.BackgroundColor = ConsoleColor.DarkGreen;
+			Console.WriteLine(ApplicationInfo.Title);
+			Console.ResetColor();
 
 #if DEBUG
-            Program.Main_Debug(args);
+			Program.Main_Debug(args);
 #else
             Main_Release(args);
 #endif
-        }
+		}
 
-        private static void Main_Release(string[] args)
-        {
-            try
-            {
-                string quitMessage = null;
+		private static void Main_Release(string[] args)
+		{
+			try
+			{
+				string quitMessage = null;
 
-                using (var app = new DoomApplication(new CommandLineArgs(args)))
-                {
-                    app.Run();
-                    quitMessage = app.QuitMessage;
-                }
+				using (var app = new DoomApplication(new CommandLineArgs(args)))
+				{
+					app.Run();
+					quitMessage = app.QuitMessage;
+				}
 
-                if (quitMessage != null)
-                {
-                    Console.WriteLine(quitMessage);
-                    Console.Write("Press any key to exit.");
-                    Console.ReadKey();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ResetColor();
-                Console.Write("Press any key to exit.");
-                Console.ReadKey();
-            }
-        }
+				if (quitMessage != null)
+				{
+					Console.WriteLine(quitMessage);
+					Console.Write("Press any key to exit.");
+					Console.ReadKey();
+				}
+			}
+			catch (Exception e)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine(e);
+				Console.ResetColor();
+				Console.Write("Press any key to exit.");
+				Console.ReadKey();
+			}
+		}
 
-        private static void Main_Debug(string[] args)
-        {
-            using (var app = new DoomApplication(new CommandLineArgs(args)))
-            {
-                app.Run();
-            }
-        }
-    }
+		private static void Main_Debug(string[] args)
+		{
+			using (var app = new DoomApplication(new CommandLineArgs(args)))
+			{
+				app.Run();
+			}
+		}
+	}
 }

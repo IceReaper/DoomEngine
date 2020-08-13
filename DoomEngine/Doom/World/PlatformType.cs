@@ -16,11 +16,11 @@
 namespace DoomEngine.Doom.World
 {
 	public enum PlatformType
-    {
-        PerpetualRaise,
-        DownWaitUpStay,
-        RaiseAndChange,
-        RaiseToNearestAndChange,
-        BlazeDwus
-    }
+	{
+		PerpetualRaise,
+		DownWaitUpStay,
+		RaiseAndChange,
+		RaiseToNearestAndChange,
+		BlazeDwus
+	}
 }

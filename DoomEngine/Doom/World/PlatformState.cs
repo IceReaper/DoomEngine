@@ -16,10 +16,10 @@
 namespace DoomEngine.Doom.World
 {
 	public enum PlatformState
-    {
-        Up,
-        Down,
-        Waiting,
-        InStasis
-    }
+	{
+		Up,
+		Down,
+		Waiting,
+		InStasis
+	}
 }

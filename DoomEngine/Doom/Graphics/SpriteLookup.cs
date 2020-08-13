@@ -22,217 +22,222 @@ namespace DoomEngine.Doom.Graphics
 	using Wad;
 
 	public sealed class SpriteLookup
-    {
-        private SpriteDef[] spriteDefs;
+	{
+		private SpriteDef[] spriteDefs;
 
-        public SpriteLookup(Wad wad) : this(wad, false)
-        {
-        }
+		public SpriteLookup(Wad wad)
+			: this(wad, false)
+		{
+		}
 
-        public SpriteLookup(Wad wad, bool useDummy)
-        {
-            try
-            {
-                Console.Write("Load sprites: ");
+		public SpriteLookup(Wad wad, bool useDummy)
+		{
+			try
+			{
+				Console.Write("Load sprites: ");
 
-                var temp = new Dictionary<string, List<SpriteInfo>>();
-                for (var i = 0; i < (int)Sprite.Count; i++)
-                {
-                    temp.Add(DoomInfo.SpriteNames[i], new List<SpriteInfo>());
-                }
+				var temp = new Dictionary<string, List<SpriteInfo>>();
 
-                var cache = new Dictionary<int, Patch>();
+				for (var i = 0; i < (int) Sprite.Count; i++)
+				{
+					temp.Add(DoomInfo.SpriteNames[i], new List<SpriteInfo>());
+				}
 
-                foreach (var lump in SpriteLookup.EnumerateSprites(wad))
-                {
-                    var name = wad.LumpInfos[lump].Name.Substring(0, 4);
+				var cache = new Dictionary<int, Patch>();
 
-                    if (!temp.ContainsKey(name))
-                    {
-                        continue;
-                    }
+				foreach (var lump in SpriteLookup.EnumerateSprites(wad))
+				{
+					var name = wad.LumpInfos[lump].Name.Substring(0, 4);
 
-                    var list = temp[name];
+					if (!temp.ContainsKey(name))
+					{
+						continue;
+					}
 
-                    {
-                        var frame = wad.LumpInfos[lump].Name[4] - 'A';
-                        var rotation = wad.LumpInfos[lump].Name[5] - '0';
+					var list = temp[name];
 
-                        while (list.Count < frame + 1)
-                        {
-                            list.Add(new SpriteInfo());
-                        }
+					{
+						var frame = wad.LumpInfos[lump].Name[4] - 'A';
+						var rotation = wad.LumpInfos[lump].Name[5] - '0';
 
-                        if (rotation == 0)
-                        {
-                            for (var i = 0; i < 8; i++)
-                            {
-                                if (list[frame].Patches[i] == null)
-                                {
-                                    list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
-                                    list[frame].Flip[i] = false;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (list[frame].Patches[rotation - 1] == null)
-                            {
-                                list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
-                                list[frame].Flip[rotation - 1] = false;
-                            }
-                        }
-                    }
+						while (list.Count < frame + 1)
+						{
+							list.Add(new SpriteInfo());
+						}
 
-                    if (wad.LumpInfos[lump].Name.Length == 8)
-                    {
-                        var frame = wad.LumpInfos[lump].Name[6] - 'A';
-                        var rotation = wad.LumpInfos[lump].Name[7] - '0';
+						if (rotation == 0)
+						{
+							for (var i = 0; i < 8; i++)
+							{
+								if (list[frame].Patches[i] == null)
+								{
+									list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+									list[frame].Flip[i] = false;
+								}
+							}
+						}
+						else
+						{
+							if (list[frame].Patches[rotation - 1] == null)
+							{
+								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+								list[frame].Flip[rotation - 1] = false;
+							}
+						}
+					}
 
-                        while (list.Count < frame + 1)
-                        {
-                            list.Add(new SpriteInfo());
-                        }
+					if (wad.LumpInfos[lump].Name.Length == 8)
+					{
+						var frame = wad.LumpInfos[lump].Name[6] - 'A';
+						var rotation = wad.LumpInfos[lump].Name[7] - '0';
 
-                        if (rotation == 0)
-                        {
-                            for (var i = 0; i < 8; i++)
-                            {
-                                if (list[frame].Patches[i] == null)
-                                {
-                                    list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
-                                    list[frame].Flip[i] = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (list[frame].Patches[rotation - 1] == null)
-                            {
-                                list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
-                                list[frame].Flip[rotation - 1] = true;
-                            }
-                        }
-                    }
-                }
+						while (list.Count < frame + 1)
+						{
+							list.Add(new SpriteInfo());
+						}
 
-                this.spriteDefs = new SpriteDef[(int)Sprite.Count];
-                for (var i = 0; i < this.spriteDefs.Length; i++)
-                {
-                    var list = temp[DoomInfo.SpriteNames[i]];
+						if (rotation == 0)
+						{
+							for (var i = 0; i < 8; i++)
+							{
+								if (list[frame].Patches[i] == null)
+								{
+									list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+									list[frame].Flip[i] = true;
+								}
+							}
+						}
+						else
+						{
+							if (list[frame].Patches[rotation - 1] == null)
+							{
+								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+								list[frame].Flip[rotation - 1] = true;
+							}
+						}
+					}
+				}
 
-                    var frames = new SpriteFrame[list.Count];
-                    for (var j = 0; j < frames.Length; j++)
-                    {
-                        list[j].CheckCompletion();
+				this.spriteDefs = new SpriteDef[(int) Sprite.Count];
 
-                        var frame = new SpriteFrame(list[j].HasRotation(), list[j].Patches, list[j].Flip);
-                        frames[j] = frame;
-                    }
+				for (var i = 0; i < this.spriteDefs.Length; i++)
+				{
+					var list = temp[DoomInfo.SpriteNames[i]];
 
-                    this.spriteDefs[i] = new SpriteDef(frames);
-                }
+					var frames = new SpriteFrame[list.Count];
 
-                Console.WriteLine("OK (" + cache.Count + " sprites)");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed");
-                ExceptionDispatchInfo.Throw(e);
-            }
-        }
+					for (var j = 0; j < frames.Length; j++)
+					{
+						list[j].CheckCompletion();
 
-        private static IEnumerable<int> EnumerateSprites(Wad wad)
-        {
-            var spriteSection = false;
+						var frame = new SpriteFrame(list[j].HasRotation(), list[j].Patches, list[j].Flip);
+						frames[j] = frame;
+					}
 
-            for (var lump = wad.LumpInfos.Count - 1; lump >= 0; lump--)
-            {
-                var name = wad.LumpInfos[lump].Name;
+					this.spriteDefs[i] = new SpriteDef(frames);
+				}
 
-                if (name.StartsWith("S"))
-                {
-                    if (name.EndsWith("_END"))
-                    {
-                        spriteSection = true;
-                        continue;
-                    }
-                    else if (name.EndsWith("_START"))
-                    {
-                        spriteSection = false;
-                        continue;
-                    }
-                }
+				Console.WriteLine("OK (" + cache.Count + " sprites)");
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Failed");
+				ExceptionDispatchInfo.Throw(e);
+			}
+		}
 
-                if (spriteSection)
-                {
-                    if (wad.LumpInfos[lump].Size > 0)
-                    {
-                        yield return lump;
-                    }
-                }
-            }
-        }
+		private static IEnumerable<int> EnumerateSprites(Wad wad)
+		{
+			var spriteSection = false;
 
-        private static Patch CachedRead(int lump, Wad wad, Dictionary<int, Patch> cache, bool useDummy)
-        {
-            if (useDummy)
-            {
-                return Dummy.GetPatch();
-            }
+			for (var lump = wad.LumpInfos.Count - 1; lump >= 0; lump--)
+			{
+				var name = wad.LumpInfos[lump].Name;
 
-            if (!cache.ContainsKey(lump))
-            {
-                var name = wad.LumpInfos[lump].Name;
-                cache.Add(lump, Patch.FromData(name, wad.ReadLump(lump)));
-            }
+				if (name.StartsWith("S"))
+				{
+					if (name.EndsWith("_END"))
+					{
+						spriteSection = true;
 
-            return cache[lump];
-        }
+						continue;
+					}
+					else if (name.EndsWith("_START"))
+					{
+						spriteSection = false;
 
+						continue;
+					}
+				}
 
-        private class SpriteInfo
-        {
-            public Patch[] Patches;
-            public bool[] Flip;
+				if (spriteSection)
+				{
+					if (wad.LumpInfos[lump].Size > 0)
+					{
+						yield return lump;
+					}
+				}
+			}
+		}
 
-            public SpriteInfo()
-            {
-                this.Patches = new Patch[8];
-                this.Flip = new bool[8];
-            }
+		private static Patch CachedRead(int lump, Wad wad, Dictionary<int, Patch> cache, bool useDummy)
+		{
+			if (useDummy)
+			{
+				return Dummy.GetPatch();
+			}
 
-            public void CheckCompletion()
-            {
-                for (var i = 0; i < this.Patches.Length; i++)
-                {
-                    if (this.Patches[i] == null)
-                    {
-                        throw new Exception("Missing sprite!");
-                    }
-                }
-            }
+			if (!cache.ContainsKey(lump))
+			{
+				var name = wad.LumpInfos[lump].Name;
+				cache.Add(lump, Patch.FromData(name, wad.ReadLump(lump)));
+			}
 
-            public bool HasRotation()
-            {
-                for (var i = 1; i < this.Patches.Length; i++)
-                {
-                    if (this.Patches[i] != this.Patches[0])
-                    {
-                        return true;
-                    }
-                }
+			return cache[lump];
+		}
 
-                return false;
-            }
-        }
+		private class SpriteInfo
+		{
+			public Patch[] Patches;
+			public bool[] Flip;
 
-        public SpriteDef this[Sprite sprite]
-        {
-            get
-            {
-                return this.spriteDefs[(int)sprite];
-            }
-        }
-    }
+			public SpriteInfo()
+			{
+				this.Patches = new Patch[8];
+				this.Flip = new bool[8];
+			}
+
+			public void CheckCompletion()
+			{
+				for (var i = 0; i < this.Patches.Length; i++)
+				{
+					if (this.Patches[i] == null)
+					{
+						throw new Exception("Missing sprite!");
+					}
+				}
+			}
+
+			public bool HasRotation()
+			{
+				for (var i = 1; i < this.Patches.Length; i++)
+				{
+					if (this.Patches[i] != this.Patches[0])
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		public SpriteDef this[Sprite sprite]
+		{
+			get
+			{
+				return this.spriteDefs[(int) sprite];
+			}
+		}
+	}
 }

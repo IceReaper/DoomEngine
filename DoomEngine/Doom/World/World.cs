@@ -24,359 +24,366 @@ namespace DoomEngine.Doom.World
 	using UserInput;
 
 	public sealed partial class World
-    {
-        private GameOptions options;
-        private DoomGame game;
-        private DoomRandom random;
+	{
+		private GameOptions options;
+		private DoomGame game;
+		private DoomRandom random;
 
-        private Map map;
+		private Map map;
 
-        private Thinkers thinkers;
-        private Specials specials;
-        private ThingAllocation thingAllocation;
-        private ThingMovement thingMovement;
-        private ThingInteraction thingInteraction;
-        private MapCollision mapCollision;
-        private MapInteraction mapInteraction;
-        private PathTraversal pathTraversal;
-        private Hitscan hitscan;
-        private VisibilityCheck visibilityCheck;
-        private SectorAction sectorAction;
-        private PlayerBehavior playerBehavior;
-        private ItemPickup itemPickup;
-        private WeaponBehavior weaponBehavior;
-        private MonsterBehavior monsterBehavior;
-        private LightingChange lightingChange;
-        private StatusBar statusBar;
-        private AutoMap autoMap;
-        private Cheat cheat;
+		private Thinkers thinkers;
+		private Specials specials;
+		private ThingAllocation thingAllocation;
+		private ThingMovement thingMovement;
+		private ThingInteraction thingInteraction;
+		private MapCollision mapCollision;
+		private MapInteraction mapInteraction;
+		private PathTraversal pathTraversal;
+		private Hitscan hitscan;
+		private VisibilityCheck visibilityCheck;
+		private SectorAction sectorAction;
+		private PlayerBehavior playerBehavior;
+		private ItemPickup itemPickup;
+		private WeaponBehavior weaponBehavior;
+		private MonsterBehavior monsterBehavior;
+		private LightingChange lightingChange;
+		private StatusBar statusBar;
+		private AutoMap autoMap;
+		private Cheat cheat;
 
-        private int totalKills;
-        private int totalItems;
-        private int totalSecrets;
+		private int totalKills;
+		private int totalItems;
+		private int totalSecrets;
 
-        private int levelTime;
-        private bool doneFirstTic;
-        private bool secretExit;
-        private bool completed;
+		private int levelTime;
+		private bool doneFirstTic;
+		private bool secretExit;
+		private bool completed;
 
-        private int validCount;
+		private int validCount;
 
-        private int displayPlayer;
+		private int displayPlayer;
 
-        public World(CommonResource resorces, GameOptions options) : this(resorces, options, null)
-        {
-        }
+		public World(CommonResource resorces, GameOptions options)
+			: this(resorces, options, null)
+		{
+		}
 
-        public World(CommonResource resorces, GameOptions options, DoomGame game)
-        {
-            this.options = options;
-            this.game = game;
+		public World(CommonResource resorces, GameOptions options, DoomGame game)
+		{
+			this.options = options;
+			this.game = game;
 
-            if (game != null)
-            {
-                this.random = game.Random;
-            }
-            else
-            {
-                this.random = new DoomRandom();
-            }
+			if (game != null)
+			{
+				this.random = game.Random;
+			}
+			else
+			{
+				this.random = new DoomRandom();
+			}
 
-            this.map = new Map(resorces, this);
+			this.map = new Map(resorces, this);
 
-            this.thinkers = new Thinkers(this);
-            this.specials = new Specials(this);
-            this.thingAllocation = new ThingAllocation(this);
-            this.thingMovement = new ThingMovement(this);
-            this.thingInteraction = new ThingInteraction(this);
-            this.mapCollision = new MapCollision(this);
-            this.mapInteraction = new MapInteraction(this);
-            this.pathTraversal = new PathTraversal(this);
-            this.hitscan = new Hitscan(this);
-            this.visibilityCheck = new VisibilityCheck(this);
-            this.sectorAction = new SectorAction(this);
-            this.playerBehavior = new PlayerBehavior(this);
-            this.itemPickup = new ItemPickup(this);
-            this.weaponBehavior = new WeaponBehavior(this);
-            this.monsterBehavior = new MonsterBehavior(this);
-            this.lightingChange = new LightingChange(this);
-            this.statusBar = new StatusBar(this);
-            this.autoMap = new AutoMap(this);
-            this.cheat = new Cheat(this);
+			this.thinkers = new Thinkers(this);
+			this.specials = new Specials(this);
+			this.thingAllocation = new ThingAllocation(this);
+			this.thingMovement = new ThingMovement(this);
+			this.thingInteraction = new ThingInteraction(this);
+			this.mapCollision = new MapCollision(this);
+			this.mapInteraction = new MapInteraction(this);
+			this.pathTraversal = new PathTraversal(this);
+			this.hitscan = new Hitscan(this);
+			this.visibilityCheck = new VisibilityCheck(this);
+			this.sectorAction = new SectorAction(this);
+			this.playerBehavior = new PlayerBehavior(this);
+			this.itemPickup = new ItemPickup(this);
+			this.weaponBehavior = new WeaponBehavior(this);
+			this.monsterBehavior = new MonsterBehavior(this);
+			this.lightingChange = new LightingChange(this);
+			this.statusBar = new StatusBar(this);
+			this.autoMap = new AutoMap(this);
+			this.cheat = new Cheat(this);
 
-            options.IntermissionInfo.TotalFrags = 0;
-            options.IntermissionInfo.ParTime = 180;
+			options.IntermissionInfo.TotalFrags = 0;
+			options.IntermissionInfo.ParTime = 180;
 
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                options.Players[i].KillCount = 0;
-                options.Players[i].SecretCount = 0;
-                options.Players[i].ItemCount = 0;
-            }
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				options.Players[i].KillCount = 0;
+				options.Players[i].SecretCount = 0;
+				options.Players[i].ItemCount = 0;
+			}
 
-            // Initial height of view will be set by player think.
-            options.Players[options.ConsolePlayer].ViewZ = Fixed.Epsilon;
+			// Initial height of view will be set by player think.
+			options.Players[options.ConsolePlayer].ViewZ = Fixed.Epsilon;
 
-            this.totalKills = 0;
-            this.totalItems = 0;
-            this.totalSecrets = 0;
+			this.totalKills = 0;
+			this.totalItems = 0;
+			this.totalSecrets = 0;
 
-            this.LoadThings();
+			this.LoadThings();
 
-            // If deathmatch, randomly spawn the active players.
-            if (options.Deathmatch != 0)
-            {
-                for (var i = 0; i < Player.MaxPlayerCount; i++)
-                {
-                    if (options.Players[i].InGame)
-                    {
-                        options.Players[i].Mobj = null;
-                        this.thingAllocation.DeathMatchSpawnPlayer(i);
-                    }
-                }
-            }
+			// If deathmatch, randomly spawn the active players.
+			if (options.Deathmatch != 0)
+			{
+				for (var i = 0; i < Player.MaxPlayerCount; i++)
+				{
+					if (options.Players[i].InGame)
+					{
+						options.Players[i].Mobj = null;
+						this.thingAllocation.DeathMatchSpawnPlayer(i);
+					}
+				}
+			}
 
-            this.specials.SpawnSpecials();
+			this.specials.SpawnSpecials();
 
-            this.levelTime = 0;
-            this.doneFirstTic = false;
-            this.secretExit = false;
-            this.completed = false;
+			this.levelTime = 0;
+			this.doneFirstTic = false;
+			this.secretExit = false;
+			this.completed = false;
 
-            this.validCount = 0;
+			this.validCount = 0;
 
-            this.displayPlayer = options.ConsolePlayer;
+			this.displayPlayer = options.ConsolePlayer;
 
-            options.Music.StartMusic(Map.GetMapBgm(options), true);
-        }
+			options.Music.StartMusic(Map.GetMapBgm(options), true);
+		}
 
-        public UpdateResult Update()
-        {
-            var players = this.options.Players;
-            for (var i = 0; i < Player.MaxPlayerCount; i++)
-            {
-                if (players[i].InGame)
-                {
-                    this.playerBehavior.PlayerThink(players[i]);
-                }
-            }
+		public UpdateResult Update()
+		{
+			var players = this.options.Players;
 
-            this.thinkers.Run();
-            this.specials.Update();
-            this.thingAllocation.RespawnSpecials();
+			for (var i = 0; i < Player.MaxPlayerCount; i++)
+			{
+				if (players[i].InGame)
+				{
+					this.playerBehavior.PlayerThink(players[i]);
+				}
+			}
 
-            this.statusBar.Update();
-            this.autoMap.Update();
+			this.thinkers.Run();
+			this.specials.Update();
+			this.thingAllocation.RespawnSpecials();
 
-            this.levelTime++;
+			this.statusBar.Update();
+			this.autoMap.Update();
 
-            if (this.completed)
-            {
-                return UpdateResult.Completed;
-            }
-            else
-            {
-                if (this.doneFirstTic)
-                {
-                    return UpdateResult.None;
-                }
-                else
-                {
-                    this.doneFirstTic = true;
-                    return UpdateResult.NeedWipe;
-                }
-            }
-        }
+			this.levelTime++;
 
-        private void LoadThings()
-        {
-            for (var i = 0; i < this.map.Things.Length; i++)
-            {
-                var mt = this.map.Things[i];
+			if (this.completed)
+			{
+				return UpdateResult.Completed;
+			}
+			else
+			{
+				if (this.doneFirstTic)
+				{
+					return UpdateResult.None;
+				}
+				else
+				{
+					this.doneFirstTic = true;
 
-                var spawn = true;
+					return UpdateResult.NeedWipe;
+				}
+			}
+		}
 
-                // Do not spawn cool, new monsters if not commercial.
-                if (this.options.GameMode != GameMode.Commercial)
-                {
-                    switch (mt.Type)
-                    {
-                        case 68: // Arachnotron
-                        case 64: // Archvile
-                        case 88: // Boss Brain
-                        case 89: // Boss Shooter
-                        case 69: // Hell Knight
-                        case 67: // Mancubus
-                        case 71: // Pain Elemental
-                        case 65: // Former Human Commando
-                        case 66: // Revenant
-                        case 84: // Wolf SS
-                            spawn = false;
-                            break;
-                    }
-                }
+		private void LoadThings()
+		{
+			for (var i = 0; i < this.map.Things.Length; i++)
+			{
+				var mt = this.map.Things[i];
 
-                if (!spawn)
-                {
-                    break;
-                }
+				var spawn = true;
 
-                this.thingAllocation.SpawnMapThing(mt);
-            }
-        }
+				// Do not spawn cool, new monsters if not commercial.
+				if (this.options.GameMode != GameMode.Commercial)
+				{
+					switch (mt.Type)
+					{
+						case 68: // Arachnotron
+						case 64: // Archvile
+						case 88: // Boss Brain
+						case 89: // Boss Shooter
+						case 69: // Hell Knight
+						case 67: // Mancubus
+						case 71: // Pain Elemental
+						case 65: // Former Human Commando
+						case 66: // Revenant
+						case 84: // Wolf SS
+							spawn = false;
 
-        public void ExitLevel()
-        {
-            this.secretExit = false;
-            this.completed = true;
-        }
+							break;
+					}
+				}
 
-        public void SecretExitLevel()
-        {
-            this.secretExit = true;
-            this.completed = true;
-        }
+				if (!spawn)
+				{
+					break;
+				}
 
-        public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
-        {
-            this.options.Sound.StartSound(mobj, sfx, type);
-        }
+				this.thingAllocation.SpawnMapThing(mt);
+			}
+		}
 
-        public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
-        {
-            this.options.Sound.StartSound(mobj, sfx, type, volume);
-        }
+		public void ExitLevel()
+		{
+			this.secretExit = false;
+			this.completed = true;
+		}
 
-        public void StopSound(Mobj mobj)
-        {
-            this.options.Sound.StopSound(mobj);
-        }
+		public void SecretExitLevel()
+		{
+			this.secretExit = true;
+			this.completed = true;
+		}
 
-        public int GetNewValidCount()
-        {
-            this.validCount++;
-            return this.validCount;
-        }
+		public void StartSound(Mobj mobj, Sfx sfx, SfxType type)
+		{
+			this.options.Sound.StartSound(mobj, sfx, type);
+		}
 
-        public bool DoEvent(DoomEvent e)
-        {
-            if (!this.options.NetGame && this.options.Skill != GameSkill.Nightmare)
-            {
-                this.cheat.DoEvent(e);
-            }
+		public void StartSound(Mobj mobj, Sfx sfx, SfxType type, int volume)
+		{
+			this.options.Sound.StartSound(mobj, sfx, type, volume);
+		}
 
-            if (this.autoMap.Visible)
-            {
-                if (this.autoMap.DoEvent(e))
-                {
-                    return true;
-                }
-            }
+		public void StopSound(Mobj mobj)
+		{
+			this.options.Sound.StopSound(mobj);
+		}
 
-            if (e.Key == DoomKey.Tab && e.Type == EventType.KeyDown)
-            {
-                if (this.autoMap.Visible)
-                {
-                    this.autoMap.Close();
-                }
-                else
-                {
-                    this.autoMap.Open();
-                }
-                return true;
-            }
+		public int GetNewValidCount()
+		{
+			this.validCount++;
 
-            if (e.Key == DoomKey.F12 && e.Type == EventType.KeyDown)
-            {
-                if (this.options.DemoPlayback || this.options.Deathmatch == 0)
-                {
-                    this.ChangeDisplayPlayer();
-                }
-                return true;
-            }
+			return this.validCount;
+		}
 
-            return false;
-        }
+		public bool DoEvent(DoomEvent e)
+		{
+			if (!this.options.NetGame && this.options.Skill != GameSkill.Nightmare)
+			{
+				this.cheat.DoEvent(e);
+			}
 
-        public void ChangeDisplayPlayer()
-        {
-            this.displayPlayer++;
-            if (this.displayPlayer == Player.MaxPlayerCount ||
-                !this.options.Players[this.displayPlayer].InGame)
-            {
-                this.displayPlayer = 0;
-            }
-        }
+			if (this.autoMap.Visible)
+			{
+				if (this.autoMap.DoEvent(e))
+				{
+					return true;
+				}
+			}
 
-        public GameOptions Options => this.options;
-        public DoomGame Game => this.game;
-        public DoomRandom Random => this.random;
+			if (e.Key == DoomKey.Tab && e.Type == EventType.KeyDown)
+			{
+				if (this.autoMap.Visible)
+				{
+					this.autoMap.Close();
+				}
+				else
+				{
+					this.autoMap.Open();
+				}
 
-        public Map Map => this.map;
+				return true;
+			}
 
-        public Thinkers Thinkers => this.thinkers;
-        public Specials Specials => this.specials;
-        public ThingAllocation ThingAllocation => this.thingAllocation;
-        public ThingMovement ThingMovement => this.thingMovement;
-        public ThingInteraction ThingInteraction => this.thingInteraction;
-        public MapCollision MapCollision => this.mapCollision;
-        public MapInteraction MapInteraction => this.mapInteraction;
-        public PathTraversal PathTraversal => this.pathTraversal;
-        public Hitscan Hitscan => this.hitscan;
-        public VisibilityCheck VisibilityCheck => this.visibilityCheck;
-        public SectorAction SectorAction => this.sectorAction;
-        public PlayerBehavior PlayerBehavior => this.playerBehavior;
-        public ItemPickup ItemPickup => this.itemPickup;
-        public WeaponBehavior WeaponBehavior => this.weaponBehavior;
-        public MonsterBehavior MonsterBehavior => this.monsterBehavior;
-        public LightingChange LightingChange => this.lightingChange;
-        public StatusBar StatusBar => this.statusBar;
-        public AutoMap AutoMap => this.autoMap;
-        public Cheat Cheat => this.cheat;
+			if (e.Key == DoomKey.F12 && e.Type == EventType.KeyDown)
+			{
+				if (this.options.DemoPlayback || this.options.Deathmatch == 0)
+				{
+					this.ChangeDisplayPlayer();
+				}
 
-        public int TotalKills
-        {
-            get => this.totalKills;
-            set => this.totalKills = value;
-        }
+				return true;
+			}
 
-        public int TotalItems
-        {
-            get => this.totalItems;
-            set => this.totalItems = value;
-        }
+			return false;
+		}
 
-        public int TotalSecrets
-        {
-            get => this.totalSecrets;
-            set => this.totalSecrets = value;
-        }
+		public void ChangeDisplayPlayer()
+		{
+			this.displayPlayer++;
 
-        public int LevelTime
-        {
-            get => this.levelTime;
-            set => this.levelTime = value;
-        }
+			if (this.displayPlayer == Player.MaxPlayerCount || !this.options.Players[this.displayPlayer].InGame)
+			{
+				this.displayPlayer = 0;
+			}
+		}
 
-        public int GameTic
-        {
-            get
-            {
-                if (this.game != null)
-                {
-                    return this.game.GameTic;
-                }
-                else
-                {
-                    return this.levelTime;
-                }
-            }
-        }
+		public GameOptions Options => this.options;
+		public DoomGame Game => this.game;
+		public DoomRandom Random => this.random;
 
-        public bool SecretExit => this.secretExit;
+		public Map Map => this.map;
 
-        public Player ConsolePlayer => this.options.Players[this.options.ConsolePlayer];
-        public Player DisplayPlayer => this.options.Players[this.displayPlayer];
-        public bool FirstTicIsNotYetDone => this.ConsolePlayer.ViewZ == Fixed.Epsilon;
-    }
+		public Thinkers Thinkers => this.thinkers;
+		public Specials Specials => this.specials;
+		public ThingAllocation ThingAllocation => this.thingAllocation;
+		public ThingMovement ThingMovement => this.thingMovement;
+		public ThingInteraction ThingInteraction => this.thingInteraction;
+		public MapCollision MapCollision => this.mapCollision;
+		public MapInteraction MapInteraction => this.mapInteraction;
+		public PathTraversal PathTraversal => this.pathTraversal;
+		public Hitscan Hitscan => this.hitscan;
+		public VisibilityCheck VisibilityCheck => this.visibilityCheck;
+		public SectorAction SectorAction => this.sectorAction;
+		public PlayerBehavior PlayerBehavior => this.playerBehavior;
+		public ItemPickup ItemPickup => this.itemPickup;
+		public WeaponBehavior WeaponBehavior => this.weaponBehavior;
+		public MonsterBehavior MonsterBehavior => this.monsterBehavior;
+		public LightingChange LightingChange => this.lightingChange;
+		public StatusBar StatusBar => this.statusBar;
+		public AutoMap AutoMap => this.autoMap;
+		public Cheat Cheat => this.cheat;
+
+		public int TotalKills
+		{
+			get => this.totalKills;
+			set => this.totalKills = value;
+		}
+
+		public int TotalItems
+		{
+			get => this.totalItems;
+			set => this.totalItems = value;
+		}
+
+		public int TotalSecrets
+		{
+			get => this.totalSecrets;
+			set => this.totalSecrets = value;
+		}
+
+		public int LevelTime
+		{
+			get => this.levelTime;
+			set => this.levelTime = value;
+		}
+
+		public int GameTic
+		{
+			get
+			{
+				if (this.game != null)
+				{
+					return this.game.GameTic;
+				}
+				else
+				{
+					return this.levelTime;
+				}
+			}
+		}
+
+		public bool SecretExit => this.secretExit;
+
+		public Player ConsolePlayer => this.options.Players[this.options.ConsolePlayer];
+		public Player DisplayPlayer => this.options.Players[this.displayPlayer];
+		public bool FirstTicIsNotYetDone => this.ConsolePlayer.ViewZ == Fixed.Epsilon;
+	}
 }

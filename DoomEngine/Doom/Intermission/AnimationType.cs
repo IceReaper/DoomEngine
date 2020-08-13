@@ -16,9 +16,9 @@
 namespace DoomEngine.Doom.Intermission
 {
 	public enum AnimationType
-    {
-        Always,
-        Random,
-        Level
-    }
+	{
+		Always,
+		Random,
+		Level
+	}
 }

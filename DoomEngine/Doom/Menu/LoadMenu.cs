@@ -21,114 +21,115 @@ namespace DoomEngine.Doom.Menu
 	using UserInput;
 
 	public sealed class LoadMenu : MenuDef
-    {
-        private string[] name;
-        private int[] titleX;
-        private int[] titleY;
-        private TextBoxMenuItem[] items;
+	{
+		private string[] name;
+		private int[] titleX;
+		private int[] titleY;
+		private TextBoxMenuItem[] items;
 
-        private int index;
-        private TextBoxMenuItem choice;
+		private int index;
+		private TextBoxMenuItem choice;
 
-        public LoadMenu(
-            DoomMenu menu,
-            string name, int titleX, int titleY,
-            int firstChoice,
-            params TextBoxMenuItem[] items) : base(menu)
-        {
-            this.name = new[] { name };
-            this.titleX = new[] { titleX };
-            this.titleY = new[] { titleY };
-            this.items = items;
+		public LoadMenu(DoomMenu menu, string name, int titleX, int titleY, int firstChoice, params TextBoxMenuItem[] items)
+			: base(menu)
+		{
+			this.name = new[] {name};
+			this.titleX = new[] {titleX};
+			this.titleY = new[] {titleY};
+			this.items = items;
 
-            this.index = firstChoice;
-            this.choice = items[this.index];
-        }
+			this.index = firstChoice;
+			this.choice = items[this.index];
+		}
 
-        public override void Open()
-        {
-            for (var i = 0; i < this.items.Length; i++)
-            {
-                this.items[i].SetText(this.Menu.SaveSlots[i]);
-            }
-        }
+		public override void Open()
+		{
+			for (var i = 0; i < this.items.Length; i++)
+			{
+				this.items[i].SetText(this.Menu.SaveSlots[i]);
+			}
+		}
 
-        private void Up()
-        {
-            this.index--;
-            if (this.index < 0)
-            {
-                this.index = this.items.Length - 1;
-            }
+		private void Up()
+		{
+			this.index--;
 
-            this.choice = this.items[this.index];
-        }
+			if (this.index < 0)
+			{
+				this.index = this.items.Length - 1;
+			}
 
-        private void Down()
-        {
-            this.index++;
-            if (this.index >= this.items.Length)
-            {
-                this.index = 0;
-            }
+			this.choice = this.items[this.index];
+		}
 
-            this.choice = this.items[this.index];
-        }
+		private void Down()
+		{
+			this.index++;
 
-        public override bool DoEvent(DoomEvent e)
-        {
-            if (e.Type != EventType.KeyDown)
-            {
-                return true;
-            }
+			if (this.index >= this.items.Length)
+			{
+				this.index = 0;
+			}
 
-            if (e.Key == DoomKey.Up)
-            {
-                this.Up();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+			this.choice = this.items[this.index];
+		}
 
-            if (e.Key == DoomKey.Down)
-            {
-                this.Down();
-                this.Menu.StartSound(Sfx.PSTOP);
-            }
+		public override bool DoEvent(DoomEvent e)
+		{
+			if (e.Type != EventType.KeyDown)
+			{
+				return true;
+			}
 
-            if (e.Key == DoomKey.Enter)
-            {
-                if (this.DoLoad(this.index))
-                {
-                    this.Menu.Close();
-                }
-                this.Menu.StartSound(Sfx.PISTOL);
-            }
+			if (e.Key == DoomKey.Up)
+			{
+				this.Up();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-            if (e.Key == DoomKey.Escape)
-            {
-                this.Menu.Close();
-                this.Menu.StartSound(Sfx.SWTCHX);
-            }
+			if (e.Key == DoomKey.Down)
+			{
+				this.Down();
+				this.Menu.StartSound(Sfx.PSTOP);
+			}
 
-            return true;
-        }
+			if (e.Key == DoomKey.Enter)
+			{
+				if (this.DoLoad(this.index))
+				{
+					this.Menu.Close();
+				}
 
-        public bool DoLoad(int slotNumber)
-        {
-            if (this.Menu.SaveSlots[slotNumber] != null)
-            {
-                this.Menu.Application.LoadGame(slotNumber);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+				this.Menu.StartSound(Sfx.PISTOL);
+			}
 
-        public IReadOnlyList<string> Name => this.name;
-        public IReadOnlyList<int> TitleX => this.titleX;
-        public IReadOnlyList<int> TitleY => this.titleY;
-        public IReadOnlyList<MenuItem> Items => this.items;
-        public MenuItem Choice => this.choice;
-    }
+			if (e.Key == DoomKey.Escape)
+			{
+				this.Menu.Close();
+				this.Menu.StartSound(Sfx.SWTCHX);
+			}
+
+			return true;
+		}
+
+		public bool DoLoad(int slotNumber)
+		{
+			if (this.Menu.SaveSlots[slotNumber] != null)
+			{
+				this.Menu.Application.LoadGame(slotNumber);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		public IReadOnlyList<string> Name => this.name;
+		public IReadOnlyList<int> TitleX => this.titleX;
+		public IReadOnlyList<int> TitleY => this.titleY;
+		public IReadOnlyList<MenuItem> Items => this.items;
+		public MenuItem Choice => this.choice;
+	}
 }

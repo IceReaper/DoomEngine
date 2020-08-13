@@ -20,76 +20,81 @@ namespace DoomEngine.UserInput
 	using System.Linq;
 
 	public sealed class KeyBinding
-    {
-        public static readonly KeyBinding Empty = new KeyBinding();
+	{
+		public static readonly KeyBinding Empty = new KeyBinding();
 
-        private DoomKey[] keys;
-        private DoomMouseButton[] mouseButtons;
+		private DoomKey[] keys;
+		private DoomMouseButton[] mouseButtons;
 
-        private KeyBinding()
-        {
-            this.keys = Array.Empty<DoomKey>();
-            this.mouseButtons = Array.Empty<DoomMouseButton>();
-        }
+		private KeyBinding()
+		{
+			this.keys = Array.Empty<DoomKey>();
+			this.mouseButtons = Array.Empty<DoomMouseButton>();
+		}
 
-        public KeyBinding(IReadOnlyList<DoomKey> keys)
-        {
-            this.keys = keys.ToArray();
-            this.mouseButtons = Array.Empty<DoomMouseButton>();
-        }
+		public KeyBinding(IReadOnlyList<DoomKey> keys)
+		{
+			this.keys = keys.ToArray();
+			this.mouseButtons = Array.Empty<DoomMouseButton>();
+		}
 
-        public KeyBinding(IReadOnlyList<DoomKey> keys, IReadOnlyList<DoomMouseButton> mouseButtons)
-        {
-            this.keys = keys.ToArray();
-            this.mouseButtons = mouseButtons.ToArray();
-        }
+		public KeyBinding(IReadOnlyList<DoomKey> keys, IReadOnlyList<DoomMouseButton> mouseButtons)
+		{
+			this.keys = keys.ToArray();
+			this.mouseButtons = mouseButtons.ToArray();
+		}
 
-        public override string ToString()
-        {
-            var keyValues = this.keys.Select(key => DoomKeyEx.ToString(key));
-            var mouseValues = this.mouseButtons.Select(button => DoomMouseButtonEx.ToString(button));
-            var values = keyValues.Concat(mouseValues).ToArray();
-            if (values.Length > 0)
-            {
-                return string.Join(", ", values);
-            }
-            else
-            {
-                return "none";
-            }
-        }
+		public override string ToString()
+		{
+			var keyValues = this.keys.Select(key => DoomKeyEx.ToString(key));
+			var mouseValues = this.mouseButtons.Select(button => DoomMouseButtonEx.ToString(button));
+			var values = keyValues.Concat(mouseValues).ToArray();
 
-        public static KeyBinding Parse(string value)
-        {
-            if (value == "none")
-            {
-                return KeyBinding.Empty;
-            }
+			if (values.Length > 0)
+			{
+				return string.Join(", ", values);
+			}
+			else
+			{
+				return "none";
+			}
+		}
 
-            var keys = new List<DoomKey>();
-            var mouseButtons = new List<DoomMouseButton>();
+		public static KeyBinding Parse(string value)
+		{
+			if (value == "none")
+			{
+				return KeyBinding.Empty;
+			}
 
-            var split = value.Split(',').Select(x => x.Trim());
-            foreach (var s in split)
-            {
-                var key = DoomKeyEx.Parse(s);
-                if (key != DoomKey.Unknown)
-                {
-                    keys.Add(key);
-                    continue;
-                }
+			var keys = new List<DoomKey>();
+			var mouseButtons = new List<DoomMouseButton>();
 
-                var mouseButton = DoomMouseButtonEx.Parse(s);
-                if (mouseButton != DoomMouseButton.Unknown)
-                {
-                    mouseButtons.Add(mouseButton);
-                }
-            }
+			var split = value.Split(',').Select(x => x.Trim());
 
-            return new KeyBinding(keys, mouseButtons);
-        }
+			foreach (var s in split)
+			{
+				var key = DoomKeyEx.Parse(s);
 
-        public IReadOnlyList<DoomKey> Keys => this.keys;
-        public IReadOnlyList<DoomMouseButton> MouseButtons => this.mouseButtons;
-    }
+				if (key != DoomKey.Unknown)
+				{
+					keys.Add(key);
+
+					continue;
+				}
+
+				var mouseButton = DoomMouseButtonEx.Parse(s);
+
+				if (mouseButton != DoomMouseButton.Unknown)
+				{
+					mouseButtons.Add(mouseButton);
+				}
+			}
+
+			return new KeyBinding(keys, mouseButtons);
+		}
+
+		public IReadOnlyList<DoomKey> Keys => this.keys;
+		public IReadOnlyList<DoomMouseButton> MouseButtons => this.mouseButtons;
+	}
 }
