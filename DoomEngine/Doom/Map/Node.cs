@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class Node
 	{
@@ -98,16 +98,17 @@ namespace DoomEngine.Doom.Map
 			);
 		}
 
-		public static Node[] FromWad(Wad wad, int lump, Subsector[] subsectors)
+		public static Node[] FromWad(string fileName, Subsector[] subsectors)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % Node.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / Node.dataSize;
 			var nodes = new Node[count];
 

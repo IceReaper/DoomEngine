@@ -16,17 +16,13 @@
 namespace DoomEngine.Doom.Graphics
 {
 	using System.Collections.Generic;
-	using Wad;
 
 	public sealed class PatchCache
 	{
-		private Wad wad;
 		private Dictionary<string, Patch> cache;
 
-		public PatchCache(Wad wad)
+		public PatchCache()
 		{
-			this.wad = wad;
-
 			this.cache = new Dictionary<string, Patch>();
 		}
 
@@ -38,7 +34,7 @@ namespace DoomEngine.Doom.Graphics
 
 				if (!this.cache.TryGetValue(name, out patch))
 				{
-					patch = Patch.FromWad(this.wad, name);
+					patch = Patch.FromWad(name);
 					this.cache.Add(name, patch);
 				}
 

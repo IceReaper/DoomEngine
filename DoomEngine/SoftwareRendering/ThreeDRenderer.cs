@@ -20,7 +20,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Graphics;
 	using Doom.Map;
 	using Doom.Math;
-	using Doom.Wad;
 	using Doom.World;
 	using System;
 	using System.Linq;
@@ -66,7 +65,7 @@ namespace DoomEngine.SoftwareRendering
 			this.InitWeaponRendering();
 			this.InitFuzzEffect();
 			this.InitColorTranslation();
-			this.InitWindowBorder(resource.Wad);
+			this.InitWindowBorder();
 
 			this.SetWindowSize(windowSize);
 		}
@@ -606,18 +605,20 @@ namespace DoomEngine.SoftwareRendering
 		private Patch borderRight;
 		private Flat backFlat;
 
-		private void InitWindowBorder(Wad wad)
+		private void InitWindowBorder()
 		{
-			this.borderTopLeft = Patch.FromWad(wad, "BRDR_TL");
-			this.borderTopRight = Patch.FromWad(wad, "BRDR_TR");
-			this.borderBottomLeft = Patch.FromWad(wad, "BRDR_BL");
-			this.borderBottomRight = Patch.FromWad(wad, "BRDR_BR");
-			this.borderTop = Patch.FromWad(wad, "BRDR_T");
-			this.borderBottom = Patch.FromWad(wad, "BRDR_B");
-			this.borderLeft = Patch.FromWad(wad, "BRDR_L");
-			this.borderRight = Patch.FromWad(wad, "BRDR_R");
+			this.borderTopLeft = Patch.FromWad("BRDR_TL");
+			this.borderTopRight = Patch.FromWad("BRDR_TR");
+			this.borderBottomLeft = Patch.FromWad("BRDR_BL");
+			this.borderBottomRight = Patch.FromWad("BRDR_BR");
+			this.borderTop = Patch.FromWad("BRDR_T");
+			this.borderBottom = Patch.FromWad("BRDR_B");
+			this.borderLeft = Patch.FromWad("BRDR_L");
+			this.borderRight = Patch.FromWad("BRDR_R");
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2") || DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia") || DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				this.backFlat = this.flats["GRNROCK"];
 			}

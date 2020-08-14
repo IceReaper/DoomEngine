@@ -19,11 +19,9 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Graphics;
 	using Doom.Intermission;
 	using Doom.Math;
-	using Doom.Wad;
 
 	public sealed class FinaleRenderer
 	{
-		private Wad wad;
 		private FlatLookup flats;
 		private SpriteLookup sprites;
 
@@ -34,14 +32,13 @@ namespace DoomEngine.SoftwareRendering
 
 		public FinaleRenderer(CommonResource resource, DrawScreen screen)
 		{
-			this.wad = resource.Wad;
 			this.flats = resource.Flats;
 			this.sprites = resource.Sprites;
 
 			this.screen = screen;
 			this.scale = screen.Width / 320;
 
-			this.cache = new PatchCache(this.wad);
+			this.cache = new PatchCache();
 		}
 
 		public void Render(Finale finale)

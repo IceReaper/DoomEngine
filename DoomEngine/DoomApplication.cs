@@ -30,7 +30,6 @@ namespace DoomEngine
 	using System.Drawing;
 	using System.Runtime.ExceptionServices;
 	using UserInput;
-	using EventType = Doom.Event.EventType;
 
 	public sealed class DoomApplication : IDisposable
 	{

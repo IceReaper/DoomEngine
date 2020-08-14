@@ -19,7 +19,7 @@ namespace DoomEngine.Doom.Map
 	using Graphics;
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class SideDef
 	{
@@ -61,16 +61,17 @@ namespace DoomEngine.Doom.Map
 			);
 		}
 
-		public static SideDef[] FromWad(Wad wad, int lump, TextureLookup textures, Sector[] sectors)
+		public static SideDef[] FromWad(string fileName, TextureLookup textures, Sector[] sectors)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % SideDef.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / SideDef.dataSize;
 			var sides = new SideDef[count];
 			;

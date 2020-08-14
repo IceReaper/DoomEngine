@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 	using World;
 
 	public sealed class LineDef
@@ -114,16 +114,17 @@ namespace DoomEngine.Doom.Map
 			);
 		}
 
-		public static LineDef[] FromWad(Wad wad, int lump, Vertex[] vertices, SideDef[] sides)
+		public static LineDef[] FromWad(string fileName, Vertex[] vertices, SideDef[] sides)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % LineDef.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / LineDef.dataSize;
 			var lines = new LineDef[count];
 			;

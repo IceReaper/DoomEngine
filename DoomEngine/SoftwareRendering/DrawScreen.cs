@@ -17,9 +17,9 @@ namespace DoomEngine.SoftwareRendering
 {
 	using Doom.Graphics;
 	using Doom.Math;
-	using Doom.Wad;
 	using System;
 	using System.Collections.Generic;
+	using System.IO;
 
 	public sealed class DrawScreen
 	{
@@ -29,7 +29,7 @@ namespace DoomEngine.SoftwareRendering
 
 		private Patch[] chars;
 
-		public DrawScreen(Wad wad, int width, int height)
+		public DrawScreen(int width, int height)
 		{
 			this.width = width;
 			this.height = height;
@@ -40,11 +40,11 @@ namespace DoomEngine.SoftwareRendering
 			for (var i = 0; i < this.chars.Length; i++)
 			{
 				var name = "STCFN" + i.ToString("000");
-				var lump = wad.GetLumpNumber(name);
 
-				if (lump != -1)
+				if (DoomApplication.Instance.FileSystem.Exists(name))
 				{
-					this.chars[i] = Patch.FromData(name, wad.ReadLump(lump));
+					var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
+					this.chars[i] = Patch.FromData(name, reader.ReadBytes((int) reader.BaseStream.Length));
 				}
 			}
 		}

@@ -25,7 +25,6 @@ namespace DoomEngine.Doom.Map
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 	using World;
 
 	public sealed class Map
@@ -52,11 +51,11 @@ namespace DoomEngine.Doom.Map
 		private string title;
 
 		public Map(CommonResource resorces, World world)
-			: this(resorces.Wad, resorces.Textures, resorces.Flats, resorces.Animation, world)
+			: this(resorces.Textures, resorces.Flats, resorces.Animation, world)
 		{
 		}
 
-		public Map(Wad wad, TextureLookup textures, FlatLookup flats, TextureAnimation animation, World world)
+		public Map(TextureLookup textures, FlatLookup flats, TextureAnimation animation, World world)
 		{
 			try
 			{
@@ -82,23 +81,23 @@ namespace DoomEngine.Doom.Map
 
 				Console.Write("Load map '" + name + "': ");
 
-				var map = wad.GetLumpNumber(name);
+				var map = $"MAPS/{name}/";
 
-				if (map == -1)
+				if (!DoomApplication.Instance.FileSystem.Files().Any(file => file.StartsWith(map)))
 				{
 					throw new Exception("Map '" + name + "' was not found!");
 				}
 
-				this.vertices = Vertex.FromWad(wad, map + 4);
-				this.sectors = Sector.FromWad(wad, map + 8, flats);
-				this.sides = SideDef.FromWad(wad, map + 3, textures, this.sectors);
-				this.lines = LineDef.FromWad(wad, map + 2, this.vertices, this.sides);
-				this.segs = Seg.FromWad(wad, map + 5, this.vertices, this.lines);
-				this.subsectors = Subsector.FromWad(wad, map + 6, this.segs);
-				this.nodes = Node.FromWad(wad, map + 7, this.subsectors);
-				this.things = MapThing.FromWad(wad, map + 1);
-				this.blockMap = BlockMap.FromWad(wad, map + 10, this.lines);
-				this.reject = Reject.FromWad(wad, map + 9, this.sectors);
+				this.vertices = Vertex.FromWad($"{map}VERTEXES");
+				this.sectors = Sector.FromWad($"{map}SECTORS", flats);
+				this.sides = SideDef.FromWad($"{map}SIDEDEFS", textures, this.sectors);
+				this.lines = LineDef.FromWad($"{map}LINEDEFS", this.vertices, this.sides);
+				this.segs = Seg.FromWad($"{map}SEGS", this.vertices, this.lines);
+				this.subsectors = Subsector.FromWad($"{map}SSECTORS", this.segs);
+				this.nodes = Node.FromWad($"{map}NODES", this.subsectors);
+				this.things = MapThing.FromWad($"{map}THINGS");
+				this.blockMap = BlockMap.FromWad($"{map}BLOCKMAP", this.lines);
+				this.reject = Reject.FromWad($"{map}REJECT", this.sectors);
 
 				this.GroupLines();
 

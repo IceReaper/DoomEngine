@@ -20,7 +20,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Info;
 	using Doom.Map;
 	using Doom.Math;
-	using Doom.Wad;
 	using Doom.World;
 	using System;
 
@@ -100,7 +99,7 @@ namespace DoomEngine.SoftwareRendering
 
 		private Patch[] markNumbers;
 
-		public AutoMapRenderer(Wad wad, DrawScreen screen)
+		public AutoMapRenderer(DrawScreen screen)
 		{
 			this.screen = screen;
 
@@ -113,7 +112,7 @@ namespace DoomEngine.SoftwareRendering
 
 			for (var i = 0; i < this.markNumbers.Length; i++)
 			{
-				this.markNumbers[i] = Patch.FromWad(wad, "AMMNUM" + i);
+				this.markNumbers[i] = Patch.FromWad("AMMNUM" + i);
 			}
 		}
 

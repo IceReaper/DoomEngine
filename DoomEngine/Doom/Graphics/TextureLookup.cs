@@ -20,8 +20,8 @@ namespace DoomEngine.Doom.Graphics
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.IO;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 
 	public sealed class TextureLookup : IReadOnlyList<Texture>
 	{
@@ -31,26 +31,13 @@ namespace DoomEngine.Doom.Graphics
 
 		private int[] switchList;
 
-		public TextureLookup(Wad wad)
-			: this(wad, false)
+		public TextureLookup()
 		{
-		}
-
-		public TextureLookup(Wad wad, bool useDummy)
-		{
-			if (!useDummy)
-			{
-				this.Init(wad);
-			}
-			else
-			{
-				this.InitDummy(wad);
-			}
-
+			this.Init();
 			this.InitSwitchList();
 		}
 
-		private void Init(Wad wad)
+		private void Init()
 		{
 			try
 			{
@@ -60,23 +47,27 @@ namespace DoomEngine.Doom.Graphics
 				this.nameToTexture = new Dictionary<string, Texture>();
 				this.nameToNumber = new Dictionary<string, int>();
 
-				var patches = TextureLookup.LoadPatches(wad);
+				var patches = TextureLookup.LoadPatches();
 
 				for (var n = 1; n <= 2; n++)
 				{
-					var lumpNumber = wad.GetLumpNumber("TEXTURE" + n);
+					var name = "TEXTURE" + n;
 
-					if (lumpNumber == -1)
+					if (!DoomApplication.Instance.FileSystem.Exists(name))
 					{
 						break;
 					}
 
-					var data = wad.ReadLump(lumpNumber);
-					var count = BitConverter.ToInt32(data, 0);
+					var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
+
+					var data = reader.ReadBytes((int) reader.BaseStream.Length);
+					reader.BaseStream.Position = 0;
+
+					var count = reader.ReadInt32();
 
 					for (var i = 0; i < count; i++)
 					{
-						var offset = BitConverter.ToInt32(data, 4 + 4 * i);
+						var offset = reader.ReadInt32();
 						var texture = Texture.FromData(data, offset, patches);
 						this.nameToNumber.Add(texture.Name, this.textures.Count);
 						this.textures.Add(texture);
@@ -90,37 +81,6 @@ namespace DoomEngine.Doom.Graphics
 			{
 				Console.WriteLine("Failed");
 				ExceptionDispatchInfo.Throw(e);
-			}
-		}
-
-		private void InitDummy(Wad wad)
-		{
-			this.textures = new List<Texture>();
-			this.nameToTexture = new Dictionary<string, Texture>();
-			this.nameToNumber = new Dictionary<string, int>();
-
-			for (var n = 1; n <= 2; n++)
-			{
-				var lumpNumber = wad.GetLumpNumber("TEXTURE" + n);
-
-				if (lumpNumber == -1)
-				{
-					break;
-				}
-
-				var data = wad.ReadLump(lumpNumber);
-				var count = BitConverter.ToInt32(data, 0);
-
-				for (var i = 0; i < count; i++)
-				{
-					var offset = BitConverter.ToInt32(data, 4 + 4 * i);
-					var name = Texture.GetName(data, offset);
-					var height = Texture.GetHeight(data, offset);
-					var texture = Dummy.GetTexture(height);
-					this.nameToNumber.Add(name, this.textures.Count);
-					this.textures.Add(texture);
-					this.nameToTexture.Add(name, texture);
-				}
 			}
 		}
 
@@ -162,9 +122,9 @@ namespace DoomEngine.Doom.Graphics
 			}
 		}
 
-		private static Patch[] LoadPatches(Wad wad)
+		private static Patch[] LoadPatches()
 		{
-			var patchNames = TextureLookup.LoadPatchNames(wad);
+			var patchNames = TextureLookup.LoadPatchNames();
 			var patches = new Patch[patchNames.Length];
 
 			for (var i = 0; i < patches.Length; i++)
@@ -172,27 +132,35 @@ namespace DoomEngine.Doom.Graphics
 				var name = patchNames[i];
 
 				// This check is necessary to avoid crash in DOOM1.WAD.
-				if (wad.GetLumpNumber(name) == -1)
+				if (!DoomApplication.Instance.FileSystem.Exists(name))
 				{
-					continue;
+					if (name == "TFOGF0" || name == "TFOGI0") // TNT.WAD uses this sprites as patches...
+						name = $"SPRITES/{name}";
+					else if (name == "BOSFA0") // PLUTONIA.WAD uses this sprite as patch... 
+						name = $"SPRITES/{name}";
+					else
+						name = $"PATCHES/{name}";
+
+					if (!DoomApplication.Instance.FileSystem.Exists(name))
+						continue;
 				}
 
-				var data = wad.ReadLump(name);
-				patches[i] = Patch.FromData(name, data);
+				var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
+				patches[i] = Patch.FromData(name, reader.ReadBytes((int) reader.BaseStream.Length));
 			}
 
 			return patches;
 		}
 
-		private static string[] LoadPatchNames(Wad wad)
+		private static string[] LoadPatchNames()
 		{
-			var data = wad.ReadLump("PNAMES");
-			var count = BitConverter.ToInt32(data, 0);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read("PNAMES"));
+			var count = reader.ReadInt32();
 			var names = new string[count];
 
 			for (var i = 0; i < names.Length; i++)
 			{
-				names[i] = DoomInterop.ToString(data, 4 + 8 * i, 8);
+				names[i] = DoomInterop.ToString(reader.ReadBytes(8), 0, 8);
 			}
 
 			return names;

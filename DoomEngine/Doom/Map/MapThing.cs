@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class MapThing
 	{
@@ -51,16 +51,18 @@ namespace DoomEngine.Doom.Map
 			return new MapThing(Fixed.FromInt(x), Fixed.FromInt(y), new Angle(Angle.Ang45.Data * (uint) (angle / 45)), type, (ThingFlags) flags);
 		}
 
-		public static MapThing[] FromWad(Wad wad, int lump)
+		public static MapThing[] FromWad(string fileName)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+
+			var length = reader.BaseStream.Length;
 
 			if (length % MapThing.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / MapThing.dataSize;
 			var things = new MapThing[count];
 

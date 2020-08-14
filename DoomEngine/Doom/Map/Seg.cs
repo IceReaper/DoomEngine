@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class Seg
 	{
@@ -69,16 +69,17 @@ namespace DoomEngine.Doom.Map
 			);
 		}
 
-		public static Seg[] FromWad(Wad wad, int lump, Vertex[] vertices, LineDef[] lines)
+		public static Seg[] FromWad(string fileName, Vertex[] vertices, LineDef[] lines)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % Seg.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / Seg.dataSize;
 			var segs = new Seg[count];
 			;

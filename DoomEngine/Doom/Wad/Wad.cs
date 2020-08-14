@@ -120,40 +120,6 @@ namespace DoomEngine.Doom.Wad
 			return -1;
 		}
 
-		public int GetLumpSize(int number)
-		{
-			return this.lumpInfos[number].Size;
-		}
-
-		public byte[] ReadLump(int number)
-		{
-			var lumpInfo = this.lumpInfos[number];
-
-			var data = new byte[lumpInfo.Size];
-
-			lumpInfo.Stream.Seek(lumpInfo.Position, SeekOrigin.Begin);
-			var read = lumpInfo.Stream.Read(data, 0, lumpInfo.Size);
-
-			if (read != lumpInfo.Size)
-			{
-				throw new Exception("Failed to read the lump " + number + ".");
-			}
-
-			return data;
-		}
-
-		public byte[] ReadLump(string name)
-		{
-			var lumpNumber = this.GetLumpNumber(name);
-
-			if (lumpNumber == -1)
-			{
-				throw new Exception("The lump '" + name + "' was not found.");
-			}
-
-			return this.ReadLump(lumpNumber);
-		}
-
 		public void Dispose()
 		{
 			Console.WriteLine("Close wad files.");
@@ -167,6 +133,5 @@ namespace DoomEngine.Doom.Wad
 		}
 
 		public IReadOnlyList<string> Names => this.names;
-		public IReadOnlyList<LumpInfo> LumpInfos => this.lumpInfos;
 	}
 }

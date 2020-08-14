@@ -569,8 +569,7 @@ namespace DoomEngine.Doom.Game
 
 			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
 				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt")
-				)
+				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
 			{
 				map = Math.Clamp(map, 1, 32);
 			}

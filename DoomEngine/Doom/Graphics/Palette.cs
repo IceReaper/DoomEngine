@@ -16,8 +16,8 @@
 namespace DoomEngine.Doom.Graphics
 {
 	using System;
+	using System.IO;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 
 	public sealed class Palette
 	{
@@ -33,13 +33,14 @@ namespace DoomEngine.Doom.Graphics
 
 		private uint[][] palettes;
 
-		public Palette(Wad wad)
+		public Palette()
 		{
 			try
 			{
 				Console.Write("Load palette: ");
 
-				this.data = wad.ReadLump("PLAYPAL");
+				var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read("PLAYPAL"));
+				this.data = reader.ReadBytes((int) reader.BaseStream.Length);
 
 				var count = this.data.Length / (3 * 256);
 				this.palettes = new uint[count][];

@@ -17,24 +17,21 @@ namespace DoomEngine.SoftwareRendering
 {
 	using Doom.Graphics;
 	using Doom.Menu;
-	using Doom.Wad;
 	using System.Collections.Generic;
 
 	public sealed class MenuRenderer
 	{
 		private static readonly char[] cursor = {'_'};
 
-		private Wad wad;
 		private DrawScreen screen;
 
 		private PatchCache cache;
 
-		public MenuRenderer(Wad wad, DrawScreen screen)
+		public MenuRenderer(DrawScreen screen)
 		{
-			this.wad = wad;
 			this.screen = screen;
 
-			this.cache = new PatchCache(wad);
+			this.cache = new PatchCache();
 		}
 
 		public void Render(DoomMenu menu)

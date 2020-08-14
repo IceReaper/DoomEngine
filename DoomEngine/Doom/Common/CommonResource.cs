@@ -30,40 +30,22 @@ namespace DoomEngine.Doom.Common
 		private SpriteLookup sprites;
 		private TextureAnimation animation;
 
-		private CommonResource()
-		{
-		}
-
 		public CommonResource(params string[] wadPaths)
 		{
 			try
 			{
 				this.wad = new Wad(wadPaths);
-				this.palette = new Palette(this.wad);
-				this.colorMap = new ColorMap(this.wad);
-				this.textures = new TextureLookup(this.wad);
-				this.flats = new FlatLookup(this.wad);
-				this.sprites = new SpriteLookup(this.wad);
+				this.palette = new Palette();
+				this.colorMap = new ColorMap();
+				this.textures = new TextureLookup();
+				this.flats = new FlatLookup();
+				this.sprites = new SpriteLookup();
 				this.animation = new TextureAnimation(this.textures, this.flats);
 			}
 			catch (Exception e)
 			{
 				ExceptionDispatchInfo.Throw(e);
 			}
-		}
-
-		public static CommonResource CreateDummy(params string[] wadPaths)
-		{
-			var resource = new CommonResource();
-			resource.wad = new Wad(wadPaths);
-			resource.palette = new Palette(resource.wad);
-			resource.colorMap = new ColorMap(resource.wad);
-			resource.textures = new TextureLookup(resource.wad, true);
-			resource.flats = new FlatLookup(resource.wad, true);
-			resource.sprites = new SpriteLookup(resource.wad, true);
-			resource.animation = new TextureAnimation(resource.textures, resource.flats);
-
-			return resource;
 		}
 
 		public void Dispose()

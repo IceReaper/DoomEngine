@@ -18,7 +18,7 @@
 				this.Length = length;
 			}
 		}
-		
+
 		private readonly Dictionary<string, LumpInfo> files = new Dictionary<string, LumpInfo>();
 		private Stream stream;
 
@@ -72,7 +72,20 @@
 				}
 				else
 				{
-					var key = string.Concat(groups.Select(group => $"{group}/")) + name;
+					string key;
+
+					if (groups.Count == 0)
+						key = name;
+					else if (inMap)
+						key = $"MAPS/{groups[0]}/{name}";
+					else
+						key = groups[0] switch
+						{
+							"S" => $"SPRITES/{name}",
+							"F" => $"FLATS/{name}",
+							"P" => $"PATCHES/{name}",
+							_ => throw new Exception("Unknown group found.")
+						};
 
 					// TODO while in theory a same named file with different contents may exist, we rely on loading the first only for now.
 					if (!this.files.ContainsKey(key))
@@ -103,6 +116,7 @@
 			this.stream.Position = this.files[path].Position;
 			var buffer = new byte[this.files[path].Length];
 			this.stream.Read(buffer, 0, buffer.Length);
+
 			return new MemoryStream(buffer);
 		}
 

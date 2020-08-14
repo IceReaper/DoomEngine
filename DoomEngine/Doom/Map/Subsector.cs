@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.Map
 {
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class Subsector
 	{
@@ -41,16 +41,17 @@ namespace DoomEngine.Doom.Map
 			return new Subsector(segs[firstSegNumber].SideDef.Sector, segCount, firstSegNumber);
 		}
 
-		public static Subsector[] FromWad(Wad wad, int lump, Seg[] segs)
+		public static Subsector[] FromWad(string fileName, Seg[] segs)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % Subsector.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / Subsector.dataSize;
 			var subsectors = new Subsector[count];
 

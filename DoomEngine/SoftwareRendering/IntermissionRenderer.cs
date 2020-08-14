@@ -18,7 +18,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Game;
 	using Doom.Graphics;
 	using Doom.Intermission;
-	using Doom.Wad;
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
@@ -80,7 +79,6 @@ namespace DoomEngine.SoftwareRendering
 			}
 		}
 
-		private Wad wad;
 		private DrawScreen screen;
 
 		private PatchCache cache;
@@ -92,23 +90,22 @@ namespace DoomEngine.SoftwareRendering
 
 		private int scale;
 
-		public IntermissionRenderer(Wad wad, DrawScreen screen)
+		public IntermissionRenderer(DrawScreen screen)
 		{
-			this.wad = wad;
 			this.screen = screen;
 
-			this.cache = new PatchCache(wad);
+			this.cache = new PatchCache();
 
-			this.minus = Patch.FromWad(wad, "WIMINUS");
+			this.minus = Patch.FromWad("WIMINUS");
 			this.numbers = new Patch[10];
 
 			for (var i = 0; i < 10; i++)
 			{
-				this.numbers[i] = Patch.FromWad(wad, "WINUM" + i);
+				this.numbers[i] = Patch.FromWad("WINUM" + i);
 			}
 
-			this.percent = Patch.FromWad(wad, "WIPCNT");
-			this.colon = Patch.FromWad(wad, "WICOLON");
+			this.percent = Patch.FromWad("WIPCNT");
+			this.colon = Patch.FromWad("WICOLON");
 
 			this.scale = screen.Width / 320;
 		}

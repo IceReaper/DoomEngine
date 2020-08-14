@@ -389,7 +389,7 @@ namespace DoomEngine.Doom.Game
 							this.writer.Write(flash.MaxLight);
 							this.writer.Write(flash.MinLight);
 							this.writer.Write(flash.MaxTime);
-							this.writer.Write(flash.MinTime); 
+							this.writer.Write(flash.MinTime);
 
 							continue;
 						}

@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 	using World;
 
 	public sealed class BlockMap
@@ -52,9 +52,10 @@ namespace DoomEngine.Doom.Map
 			this.thingLists = new Mobj[width * height];
 		}
 
-		public static BlockMap FromWad(Wad wad, int lump, LineDef[] lines)
+		public static BlockMap FromWad(string fileName, LineDef[] lines)
 		{
-			var data = wad.ReadLump(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 
 			var table = new short[data.Length / 2];
 

@@ -21,7 +21,7 @@ namespace DoomEngine.Doom.Map
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-	using Wad;
+	using System.IO;
 	using World;
 
 	public sealed class Sector
@@ -94,16 +94,17 @@ namespace DoomEngine.Doom.Map
 			);
 		}
 
-		public static Sector[] FromWad(Wad wad, int lump, FlatLookup flats)
+		public static Sector[] FromWad(string fileName, FlatLookup flats)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % Sector.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / Sector.dataSize;
 			var sectors = new Sector[count];
 			;

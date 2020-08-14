@@ -17,7 +17,6 @@ namespace DoomEngine.SoftwareRendering
 {
 	using Doom;
 	using Doom.Graphics;
-	using Doom.Wad;
 	using Platform;
 
 	public class OpeningSequenceRenderer
@@ -27,12 +26,12 @@ namespace DoomEngine.SoftwareRendering
 
 		private PatchCache cache;
 
-		public OpeningSequenceRenderer(Wad wad, DrawScreen screen, IRenderer parent)
+		public OpeningSequenceRenderer(DrawScreen screen, IRenderer parent)
 		{
 			this.screen = screen;
 			this.parent = parent;
 
-			this.cache = new PatchCache(wad);
+			this.cache = new PatchCache();
 		}
 
 		public void Render(OpeningSequence sequence)

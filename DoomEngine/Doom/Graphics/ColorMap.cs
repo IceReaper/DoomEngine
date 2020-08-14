@@ -16,8 +16,8 @@
 namespace DoomEngine.Doom.Graphics
 {
 	using System;
+	using System.IO;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 
 	public sealed class ColorMap
 	{
@@ -25,24 +25,23 @@ namespace DoomEngine.Doom.Graphics
 
 		private byte[][] data;
 
-		public ColorMap(Wad wad)
+		public ColorMap()
 		{
 			try
 			{
 				Console.Write("Load color map: ");
 
-				var raw = wad.ReadLump("COLORMAP");
-				var num = raw.Length / 256;
+				var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read("COLORMAP"));
+				var num = reader.BaseStream.Length / 256;
 				this.data = new byte[num][];
 
 				for (var i = 0; i < num; i++)
 				{
 					this.data[i] = new byte[256];
-					var offset = 256 * i;
 
 					for (var c = 0; c < 256; c++)
 					{
-						this.data[i][c] = raw[offset + c];
+						this.data[i][c] = reader.ReadByte();
 					}
 				}
 

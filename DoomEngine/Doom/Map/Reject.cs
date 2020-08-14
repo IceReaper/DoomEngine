@@ -15,7 +15,7 @@
 
 namespace DoomEngine.Doom.Map
 {
-	using Wad;
+	using System.IO;
 
 	public sealed class Reject
 	{
@@ -28,9 +28,11 @@ namespace DoomEngine.Doom.Map
 			this.sectorCount = sectorCount;
 		}
 
-		public static Reject FromWad(Wad wad, int lump, Sector[] sectors)
+		public static Reject FromWad(string fileName, Sector[] sectors)
 		{
-			return new Reject(wad.ReadLump(lump), sectors.Length);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+
+			return new Reject(reader.ReadBytes((int) reader.BaseStream.Length), sectors.Length);
 		}
 
 		public bool Check(Sector sector1, Sector sector2)

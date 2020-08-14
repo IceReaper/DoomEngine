@@ -18,19 +18,15 @@ namespace DoomEngine.Doom.Graphics
 	using Info;
 	using System;
 	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 
 	public sealed class SpriteLookup
 	{
 		private SpriteDef[] spriteDefs;
 
-		public SpriteLookup(Wad wad)
-			: this(wad, false)
-		{
-		}
-
-		public SpriteLookup(Wad wad, bool useDummy)
+		public SpriteLookup()
 		{
 			try
 			{
@@ -43,11 +39,12 @@ namespace DoomEngine.Doom.Graphics
 					temp.Add(DoomInfo.SpriteNames[i], new List<SpriteInfo>());
 				}
 
-				var cache = new Dictionary<int, Patch>();
+				var cache = new Dictionary<string, Patch>();
 
-				foreach (var lump in SpriteLookup.EnumerateSprites(wad))
+				foreach (var sprite in DoomApplication.Instance.FileSystem.Files().Where(file => file.StartsWith("SPRITES/")).ToArray())
 				{
-					var name = wad.LumpInfos[lump].Name.Substring(0, 4);
+					var lumpName = sprite.Substring(8);
+					var name = lumpName.Substring(0, 4);
 
 					if (!temp.ContainsKey(name))
 					{
@@ -57,8 +54,8 @@ namespace DoomEngine.Doom.Graphics
 					var list = temp[name];
 
 					{
-						var frame = wad.LumpInfos[lump].Name[4] - 'A';
-						var rotation = wad.LumpInfos[lump].Name[5] - '0';
+						var frame = lumpName[4] - 'A';
+						var rotation = lumpName[5] - '0';
 
 						while (list.Count < frame + 1)
 						{
@@ -71,7 +68,7 @@ namespace DoomEngine.Doom.Graphics
 							{
 								if (list[frame].Patches[i] == null)
 								{
-									list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+									list[frame].Patches[i] = SpriteLookup.CachedRead(sprite, cache);
 									list[frame].Flip[i] = false;
 								}
 							}
@@ -80,16 +77,16 @@ namespace DoomEngine.Doom.Graphics
 						{
 							if (list[frame].Patches[rotation - 1] == null)
 							{
-								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(sprite, cache);
 								list[frame].Flip[rotation - 1] = false;
 							}
 						}
 					}
 
-					if (wad.LumpInfos[lump].Name.Length == 8)
+					if (lumpName.Length == 8)
 					{
-						var frame = wad.LumpInfos[lump].Name[6] - 'A';
-						var rotation = wad.LumpInfos[lump].Name[7] - '0';
+						var frame = lumpName[6] - 'A';
+						var rotation = lumpName[7] - '0';
 
 						while (list.Count < frame + 1)
 						{
@@ -102,7 +99,7 @@ namespace DoomEngine.Doom.Graphics
 							{
 								if (list[frame].Patches[i] == null)
 								{
-									list[frame].Patches[i] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+									list[frame].Patches[i] = SpriteLookup.CachedRead(sprite, cache);
 									list[frame].Flip[i] = true;
 								}
 							}
@@ -111,7 +108,7 @@ namespace DoomEngine.Doom.Graphics
 						{
 							if (list[frame].Patches[rotation - 1] == null)
 							{
-								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(lump, wad, cache, useDummy);
+								list[frame].Patches[rotation - 1] = SpriteLookup.CachedRead(sprite, cache);
 								list[frame].Flip[rotation - 1] = true;
 							}
 						}
@@ -146,54 +143,15 @@ namespace DoomEngine.Doom.Graphics
 			}
 		}
 
-		private static IEnumerable<int> EnumerateSprites(Wad wad)
+		private static Patch CachedRead(string name, Dictionary<string, Patch> cache)
 		{
-			var spriteSection = false;
-
-			for (var lump = wad.LumpInfos.Count - 1; lump >= 0; lump--)
+			if (!cache.ContainsKey(name))
 			{
-				var name = wad.LumpInfos[lump].Name;
-
-				if (name.StartsWith("S"))
-				{
-					if (name.EndsWith("_END"))
-					{
-						spriteSection = true;
-
-						continue;
-					}
-					else if (name.EndsWith("_START"))
-					{
-						spriteSection = false;
-
-						continue;
-					}
-				}
-
-				if (spriteSection)
-				{
-					if (wad.LumpInfos[lump].Size > 0)
-					{
-						yield return lump;
-					}
-				}
-			}
-		}
-
-		private static Patch CachedRead(int lump, Wad wad, Dictionary<int, Patch> cache, bool useDummy)
-		{
-			if (useDummy)
-			{
-				return Dummy.GetPatch();
+				var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
+				cache.Add(name, Patch.FromData(name, reader.ReadBytes((int) reader.BaseStream.Length)));
 			}
 
-			if (!cache.ContainsKey(lump))
-			{
-				var name = wad.LumpInfos[lump].Name;
-				cache.Add(lump, Patch.FromData(name, wad.ReadLump(lump)));
-			}
-
-			return cache[lump];
+			return cache[name];
 		}
 
 		private class SpriteInfo

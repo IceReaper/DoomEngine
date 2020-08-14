@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Map
 {
 	using Math;
 	using System;
-	using Wad;
+	using System.IO;
 
 	public sealed class Vertex
 	{
@@ -40,16 +40,17 @@ namespace DoomEngine.Doom.Map
 			return new Vertex(Fixed.FromInt(x), Fixed.FromInt(y));
 		}
 
-		public static Vertex[] FromWad(Wad wad, int lump)
+		public static Vertex[] FromWad(string fileName)
 		{
-			var length = wad.GetLumpSize(lump);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(fileName));
+			var length = reader.BaseStream.Length;
 
 			if (length % Vertex.dataSize != 0)
 			{
 				throw new Exception();
 			}
 
-			var data = wad.ReadLump(lump);
+			var data = reader.ReadBytes((int) reader.BaseStream.Length);
 			var count = length / Vertex.dataSize;
 			var vertices = new Vertex[count];
 			;

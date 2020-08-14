@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Graphics
 {
 	using System;
 	using System.Collections.Generic;
-	using Wad;
+	using System.IO;
 
 	public sealed class Patch
 	{
@@ -75,9 +75,11 @@ namespace DoomEngine.Doom.Graphics
 			return new Patch(name, width, height, leftOffset, topOffset, columns);
 		}
 
-		public static Patch FromWad(Wad wad, string name)
+		public static Patch FromWad(string name)
 		{
-			return Patch.FromData(name, wad.ReadLump(name));
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
+
+			return Patch.FromData(name, reader.ReadBytes((int) reader.BaseStream.Length));
 		}
 
 		private static void PadData(ref byte[] data, int width)

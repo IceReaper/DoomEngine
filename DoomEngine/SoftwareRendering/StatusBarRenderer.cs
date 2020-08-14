@@ -18,7 +18,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Game;
 	using Doom.Graphics;
 	using Doom.Info;
-	using Doom.Wad;
 	using Doom.World;
 
 	public sealed class StatusBarRenderer
@@ -115,11 +114,11 @@ namespace DoomEngine.SoftwareRendering
 
 		private MultIconWidget[] keys;
 
-		public StatusBarRenderer(Wad wad, DrawScreen screen)
+		public StatusBarRenderer(DrawScreen screen)
 		{
 			this.screen = screen;
 
-			this.patches = new Patches(wad);
+			this.patches = new Patches();
 
 			this.scale = screen.Width / 320;
 
@@ -404,37 +403,37 @@ namespace DoomEngine.SoftwareRendering
 			public Patch[] FaceBackground;
 			public Patch[] Faces;
 
-			public Patches(Wad wad)
+			public Patches()
 			{
-				this.Background = Patch.FromWad(wad, "STBAR");
+				this.Background = Patch.FromWad("STBAR");
 
 				this.TallNumbers = new Patch[10];
 				this.ShortNumbers = new Patch[10];
 
 				for (var i = 0; i < 10; i++)
 				{
-					this.TallNumbers[i] = Patch.FromWad(wad, "STTNUM" + i);
-					this.ShortNumbers[i] = Patch.FromWad(wad, "STYSNUM" + i);
+					this.TallNumbers[i] = Patch.FromWad("STTNUM" + i);
+					this.ShortNumbers[i] = Patch.FromWad("STYSNUM" + i);
 				}
 
-				this.TallMinus = Patch.FromWad(wad, "STTMINUS");
-				this.TallPercent = Patch.FromWad(wad, "STTPRCNT");
+				this.TallMinus = Patch.FromWad("STTMINUS");
+				this.TallPercent = Patch.FromWad("STTPRCNT");
 
 				this.Keys = new Patch[(int) CardType.Count];
 
 				for (var i = 0; i < this.Keys.Length; i++)
 				{
-					this.Keys[i] = Patch.FromWad(wad, "STKEYS" + i);
+					this.Keys[i] = Patch.FromWad("STKEYS" + i);
 				}
 
-				this.ArmsBackground = Patch.FromWad(wad, "STARMS");
+				this.ArmsBackground = Patch.FromWad("STARMS");
 				this.Arms = new Patch[6][];
 
 				for (var i = 0; i < 6; i++)
 				{
 					var num = i + 2;
 					this.Arms[i] = new Patch[2];
-					this.Arms[i][0] = Patch.FromWad(wad, "STGNUM" + num);
+					this.Arms[i][0] = Patch.FromWad("STGNUM" + num);
 					this.Arms[i][1] = this.ShortNumbers[num];
 				}
 
@@ -442,7 +441,7 @@ namespace DoomEngine.SoftwareRendering
 
 				for (var i = 0; i < this.FaceBackground.Length; i++)
 				{
-					this.FaceBackground[i] = Patch.FromWad(wad, "STFB" + i);
+					this.FaceBackground[i] = Patch.FromWad("STFB" + i);
 				}
 
 				this.Faces = new Patch[StatusBar.Face.FaceCount];
@@ -452,18 +451,18 @@ namespace DoomEngine.SoftwareRendering
 				{
 					for (var j = 0; j < StatusBar.Face.StraightFaceCount; j++)
 					{
-						this.Faces[faceCount++] = Patch.FromWad(wad, "STFST" + i + j);
+						this.Faces[faceCount++] = Patch.FromWad("STFST" + i + j);
 					}
 
-					this.Faces[faceCount++] = Patch.FromWad(wad, "STFTR" + i + "0");
-					this.Faces[faceCount++] = Patch.FromWad(wad, "STFTL" + i + "0");
-					this.Faces[faceCount++] = Patch.FromWad(wad, "STFOUCH" + i);
-					this.Faces[faceCount++] = Patch.FromWad(wad, "STFEVL" + i);
-					this.Faces[faceCount++] = Patch.FromWad(wad, "STFKILL" + i);
+					this.Faces[faceCount++] = Patch.FromWad("STFTR" + i + "0");
+					this.Faces[faceCount++] = Patch.FromWad("STFTL" + i + "0");
+					this.Faces[faceCount++] = Patch.FromWad("STFOUCH" + i);
+					this.Faces[faceCount++] = Patch.FromWad("STFEVL" + i);
+					this.Faces[faceCount++] = Patch.FromWad("STFKILL" + i);
 				}
 
-				this.Faces[faceCount++] = Patch.FromWad(wad, "STFGOD0");
-				this.Faces[faceCount++] = Patch.FromWad(wad, "STFDEAD0");
+				this.Faces[faceCount++] = Patch.FromWad("STFGOD0");
+				this.Faces[faceCount++] = Patch.FromWad("STFDEAD0");
 			}
 		}
 	}

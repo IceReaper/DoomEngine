@@ -86,13 +86,13 @@ namespace DoomEngine.Platform.Desktop
 
 				if (config.video_highresolution)
 				{
-					this.screen = new DrawScreen(resource.Wad, 640, 400);
+					this.screen = new DrawScreen(640, 400);
 					this.sfmlTextureWidth = 512;
 					this.sfmlTextureHeight = 1024;
 				}
 				else
 				{
-					this.screen = new DrawScreen(resource.Wad, 320, 200);
+					this.screen = new DrawScreen(320, 200);
 					this.sfmlTextureWidth = 256;
 					this.sfmlTextureHeight = 512;
 				}
@@ -110,15 +110,15 @@ namespace DoomEngine.Platform.Desktop
 
 				this.sfmlStates = new RenderStates(BlendMode.None);
 
-				this.menu = new MenuRenderer(resource.Wad, this.screen);
+				this.menu = new MenuRenderer(this.screen);
 				this.threeD = new ThreeDRenderer(resource, this.screen, config.video_gamescreensize);
-				this.statusBar = new StatusBarRenderer(resource.Wad, this.screen);
-				this.intermission = new IntermissionRenderer(resource.Wad, this.screen);
-				this.openingSequence = new OpeningSequenceRenderer(resource.Wad, this.screen, this);
-				this.autoMap = new AutoMapRenderer(resource.Wad, this.screen);
+				this.statusBar = new StatusBarRenderer(this.screen);
+				this.intermission = new IntermissionRenderer(this.screen);
+				this.openingSequence = new OpeningSequenceRenderer(this.screen, this);
+				this.autoMap = new AutoMapRenderer(this.screen);
 				this.finale = new FinaleRenderer(resource, this.screen);
 
-				this.pause = Patch.FromWad(resource.Wad, "M_PAUSE");
+				this.pause = Patch.FromWad("M_PAUSE");
 
 				var scale = this.screen.Width / 320;
 				this.wipeBandWidth = 2 * scale;
