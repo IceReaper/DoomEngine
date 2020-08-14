@@ -32,7 +32,6 @@ namespace DoomEngine.Doom.Game
 		public static readonly int DescriptionSize = 24;
 
 		private static readonly int versionSize = 16;
-		private static readonly int saveBufferSize = 360 * 1024;
 
 		private enum ThinkerClass
 		{
@@ -73,14 +72,11 @@ namespace DoomEngine.Doom.Game
 
 		private class SaveGame
 		{
-			private byte[] data;
-			private int ptr;
+			private BinaryWriter writer;
 
 			public SaveGame(string description)
 			{
-				this.data = new byte[SaveAndLoad.saveBufferSize];
-				this.ptr = 0;
-
+				this.writer = new BinaryWriter(new MemoryStream());
 				this.WriteDescription(description);
 				this.WriteVersion();
 			}
@@ -89,10 +85,10 @@ namespace DoomEngine.Doom.Game
 			{
 				for (var i = 0; i < description.Length; i++)
 				{
-					this.data[i] = (byte) description[i];
+					this.writer.Write((byte) description[i]);
 				}
 
-				this.ptr += SaveAndLoad.DescriptionSize;
+				this.writer.BaseStream.Position += SaveAndLoad.DescriptionSize - description.Length;
 			}
 
 			private void WriteVersion()
@@ -101,44 +97,44 @@ namespace DoomEngine.Doom.Game
 
 				for (var i = 0; i < version.Length; i++)
 				{
-					this.data[this.ptr + i] = (byte) version[i];
+					this.writer.Write((byte) version[i]);
 				}
 
-				this.ptr += SaveAndLoad.versionSize;
+				this.writer.BaseStream.Position += SaveAndLoad.versionSize - version.Length;
 			}
 
 			public void Save(DoomGame game, string path)
 			{
 				var options = game.World.Options;
-				this.data[this.ptr++] = (byte) options.Skill;
-				this.data[this.ptr++] = (byte) options.Episode;
-				this.data[this.ptr++] = (byte) options.Map;
+				this.writer.Write((byte) options.Skill);
+				this.writer.Write((byte) options.Episode);
+				this.writer.Write((byte) options.Map);
 
 				for (var i = 0; i < Player.MaxPlayerCount; i++)
 				{
-					this.data[this.ptr++] = options.Players[i].InGame ? (byte) 1 : (byte) 0;
+					this.writer.Write(options.Players[i].InGame ? (byte) 1 : (byte) 0);
 				}
 
-				this.data[this.ptr++] = (byte) (game.World.LevelTime >> 16);
-				this.data[this.ptr++] = (byte) (game.World.LevelTime >> 8);
-				this.data[this.ptr++] = (byte) (game.World.LevelTime);
+				this.writer.Write((byte) (game.World.LevelTime >> 16));
+				this.writer.Write((byte) (game.World.LevelTime >> 8));
+				this.writer.Write((byte) (game.World.LevelTime));
 
 				this.ArchivePlayers(game.World);
 				this.ArchiveWorld(game.World);
 				this.ArchiveThinkers(game.World);
 				this.ArchiveSpecials(game.World);
 
-				this.data[this.ptr++] = 0x1d;
+				this.writer.Write((byte) 0x1d);
 
 				using (var writer = DoomApplication.Instance.FileSystem.Write(path))
 				{
-					writer.Write(this.data, 0, this.ptr);
+					writer.Write(((MemoryStream) this.writer.BaseStream).GetBuffer(), 0, (int) this.writer.BaseStream.Length);
 				}
 			}
 
 			private void PadPointer()
 			{
-				this.ptr += (4 - (this.ptr & 3)) & 3;
+				this.writer.BaseStream.Position += (4 - (this.writer.BaseStream.Position & 3)) & 3;
 			}
 
 			private void ArchivePlayers(World world)
@@ -154,7 +150,7 @@ namespace DoomEngine.Doom.Game
 
 					this.PadPointer();
 
-					this.ptr = SaveGame.ArchivePlayer(players[i], this.data, this.ptr);
+					this.ArchivePlayer(players[i]);
 				}
 			}
 
@@ -165,7 +161,7 @@ namespace DoomEngine.Doom.Game
 
 				for (var i = 0; i < sectors.Length; i++)
 				{
-					this.ptr = SaveGame.ArchiveSector(sectors[i], this.data, this.ptr);
+					this.ArchiveSector(sectors[i]);
 				}
 
 				// Do lines.
@@ -173,7 +169,7 @@ namespace DoomEngine.Doom.Game
 
 				for (var i = 0; i < lines.Length; i++)
 				{
-					this.ptr = SaveGame.ArchiveLine(lines[i], this.data, this.ptr);
+					this.ArchiveLine(lines[i]);
 				}
 			}
 
@@ -188,66 +184,72 @@ namespace DoomEngine.Doom.Game
 
 					if (mobj != null)
 					{
-						this.data[this.ptr++] = (byte) ThinkerClass.Mobj;
+						this.writer.Write((byte) ThinkerClass.Mobj);
 						this.PadPointer();
 
-						SaveGame.WriteThinkerState(this.data, this.ptr + 8, mobj.ThinkerState);
-						SaveGame.Write(this.data, this.ptr + 12, mobj.X.Data);
-						SaveGame.Write(this.data, this.ptr + 16, mobj.Y.Data);
-						SaveGame.Write(this.data, this.ptr + 20, mobj.Z.Data);
-						SaveGame.Write(this.data, this.ptr + 32, mobj.Angle.Data);
-						SaveGame.Write(this.data, this.ptr + 36, (int) mobj.Sprite);
-						SaveGame.Write(this.data, this.ptr + 40, mobj.Frame);
-						SaveGame.Write(this.data, this.ptr + 56, mobj.FloorZ.Data);
-						SaveGame.Write(this.data, this.ptr + 60, mobj.CeilingZ.Data);
-						SaveGame.Write(this.data, this.ptr + 64, mobj.Radius.Data);
-						SaveGame.Write(this.data, this.ptr + 68, mobj.Height.Data);
-						SaveGame.Write(this.data, this.ptr + 72, mobj.MomX.Data);
-						SaveGame.Write(this.data, this.ptr + 76, mobj.MomY.Data);
-						SaveGame.Write(this.data, this.ptr + 80, mobj.MomZ.Data);
-						SaveGame.Write(this.data, this.ptr + 88, (int) mobj.Type);
-						SaveGame.Write(this.data, this.ptr + 96, mobj.Tics);
-						SaveGame.Write(this.data, this.ptr + 100, mobj.State.Number);
-						SaveGame.Write(this.data, this.ptr + 104, (int) mobj.Flags);
-						SaveGame.Write(this.data, this.ptr + 108, mobj.Health);
-						SaveGame.Write(this.data, this.ptr + 112, (int) mobj.MoveDir);
-						SaveGame.Write(this.data, this.ptr + 116, mobj.MoveCount);
-						SaveGame.Write(this.data, this.ptr + 124, mobj.ReactionTime);
-						SaveGame.Write(this.data, this.ptr + 128, mobj.Threshold);
+						this.writer.BaseStream.Position += 8;
+						this.writer.Write(SaveGame.GetThinkerState(mobj.ThinkerState));
+						this.writer.Write(mobj.X.Data);
+						this.writer.Write(mobj.Y.Data);
+						this.writer.Write(mobj.Z.Data);
+						this.writer.BaseStream.Position += 8;
+						this.writer.Write(mobj.Angle.Data);
+						this.writer.Write((int) mobj.Sprite);
+						this.writer.Write(mobj.Frame);
+						this.writer.BaseStream.Position += 12;
+						this.writer.Write(mobj.FloorZ.Data);
+						this.writer.Write(mobj.CeilingZ.Data);
+						this.writer.Write(mobj.Radius.Data);
+						this.writer.Write(mobj.Height.Data);
+						this.writer.Write(mobj.MomX.Data);
+						this.writer.Write(mobj.MomY.Data);
+						this.writer.Write(mobj.MomZ.Data);
+						this.writer.BaseStream.Position += 4;
+						this.writer.Write((int) mobj.Type);
+						this.writer.BaseStream.Position += 4;
+						this.writer.Write(mobj.Tics);
+						this.writer.Write(mobj.State.Number);
+						this.writer.Write((int) mobj.Flags);
+						this.writer.Write(mobj.Health);
+						this.writer.Write((int) mobj.MoveDir);
+						this.writer.Write(mobj.MoveCount);
+						this.writer.BaseStream.Position += 4;
+						this.writer.Write(mobj.ReactionTime);
+						this.writer.Write(mobj.Threshold);
 
 						if (mobj.Player == null)
 						{
-							SaveGame.Write(this.data, this.ptr + 132, 0);
+							this.writer.Write(0);
 						}
 						else
 						{
-							SaveGame.Write(this.data, this.ptr + 132, mobj.Player.Number + 1);
+							this.writer.Write(mobj.Player.Number + 1);
 						}
 
-						SaveGame.Write(this.data, this.ptr + 136, mobj.LastLook);
+						this.writer.Write(mobj.LastLook);
 
 						if (mobj.SpawnPoint == null)
 						{
-							SaveGame.Write(this.data, this.ptr + 140, (short) 0);
-							SaveGame.Write(this.data, this.ptr + 142, (short) 0);
-							SaveGame.Write(this.data, this.ptr + 144, (short) 0);
-							SaveGame.Write(this.data, this.ptr + 146, (short) 0);
-							SaveGame.Write(this.data, this.ptr + 148, (short) 0);
+							this.writer.Write((short) 0);
+							this.writer.Write((short) 0);
+							this.writer.Write((short) 0);
+							this.writer.Write((short) 0);
+							this.writer.Write((short) 0);
 						}
 						else
 						{
-							SaveGame.Write(this.data, this.ptr + 140, (short) mobj.SpawnPoint.X.ToIntFloor());
-							SaveGame.Write(this.data, this.ptr + 142, (short) mobj.SpawnPoint.Y.ToIntFloor());
-							SaveGame.Write(this.data, this.ptr + 144, (short) Math.Round(mobj.SpawnPoint.Angle.ToDegree()));
-							SaveGame.Write(this.data, this.ptr + 146, (short) mobj.SpawnPoint.Type);
-							SaveGame.Write(this.data, this.ptr + 148, (short) mobj.SpawnPoint.Flags);
+							this.writer.Write((short) mobj.SpawnPoint.X.ToIntFloor());
+							this.writer.Write((short) mobj.SpawnPoint.Y.ToIntFloor());
+							this.writer.Write((short) Math.Round(mobj.SpawnPoint.Angle.ToDegree()));
+							this.writer.Write((short) mobj.SpawnPoint.Type);
+							this.writer.Write((short) mobj.SpawnPoint.Flags);
 						}
 
-						this.ptr += 154;
+						this.writer.BaseStream.Position += 4;
 					}
 				}
 
-				this.data[this.ptr++] = (byte) ThinkerClass.End;
+				this.writer.Write((byte) ThinkerClass.End);
 			}
 
 			private void ArchiveSpecials(World world)
@@ -264,19 +266,19 @@ namespace DoomEngine.Doom.Game
 
 						if (sa.CheckActiveCeiling(ceiling))
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Ceiling;
+							this.writer.Write((byte) SpecialClass.Ceiling);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, ceiling.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, (int) ceiling.Type);
-							SaveGame.Write(this.data, this.ptr + 16, ceiling.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 20, ceiling.BottomHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 24, ceiling.TopHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 28, ceiling.Speed.Data);
-							SaveGame.Write(this.data, this.ptr + 32, ceiling.Crush ? 1 : 0);
-							SaveGame.Write(this.data, this.ptr + 36, ceiling.Direction);
-							SaveGame.Write(this.data, this.ptr + 40, ceiling.Tag);
-							SaveGame.Write(this.data, this.ptr + 44, ceiling.OldDirection);
-							this.ptr += 48;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(ceiling.ThinkerState));
+							this.writer.Write((int) ceiling.Type);
+							this.writer.Write(ceiling.Sector.Number);
+							this.writer.Write(ceiling.BottomHeight.Data);
+							this.writer.Write(ceiling.TopHeight.Data);
+							this.writer.Write(ceiling.Speed.Data);
+							this.writer.Write(ceiling.Crush ? 1 : 0);
+							this.writer.Write(ceiling.Direction);
+							this.writer.Write(ceiling.Tag);
+							this.writer.Write(ceiling.OldDirection);
 						}
 
 						continue;
@@ -287,19 +289,19 @@ namespace DoomEngine.Doom.Game
 
 						if (ceiling != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Ceiling;
+							this.writer.Write((byte) SpecialClass.Ceiling);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, ceiling.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, (int) ceiling.Type);
-							SaveGame.Write(this.data, this.ptr + 16, ceiling.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 20, ceiling.BottomHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 24, ceiling.TopHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 28, ceiling.Speed.Data);
-							SaveGame.Write(this.data, this.ptr + 32, ceiling.Crush ? 1 : 0);
-							SaveGame.Write(this.data, this.ptr + 36, ceiling.Direction);
-							SaveGame.Write(this.data, this.ptr + 40, ceiling.Tag);
-							SaveGame.Write(this.data, this.ptr + 44, ceiling.OldDirection);
-							this.ptr += 48;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(ceiling.ThinkerState));
+							this.writer.Write((int) ceiling.Type);
+							this.writer.Write(ceiling.Sector.Number);
+							this.writer.Write(ceiling.BottomHeight.Data);
+							this.writer.Write(ceiling.TopHeight.Data);
+							this.writer.Write(ceiling.Speed.Data);
+							this.writer.Write(ceiling.Crush ? 1 : 0);
+							this.writer.Write(ceiling.Direction);
+							this.writer.Write(ceiling.Tag);
+							this.writer.Write(ceiling.OldDirection);
 
 							continue;
 						}
@@ -310,17 +312,17 @@ namespace DoomEngine.Doom.Game
 
 						if (door != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Door;
+							this.writer.Write((byte) SpecialClass.Door);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, door.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, (int) door.Type);
-							SaveGame.Write(this.data, this.ptr + 16, door.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 20, door.TopHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 24, door.Speed.Data);
-							SaveGame.Write(this.data, this.ptr + 28, door.Direction);
-							SaveGame.Write(this.data, this.ptr + 32, door.TopWait);
-							SaveGame.Write(this.data, this.ptr + 36, door.TopCountDown);
-							this.ptr += 40;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(door.ThinkerState));
+							this.writer.Write((int) door.Type);
+							this.writer.Write(door.Sector.Number);
+							this.writer.Write(door.TopHeight.Data);
+							this.writer.Write(door.Speed.Data);
+							this.writer.Write(door.Direction);
+							this.writer.Write(door.TopWait);
+							this.writer.Write(door.TopCountDown);
 
 							continue;
 						}
@@ -331,18 +333,18 @@ namespace DoomEngine.Doom.Game
 
 						if (floor != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Floor;
+							this.writer.Write((byte) SpecialClass.Floor);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, floor.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, (int) floor.Type);
-							SaveGame.Write(this.data, this.ptr + 16, floor.Crush ? 1 : 0);
-							SaveGame.Write(this.data, this.ptr + 20, floor.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 24, floor.Direction);
-							SaveGame.Write(this.data, this.ptr + 28, (int) floor.NewSpecial);
-							SaveGame.Write(this.data, this.ptr + 32, floor.Texture);
-							SaveGame.Write(this.data, this.ptr + 36, floor.FloorDestHeight.Data);
-							SaveGame.Write(this.data, this.ptr + 40, floor.Speed.Data);
-							this.ptr += 44;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(floor.ThinkerState));
+							this.writer.Write((int) floor.Type);
+							this.writer.Write(floor.Crush ? 1 : 0);
+							this.writer.Write(floor.Sector.Number);
+							this.writer.Write(floor.Direction);
+							this.writer.Write((int) floor.NewSpecial);
+							this.writer.Write(floor.Texture);
+							this.writer.Write(floor.FloorDestHeight.Data);
+							this.writer.Write(floor.Speed.Data);
 
 							continue;
 						}
@@ -353,21 +355,21 @@ namespace DoomEngine.Doom.Game
 
 						if (plat != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Plat;
+							this.writer.Write((byte) SpecialClass.Plat);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, plat.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, plat.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 16, plat.Speed.Data);
-							SaveGame.Write(this.data, this.ptr + 20, plat.Low.Data);
-							SaveGame.Write(this.data, this.ptr + 24, plat.High.Data);
-							SaveGame.Write(this.data, this.ptr + 28, plat.Wait);
-							SaveGame.Write(this.data, this.ptr + 32, plat.Count);
-							SaveGame.Write(this.data, this.ptr + 36, (int) plat.Status);
-							SaveGame.Write(this.data, this.ptr + 40, (int) plat.OldStatus);
-							SaveGame.Write(this.data, this.ptr + 44, plat.Crush ? 1 : 0);
-							SaveGame.Write(this.data, this.ptr + 48, plat.Tag);
-							SaveGame.Write(this.data, this.ptr + 52, (int) plat.Type);
-							this.ptr += 56;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(plat.ThinkerState));
+							this.writer.Write(plat.Sector.Number);
+							this.writer.Write(plat.Speed.Data);
+							this.writer.Write(plat.Low.Data);
+							this.writer.Write(plat.High.Data);
+							this.writer.Write(plat.Wait);
+							this.writer.Write(plat.Count);
+							this.writer.Write((int) plat.Status);
+							this.writer.Write((int) plat.OldStatus);
+							this.writer.Write(plat.Crush ? 1 : 0);
+							this.writer.Write(plat.Tag);
+							this.writer.Write((int) plat.Type);
 
 							continue;
 						}
@@ -378,16 +380,16 @@ namespace DoomEngine.Doom.Game
 
 						if (flash != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Flash;
+							this.writer.Write((byte) SpecialClass.Flash);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, flash.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, flash.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 16, flash.Count);
-							SaveGame.Write(this.data, this.ptr + 20, flash.MaxLight);
-							SaveGame.Write(this.data, this.ptr + 24, flash.MinLight);
-							SaveGame.Write(this.data, this.ptr + 28, flash.MaxTime);
-							SaveGame.Write(this.data, this.ptr + 32, flash.MinTime);
-							this.ptr += 36;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(flash.ThinkerState));
+							this.writer.Write(flash.Sector.Number);
+							this.writer.Write(flash.Count);
+							this.writer.Write(flash.MaxLight);
+							this.writer.Write(flash.MinLight);
+							this.writer.Write(flash.MaxTime);
+							this.writer.Write(flash.MinTime); 
 
 							continue;
 						}
@@ -398,16 +400,16 @@ namespace DoomEngine.Doom.Game
 
 						if (strobe != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Strobe;
+							this.writer.Write((byte) SpecialClass.Strobe);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, strobe.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, strobe.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 16, strobe.Count);
-							SaveGame.Write(this.data, this.ptr + 20, strobe.MinLight);
-							SaveGame.Write(this.data, this.ptr + 24, strobe.MaxLight);
-							SaveGame.Write(this.data, this.ptr + 28, strobe.DarkTime);
-							SaveGame.Write(this.data, this.ptr + 32, strobe.BrightTime);
-							this.ptr += 36;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(strobe.ThinkerState));
+							this.writer.Write(strobe.Sector.Number);
+							this.writer.Write(strobe.Count);
+							this.writer.Write(strobe.MinLight);
+							this.writer.Write(strobe.MaxLight);
+							this.writer.Write(strobe.DarkTime);
+							this.writer.Write(strobe.BrightTime);
 
 							continue;
 						}
@@ -418,183 +420,152 @@ namespace DoomEngine.Doom.Game
 
 						if (glow != null)
 						{
-							this.data[this.ptr++] = (byte) SpecialClass.Glow;
+							this.writer.Write((byte) SpecialClass.Glow);
 							this.PadPointer();
-							SaveGame.WriteThinkerState(this.data, this.ptr + 8, glow.ThinkerState);
-							SaveGame.Write(this.data, this.ptr + 12, glow.Sector.Number);
-							SaveGame.Write(this.data, this.ptr + 16, glow.MinLight);
-							SaveGame.Write(this.data, this.ptr + 20, glow.MaxLight);
-							SaveGame.Write(this.data, this.ptr + 24, glow.Direction);
-							this.ptr += 28;
+							this.writer.BaseStream.Position += 8;
+							this.writer.Write(SaveGame.GetThinkerState(glow.ThinkerState));
+							this.writer.Write(glow.Sector.Number);
+							this.writer.Write(glow.MinLight);
+							this.writer.Write(glow.MaxLight);
+							this.writer.Write(glow.Direction);
 
 							continue;
 						}
 					}
 				}
 
-				this.data[this.ptr++] = (byte) SpecialClass.EndSpecials;
+				this.writer.Write((byte) SpecialClass.EndSpecials);
 			}
 
-			private static int ArchivePlayer(Player player, byte[] data, int p)
+			private void ArchivePlayer(Player player)
 			{
-				SaveGame.Write(data, p + 4, (int) player.PlayerState);
-				SaveGame.Write(data, p + 16, player.ViewZ.Data);
-				SaveGame.Write(data, p + 20, player.ViewHeight.Data);
-				SaveGame.Write(data, p + 24, player.DeltaViewHeight.Data);
-				SaveGame.Write(data, p + 28, player.Bob.Data);
-				SaveGame.Write(data, p + 32, player.Health);
-				SaveGame.Write(data, p + 36, player.ArmorPoints);
-				SaveGame.Write(data, p + 40, player.ArmorType);
+				this.writer.BaseStream.Position += 4;
+				this.writer.Write((int) player.PlayerState);
+				this.writer.BaseStream.Position += 8;
+				this.writer.Write(player.ViewZ.Data);
+				this.writer.Write(player.ViewHeight.Data);
+				this.writer.Write(player.DeltaViewHeight.Data);
+				this.writer.Write(player.Bob.Data);
+				this.writer.Write(player.Health);
+				this.writer.Write(player.ArmorPoints);
+				this.writer.Write(player.ArmorType);
 
 				for (var i = 0; i < (int) PowerType.Count; i++)
 				{
-					SaveGame.Write(data, p + 44 + 4 * i, player.Powers[i]);
+					this.writer.Write(player.Powers[i]);
 				}
 
 				for (var i = 0; i < (int) PowerType.Count; i++)
 				{
-					SaveGame.Write(data, p + 68 + 4 * i, player.Cards[i] ? 1 : 0);
+					this.writer.Write(player.Cards[i] ? 1 : 0);
 				}
 
-				SaveGame.Write(data, p + 92, player.Backpack ? 1 : 0);
+				this.writer.Write(player.Backpack ? 1 : 0);
 
 				for (var i = 0; i < Player.MaxPlayerCount; i++)
 				{
-					SaveGame.Write(data, p + 96 + 4 * i, player.Frags[i]);
+					this.writer.Write(player.Frags[i]);
 				}
 
-				SaveGame.Write(data, p + 112, (int) player.ReadyWeapon);
-				SaveGame.Write(data, p + 116, (int) player.PendingWeapon);
+				this.writer.Write((int) player.ReadyWeapon);
+				this.writer.Write((int) player.PendingWeapon);
 
 				for (var i = 0; i < (int) WeaponType.Count; i++)
 				{
-					SaveGame.Write(data, p + 120 + 4 * i, player.WeaponOwned[i] ? 1 : 0);
+					this.writer.Write(player.WeaponOwned[i] ? 1 : 0);
 				}
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{
-					SaveGame.Write(data, p + 156 + 4 * i, player.Ammo[i]);
+					this.writer.Write(player.Ammo[i]);
 				}
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{
-					SaveGame.Write(data, p + 172 + 4 * i, player.MaxAmmo[i]);
+					this.writer.Write(player.MaxAmmo[i]);
 				}
 
-				SaveGame.Write(data, p + 188, player.AttackDown ? 1 : 0);
-				SaveGame.Write(data, p + 192, player.UseDown ? 1 : 0);
-				SaveGame.Write(data, p + 196, (int) player.Cheats);
-				SaveGame.Write(data, p + 200, player.Refire);
-				SaveGame.Write(data, p + 204, player.KillCount);
-				SaveGame.Write(data, p + 208, player.ItemCount);
-				SaveGame.Write(data, p + 212, player.SecretCount);
-				SaveGame.Write(data, p + 220, player.DamageCount);
-				SaveGame.Write(data, p + 224, player.BonusCount);
-				SaveGame.Write(data, p + 232, player.ExtraLight);
-				SaveGame.Write(data, p + 236, player.FixedColorMap);
-				SaveGame.Write(data, p + 240, player.ColorMap);
+				this.writer.Write(player.AttackDown ? 1 : 0);
+				this.writer.Write(player.UseDown ? 1 : 0);
+				this.writer.Write((int) player.Cheats);
+				this.writer.Write(player.Refire);
+				this.writer.Write(player.KillCount);
+				this.writer.Write(player.ItemCount);
+				this.writer.Write(player.SecretCount);
+				this.writer.BaseStream.Position += 4;
+				this.writer.Write(player.DamageCount);
+				this.writer.Write(player.BonusCount);
+				this.writer.BaseStream.Position += 4;
+				this.writer.Write(player.ExtraLight);
+				this.writer.Write(player.FixedColorMap);
+				this.writer.Write(player.ColorMap);
 
 				for (var i = 0; i < (int) PlayerSprite.Count; i++)
 				{
 					if (player.PlayerSprites[i].State == null)
 					{
-						SaveGame.Write(data, p + 244 + 16 * i, 0);
+						this.writer.Write(0);
 					}
 					else
 					{
-						SaveGame.Write(data, p + 244 + 16 * i, player.PlayerSprites[i].State.Number);
+						this.writer.Write(player.PlayerSprites[i].State.Number);
 					}
 
-					SaveGame.Write(data, p + 244 + 16 * i + 4, player.PlayerSprites[i].Tics);
-					SaveGame.Write(data, p + 244 + 16 * i + 8, player.PlayerSprites[i].Sx.Data);
-					SaveGame.Write(data, p + 244 + 16 * i + 12, player.PlayerSprites[i].Sy.Data);
+					this.writer.Write(player.PlayerSprites[i].Tics);
+					this.writer.Write(player.PlayerSprites[i].Sx.Data);
+					this.writer.Write(player.PlayerSprites[i].Sy.Data);
 				}
 
-				SaveGame.Write(data, p + 276, player.DidSecret ? 1 : 0);
-
-				return p + 280;
+				this.writer.Write(player.DidSecret ? 1 : 0);
 			}
 
-			private static int ArchiveSector(Sector sector, byte[] data, int p)
+			private void ArchiveSector(Sector sector)
 			{
-				SaveGame.Write(data, p, (short) (sector.FloorHeight.ToIntFloor()));
-				SaveGame.Write(data, p + 2, (short) (sector.CeilingHeight.ToIntFloor()));
-				SaveGame.Write(data, p + 4, (short) sector.FloorFlat);
-				SaveGame.Write(data, p + 6, (short) sector.CeilingFlat);
-				SaveGame.Write(data, p + 8, (short) sector.LightLevel);
-				SaveGame.Write(data, p + 10, (short) sector.Special);
-				SaveGame.Write(data, p + 12, (short) sector.Tag);
-
-				return p + 14;
+				this.writer.Write((short) (sector.FloorHeight.ToIntFloor()));
+				this.writer.Write((short) (sector.CeilingHeight.ToIntFloor()));
+				this.writer.Write((short) sector.FloorFlat);
+				this.writer.Write((short) sector.CeilingFlat);
+				this.writer.Write((short) sector.LightLevel);
+				this.writer.Write((short) sector.Special);
+				this.writer.Write((short) sector.Tag);
 			}
 
-			private static int ArchiveLine(LineDef line, byte[] data, int p)
+			private void ArchiveLine(LineDef line)
 			{
-				SaveGame.Write(data, p, (short) line.Flags);
-				SaveGame.Write(data, p + 2, (short) line.Special);
-				SaveGame.Write(data, p + 4, (short) line.Tag);
-				p += 6;
+				this.writer.Write((short) line.Flags);
+				this.writer.Write((short) line.Special);
+				this.writer.Write((short) line.Tag);
 
 				if (line.FrontSide != null)
 				{
 					var side = line.FrontSide;
-					SaveGame.Write(data, p, (short) side.TextureOffset.ToIntFloor());
-					SaveGame.Write(data, p + 2, (short) side.RowOffset.ToIntFloor());
-					SaveGame.Write(data, p + 4, (short) side.TopTexture);
-					SaveGame.Write(data, p + 6, (short) side.BottomTexture);
-					SaveGame.Write(data, p + 8, (short) side.MiddleTexture);
-					p += 10;
+					this.writer.Write((short) side.TextureOffset.ToIntFloor());
+					this.writer.Write((short) side.RowOffset.ToIntFloor());
+					this.writer.Write((short) side.TopTexture);
+					this.writer.Write((short) side.BottomTexture);
+					this.writer.Write((short) side.MiddleTexture);
 				}
 
 				if (line.BackSide != null)
 				{
 					var side = line.BackSide;
-					SaveGame.Write(data, p, (short) side.TextureOffset.ToIntFloor());
-					SaveGame.Write(data, p + 2, (short) side.RowOffset.ToIntFloor());
-					SaveGame.Write(data, p + 4, (short) side.TopTexture);
-					SaveGame.Write(data, p + 6, (short) side.BottomTexture);
-					SaveGame.Write(data, p + 8, (short) side.MiddleTexture);
-					p += 10;
+					this.writer.Write((short) side.TextureOffset.ToIntFloor());
+					this.writer.Write((short) side.RowOffset.ToIntFloor());
+					this.writer.Write((short) side.TopTexture);
+					this.writer.Write((short) side.BottomTexture);
+					this.writer.Write((short) side.MiddleTexture);
 				}
-
-				return p;
 			}
 
-			private static void Write(byte[] data, int p, int value)
-			{
-				data[p] = (byte) value;
-				data[p + 1] = (byte) (value >> 8);
-				data[p + 2] = (byte) (value >> 16);
-				data[p + 3] = (byte) (value >> 24);
-			}
-
-			private static void Write(byte[] data, int p, uint value)
-			{
-				data[p] = (byte) value;
-				data[p + 1] = (byte) (value >> 8);
-				data[p + 2] = (byte) (value >> 16);
-				data[p + 3] = (byte) (value >> 24);
-			}
-
-			private static void Write(byte[] data, int p, short value)
-			{
-				data[p] = (byte) value;
-				data[p + 1] = (byte) (value >> 8);
-			}
-
-			private static void WriteThinkerState(byte[] data, int p, ThinkerState state)
+			private static int GetThinkerState(ThinkerState state)
 			{
 				switch (state)
 				{
 					case ThinkerState.InStasis:
-						SaveGame.Write(data, p, 0);
-
-						break;
+						return 0;
 
 					default:
-						SaveGame.Write(data, p, 1);
-
-						break;
+						return 1;
 				}
 			}
 		}
