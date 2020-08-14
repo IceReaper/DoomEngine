@@ -16,11 +16,13 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Entities;
 	using Game;
 	using Graphics;
 	using Info;
 	using Math;
 	using System;
+	using System.Linq;
 
 	public sealed class ItemPickup
 	{
@@ -91,50 +93,28 @@ namespace DoomEngine.Doom.World
 			switch (ammo)
 			{
 				case AmmoType.Clip:
-					if (player.ReadyWeapon == WeaponType.Fist)
-					{
-						if (player.WeaponOwned[(int) WeaponType.Chaingun])
-						{
-							player.PendingWeapon = WeaponType.Chaingun;
-						}
-						else
-						{
-							player.PendingWeapon = WeaponType.Pistol;
-						}
-					}
+					if (player.ReadyWeapon is WeaponFists)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponChaingun)
+							?? player.WeaponOwned.First(weapon => weapon is WeaponPistol);
 
 					break;
 
 				case AmmoType.Shell:
-					if (player.ReadyWeapon == WeaponType.Fist || player.ReadyWeapon == WeaponType.Pistol)
-					{
-						if (player.WeaponOwned[(int) WeaponType.Shotgun])
-						{
-							player.PendingWeapon = WeaponType.Shotgun;
-						}
-					}
+					if (player.ReadyWeapon is WeaponFists || player.ReadyWeapon is WeaponPistol)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponShotgun)
+							?? player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponSuperShotgun) ?? player.PendingWeapon;
 
 					break;
 
 				case AmmoType.Cell:
-					if (player.ReadyWeapon == WeaponType.Fist || player.ReadyWeapon == WeaponType.Pistol)
-					{
-						if (player.WeaponOwned[(int) WeaponType.Plasma])
-						{
-							player.PendingWeapon = WeaponType.Plasma;
-						}
-					}
+					if (player.ReadyWeapon is WeaponFists || player.ReadyWeapon is WeaponPistol)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponPlasmaGun) ?? player.PendingWeapon;
 
 					break;
 
 				case AmmoType.Missile:
-					if (player.ReadyWeapon == WeaponType.Fist)
-					{
-						if (player.WeaponOwned[(int) WeaponType.Missile])
-						{
-							player.PendingWeapon = WeaponType.Missile;
-						}
-					}
+					if (player.ReadyWeapon is WeaponFists)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponRocketLauncher) ?? player.PendingWeapon;
 
 					break;
 
@@ -153,69 +133,49 @@ namespace DoomEngine.Doom.World
 		/// <param name="dropped">
 		/// True if the weapons is dropped by a monster.
 		/// </param>
-		public bool GiveWeapon(Player player, WeaponType weapon, bool dropped)
+		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
+			var weaponClass = $"Weapon{weaponName}";
+			var weapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.GetType().Name == weaponClass);
+
 			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
 			{
 				// Leave placed weapons forever on net games.
-				if (player.WeaponOwned[(int) weapon])
-				{
+				if (weapon != null)
 					return false;
-				}
+
+				weapon = (Weapon) Entity.Create(weaponClass);
 
 				player.BonusCount += ItemPickup.bonusAdd;
-				player.WeaponOwned[(int) weapon] = true;
+				player.WeaponOwned.Add(weapon);
 
-				if (this.world.Options.Deathmatch != 0)
-				{
-					this.GiveAmmo(player, DoomInfo.WeaponInfos[(int) weapon].Ammo, 5);
-				}
-				else
-				{
-					this.GiveAmmo(player, DoomInfo.WeaponInfos[(int) weapon].Ammo, 2);
-				}
+				this.GiveAmmo(player, weapon.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
 
 				player.PendingWeapon = weapon;
 
 				if (player == this.world.ConsolePlayer)
-				{
 					this.world.StartSound(player.Mobj, Sfx.WPNUP, SfxType.Misc);
-				}
 
 				return false;
 			}
 
-			bool gaveAmmo;
-
-			if (DoomInfo.WeaponInfos[(int) weapon].Ammo != AmmoType.NoAmmo)
-			{
-				// Give one clip with a dropped weapon, two clips with a found weapon.
-				if (dropped)
-				{
-					gaveAmmo = this.GiveAmmo(player, DoomInfo.WeaponInfos[(int) weapon].Ammo, 1);
-				}
-				else
-				{
-					gaveAmmo = this.GiveAmmo(player, DoomInfo.WeaponInfos[(int) weapon].Ammo, 2);
-				}
-			}
-			else
-			{
-				gaveAmmo = false;
-			}
-
 			bool gaveWeapon;
 
-			if (player.WeaponOwned[(int) weapon])
+			if (weapon != null)
 			{
 				gaveWeapon = false;
 			}
 			else
 			{
 				gaveWeapon = true;
-				player.WeaponOwned[(int) weapon] = true;
+				weapon = (Weapon) Entity.Create(weaponClass);
+				player.WeaponOwned.Add(weapon);
 				player.PendingWeapon = weapon;
 			}
+
+			bool gaveAmmo;
+
+			gaveAmmo = weapon.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, weapon.Ammo, dropped ? 1 : 2);
 
 			return (gaveWeapon || gaveAmmo);
 		}
@@ -585,9 +545,11 @@ namespace DoomEngine.Doom.World
 
 					player.SendMessage(DoomInfo.Strings.GOTBERSERK);
 
-					if (player.ReadyWeapon != WeaponType.Fist)
+					var fists = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponFists);
+
+					if (fists != null && player.ReadyWeapon != fists)
 					{
-						player.PendingWeapon = WeaponType.Fist;
+						player.PendingWeapon = fists;
 					}
 
 					sound = Sfx.GETPOW;
@@ -751,7 +713,7 @@ namespace DoomEngine.Doom.World
 
 				// Weapons.
 				case Sprite.BFUG:
-					if (!this.GiveWeapon(player, WeaponType.Bfg, false))
+					if (!this.GiveWeapon(player, "Bfg", false))
 					{
 						return;
 					}
@@ -762,7 +724,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.MGUN:
-					if (!this.GiveWeapon(player, WeaponType.Chaingun, (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, "Chaingun", (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}
@@ -773,7 +735,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.CSAW:
-					if (!this.GiveWeapon(player, WeaponType.Chainsaw, false))
+					if (!this.GiveWeapon(player, "Chainsaw", false))
 					{
 						return;
 					}
@@ -784,7 +746,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.LAUN:
-					if (!this.GiveWeapon(player, WeaponType.Missile, false))
+					if (!this.GiveWeapon(player, "RocketLauncher", false))
 					{
 						return;
 					}
@@ -795,7 +757,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.PLAS:
-					if (!this.GiveWeapon(player, WeaponType.Plasma, false))
+					if (!this.GiveWeapon(player, "PlasmaGun", false))
 					{
 						return;
 					}
@@ -806,7 +768,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SHOT:
-					if (!this.GiveWeapon(player, WeaponType.Shotgun, (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, "Shotgun", (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}
@@ -817,7 +779,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SGN2:
-					if (!this.GiveWeapon(player, WeaponType.SuperShotgun, (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, "SuperShotgun", (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}

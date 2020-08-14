@@ -16,11 +16,13 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Entities;
 	using Game;
 	using Graphics;
 	using Info;
 	using Math;
 	using System;
+	using System.Linq;
 
 	public sealed class PlayerBehavior
 	{
@@ -114,30 +116,15 @@ namespace DoomEngine.Doom.World
 			{
 				// The actual changing of the weapon is done when the weapon psprite can do it.
 				// Not in the middle of an attack.
-				var newWeapon = (cmd.Buttons & TicCmdButtons.WeaponMask) >> TicCmdButtons.WeaponShift;
+				var slot = (cmd.Buttons & TicCmdButtons.WeaponMask) >> TicCmdButtons.WeaponShift;
+				var weapons = player.WeaponOwned.Where(weapon => weapon.Slot == slot + 1).ToArray();
 
-				if (newWeapon == (int) WeaponType.Fist
-					&& player.WeaponOwned[(int) WeaponType.Chainsaw]
-					&& !(player.ReadyWeapon == WeaponType.Chainsaw && player.Powers[(int) PowerType.Strength] != 0))
+				if (weapons.Length > 0)
 				{
-					newWeapon = (int) WeaponType.Chainsaw;
-				}
+					var nextWeapon = weapons[weapons.Contains(player.ReadyWeapon) ? (Array.IndexOf(weapons, player.ReadyWeapon) + 1) % weapons.Length : 0];
 
-				if ((DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
-					&& newWeapon == (int) WeaponType.Shotgun
-					&& player.WeaponOwned[(int) WeaponType.SuperShotgun]
-					&& player.ReadyWeapon != WeaponType.SuperShotgun)
-				{
-					newWeapon = (int) WeaponType.SuperShotgun;
-				}
-
-				if (player.WeaponOwned[newWeapon] && newWeapon != (int) player.ReadyWeapon)
-				{
-					// Do not go to plasma or BFG in shareware, even if cheated.
-					if ((newWeapon != (int) WeaponType.Plasma && newWeapon != (int) WeaponType.Bfg) || (DoomApplication.Instance.IWad != "doom1"))
-					{
-						player.PendingWeapon = (WeaponType) newWeapon;
-					}
+					if (player.ReadyWeapon != nextWeapon)
+						player.PendingWeapon = nextWeapon;
 				}
 			}
 
@@ -513,19 +500,19 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void BringUpWeapon(Player player)
 		{
-			if (player.PendingWeapon == WeaponType.NoChange)
+			if (player.PendingWeapon == null)
 			{
 				player.PendingWeapon = player.ReadyWeapon;
 			}
 
-			if (player.PendingWeapon == WeaponType.Chainsaw)
+			if (player.PendingWeapon is WeaponChainsaw)
 			{
 				this.world.StartSound(player.Mobj, Sfx.SAWUP, SfxType.Weapon);
 			}
 
-			var newState = DoomInfo.WeaponInfos[(int) player.PendingWeapon].UpState;
+			var newState = player.PendingWeapon.UpState;
 
-			player.PendingWeapon = WeaponType.NoChange;
+			player.PendingWeapon = null;
 			player.PlayerSprites[(int) PlayerSprite.Weapon].Sy = WeaponBehavior.WeaponBottom;
 
 			this.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
@@ -616,7 +603,7 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void DropWeapon(Player player)
 		{
-			this.SetPlayerSprite(player, PlayerSprite.Weapon, DoomInfo.WeaponInfos[(int) player.ReadyWeapon].DownState);
+			this.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.DownState);
 		}
 
 		////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@
 
 namespace DoomEngine.Doom.World
 {
+	using DoomEngine.Game.Entities;
 	using Event;
 	using Game;
 	using Info;
@@ -35,7 +36,6 @@ namespace DoomEngine.Doom.World
 			Tuple.Create("iddt", (Action<Cheat, string>) ((cheat, typed) => cheat.FullMap())),
 			Tuple.Create("idbehold", (Action<Cheat, string>) ((cheat, typed) => cheat.ShowPowerUpList())),
 			Tuple.Create("idbehold?", (Action<Cheat, string>) ((cheat, typed) => cheat.DoPowerUp(typed))),
-			Tuple.Create("idchoppers", (Action<Cheat, string>) ((cheat, typed) => cheat.GiveChainsaw())),
 			Tuple.Create("tntem", (Action<Cheat, string>) ((cheat, typed) => cheat.KillMonsters())),
 			Tuple.Create("killem", (Action<Cheat, string>) ((cheat, typed) => cheat.KillMonsters())),
 			Tuple.Create("fhhall", (Action<Cheat, string>) ((cheat, typed) => cheat.KillMonsters())),
@@ -125,27 +125,12 @@ namespace DoomEngine.Doom.World
 		{
 			var player = this.world.ConsolePlayer;
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			foreach (var weapon in AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(assembly => assembly.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Weapon))))
+				.Select(type => type.Name))
 			{
-				for (var i = 0; i < (int) WeaponType.Count; i++)
-				{
-					player.WeaponOwned[i] = true;
-				}
-			}
-			else
-			{
-				for (var i = 0; i <= (int) WeaponType.Missile; i++)
-				{
-					player.WeaponOwned[i] = true;
-				}
-
-				player.WeaponOwned[(int) WeaponType.Chainsaw] = true;
-
-				if (DoomApplication.Instance.IWad != "doom1")
-				{
-					player.WeaponOwned[(int) WeaponType.Plasma] = true;
-					player.WeaponOwned[(int) WeaponType.Bfg] = true;
-				}
+				if (player.WeaponOwned.All(ownedWeapon => ownedWeapon.GetType().Name != weapon))
+					player.WeaponOwned.Add((Weapon) Entity.Create(weapon));
 			}
 
 			player.Backpack = true;
@@ -352,13 +337,6 @@ namespace DoomEngine.Doom.World
 			}
 
 			player.SendMessage(DoomInfo.Strings.STSTR_BEHOLDX);
-		}
-
-		private void GiveChainsaw()
-		{
-			var player = this.world.ConsolePlayer;
-			player.WeaponOwned[(int) WeaponType.Chainsaw] = true;
-			player.SendMessage(DoomInfo.Strings.STSTR_CHOPPERS);
 		}
 
 		private void KillMonsters()

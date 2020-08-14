@@ -96,11 +96,6 @@ namespace DoomEngine
 				this.window.Clear(Color.FromArgb(64, 64, 64));
 				this.window.Display();
 
-				if (args.deh.Present)
-				{
-					DeHackEd.ReadFiles(args.deh.Value);
-				}
-
 				this.Resource = new CommonResource();
 
 				this.renderer = platform.CreateRenderer(this.config, this.window, this.Resource);

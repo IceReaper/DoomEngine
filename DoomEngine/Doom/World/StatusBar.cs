@@ -16,10 +16,11 @@
 namespace DoomEngine.Doom.World
 {
 	using Common;
+	using DoomEngine.Game.Entities;
 	using Game;
-	using Info;
 	using Math;
-	using System;
+	using System.Collections.Generic;
+	using System.Linq;
 
 	public sealed class StatusBar
 	{
@@ -29,7 +30,7 @@ namespace DoomEngine.Doom.World
 		private int oldHealth;
 
 		// Used for evil grin.
-		private bool[] oldWeaponsOwned;
+		private List<Weapon> oldWeaponsOwned = new List<Weapon>();
 
 		// Count until face changes.
 		private int faceCount;
@@ -52,8 +53,8 @@ namespace DoomEngine.Doom.World
 			this.world = world;
 
 			this.oldHealth = -1;
-			this.oldWeaponsOwned = new bool[DoomInfo.WeaponInfos.Length];
-			Array.Copy(world.ConsolePlayer.WeaponOwned, this.oldWeaponsOwned, DoomInfo.WeaponInfos.Length);
+			this.oldWeaponsOwned.Clear();
+			this.oldWeaponsOwned.AddRange(world.ConsolePlayer.WeaponOwned);
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -67,7 +68,7 @@ namespace DoomEngine.Doom.World
 		public void Reset()
 		{
 			this.oldHealth = -1;
-			Array.Copy(this.world.ConsolePlayer.WeaponOwned, this.oldWeaponsOwned, DoomInfo.WeaponInfos.Length);
+			this.oldWeaponsOwned.AddRange(this.world.ConsolePlayer.WeaponOwned);
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -104,13 +105,10 @@ namespace DoomEngine.Doom.World
 					// Picking up bonus.
 					var doEvilGrin = false;
 
-					for (var i = 0; i < DoomInfo.WeaponInfos.Length; i++)
+					foreach (var weapon in player.WeaponOwned.Where(weapon => !this.oldWeaponsOwned.Contains(weapon)))
 					{
-						if (this.oldWeaponsOwned[i] != player.WeaponOwned[i])
-						{
-							doEvilGrin = true;
-							this.oldWeaponsOwned[i] = player.WeaponOwned[i];
-						}
+						doEvilGrin = true;
+						this.oldWeaponsOwned.Add(weapon);
 					}
 
 					if (doEvilGrin)

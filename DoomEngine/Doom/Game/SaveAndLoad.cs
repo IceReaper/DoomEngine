@@ -16,12 +16,14 @@
 namespace DoomEngine.Doom.Game
 {
 	using Common;
+	using DoomEngine.Game.Entities;
 	using Graphics;
 	using Info;
 	using Map;
 	using Math;
 	using System;
 	using System.IO;
+	using System.Linq;
 	using World;
 
 	/// <summary>
@@ -467,13 +469,16 @@ namespace DoomEngine.Doom.Game
 					this.writer.Write(player.Frags[i]);
 				}
 
-				this.writer.Write((int) player.ReadyWeapon);
-				this.writer.Write((int) player.PendingWeapon);
+				this.writer.Write(player.WeaponOwned.Count);
 
-				for (var i = 0; i < (int) WeaponType.Count; i++)
+				foreach (var weapon in player.WeaponOwned)
 				{
-					this.writer.Write(player.WeaponOwned[i] ? 1 : 0);
+					this.writer.Write(weapon.GetType().Name);
+					weapon.Serialize(this.writer);
 				}
+
+				this.writer.Write(player.ReadyWeapon.GetType().Name);
+				this.writer.Write(player.PendingWeapon.GetType().Name);
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{
@@ -969,13 +974,20 @@ namespace DoomEngine.Doom.Game
 					player.Frags[i] = this.reader.ReadInt32();
 				}
 
-				player.ReadyWeapon = (WeaponType) this.reader.ReadInt32();
-				player.PendingWeapon = (WeaponType) this.reader.ReadInt32();
+				var numWeapons = this.reader.ReadInt32();
 
-				for (var i = 0; i < (int) WeaponType.Count; i++)
+				for (var i = 0; i < numWeapons; i++)
 				{
-					player.WeaponOwned[i] = this.reader.ReadInt32() != 0;
+					var entity = Entity.Create(this.reader.ReadString());
+					entity.Deserialize(this.reader);
+					player.WeaponOwned.Add((Weapon) entity);
 				}
+
+				var readyWeapon = this.reader.ReadString();
+				player.ReadyWeapon = player.WeaponOwned.First(weapon => weapon.GetType().Name == readyWeapon);
+				
+				var pendingWeapon = this.reader.ReadString();
+				player.PendingWeapon = player.WeaponOwned.First(weapon => weapon.GetType().Name == pendingWeapon);
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{

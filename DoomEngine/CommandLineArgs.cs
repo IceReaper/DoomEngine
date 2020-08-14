@@ -22,7 +22,6 @@ namespace DoomEngine
 	{
 		public readonly Arg<string> iwad;
 		public readonly Arg<string[]> file;
-		public readonly Arg<string[]> deh;
 
 		public readonly Arg<Tuple<int, int>> warp;
 		public readonly Arg<int> skill;
@@ -47,7 +46,6 @@ namespace DoomEngine
 		{
 			this.iwad = CommandLineArgs.GetString(args, "-iwad");
 			this.file = CommandLineArgs.Check_file(args);
-			this.deh = CommandLineArgs.Check_deh(args);
 
 			this.warp = CommandLineArgs.Check_warp(args);
 			this.skill = CommandLineArgs.GetInt(args, "-skill");
@@ -72,18 +70,6 @@ namespace DoomEngine
 		private static Arg<string[]> Check_file(string[] args)
 		{
 			var values = CommandLineArgs.GetValues(args, "-file");
-
-			if (values.Length >= 1)
-			{
-				return new Arg<string[]>(values);
-			}
-
-			return new Arg<string[]>();
-		}
-
-		private static Arg<string[]> Check_deh(string[] args)
-		{
-			var values = CommandLineArgs.GetValues(args, "-deh");
 
 			if (values.Length >= 1)
 			{

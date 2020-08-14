@@ -15,9 +15,11 @@
 
 namespace DoomEngine.Doom.Game
 {
+	using DoomEngine.Game.Entities;
 	using Info;
 	using Math;
 	using System;
+	using System.Collections.Generic;
 	using World;
 
 	public sealed class Player
@@ -66,12 +68,12 @@ namespace DoomEngine.Doom.Game
 		// Frags, kills of other players.
 		private int[] frags;
 
-		private WeaponType readyWeapon;
+		public Weapon ReadyWeapon;
 
 		// Is WeanponType.NoChange if not changing.
-		private WeaponType pendingWeapon;
+		public Weapon PendingWeapon;
 
-		private bool[] weaponOwned;
+		public List<Weapon> WeaponOwned = new List<Weapon>();
 		private int[] ammo;
 		private int[] maxAmmo;
 
@@ -131,7 +133,6 @@ namespace DoomEngine.Doom.Game
 
 			this.frags = new int[Player.MaxPlayerCount];
 
-			this.weaponOwned = new bool[(int) WeaponType.Count];
 			this.ammo = new int[(int) AmmoType.Count];
 			this.maxAmmo = new int[(int) AmmoType.Count];
 
@@ -164,10 +165,10 @@ namespace DoomEngine.Doom.Game
 
 			Array.Clear(this.frags, 0, this.frags.Length);
 
-			this.readyWeapon = 0;
-			this.pendingWeapon = 0;
+			this.ReadyWeapon = null;
+			this.PendingWeapon = null;
 
-			Array.Clear(this.weaponOwned, 0, this.weaponOwned.Length);
+			this.WeaponOwned.Clear();
 			Array.Clear(this.ammo, 0, this.ammo.Length);
 			Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
 
@@ -223,15 +224,18 @@ namespace DoomEngine.Doom.Game
 			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
-			this.readyWeapon = WeaponType.Pistol;
-			this.pendingWeapon = WeaponType.Pistol;
+			this.WeaponOwned.Clear();
+			var fists = new WeaponFists();
+			var pistol = new WeaponPistol();
 
-			Array.Clear(this.weaponOwned, 0, this.weaponOwned.Length);
+			this.WeaponOwned.Add(fists);
+			this.WeaponOwned.Add(pistol);
+			this.ReadyWeapon = pistol;
+			this.PendingWeapon = pistol;
+
 			Array.Clear(this.ammo, 0, this.ammo.Length);
 			Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
 
-			this.weaponOwned[(int) WeaponType.Fist] = true;
-			this.weaponOwned[(int) WeaponType.Pistol] = true;
 			this.ammo[(int) AmmoType.Clip] = 50;
 
 			for (var i = 0; i < (int) AmmoType.Count; i++)
@@ -387,23 +391,6 @@ namespace DoomEngine.Doom.Game
 		public int[] Frags
 		{
 			get => this.frags;
-		}
-
-		public WeaponType ReadyWeapon
-		{
-			get => this.readyWeapon;
-			set => this.readyWeapon = value;
-		}
-
-		public WeaponType PendingWeapon
-		{
-			get => this.pendingWeapon;
-			set => this.pendingWeapon = value;
-		}
-
-		public bool[] WeaponOwned
-		{
-			get => this.weaponOwned;
 		}
 
 		public int[] Ammo
