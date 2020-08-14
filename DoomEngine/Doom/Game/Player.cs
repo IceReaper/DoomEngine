@@ -15,6 +15,7 @@
 
 namespace DoomEngine.Doom.Game
 {
+	using DoomEngine.Game;
 	using DoomEngine.Game.Entities;
 	using Info;
 	using Math;
@@ -68,12 +69,12 @@ namespace DoomEngine.Doom.Game
 		// Frags, kills of other players.
 		private int[] frags;
 
-		public Weapon ReadyWeapon;
+		public Entity ReadyWeapon;
 
 		// Is WeanponType.NoChange if not changing.
-		public Weapon PendingWeapon;
+		public Entity PendingWeapon;
 
-		public List<Weapon> WeaponOwned = new List<Weapon>();
+		public List<Entity> WeaponOwned = new List<Entity>();
 		private int[] ammo;
 		private int[] maxAmmo;
 

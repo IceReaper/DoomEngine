@@ -1,15 +1,22 @@
 namespace DoomEngine.Game.Entities
 {
+	using Audio;
+	using Components;
 	using Doom.World;
+	using System.Collections.Generic;
 
-	public class WeaponShotgun : Weapon
+	public class WeaponShotgun : Entity
 	{
-		public override int Slot => 3;
-		public override AmmoType Ammo => AmmoType.Shell;
-		public override MobjState UpState => MobjState.Sgunup;
-		public override MobjState DownState => MobjState.Sgundown;
-		public override MobjState ReadyState => MobjState.Sgun;
-		public override MobjState AttackState => MobjState.Sgun1;
-		public override MobjState FlashState => MobjState.Sgunflash1;
+		public WeaponShotgun()
+			: base(
+				new List<Component>
+				{
+					new WeaponComponent(3, MobjState.Sgunup, MobjState.Sgundown, MobjState.Sgun, MobjState.Sgun1, MobjState.Sgunflash1),
+					new AmmoComponent(AmmoType.Shell, 1),
+					new FireHitscanComponent(Sfx.SHOTGN, 7, 5, false)
+				}
+			)
+		{
+		}
 	}
 }

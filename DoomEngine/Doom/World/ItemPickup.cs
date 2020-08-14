@@ -16,6 +16,8 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Entities;
 	using Game;
 	using Graphics;
@@ -108,7 +110,7 @@ namespace DoomEngine.Doom.World
 
 				case AmmoType.Cell:
 					if (player.ReadyWeapon is WeaponFists || player.ReadyWeapon is WeaponPistol)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponPlasmaGun) ?? player.PendingWeapon;
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponPlasmagun) ?? player.PendingWeapon;
 
 					break;
 
@@ -137,6 +139,7 @@ namespace DoomEngine.Doom.World
 		{
 			var weaponClass = $"Weapon{weaponName}";
 			var weapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.GetType().Name == weaponClass);
+			var iConsumeAmmo = weapon?.GetComponents<AmmoComponent>().FirstOrDefault();
 
 			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
 			{
@@ -144,12 +147,14 @@ namespace DoomEngine.Doom.World
 				if (weapon != null)
 					return false;
 
-				weapon = (Weapon) Entity.Create(weaponClass);
+				weapon = Entity.Create(weaponClass);
+				iConsumeAmmo = weapon?.GetComponents<AmmoComponent>().FirstOrDefault();
 
 				player.BonusCount += ItemPickup.bonusAdd;
 				player.WeaponOwned.Add(weapon);
 
-				this.GiveAmmo(player, weapon.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
+				if (iConsumeAmmo != null)
+					this.GiveAmmo(player, iConsumeAmmo.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
 
 				player.PendingWeapon = weapon;
 
@@ -168,14 +173,15 @@ namespace DoomEngine.Doom.World
 			else
 			{
 				gaveWeapon = true;
-				weapon = (Weapon) Entity.Create(weaponClass);
+				weapon = Entity.Create(weaponClass);
 				player.WeaponOwned.Add(weapon);
 				player.PendingWeapon = weapon;
 			}
 
-			bool gaveAmmo;
+			var gaveAmmo = false;
 
-			gaveAmmo = weapon.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, weapon.Ammo, dropped ? 1 : 2);
+			if (iConsumeAmmo != null)
+				gaveAmmo = iConsumeAmmo.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, iConsumeAmmo.Ammo, dropped ? 1 : 2);
 
 			return (gaveWeapon || gaveAmmo);
 		}

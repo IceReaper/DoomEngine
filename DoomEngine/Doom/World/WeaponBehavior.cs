@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Entities;
 	using Game;
 	using Info;
@@ -34,11 +35,7 @@ namespace DoomEngine.Doom.World
 		private static readonly Fixed RaiseSpeed = Fixed.FromInt(6);
 		private static readonly Fixed LowerSpeed = Fixed.FromInt(6);
 
-		private static readonly int bfgCells = 40;
-
 		private World world;
-
-		private Fixed currentBulletSlope;
 
 		public WeaponBehavior(World world)
 		{
@@ -71,7 +68,7 @@ namespace DoomEngine.Doom.World
 			{
 				// Change weapon.
 				// Pending weapon should allready be validated.
-				var newState = player.ReadyWeapon.DownState;
+				var newState = player.ReadyWeapon.GetComponents<WeaponComponent>().First().DownState;
 				pb.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
 
 				return;
@@ -104,25 +101,18 @@ namespace DoomEngine.Doom.World
 
 		private bool CheckAmmo(Player player)
 		{
-			var ammo = player.ReadyWeapon.Ammo;
-
-			// Minimal amount for one shot varies.
+			AmmoType ammo;
 			int count;
 
-			if (player.ReadyWeapon is WeaponBfg)
+			var ammoComponent = player.ReadyWeapon.GetComponents<AmmoComponent>().FirstOrDefault();
+
+			if (ammoComponent != null)
 			{
-				count = WeaponBehavior.bfgCells;
-			}
-			else if (player.ReadyWeapon is WeaponSuperShotgun)
-			{
-				// Double barrel.
-				count = 2;
+				ammo = ammoComponent.Ammo;
+				count = ammoComponent.AmmoPerShot;
 			}
 			else
-			{
-				// Regular.
-				count = 1;
-			}
+				return true;
 
 			// Some do not need ammunition anyway.
 			// Return if current ammunition sufficient.
@@ -136,15 +126,15 @@ namespace DoomEngine.Doom.World
 			do
 			{
 				player.PendingWeapon =
-					player.WeaponOwned.Where(weapon => player.Ammo[(int) weapon.Ammo] > 0 && weapon != player.ReadyWeapon)
-						.OrderBy(weapon => -weapon.Slot)
+					player.WeaponOwned.Where(weapon => player.Ammo[(int) ammo] > 0 && weapon != player.ReadyWeapon)
+						.OrderBy(weapon => -weapon.GetComponents<WeaponComponent>().First().Slot)
 						.FirstOrDefault()
 					?? player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponChainsaw) ?? player.WeaponOwned.First(weapon => weapon is WeaponFists);
 			}
 			while (player.PendingWeapon == null);
 
 			// Now set appropriate weapon overlay.
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.DownState);
+			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.GetComponents<WeaponComponent>().First().DownState);
 
 			return false;
 		}
@@ -220,7 +210,7 @@ namespace DoomEngine.Doom.World
 
 			player.Mobj.SetState(MobjState.PlayAtk1);
 
-			var newState = player.ReadyWeapon.AttackState;
+			var newState = player.ReadyWeapon.GetComponents<WeaponComponent>().First().AttackState;
 			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
 
 			this.NoiseAlert(player.Mobj, player.Mobj);
@@ -274,92 +264,9 @@ namespace DoomEngine.Doom.World
 			psp.Sy = WeaponBehavior.WeaponTop;
 
 			// The weapon has been raised all the way, so change to the ready state.
-			var newState = player.ReadyWeapon.ReadyState;
+			var newState = player.ReadyWeapon.GetComponents<WeaponComponent>().First().ReadyState;
 
 			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
-		}
-
-		public void Punch(Player player)
-		{
-			var random = this.world.Random;
-
-			var damage = (random.Next() % 10 + 1) << 1;
-
-			if (player.Powers[(int) PowerType.Strength] != 0)
-			{
-				damage *= 10;
-			}
-
-			var hs = this.world.Hitscan;
-
-			var angle = player.Mobj.Angle;
-			angle += new Angle((random.Next() - random.Next()) << 18);
-
-			var slope = hs.AimLineAttack(player.Mobj, angle, WeaponBehavior.MeleeRange);
-			hs.LineAttack(player.Mobj, angle, WeaponBehavior.MeleeRange, slope, damage);
-
-			// Turn to face target.
-			if (hs.LineTarget != null)
-			{
-				this.world.StartSound(player.Mobj, Sfx.PUNCH, SfxType.Weapon);
-
-				player.Mobj.Angle = Geometry.PointToAngle(player.Mobj.X, player.Mobj.Y, hs.LineTarget.X, hs.LineTarget.Y);
-			}
-		}
-
-		public void Saw(Player player)
-		{
-			var damage = 2 * (this.world.Random.Next() % 10 + 1);
-
-			var random = this.world.Random;
-
-			var attackAngle = player.Mobj.Angle;
-			attackAngle += new Angle((random.Next() - random.Next()) << 18);
-
-			var hs = this.world.Hitscan;
-
-			// Use MeleeRange + Fixed.Epsilon so that the puff doesn't skip the flash.
-			var slope = hs.AimLineAttack(player.Mobj, attackAngle, WeaponBehavior.MeleeRange + Fixed.Epsilon);
-			hs.LineAttack(player.Mobj, attackAngle, WeaponBehavior.MeleeRange + Fixed.Epsilon, slope, damage);
-
-			if (hs.LineTarget == null)
-			{
-				this.world.StartSound(player.Mobj, Sfx.SAWFUL, SfxType.Weapon);
-
-				return;
-			}
-
-			this.world.StartSound(player.Mobj, Sfx.SAWHIT, SfxType.Weapon);
-
-			// Turn to face target.
-			var targetAngle = Geometry.PointToAngle(player.Mobj.X, player.Mobj.Y, hs.LineTarget.X, hs.LineTarget.Y);
-
-			if (targetAngle - player.Mobj.Angle > Angle.Ang180)
-			{
-				// The code below is based on Mocha Doom's implementation.
-				// It is still unclear for me why this code works like the original verion...
-				if ((int) (targetAngle - player.Mobj.Angle).Data < -Angle.Ang90.Data / 20)
-				{
-					player.Mobj.Angle = targetAngle + Angle.Ang90 / 21;
-				}
-				else
-				{
-					player.Mobj.Angle -= Angle.Ang90 / 20;
-				}
-			}
-			else
-			{
-				if (targetAngle - player.Mobj.Angle > Angle.Ang90 / 20)
-				{
-					player.Mobj.Angle = targetAngle - Angle.Ang90 / 21;
-				}
-				else
-				{
-					player.Mobj.Angle += Angle.Ang90 / 20;
-				}
-			}
-
-			player.Mobj.Flags |= MobjFlags.JustAttacked;
 		}
 
 		public void ReFire(Player player)
@@ -378,140 +285,14 @@ namespace DoomEngine.Doom.World
 			}
 		}
 
-		private void BulletSlope(Mobj mo)
-		{
-			var hs = this.world.Hitscan;
-
-			// See which target is to be aimed at.
-			var angle = mo.Angle;
-
-			this.currentBulletSlope = hs.AimLineAttack(mo, angle, Fixed.FromInt(1024));
-
-			if (hs.LineTarget == null)
-			{
-				angle += new Angle(1 << 26);
-				this.currentBulletSlope = hs.AimLineAttack(mo, angle, Fixed.FromInt(1024));
-
-				if (hs.LineTarget == null)
-				{
-					angle -= new Angle(2 << 26);
-					this.currentBulletSlope = hs.AimLineAttack(mo, angle, Fixed.FromInt(1024));
-				}
-			}
-		}
-
-		private void GunShot(Mobj mo, bool accurate)
-		{
-			var random = this.world.Random;
-
-			var damage = 5 * (random.Next() % 3 + 1);
-
-			var angle = mo.Angle;
-
-			if (!accurate)
-			{
-				angle += new Angle((random.Next() - random.Next()) << 18);
-			}
-
-			this.world.Hitscan.LineAttack(mo, angle, WeaponBehavior.MissileRange, this.currentBulletSlope, damage);
-		}
-
-		public void FirePistol(Player player)
-		{
-			this.world.StartSound(player.Mobj, Sfx.PISTOL, SfxType.Weapon);
-
-			player.Mobj.SetState(MobjState.PlayAtk2);
-
-			player.Ammo[(int) player.ReadyWeapon.Ammo]--;
-
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.FlashState);
-
-			this.BulletSlope(player.Mobj);
-
-			this.GunShot(player.Mobj, player.Refire == 0);
-		}
-
 		public void Light1(Player player)
 		{
 			player.ExtraLight = 1;
 		}
 
-		public void FireShotgun(Player player)
-		{
-			this.world.StartSound(player.Mobj, Sfx.SHOTGN, SfxType.Weapon);
-
-			player.Mobj.SetState(MobjState.PlayAtk2);
-
-			player.Ammo[(int) player.ReadyWeapon.Ammo]--;
-
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.FlashState);
-
-			this.BulletSlope(player.Mobj);
-
-			for (var i = 0; i < 7; i++)
-			{
-				this.GunShot(player.Mobj, false);
-			}
-		}
-
 		public void Light2(Player player)
 		{
 			player.ExtraLight = 2;
-		}
-
-		public void FireCGun(Player player, PlayerSpriteDef psp)
-		{
-			this.world.StartSound(player.Mobj, Sfx.PISTOL, SfxType.Weapon);
-
-			if (player.Ammo[(int) player.ReadyWeapon.Ammo] == 0)
-			{
-				return;
-			}
-
-			player.Mobj.SetState(MobjState.PlayAtk2);
-
-			player.Ammo[(int) player.ReadyWeapon.Ammo]--;
-
-			this.world.PlayerBehavior.SetPlayerSprite(
-				player,
-				PlayerSprite.Flash,
-				player.ReadyWeapon.FlashState + psp.State.Number - DoomInfo.States[(int) MobjState.Chain1].Number
-			);
-
-			this.BulletSlope(player.Mobj);
-
-			this.GunShot(player.Mobj, player.Refire == 0);
-		}
-
-		public void FireShotgun2(Player player)
-		{
-			this.world.StartSound(player.Mobj, Sfx.DSHTGN, SfxType.Weapon);
-
-			player.Mobj.SetState(MobjState.PlayAtk2);
-
-			player.Ammo[(int) player.ReadyWeapon.Ammo] -= 2;
-
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.FlashState);
-
-			this.BulletSlope(player.Mobj);
-
-			var random = this.world.Random;
-			var hs = this.world.Hitscan;
-
-			for (var i = 0; i < 20; i++)
-			{
-				var damage = 5 * (random.Next() % 3 + 1);
-				var angle = player.Mobj.Angle;
-				angle += new Angle((random.Next() - random.Next()) << 19);
-
-				hs.LineAttack(
-					player.Mobj,
-					angle,
-					WeaponBehavior.MissileRange,
-					this.currentBulletSlope + new Fixed((random.Next() - random.Next()) << 5),
-					damage
-				);
-			}
 		}
 
 		public void CheckReload(Player player)
@@ -539,35 +320,12 @@ namespace DoomEngine.Doom.World
 		{
 			player.Mobj.SetState(MobjState.PlayAtk2);
 
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.FlashState);
-		}
-
-		public void FireMissile(Player player)
-		{
-			player.Ammo[(int) player.ReadyWeapon.Ammo]--;
-
-			this.world.ThingAllocation.SpawnPlayerMissile(player.Mobj, MobjType.Rocket);
-		}
-
-		public void FirePlasma(Player player)
-		{
-			player.Ammo[(int) player.ReadyWeapon.Ammo]--;
-
-			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.FlashState + (this.world.Random.Next() & 1));
-
-			this.world.ThingAllocation.SpawnPlayerMissile(player.Mobj, MobjType.Plasma);
+			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.GetComponents<WeaponComponent>().First().FlashState);
 		}
 
 		public void A_BFGsound(Player player)
 		{
 			this.world.StartSound(player.Mobj, Sfx.BFG, SfxType.Weapon);
-		}
-
-		public void FireBFG(Player player)
-		{
-			player.Ammo[(int) player.ReadyWeapon.Ammo] -= WeaponBehavior.bfgCells;
-
-			this.world.ThingAllocation.SpawnPlayerMissile(player.Mobj, MobjType.Bfg);
 		}
 
 		public void BFGSpray(Mobj bfgBall)

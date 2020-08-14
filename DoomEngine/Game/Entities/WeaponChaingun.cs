@@ -1,15 +1,22 @@
 namespace DoomEngine.Game.Entities
 {
+	using Audio;
+	using Components;
 	using Doom.World;
+	using System.Collections.Generic;
 
-	public class WeaponChaingun : Weapon
+	public class WeaponChaingun : Entity
 	{
-		public override int Slot => 4;
-		public override AmmoType Ammo => AmmoType.Clip;
-		public override MobjState UpState => MobjState.Chainup;
-		public override MobjState DownState => MobjState.Chaindown;
-		public override MobjState ReadyState => MobjState.Chain;
-		public override MobjState AttackState => MobjState.Chain1;
-		public override MobjState FlashState => MobjState.Chainflash1;
+		public WeaponChaingun()
+			: base(
+				new List<Component>
+				{
+					new WeaponComponent(4, MobjState.Chainup, MobjState.Chaindown, MobjState.Chain, MobjState.Chain1, MobjState.Chainflash1),
+					new AmmoComponent(AmmoType.Clip, 1),
+					new FireHitscanComponent(Sfx.PISTOL, 1, 5, true)
+				}
+			)
+		{
+		}
 	}
 }

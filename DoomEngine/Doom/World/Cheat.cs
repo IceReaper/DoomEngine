@@ -15,6 +15,7 @@
 
 namespace DoomEngine.Doom.World
 {
+	using DoomEngine.Game;
 	using DoomEngine.Game.Entities;
 	using Event;
 	using Game;
@@ -125,12 +126,14 @@ namespace DoomEngine.Doom.World
 		{
 			var player = this.world.ConsolePlayer;
 
-			foreach (var weapon in AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(assembly => assembly.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Weapon))))
-				.Select(type => type.Name))
+			foreach (var weapon in new[]
 			{
-				if (player.WeaponOwned.All(ownedWeapon => ownedWeapon.GetType().Name != weapon))
-					player.WeaponOwned.Add((Weapon) Entity.Create(weapon));
+				typeof(WeaponBfg), typeof(WeaponChaingun), typeof(WeaponChainsaw), typeof(WeaponFists), typeof(WeaponPistol), typeof(WeaponPlasmagun),
+				typeof(WeaponRocketLauncher), typeof(WeaponShotgun), typeof(WeaponSuperShotgun),
+			})
+			{
+				if (player.WeaponOwned.All(ownedWeapon => ownedWeapon.GetType() != weapon))
+					player.WeaponOwned.Add(Entity.Create(weapon.Name));
 			}
 
 			player.Backpack = true;

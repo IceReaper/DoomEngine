@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Common;
-	using DoomEngine.Game.Entities;
+	using DoomEngine.Game;
 	using Game;
 	using Math;
 	using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace DoomEngine.Doom.World
 		private int oldHealth;
 
 		// Used for evil grin.
-		private List<Weapon> oldWeaponsOwned = new List<Weapon>();
+		private List<Entity> oldWeaponsOwned = new List<Entity>();
 
 		// Count until face changes.
 		private int faceCount;

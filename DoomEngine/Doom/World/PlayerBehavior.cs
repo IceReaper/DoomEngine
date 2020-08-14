@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Entities;
 	using Game;
 	using Graphics;
@@ -117,7 +118,7 @@ namespace DoomEngine.Doom.World
 				// The actual changing of the weapon is done when the weapon psprite can do it.
 				// Not in the middle of an attack.
 				var slot = (cmd.Buttons & TicCmdButtons.WeaponMask) >> TicCmdButtons.WeaponShift;
-				var weapons = player.WeaponOwned.Where(weapon => weapon.Slot == slot + 1).ToArray();
+				var weapons = player.WeaponOwned.Where(weapon => weapon.GetComponents<WeaponComponent>().First().Slot == slot + 1).ToArray();
 
 				if (weapons.Length > 0)
 				{
@@ -510,7 +511,7 @@ namespace DoomEngine.Doom.World
 				this.world.StartSound(player.Mobj, Sfx.SAWUP, SfxType.Weapon);
 			}
 
-			var newState = player.PendingWeapon.UpState;
+			var newState = player.PendingWeapon.GetComponents<WeaponComponent>().First().UpState;
 
 			player.PendingWeapon = null;
 			player.PlayerSprites[(int) PlayerSprite.Weapon].Sy = WeaponBehavior.WeaponBottom;
@@ -603,7 +604,7 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void DropWeapon(Player player)
 		{
-			this.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.DownState);
+			this.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.GetComponents<WeaponComponent>().First().DownState);
 		}
 
 		////////////////////////////////////////////////////////////

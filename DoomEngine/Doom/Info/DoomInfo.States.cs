@@ -31,7 +31,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(3, Sprite.PUNG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Punchdown, 0, 0), // State.Punchdown
 			new MobjStateDef(4, Sprite.PUNG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Punchup, 0, 0), // State.Punchup
 			new MobjStateDef(5, Sprite.PUNG, 1, 4, null, null, MobjState.Punch2, 0, 0), // State.Punch1
-			new MobjStateDef(6, Sprite.PUNG, 2, 4, DoomInfo.pa.Punch, null, MobjState.Punch3, 0, 0), // State.Punch2
+			new MobjStateDef(6, Sprite.PUNG, 2, 4, PlayerActions.Fire, null, MobjState.Punch3, 0, 0), // State.Punch2
 			new MobjStateDef(7, Sprite.PUNG, 3, 5, null, null, MobjState.Punch4, 0, 0), // State.Punch3
 			new MobjStateDef(8, Sprite.PUNG, 2, 4, null, null, MobjState.Punch5, 0, 0), // State.Punch4
 			new MobjStateDef(9, Sprite.PUNG, 1, 5, DoomInfo.pa.ReFire, null, MobjState.Punch, 0, 0), // State.Punch5
@@ -39,7 +39,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(11, Sprite.PISG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Pistoldown, 0, 0), // State.Pistoldown
 			new MobjStateDef(12, Sprite.PISG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Pistolup, 0, 0), // State.Pistolup
 			new MobjStateDef(13, Sprite.PISG, 0, 4, null, null, MobjState.Pistol2, 0, 0), // State.Pistol1
-			new MobjStateDef(14, Sprite.PISG, 1, 6, DoomInfo.pa.FirePistol, null, MobjState.Pistol3, 0, 0), // State.Pistol2
+			new MobjStateDef(14, Sprite.PISG, 1, 6, PlayerActions.Fire, null, MobjState.Pistol3, 0, 0), // State.Pistol2
 			new MobjStateDef(15, Sprite.PISG, 2, 4, null, null, MobjState.Pistol4, 0, 0), // State.Pistol3
 			new MobjStateDef(16, Sprite.PISG, 1, 5, DoomInfo.pa.ReFire, null, MobjState.Pistol, 0, 0), // State.Pistol4
 			new MobjStateDef(17, Sprite.PISF, 32768, 7, DoomInfo.pa.Light1, null, MobjState.Lightdone, 0, 0), // State.Pistolflash
@@ -47,7 +47,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(19, Sprite.SHTG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Sgundown, 0, 0), // State.Sgundown
 			new MobjStateDef(20, Sprite.SHTG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Sgunup, 0, 0), // State.Sgunup
 			new MobjStateDef(21, Sprite.SHTG, 0, 3, null, null, MobjState.Sgun2, 0, 0), // State.Sgun1
-			new MobjStateDef(22, Sprite.SHTG, 0, 7, DoomInfo.pa.FireShotgun, null, MobjState.Sgun3, 0, 0), // State.Sgun2
+			new MobjStateDef(22, Sprite.SHTG, 0, 7, PlayerActions.Fire, null, MobjState.Sgun3, 0, 0), // State.Sgun2
 			new MobjStateDef(23, Sprite.SHTG, 1, 5, null, null, MobjState.Sgun4, 0, 0), // State.Sgun3
 			new MobjStateDef(24, Sprite.SHTG, 2, 5, null, null, MobjState.Sgun5, 0, 0), // State.Sgun4
 			new MobjStateDef(25, Sprite.SHTG, 3, 4, null, null, MobjState.Sgun6, 0, 0), // State.Sgun5
@@ -61,7 +61,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(33, Sprite.SHT2, 0, 1, DoomInfo.pa.Lower, null, MobjState.Dsgundown, 0, 0), // State.Dsgundown
 			new MobjStateDef(34, Sprite.SHT2, 0, 1, DoomInfo.pa.Raise, null, MobjState.Dsgunup, 0, 0), // State.Dsgunup
 			new MobjStateDef(35, Sprite.SHT2, 0, 3, null, null, MobjState.Dsgun2, 0, 0), // State.Dsgun1
-			new MobjStateDef(36, Sprite.SHT2, 0, 7, DoomInfo.pa.FireShotgun2, null, MobjState.Dsgun3, 0, 0), // State.Dsgun2
+			new MobjStateDef(36, Sprite.SHT2, 0, 7, PlayerActions.Fire, null, MobjState.Dsgun3, 0, 0), // State.Dsgun2
 			new MobjStateDef(37, Sprite.SHT2, 1, 7, null, null, MobjState.Dsgun4, 0, 0), // State.Dsgun3
 			new MobjStateDef(38, Sprite.SHT2, 2, 7, DoomInfo.pa.CheckReload, null, MobjState.Dsgun5, 0, 0), // State.Dsgun4
 			new MobjStateDef(39, Sprite.SHT2, 3, 7, DoomInfo.pa.OpenShotgun2, null, MobjState.Dsgun6, 0, 0), // State.Dsgun5
@@ -77,8 +77,8 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(49, Sprite.CHGG, 0, 1, DoomInfo.pa.WeaponReady, null, MobjState.Chain, 0, 0), // State.Chain
 			new MobjStateDef(50, Sprite.CHGG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Chaindown, 0, 0), // State.Chaindown
 			new MobjStateDef(51, Sprite.CHGG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Chainup, 0, 0), // State.Chainup
-			new MobjStateDef(52, Sprite.CHGG, 0, 4, DoomInfo.pa.FireCGun, null, MobjState.Chain2, 0, 0), // State.Chain1
-			new MobjStateDef(53, Sprite.CHGG, 1, 4, DoomInfo.pa.FireCGun, null, MobjState.Chain3, 0, 0), // State.Chain2
+			new MobjStateDef(52, Sprite.CHGG, 0, 4, PlayerActions.Fire, null, MobjState.Chain2, 0, 0), // State.Chain1
+			new MobjStateDef(53, Sprite.CHGG, 1, 4, PlayerActions.Fire, null, MobjState.Chain3, 0, 0), // State.Chain2
 			new MobjStateDef(54, Sprite.CHGG, 1, 0, DoomInfo.pa.ReFire, null, MobjState.Chain, 0, 0), // State.Chain3
 			new MobjStateDef(55, Sprite.CHGF, 32768, 5, DoomInfo.pa.Light1, null, MobjState.Lightdone, 0, 0), // State.Chainflash1
 			new MobjStateDef(56, Sprite.CHGF, 32769, 5, DoomInfo.pa.Light2, null, MobjState.Lightdone, 0, 0), // State.Chainflash2
@@ -86,7 +86,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(58, Sprite.MISG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Missiledown, 0, 0), // State.Missiledown
 			new MobjStateDef(59, Sprite.MISG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Missileup, 0, 0), // State.Missileup
 			new MobjStateDef(60, Sprite.MISG, 1, 8, DoomInfo.pa.GunFlash, null, MobjState.Missile2, 0, 0), // State.Missile1
-			new MobjStateDef(61, Sprite.MISG, 1, 12, DoomInfo.pa.FireMissile, null, MobjState.Missile3, 0, 0), // State.Missile2
+			new MobjStateDef(61, Sprite.MISG, 1, 12, PlayerActions.Fire, null, MobjState.Missile3, 0, 0), // State.Missile2
 			new MobjStateDef(62, Sprite.MISG, 1, 0, DoomInfo.pa.ReFire, null, MobjState.Missile, 0, 0), // State.Missile3
 			new MobjStateDef(63, Sprite.MISF, 32768, 3, DoomInfo.pa.Light1, null, MobjState.Missileflash2, 0, 0), // State.Missileflash1
 			new MobjStateDef(64, Sprite.MISF, 32769, 4, null, null, MobjState.Missileflash3, 0, 0), // State.Missileflash2
@@ -96,13 +96,13 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(68, Sprite.SAWG, 3, 4, DoomInfo.pa.WeaponReady, null, MobjState.Saw, 0, 0), // State.Sawb
 			new MobjStateDef(69, Sprite.SAWG, 2, 1, DoomInfo.pa.Lower, null, MobjState.Sawdown, 0, 0), // State.Sawdown
 			new MobjStateDef(70, Sprite.SAWG, 2, 1, DoomInfo.pa.Raise, null, MobjState.Sawup, 0, 0), // State.Sawup
-			new MobjStateDef(71, Sprite.SAWG, 0, 4, DoomInfo.pa.Saw, null, MobjState.Saw2, 0, 0), // State.Saw1
-			new MobjStateDef(72, Sprite.SAWG, 1, 4, DoomInfo.pa.Saw, null, MobjState.Saw3, 0, 0), // State.Saw2
+			new MobjStateDef(71, Sprite.SAWG, 0, 4, PlayerActions.Fire, null, MobjState.Saw2, 0, 0), // State.Saw1
+			new MobjStateDef(72, Sprite.SAWG, 1, 4, PlayerActions.Fire, null, MobjState.Saw3, 0, 0), // State.Saw2
 			new MobjStateDef(73, Sprite.SAWG, 1, 0, DoomInfo.pa.ReFire, null, MobjState.Saw, 0, 0), // State.Saw3
 			new MobjStateDef(74, Sprite.PLSG, 0, 1, DoomInfo.pa.WeaponReady, null, MobjState.Plasma, 0, 0), // State.Plasma
 			new MobjStateDef(75, Sprite.PLSG, 0, 1, DoomInfo.pa.Lower, null, MobjState.Plasmadown, 0, 0), // State.Plasmadown
 			new MobjStateDef(76, Sprite.PLSG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Plasmaup, 0, 0), // State.Plasmaup
-			new MobjStateDef(77, Sprite.PLSG, 0, 3, DoomInfo.pa.FirePlasma, null, MobjState.Plasma2, 0, 0), // State.Plasma1
+			new MobjStateDef(77, Sprite.PLSG, 0, 3, PlayerActions.Fire, null, MobjState.Plasma2, 0, 0), // State.Plasma1
 			new MobjStateDef(78, Sprite.PLSG, 1, 20, DoomInfo.pa.ReFire, null, MobjState.Plasma, 0, 0), // State.Plasma2
 			new MobjStateDef(79, Sprite.PLSF, 32768, 4, DoomInfo.pa.Light1, null, MobjState.Lightdone, 0, 0), // State.Plasmaflash1
 			new MobjStateDef(80, Sprite.PLSF, 32769, 4, DoomInfo.pa.Light1, null, MobjState.Lightdone, 0, 0), // State.Plasmaflash2
@@ -111,7 +111,7 @@ namespace DoomEngine.Doom.Info
 			new MobjStateDef(83, Sprite.BFGG, 0, 1, DoomInfo.pa.Raise, null, MobjState.Bfgup, 0, 0), // State.Bfgup
 			new MobjStateDef(84, Sprite.BFGG, 0, 20, DoomInfo.pa.BFGsound, null, MobjState.Bfg2, 0, 0), // State.Bfg1
 			new MobjStateDef(85, Sprite.BFGG, 1, 10, DoomInfo.pa.GunFlash, null, MobjState.Bfg3, 0, 0), // State.Bfg2
-			new MobjStateDef(86, Sprite.BFGG, 1, 10, DoomInfo.pa.FireBFG, null, MobjState.Bfg4, 0, 0), // State.Bfg3
+			new MobjStateDef(86, Sprite.BFGG, 1, 10, PlayerActions.Fire, null, MobjState.Bfg4, 0, 0), // State.Bfg3
 			new MobjStateDef(87, Sprite.BFGG, 1, 20, DoomInfo.pa.ReFire, null, MobjState.Bfg, 0, 0), // State.Bfg4
 			new MobjStateDef(88, Sprite.BFGF, 32768, 11, DoomInfo.pa.Light1, null, MobjState.Bfgflash2, 0, 0), // State.Bfgflash1
 			new MobjStateDef(89, Sprite.BFGF, 32769, 6, DoomInfo.pa.Light2, null, MobjState.Lightdone, 0, 0), // State.Bfgflash2

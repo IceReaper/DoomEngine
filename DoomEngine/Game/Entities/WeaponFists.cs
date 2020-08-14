@@ -1,15 +1,20 @@
 namespace DoomEngine.Game.Entities
 {
+	using Components;
 	using Doom.World;
+	using System.Collections.Generic;
 
-	public class WeaponFists : Weapon
+	public class WeaponFists : Entity
 	{
-		public override int Slot => 1;
-		public override AmmoType Ammo => AmmoType.NoAmmo;
-		public override MobjState UpState => MobjState.Punchup;
-		public override MobjState DownState => MobjState.Punchdown;
-		public override MobjState ReadyState => MobjState.Punch;
-		public override MobjState AttackState => MobjState.Punch1;
-		public override MobjState FlashState => MobjState.Null;
+		public WeaponFists()
+			: base(
+				new List<Component>
+				{
+					new WeaponComponent(1, MobjState.Punchup, MobjState.Punchdown, MobjState.Punch, MobjState.Punch1, MobjState.Null),
+					new FireMeleeComponent()
+				}
+			)
+		{
+		}
 	}
 }

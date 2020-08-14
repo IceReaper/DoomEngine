@@ -18,6 +18,7 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Game;
 	using Doom.Graphics;
 	using Doom.World;
+	using Game.Components;
 	using System.Linq;
 
 	public sealed class StatusBarRenderer
@@ -224,11 +225,10 @@ namespace DoomEngine.SoftwareRendering
 				this.screen.DrawPatch(this.patches.Background, 0, this.scale * (200 - StatusBarRenderer.Height), this.scale);
 			}
 
-			if (player.ReadyWeapon.Ammo != AmmoType.NoAmmo)
-			{
-				var num = player.Ammo[(int) player.ReadyWeapon.Ammo];
-				this.DrawNumber(this.ready, num);
-			}
+			var ammoComponent = player.ReadyWeapon.GetComponents<AmmoComponent>().FirstOrDefault();
+
+			if (ammoComponent != null)
+				this.DrawNumber(this.ready, player.Ammo[(int) ammoComponent.Ammo]);
 
 			this.DrawPercent(this.health, player.Health);
 			this.DrawPercent(this.armor, player.ArmorPoints);
@@ -253,7 +253,7 @@ namespace DoomEngine.SoftwareRendering
 
 				for (var i = 0; i < this.weapons.Length; i++)
 				{
-					this.DrawMultIcon(this.weapons[i], player.WeaponOwned.Any(weapon => weapon.Slot - 2 == i) ? 1 : 0);
+					this.DrawMultIcon(this.weapons[i], player.WeaponOwned.Any(weapon => weapon.GetComponents<WeaponComponent>().First().Slot - 2 == i) ? 1 : 0);
 				}
 			}
 			else

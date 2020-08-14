@@ -15,7 +15,9 @@
 
 namespace DoomEngine.Doom.Info
 {
+	using DoomEngine.Game.Components;
 	using Game;
+	using System.Linq;
 	using World;
 
 	public static partial class DoomInfo
@@ -42,19 +44,9 @@ namespace DoomEngine.Doom.Info
 				world.WeaponBehavior.Raise(player, psp);
 			}
 
-			public void Punch(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.Punch(player);
-			}
-
 			public void ReFire(World world, Player player, PlayerSpriteDef psp)
 			{
 				world.WeaponBehavior.ReFire(player);
-			}
-
-			public void FirePistol(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FirePistol(player);
 			}
 
 			public void Light1(World world, Player player, PlayerSpriteDef psp)
@@ -62,19 +54,9 @@ namespace DoomEngine.Doom.Info
 				world.WeaponBehavior.Light1(player);
 			}
 
-			public void FireShotgun(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FireShotgun(player);
-			}
-
 			public void Light2(World world, Player player, PlayerSpriteDef psp)
 			{
 				world.WeaponBehavior.Light2(player);
-			}
-
-			public void FireShotgun2(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FireShotgun2(player);
 			}
 
 			public void CheckReload(World world, Player player, PlayerSpriteDef psp)
@@ -97,39 +79,19 @@ namespace DoomEngine.Doom.Info
 				world.WeaponBehavior.CloseShotgun2(player);
 			}
 
-			public void FireCGun(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FireCGun(player, psp);
-			}
-
 			public void GunFlash(World world, Player player, PlayerSpriteDef psp)
 			{
 				world.WeaponBehavior.GunFlash(player);
 			}
 
-			public void FireMissile(World world, Player player, PlayerSpriteDef psp)
+			public static void Fire(World world, Player player, PlayerSpriteDef psp)
 			{
-				world.WeaponBehavior.FireMissile(player);
-			}
-
-			public void Saw(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.Saw(player);
-			}
-
-			public void FirePlasma(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FirePlasma(player);
+				player.ReadyWeapon.GetComponents<WeaponComponent>().First().Fire(world, player, psp);
 			}
 
 			public void BFGsound(World world, Player player, PlayerSpriteDef psp)
 			{
 				world.WeaponBehavior.A_BFGsound(player);
-			}
-
-			public void FireBFG(World world, Player player, PlayerSpriteDef psp)
-			{
-				world.WeaponBehavior.FireBFG(player);
 			}
 		}
 	}

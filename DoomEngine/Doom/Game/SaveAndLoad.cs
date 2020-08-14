@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.Game
 {
 	using Common;
-	using DoomEngine.Game.Entities;
+	using DoomEngine.Game;
 	using Graphics;
 	using Info;
 	using Map;
@@ -474,7 +474,7 @@ namespace DoomEngine.Doom.Game
 				foreach (var weapon in player.WeaponOwned)
 				{
 					this.writer.Write(weapon.GetType().Name);
-					weapon.Serialize(this.writer);
+					((Entity) weapon).Serialize(this.writer);
 				}
 
 				this.writer.Write(player.ReadyWeapon.GetType().Name);
@@ -980,12 +980,12 @@ namespace DoomEngine.Doom.Game
 				{
 					var entity = Entity.Create(this.reader.ReadString());
 					entity.Deserialize(this.reader);
-					player.WeaponOwned.Add((Weapon) entity);
+					player.WeaponOwned.Add(entity);
 				}
 
 				var readyWeapon = this.reader.ReadString();
 				player.ReadyWeapon = player.WeaponOwned.First(weapon => weapon.GetType().Name == readyWeapon);
-				
+
 				var pendingWeapon = this.reader.ReadString();
 				player.PendingWeapon = player.WeaponOwned.First(weapon => weapon.GetType().Name == pendingWeapon);
 

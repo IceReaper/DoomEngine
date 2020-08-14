@@ -1,15 +1,19 @@
 namespace DoomEngine.Game.Entities
 {
+	using Components;
 	using Doom.World;
+	using System.Collections.Generic;
 
-	public class WeaponChainsaw : Weapon
+	public class WeaponChainsaw : Entity
 	{
-		public override int Slot => 1;
-		public override AmmoType Ammo => AmmoType.NoAmmo;
-		public override MobjState UpState => MobjState.Sawup;
-		public override MobjState DownState => MobjState.Sawdown;
-		public override MobjState ReadyState => MobjState.Saw;
-		public override MobjState AttackState => MobjState.Saw1;
-		public override MobjState FlashState => MobjState.Null;
+		public WeaponChainsaw()
+			: base(
+				new List<Component>
+				{
+					new WeaponComponent(1, MobjState.Sawup, MobjState.Sawdown, MobjState.Saw, MobjState.Saw1, MobjState.Null), new FireMeleeComponent()
+				}
+			)
+		{
+		}
 	}
 }

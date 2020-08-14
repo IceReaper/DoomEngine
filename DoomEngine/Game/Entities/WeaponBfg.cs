@@ -1,15 +1,21 @@
 namespace DoomEngine.Game.Entities
 {
+	using Components;
 	using Doom.World;
+	using System.Collections.Generic;
 
-	public class WeaponBfg : Weapon
+	public class WeaponBfg : Entity
 	{
-		public override int Slot => 7;
-		public override AmmoType Ammo => AmmoType.Cell;
-		public override MobjState UpState => MobjState.Bfgup;
-		public override MobjState DownState => MobjState.Bfgdown;
-		public override MobjState ReadyState => MobjState.Bfg;
-		public override MobjState AttackState => MobjState.Bfg1;
-		public override MobjState FlashState => MobjState.Bfgflash1;
+		public WeaponBfg()
+			: base(
+				new List<Component>
+				{
+					new WeaponComponent(7, MobjState.Bfgup, MobjState.Bfgdown, MobjState.Bfg, MobjState.Bfg1, MobjState.Bfgflash1),
+					new AmmoComponent(AmmoType.Cell, 40),
+					new FireProjectileComponent(MobjType.Bfg)
+				}
+			)
+		{
+		}
 	}
 }
