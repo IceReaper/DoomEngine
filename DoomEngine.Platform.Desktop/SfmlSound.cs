@@ -117,6 +117,13 @@ namespace DoomEngine.Platform.Desktop
 		{
 			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
 
+			if (reader.BaseStream.Length < 8)
+			{
+				sampleRate = -1;
+				sampleCount = -1;
+				return null;
+			}
+
 			reader.BaseStream.Position = 2;
 			sampleRate = reader.ReadUInt16();
 			sampleCount = reader.ReadInt32() - 32;
