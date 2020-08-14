@@ -16,41 +16,41 @@
 namespace DoomEngine.Doom.Game
 {
 	using System;
+	using System.IO;
 
 	public sealed class Demo
 	{
-		private int p;
-		private byte[] data;
+		private BinaryReader reader;
 
 		private GameOptions options;
 
 		private int playerCount;
 
-		public Demo(byte[] data)
+		public Demo(Stream stream)
 		{
-			this.p = 0;
+			var reader = new BinaryReader(stream);
 
-			if (data[this.p++] != 109)
+			if (reader.ReadByte() != 109)
 			{
 				throw new Exception("Demo is from a different game version!");
 			}
 
-			this.data = data;
+			this.reader = reader;
 
 			this.options = new GameOptions();
-			this.options.Skill = (GameSkill) data[this.p++];
-			this.options.Episode = data[this.p++];
-			this.options.Map = data[this.p++];
-			this.options.Deathmatch = data[this.p++];
-			this.options.RespawnMonsters = data[this.p++] != 0;
-			this.options.FastMonsters = data[this.p++] != 0;
-			this.options.NoMonsters = data[this.p++] != 0;
-			this.options.ConsolePlayer = data[this.p++];
+			this.options.Skill = (GameSkill) reader.ReadByte();
+			this.options.Episode = reader.ReadByte();
+			this.options.Map = reader.ReadByte();
+			this.options.Deathmatch = reader.ReadByte();
+			this.options.RespawnMonsters = reader.ReadByte() != 0;
+			this.options.FastMonsters = reader.ReadByte() != 0;
+			this.options.NoMonsters = reader.ReadByte() != 0;
+			this.options.ConsolePlayer = reader.ReadByte();
 
-			this.options.Players[0].InGame = data[this.p++] != 0;
-			this.options.Players[1].InGame = data[this.p++] != 0;
-			this.options.Players[2].InGame = data[this.p++] != 0;
-			this.options.Players[3].InGame = data[this.p++] != 0;
+			this.options.Players[0].InGame = reader.ReadByte() != 0;
+			this.options.Players[1].InGame = reader.ReadByte() != 0;
+			this.options.Players[2].InGame = reader.ReadByte() != 0;
+			this.options.Players[3].InGame = reader.ReadByte() != 0;
 
 			this.options.DemoPlayback = true;
 
@@ -72,17 +72,20 @@ namespace DoomEngine.Doom.Game
 
 		public bool ReadCmd(TicCmd[] cmds)
 		{
-			if (this.p == this.data.Length)
+			if (this.reader.BaseStream.Position == this.reader.BaseStream.Length)
 			{
 				return false;
 			}
 
-			if (this.data[this.p] == 0x80)
+			var test = this.reader.ReadByte();
+			this.reader.BaseStream.Position--;
+
+			if (test == 0x80)
 			{
 				return false;
 			}
 
-			if (this.p + 4 * this.playerCount > this.data.Length)
+			if (this.reader.BaseStream.Position + 4 * this.playerCount > this.reader.BaseStream.Length)
 			{
 				return false;
 			}
@@ -94,10 +97,10 @@ namespace DoomEngine.Doom.Game
 				if (players[i].InGame)
 				{
 					var cmd = cmds[i];
-					cmd.ForwardMove = (sbyte) this.data[this.p++];
-					cmd.SideMove = (sbyte) this.data[this.p++];
-					cmd.AngleTurn = (short) (this.data[this.p++] << 8);
-					cmd.Buttons = this.data[this.p++];
+					cmd.ForwardMove = (sbyte) this.reader.ReadByte();
+					cmd.SideMove = (sbyte) this.reader.ReadByte();
+					cmd.AngleTurn = (short) (this.reader.ReadByte() << 8);
+					cmd.Buttons = this.reader.ReadByte();
 				}
 			}
 

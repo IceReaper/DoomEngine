@@ -279,7 +279,7 @@ namespace DoomEngine.Doom
 		{
 			this.state = OpeningSequenceState.Demo;
 
-			this.demo = new Demo(this.resource.Wad.ReadLump(lump));
+			this.demo = new Demo(DoomApplication.Instance.FileSystem.Read(lump));
 			this.demo.Options.Renderer = this.options.Renderer;
 			this.demo.Options.Sound = this.options.Sound;
 			this.demo.Options.Music = this.options.Music;

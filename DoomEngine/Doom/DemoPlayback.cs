@@ -20,7 +20,6 @@ namespace DoomEngine.Doom
 	using Game;
 	using System;
 	using System.Diagnostics;
-	using System.IO;
 
 	public sealed class DemoPlayback
 	{
@@ -35,24 +34,22 @@ namespace DoomEngine.Doom
 		{
 			if (DoomApplication.Instance.FileSystem.Exists(demoName))
 			{
-				using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(demoName));
-				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
+				this.demo = new Demo(DoomApplication.Instance.FileSystem.Read(demoName));
 			}
 			else if (DoomApplication.Instance.FileSystem.Exists(demoName + ".lmp"))
 			{
-				using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(demoName + ".lmp"));
-				this.demo = new Demo(reader.ReadBytes((int) reader.BaseStream.Length));
+				this.demo = new Demo(DoomApplication.Instance.FileSystem.Read(demoName + ".lmp"));
 			}
 			else
 			{
 				var lumpName = demoName.ToUpper();
 
-				if (resource.Wad.GetLumpNumber(lumpName) == -1)
+				if (!DoomApplication.Instance.FileSystem.Exists(lumpName))
 				{
 					throw new Exception("Demo '" + demoName + "' was not found!");
 				}
 
-				this.demo = new Demo(resource.Wad.ReadLump(lumpName));
+				this.demo = new Demo(DoomApplication.Instance.FileSystem.Read(lumpName));
 			}
 
 			this.demo.Options.Renderer = options.Renderer;

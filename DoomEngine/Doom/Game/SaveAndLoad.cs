@@ -63,9 +63,7 @@ namespace DoomEngine.Doom.Game
 			var options = game.Options;
 			game.InitNew(options.Skill, options.Episode, options.Map);
 
-			using var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(path));
-
-			var lg = new LoadGame(reader.ReadBytes((int) reader.BaseStream.Length));
+			var lg = new LoadGame(DoomApplication.Instance.FileSystem.Read(path));
 			lg.Load(game);
 		}
 
@@ -607,13 +605,11 @@ namespace DoomEngine.Doom.Game
 
 		private class LoadGame
 		{
-			private byte[] data;
-			private int ptr;
+			private BinaryReader reader;
 
-			public LoadGame(byte[] data)
+			public LoadGame(Stream stream)
 			{
-				this.data = data;
-				this.ptr = 0;
+				this.reader = new BinaryReader(stream);
 
 				this.ReadDescription();
 
@@ -628,20 +624,20 @@ namespace DoomEngine.Doom.Game
 			public void Load(DoomGame game)
 			{
 				var options = game.World.Options;
-				options.Skill = (GameSkill) this.data[this.ptr++];
-				options.Episode = this.data[this.ptr++];
-				options.Map = this.data[this.ptr++];
+				options.Skill = (GameSkill) this.reader.ReadByte();
+				options.Episode = this.reader.ReadByte();
+				options.Map = this.reader.ReadByte();
 
 				for (var i = 0; i < Player.MaxPlayerCount; i++)
 				{
-					options.Players[i].InGame = this.data[this.ptr++] != 0;
+					options.Players[i].InGame = this.reader.ReadByte() != 0;
 				}
 
 				game.InitNew(options.Skill, options.Episode, options.Map);
 
-				var a = this.data[this.ptr++];
-				var b = this.data[this.ptr++];
-				var c = this.data[this.ptr++];
+				var a = this.reader.ReadByte();
+				var b = this.reader.ReadByte();
+				var c = this.reader.ReadByte();
 				var levelTime = (a << 16) + (b << 8) + c;
 
 				this.UnArchivePlayers(game.World);
@@ -649,7 +645,10 @@ namespace DoomEngine.Doom.Game
 				this.UnArchiveThinkers(game.World);
 				this.UnArchiveSpecials(game.World);
 
-				if (this.data[this.ptr] != 0x1d)
+				var test = this.reader.ReadByte();
+				this.reader.BaseStream.Position--;
+
+				if (test != 0x1d)
 				{
 					throw new Exception("Bad savegame!");
 				}
@@ -661,23 +660,17 @@ namespace DoomEngine.Doom.Game
 
 			private void PadPointer()
 			{
-				this.ptr += (4 - (this.ptr & 3)) & 3;
+				this.reader.BaseStream.Position += (4 - (this.reader.BaseStream.Position & 3)) & 3;
 			}
 
 			private string ReadDescription()
 			{
-				var value = DoomInterop.ToString(this.data, this.ptr, SaveAndLoad.DescriptionSize);
-				this.ptr += SaveAndLoad.DescriptionSize;
-
-				return value;
+				return DoomInterop.ToString(this.reader.ReadBytes(SaveAndLoad.DescriptionSize), 0, SaveAndLoad.DescriptionSize);
 			}
 
 			private string ReadVersion()
 			{
-				var value = DoomInterop.ToString(this.data, this.ptr, SaveAndLoad.versionSize);
-				this.ptr += SaveAndLoad.versionSize;
-
-				return value;
+				return DoomInterop.ToString(this.reader.ReadBytes(SaveAndLoad.versionSize), 0, SaveAndLoad.versionSize);
 			}
 
 			private void UnArchivePlayers(World world)
@@ -693,7 +686,7 @@ namespace DoomEngine.Doom.Game
 
 					this.PadPointer();
 
-					this.ptr = LoadGame.UnArchivePlayer(players[i], this.data, this.ptr);
+					this.UnArchivePlayer(players[i]);
 				}
 			}
 
@@ -704,7 +697,7 @@ namespace DoomEngine.Doom.Game
 
 				for (var i = 0; i < sectors.Length; i++)
 				{
-					this.ptr = LoadGame.UnArchiveSector(sectors[i], this.data, this.ptr);
+					this.UnArchiveSector(sectors[i]);
 				}
 
 				// Do lines.
@@ -712,7 +705,7 @@ namespace DoomEngine.Doom.Game
 
 				for (var i = 0; i < lines.Length; i++)
 				{
-					this.ptr = LoadGame.UnArchiveLine(lines[i], this.data, this.ptr);
+					this.UnArchiveLine(lines[i]);
 				}
 			}
 
@@ -737,7 +730,7 @@ namespace DoomEngine.Doom.Game
 				// Read in saved thinkers.
 				while (true)
 				{
-					var tclass = (ThinkerClass) this.data[this.ptr++];
+					var tclass = (ThinkerClass) this.reader.ReadByte();
 
 					switch (tclass)
 					{
@@ -748,31 +741,37 @@ namespace DoomEngine.Doom.Game
 						case ThinkerClass.Mobj:
 							this.PadPointer();
 							var mobj = new Mobj(world);
-							mobj.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							mobj.X = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 12));
-							mobj.Y = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 16));
-							mobj.Z = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 20));
-							mobj.Angle = new Angle(BitConverter.ToInt32(this.data, this.ptr + 32));
-							mobj.Sprite = (Sprite) BitConverter.ToInt32(this.data, this.ptr + 36);
-							mobj.Frame = BitConverter.ToInt32(this.data, this.ptr + 40);
-							mobj.FloorZ = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 56));
-							mobj.CeilingZ = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 60));
-							mobj.Radius = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 64));
-							mobj.Height = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 68));
-							mobj.MomX = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 72));
-							mobj.MomY = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 76));
-							mobj.MomZ = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 80));
-							mobj.Type = (MobjType) BitConverter.ToInt32(this.data, this.ptr + 88);
+							this.reader.BaseStream.Position += 8;
+							mobj.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							mobj.X = new Fixed(this.reader.ReadInt32());
+							mobj.Y = new Fixed(this.reader.ReadInt32());
+							mobj.Z = new Fixed(this.reader.ReadInt32());
+							this.reader.BaseStream.Position += 8;
+							mobj.Angle = new Angle(this.reader.ReadInt32());
+							mobj.Sprite = (Sprite) this.reader.ReadInt32();
+							mobj.Frame = this.reader.ReadInt32();
+							this.reader.BaseStream.Position += 12;
+							mobj.FloorZ = new Fixed(this.reader.ReadInt32());
+							mobj.CeilingZ = new Fixed(this.reader.ReadInt32());
+							mobj.Radius = new Fixed(this.reader.ReadInt32());
+							mobj.Height = new Fixed(this.reader.ReadInt32());
+							mobj.MomX = new Fixed(this.reader.ReadInt32());
+							mobj.MomY = new Fixed(this.reader.ReadInt32());
+							mobj.MomZ = new Fixed(this.reader.ReadInt32());
+							this.reader.BaseStream.Position += 4;
+							mobj.Type = (MobjType) this.reader.ReadInt32();
 							mobj.Info = DoomInfo.MobjInfos[(int) mobj.Type];
-							mobj.Tics = BitConverter.ToInt32(this.data, this.ptr + 96);
-							mobj.State = DoomInfo.States[BitConverter.ToInt32(this.data, this.ptr + 100)];
-							mobj.Flags = (MobjFlags) BitConverter.ToInt32(this.data, this.ptr + 104);
-							mobj.Health = BitConverter.ToInt32(this.data, this.ptr + 108);
-							mobj.MoveDir = (Direction) BitConverter.ToInt32(this.data, this.ptr + 112);
-							mobj.MoveCount = BitConverter.ToInt32(this.data, this.ptr + 116);
-							mobj.ReactionTime = BitConverter.ToInt32(this.data, this.ptr + 124);
-							mobj.Threshold = BitConverter.ToInt32(this.data, this.ptr + 128);
-							var playerNumber = BitConverter.ToInt32(this.data, this.ptr + 132);
+							this.reader.BaseStream.Position += 4;
+							mobj.Tics = this.reader.ReadInt32();
+							mobj.State = DoomInfo.States[this.reader.ReadInt32()];
+							mobj.Flags = (MobjFlags) this.reader.ReadInt32();
+							mobj.Health = this.reader.ReadInt32();
+							mobj.MoveDir = (Direction) this.reader.ReadInt32();
+							mobj.MoveCount = this.reader.ReadInt32();
+							this.reader.BaseStream.Position += 4;
+							mobj.ReactionTime = this.reader.ReadInt32();
+							mobj.Threshold = this.reader.ReadInt32();
+							var playerNumber = this.reader.ReadInt32();
 
 							if (playerNumber != 0)
 							{
@@ -780,17 +779,17 @@ namespace DoomEngine.Doom.Game
 								mobj.Player.Mobj = mobj;
 							}
 
-							mobj.LastLook = BitConverter.ToInt32(this.data, this.ptr + 136);
+							mobj.LastLook = this.reader.ReadInt32();
 
 							mobj.SpawnPoint = new MapThing(
-								Fixed.FromInt(BitConverter.ToInt16(this.data, this.ptr + 140)),
-								Fixed.FromInt(BitConverter.ToInt16(this.data, this.ptr + 142)),
-								new Angle(Angle.Ang45.Data * (uint) (BitConverter.ToInt16(this.data, this.ptr + 144) / 45)),
-								BitConverter.ToInt16(this.data, this.ptr + 146),
-								(ThingFlags) BitConverter.ToInt16(this.data, this.ptr + 148)
+								Fixed.FromInt(this.reader.ReadInt16()),
+								Fixed.FromInt(this.reader.ReadInt16()),
+								new Angle(Angle.Ang45.Data * (uint) (this.reader.ReadInt16() / 45)),
+								this.reader.ReadInt16(),
+								(ThingFlags) this.reader.ReadInt16()
 							);
 
-							this.ptr += 154;
+							this.reader.BaseStream.Position += 4;
 
 							world.ThingMovement.SetThingPosition(mobj);
 
@@ -814,7 +813,7 @@ namespace DoomEngine.Doom.Game
 				// Read in saved thinkers.
 				while (true)
 				{
-					var tclass = (SpecialClass) this.data[this.ptr++];
+					var tclass = (SpecialClass) this.reader.ReadByte();
 
 					switch (tclass)
 					{
@@ -825,18 +824,18 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Ceiling:
 							this.PadPointer();
 							var ceiling = new CeilingMove(world);
-							ceiling.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							ceiling.Type = (CeilingMoveType) BitConverter.ToInt32(this.data, this.ptr + 12);
-							ceiling.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 16)];
+							this.reader.BaseStream.Position += 8;
+							ceiling.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							ceiling.Type = (CeilingMoveType) this.reader.ReadInt32();
+							ceiling.Sector = world.Map.Sectors[this.reader.ReadInt32()];
 							ceiling.Sector.SpecialData = ceiling;
-							ceiling.BottomHeight = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 20));
-							ceiling.TopHeight = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 24));
-							ceiling.Speed = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 28));
-							ceiling.Crush = BitConverter.ToInt32(this.data, this.ptr + 32) != 0;
-							ceiling.Direction = BitConverter.ToInt32(this.data, this.ptr + 36);
-							ceiling.Tag = BitConverter.ToInt32(this.data, this.ptr + 40);
-							ceiling.OldDirection = BitConverter.ToInt32(this.data, this.ptr + 44);
-							this.ptr += 48;
+							ceiling.BottomHeight = new Fixed(this.reader.ReadInt32());
+							ceiling.TopHeight = new Fixed(this.reader.ReadInt32());
+							ceiling.Speed = new Fixed(this.reader.ReadInt32());
+							ceiling.Crush = this.reader.ReadInt32() != 0;
+							ceiling.Direction = this.reader.ReadInt32();
+							ceiling.Tag = this.reader.ReadInt32();
+							ceiling.OldDirection = this.reader.ReadInt32();
 
 							thinkers.Add(ceiling);
 							sa.AddActiveCeiling(ceiling);
@@ -846,16 +845,16 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Door:
 							this.PadPointer();
 							var door = new VerticalDoor(world);
-							door.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							door.Type = (VerticalDoorType) BitConverter.ToInt32(this.data, this.ptr + 12);
-							door.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 16)];
+							this.reader.BaseStream.Position += 8;
+							door.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							door.Type = (VerticalDoorType) this.reader.ReadInt32();
+							door.Sector = world.Map.Sectors[this.reader.ReadInt32()];
 							door.Sector.SpecialData = door;
-							door.TopHeight = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 20));
-							door.Speed = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 24));
-							door.Direction = BitConverter.ToInt32(this.data, this.ptr + 28);
-							door.TopWait = BitConverter.ToInt32(this.data, this.ptr + 32);
-							door.TopCountDown = BitConverter.ToInt32(this.data, this.ptr + 36);
-							this.ptr += 40;
+							door.TopHeight = new Fixed(this.reader.ReadInt32());
+							door.Speed = new Fixed(this.reader.ReadInt32());
+							door.Direction = this.reader.ReadInt32();
+							door.TopWait = this.reader.ReadInt32();
+							door.TopCountDown = this.reader.ReadInt32();
 
 							thinkers.Add(door);
 
@@ -864,17 +863,17 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Floor:
 							this.PadPointer();
 							var floor = new FloorMove(world);
-							floor.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							floor.Type = (FloorMoveType) BitConverter.ToInt32(this.data, this.ptr + 12);
-							floor.Crush = BitConverter.ToInt32(this.data, this.ptr + 16) != 0;
-							floor.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 20)];
+							this.reader.BaseStream.Position += 8;
+							floor.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							floor.Type = (FloorMoveType) this.reader.ReadInt32();
+							floor.Crush = this.reader.ReadInt32() != 0;
+							floor.Sector = world.Map.Sectors[this.reader.ReadInt32()];
 							floor.Sector.SpecialData = floor;
-							floor.Direction = BitConverter.ToInt32(this.data, this.ptr + 24);
-							floor.NewSpecial = (SectorSpecial) BitConverter.ToInt32(this.data, this.ptr + 28);
-							floor.Texture = BitConverter.ToInt32(this.data, this.ptr + 32);
-							floor.FloorDestHeight = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 36));
-							floor.Speed = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 40));
-							this.ptr += 44;
+							floor.Direction = this.reader.ReadInt32();
+							floor.NewSpecial = (SectorSpecial) this.reader.ReadInt32();
+							floor.Texture = this.reader.ReadInt32();
+							floor.FloorDestHeight = new Fixed(this.reader.ReadInt32());
+							floor.Speed = new Fixed(this.reader.ReadInt32());
 
 							thinkers.Add(floor);
 
@@ -883,20 +882,20 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Plat:
 							this.PadPointer();
 							var plat = new Platform(world);
-							plat.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							plat.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 12)];
+							this.reader.BaseStream.Position += 8;
+							plat.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							plat.Sector = world.Map.Sectors[this.reader.ReadInt32()];
 							plat.Sector.SpecialData = plat;
-							plat.Speed = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 16));
-							plat.Low = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 20));
-							plat.High = new Fixed(BitConverter.ToInt32(this.data, this.ptr + 24));
-							plat.Wait = BitConverter.ToInt32(this.data, this.ptr + 28);
-							plat.Count = BitConverter.ToInt32(this.data, this.ptr + 32);
-							plat.Status = (PlatformState) BitConverter.ToInt32(this.data, this.ptr + 36);
-							plat.OldStatus = (PlatformState) BitConverter.ToInt32(this.data, this.ptr + 40);
-							plat.Crush = BitConverter.ToInt32(this.data, this.ptr + 44) != 0;
-							plat.Tag = BitConverter.ToInt32(this.data, this.ptr + 48);
-							plat.Type = (PlatformType) BitConverter.ToInt32(this.data, this.ptr + 52);
-							this.ptr += 56;
+							plat.Speed = new Fixed(this.reader.ReadInt32());
+							plat.Low = new Fixed(this.reader.ReadInt32());
+							plat.High = new Fixed(this.reader.ReadInt32());
+							plat.Wait = this.reader.ReadInt32();
+							plat.Count = this.reader.ReadInt32();
+							plat.Status = (PlatformState) this.reader.ReadInt32();
+							plat.OldStatus = (PlatformState) this.reader.ReadInt32();
+							plat.Crush = this.reader.ReadInt32() != 0;
+							plat.Tag = this.reader.ReadInt32();
+							plat.Type = (PlatformType) this.reader.ReadInt32();
 
 							thinkers.Add(plat);
 							sa.AddActivePlatform(plat);
@@ -906,14 +905,14 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Flash:
 							this.PadPointer();
 							var flash = new LightFlash(world);
-							flash.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							flash.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 12)];
-							flash.Count = BitConverter.ToInt32(this.data, this.ptr + 16);
-							flash.MaxLight = BitConverter.ToInt32(this.data, this.ptr + 20);
-							flash.MinLight = BitConverter.ToInt32(this.data, this.ptr + 24);
-							flash.MaxTime = BitConverter.ToInt32(this.data, this.ptr + 28);
-							flash.MinTime = BitConverter.ToInt32(this.data, this.ptr + 32);
-							this.ptr += 36;
+							this.reader.BaseStream.Position += 8;
+							flash.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							flash.Sector = world.Map.Sectors[this.reader.ReadInt32()];
+							flash.Count = this.reader.ReadInt32();
+							flash.MaxLight = this.reader.ReadInt32();
+							flash.MinLight = this.reader.ReadInt32();
+							flash.MaxTime = this.reader.ReadInt32();
+							flash.MinTime = this.reader.ReadInt32();
 
 							thinkers.Add(flash);
 
@@ -922,14 +921,14 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Strobe:
 							this.PadPointer();
 							var strobe = new StrobeFlash(world);
-							strobe.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							strobe.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 12)];
-							strobe.Count = BitConverter.ToInt32(this.data, this.ptr + 16);
-							strobe.MinLight = BitConverter.ToInt32(this.data, this.ptr + 20);
-							strobe.MaxLight = BitConverter.ToInt32(this.data, this.ptr + 24);
-							strobe.DarkTime = BitConverter.ToInt32(this.data, this.ptr + 28);
-							strobe.BrightTime = BitConverter.ToInt32(this.data, this.ptr + 32);
-							this.ptr += 36;
+							this.reader.BaseStream.Position += 8;
+							strobe.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							strobe.Sector = world.Map.Sectors[this.reader.ReadInt32()];
+							strobe.Count = this.reader.ReadInt32();
+							strobe.MinLight = this.reader.ReadInt32();
+							strobe.MaxLight = this.reader.ReadInt32();
+							strobe.DarkTime = this.reader.ReadInt32();
+							strobe.BrightTime = this.reader.ReadInt32();
 
 							thinkers.Add(strobe);
 
@@ -938,12 +937,12 @@ namespace DoomEngine.Doom.Game
 						case SpecialClass.Glow:
 							this.PadPointer();
 							var glow = new GlowingLight(world);
-							glow.ThinkerState = LoadGame.ReadThinkerState(this.data, this.ptr + 8);
-							glow.Sector = world.Map.Sectors[BitConverter.ToInt32(this.data, this.ptr + 12)];
-							glow.MinLight = BitConverter.ToInt32(this.data, this.ptr + 16);
-							glow.MaxLight = BitConverter.ToInt32(this.data, this.ptr + 20);
-							glow.Direction = BitConverter.ToInt32(this.data, this.ptr + 24);
-							this.ptr += 28;
+							this.reader.BaseStream.Position += 8;
+							glow.ThinkerState = LoadGame.GetThinkerState(this.reader.ReadInt32());
+							glow.Sector = world.Map.Sectors[this.reader.ReadInt32()];
+							glow.MinLight = this.reader.ReadInt32();
+							glow.MaxLight = this.reader.ReadInt32();
+							glow.Direction = this.reader.ReadInt32();
 
 							thinkers.Add(glow);
 
@@ -955,9 +954,9 @@ namespace DoomEngine.Doom.Game
 				}
 			}
 
-			private static ThinkerState ReadThinkerState(byte[] data, int p)
+			private static ThinkerState GetThinkerState(int value)
 			{
-				switch (BitConverter.ToInt32(data, p))
+				switch (value)
 				{
 					case 0:
 						return ThinkerState.InStasis;
@@ -967,131 +966,126 @@ namespace DoomEngine.Doom.Game
 				}
 			}
 
-			private static int UnArchivePlayer(Player player, byte[] data, int p)
+			private void UnArchivePlayer(Player player)
 			{
 				player.Clear();
 
-				player.PlayerState = (PlayerState) BitConverter.ToInt32(data, p + 4);
-				player.ViewZ = new Fixed(BitConverter.ToInt32(data, p + 16));
-				player.ViewHeight = new Fixed(BitConverter.ToInt32(data, p + 20));
-				player.DeltaViewHeight = new Fixed(BitConverter.ToInt32(data, p + 24));
-				player.Bob = new Fixed(BitConverter.ToInt32(data, p + 28));
-				player.Health = BitConverter.ToInt32(data, p + 32);
-				player.ArmorPoints = BitConverter.ToInt32(data, p + 36);
-				player.ArmorType = BitConverter.ToInt32(data, p + 40);
+				this.reader.BaseStream.Position += 4;
+				player.PlayerState = (PlayerState) this.reader.ReadInt32();
+				this.reader.BaseStream.Position += 8;
+				player.ViewZ = new Fixed(this.reader.ReadInt32());
+				player.ViewHeight = new Fixed(this.reader.ReadInt32());
+				player.DeltaViewHeight = new Fixed(this.reader.ReadInt32());
+				player.Bob = new Fixed(this.reader.ReadInt32());
+				player.Health = this.reader.ReadInt32();
+				player.ArmorPoints = this.reader.ReadInt32();
+				player.ArmorType = this.reader.ReadInt32();
 
 				for (var i = 0; i < (int) PowerType.Count; i++)
 				{
-					player.Powers[i] = BitConverter.ToInt32(data, p + 44 + 4 * i);
+					player.Powers[i] = this.reader.ReadInt32();
 				}
 
 				for (var i = 0; i < (int) PowerType.Count; i++)
 				{
-					player.Cards[i] = BitConverter.ToInt32(data, p + 68 + 4 * i) != 0;
+					player.Cards[i] = this.reader.ReadInt32() != 0;
 				}
 
-				player.Backpack = BitConverter.ToInt32(data, p + 92) != 0;
+				player.Backpack = this.reader.ReadInt32() != 0;
 
 				for (var i = 0; i < Player.MaxPlayerCount; i++)
 				{
-					player.Frags[i] = BitConverter.ToInt32(data, p + 96 + 4 * i);
+					player.Frags[i] = this.reader.ReadInt32();
 				}
 
-				player.ReadyWeapon = (WeaponType) BitConverter.ToInt32(data, p + 112);
-				player.PendingWeapon = (WeaponType) BitConverter.ToInt32(data, p + 116);
+				player.ReadyWeapon = (WeaponType) this.reader.ReadInt32();
+				player.PendingWeapon = (WeaponType) this.reader.ReadInt32();
 
 				for (var i = 0; i < (int) WeaponType.Count; i++)
 				{
-					player.WeaponOwned[i] = BitConverter.ToInt32(data, p + 120 + 4 * i) != 0;
+					player.WeaponOwned[i] = this.reader.ReadInt32() != 0;
 				}
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{
-					player.Ammo[i] = BitConverter.ToInt32(data, p + 156 + 4 * i);
+					player.Ammo[i] = this.reader.ReadInt32();
 				}
 
 				for (var i = 0; i < (int) AmmoType.Count; i++)
 				{
-					player.MaxAmmo[i] = BitConverter.ToInt32(data, p + 172 + 4 * i);
+					player.MaxAmmo[i] = this.reader.ReadInt32();
 				}
 
-				player.AttackDown = BitConverter.ToInt32(data, p + 188) != 0;
-				player.UseDown = BitConverter.ToInt32(data, p + 192) != 0;
-				player.Cheats = (CheatFlags) BitConverter.ToInt32(data, p + 196);
-				player.Refire = BitConverter.ToInt32(data, p + 200);
-				player.KillCount = BitConverter.ToInt32(data, p + 204);
-				player.ItemCount = BitConverter.ToInt32(data, p + 208);
-				player.SecretCount = BitConverter.ToInt32(data, p + 212);
-				player.DamageCount = BitConverter.ToInt32(data, p + 220);
-				player.BonusCount = BitConverter.ToInt32(data, p + 224);
-				player.ExtraLight = BitConverter.ToInt32(data, p + 232);
-				player.FixedColorMap = BitConverter.ToInt32(data, p + 236);
-				player.ColorMap = BitConverter.ToInt32(data, p + 240);
+				player.AttackDown = this.reader.ReadInt32() != 0;
+				player.UseDown = this.reader.ReadInt32() != 0;
+				player.Cheats = (CheatFlags) this.reader.ReadInt32();
+				player.Refire = this.reader.ReadInt32();
+				player.KillCount = this.reader.ReadInt32();
+				player.ItemCount = this.reader.ReadInt32();
+				player.SecretCount = this.reader.ReadInt32();
+				this.reader.BaseStream.Position += 4;
+				player.DamageCount = this.reader.ReadInt32();
+				player.BonusCount = this.reader.ReadInt32();
+				this.reader.BaseStream.Position += 4;
+				player.ExtraLight = this.reader.ReadInt32();
+				player.FixedColorMap = this.reader.ReadInt32();
+				player.ColorMap = this.reader.ReadInt32();
 
 				for (var i = 0; i < (int) PlayerSprite.Count; i++)
 				{
-					player.PlayerSprites[i].State = DoomInfo.States[BitConverter.ToInt32(data, p + 244 + 16 * i)];
+					player.PlayerSprites[i].State = DoomInfo.States[this.reader.ReadInt32()];
 
 					if (player.PlayerSprites[i].State.Number == (int) MobjState.Null)
 					{
 						player.PlayerSprites[i].State = null;
 					}
 
-					player.PlayerSprites[i].Tics = BitConverter.ToInt32(data, p + 244 + 16 * i + 4);
-					player.PlayerSprites[i].Sx = new Fixed(BitConverter.ToInt32(data, p + 244 + 16 * i + 8));
-					player.PlayerSprites[i].Sy = new Fixed(BitConverter.ToInt32(data, p + 244 + 16 * i + 12));
+					player.PlayerSprites[i].Tics = this.reader.ReadInt32();
+					player.PlayerSprites[i].Sx = new Fixed(this.reader.ReadInt32());
+					player.PlayerSprites[i].Sy = new Fixed(this.reader.ReadInt32());
 				}
 
-				player.DidSecret = BitConverter.ToInt32(data, p + 276) != 0;
-
-				return p + 280;
+				player.DidSecret = this.reader.ReadInt32() != 0;
 			}
 
-			private static int UnArchiveSector(Sector sector, byte[] data, int p)
+			private void UnArchiveSector(Sector sector)
 			{
-				sector.FloorHeight = Fixed.FromInt(BitConverter.ToInt16(data, p));
-				sector.CeilingHeight = Fixed.FromInt(BitConverter.ToInt16(data, p + 2));
-				sector.FloorFlat = BitConverter.ToInt16(data, p + 4);
-				sector.CeilingFlat = BitConverter.ToInt16(data, p + 6);
-				sector.LightLevel = BitConverter.ToInt16(data, p + 8);
-				sector.Special = (SectorSpecial) BitConverter.ToInt16(data, p + 10);
-				sector.Tag = BitConverter.ToInt16(data, p + 12);
+				sector.FloorHeight = Fixed.FromInt(this.reader.ReadInt16());
+				sector.CeilingHeight = Fixed.FromInt(this.reader.ReadInt16());
+				sector.FloorFlat = this.reader.ReadInt16();
+				sector.CeilingFlat = this.reader.ReadInt16();
+				sector.LightLevel = this.reader.ReadInt16();
+				sector.Special = (SectorSpecial) this.reader.ReadInt16();
+				sector.Tag = this.reader.ReadInt16();
 				sector.SpecialData = null;
 				sector.SoundTarget = null;
-
-				return p + 14;
 			}
 
-			private static int UnArchiveLine(LineDef line, byte[] data, int p)
+			private void UnArchiveLine(LineDef line)
 			{
-				line.Flags = (LineFlags) BitConverter.ToInt16(data, p);
-				line.Special = (LineSpecial) BitConverter.ToInt16(data, p + 2);
-				line.Tag = BitConverter.ToInt16(data, p + 4);
-				p += 6;
+				line.Flags = (LineFlags) this.reader.ReadInt16();
+				line.Special = (LineSpecial) this.reader.ReadInt16();
+				line.Tag = this.reader.ReadInt16();
 
 				if (line.FrontSide != null)
 				{
 					var side = line.FrontSide;
-					side.TextureOffset = Fixed.FromInt(BitConverter.ToInt16(data, p));
-					side.RowOffset = Fixed.FromInt(BitConverter.ToInt16(data, p + 2));
-					side.TopTexture = BitConverter.ToInt16(data, p + 4);
-					side.BottomTexture = BitConverter.ToInt16(data, p + 6);
-					side.MiddleTexture = BitConverter.ToInt16(data, p + 8);
-					p += 10;
+					side.TextureOffset = Fixed.FromInt(this.reader.ReadInt16());
+					side.RowOffset = Fixed.FromInt(this.reader.ReadInt16());
+					side.TopTexture = this.reader.ReadInt16();
+					side.BottomTexture = this.reader.ReadInt16();
+					side.MiddleTexture = this.reader.ReadInt16();
 				}
 
 				if (line.BackSide != null)
 				{
 					var side = line.BackSide;
-					side.TextureOffset = Fixed.FromInt(BitConverter.ToInt16(data, p));
-					side.RowOffset = Fixed.FromInt(BitConverter.ToInt16(data, p + 2));
-					side.TopTexture = BitConverter.ToInt16(data, p + 4);
-					side.BottomTexture = BitConverter.ToInt16(data, p + 6);
-					side.MiddleTexture = BitConverter.ToInt16(data, p + 8);
-					p += 10;
+					side.TextureOffset = Fixed.FromInt(this.reader.ReadInt16());
+					side.RowOffset = Fixed.FromInt(this.reader.ReadInt16());
+					side.TopTexture = this.reader.ReadInt16();
+					side.BottomTexture = this.reader.ReadInt16();
+					side.MiddleTexture = this.reader.ReadInt16();
 				}
-
-				return p;
 			}
 		}
 	}
