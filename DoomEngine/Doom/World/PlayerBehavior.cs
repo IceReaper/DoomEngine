@@ -21,7 +21,6 @@ namespace DoomEngine.Doom.World
 	using Info;
 	using Math;
 	using System;
-	using System.Linq;
 
 	public sealed class PlayerBehavior
 	{
@@ -124,9 +123,7 @@ namespace DoomEngine.Doom.World
 					newWeapon = (int) WeaponType.Chainsaw;
 				}
 
-				if ((DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-						|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-						|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				if ((DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 					&& newWeapon == (int) WeaponType.Shotgun
 					&& player.WeaponOwned[(int) WeaponType.SuperShotgun]
 					&& player.ReadyWeapon != WeaponType.SuperShotgun)
@@ -137,8 +134,7 @@ namespace DoomEngine.Doom.World
 				if (player.WeaponOwned[newWeapon] && newWeapon != (int) player.ReadyWeapon)
 				{
 					// Do not go to plasma or BFG in shareware, even if cheated.
-					if ((newWeapon != (int) WeaponType.Plasma && newWeapon != (int) WeaponType.Bfg)
-						|| (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom1")))
+					if ((newWeapon != (int) WeaponType.Plasma && newWeapon != (int) WeaponType.Bfg) || (DoomApplication.Instance.IWad != "doom1"))
 					{
 						player.PendingWeapon = (WeaponType) newWeapon;
 					}
@@ -635,9 +631,7 @@ namespace DoomEngine.Doom.World
 			// Default death sound.
 			var sound = Sfx.PLDETH;
 
-			if ((DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if ((DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 				&& (player.Health < -50))
 			{
 				// If the player dies less than -50% without gibbing.

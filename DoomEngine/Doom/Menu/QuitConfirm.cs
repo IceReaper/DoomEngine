@@ -21,7 +21,6 @@ namespace DoomEngine.Doom.Menu
 	using Info;
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
 	using UserInput;
 
 	public sealed class QuitConfirm : MenuDef
@@ -54,11 +53,9 @@ namespace DoomEngine.Doom.Menu
 		{
 			IReadOnlyList<DoomString> list;
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
-				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2"))
+				if (DoomApplication.Instance.IWad == "doom2")
 				{
 					list = DoomInfo.QuitMessages.Doom2;
 				}
@@ -93,9 +90,7 @@ namespace DoomEngine.Doom.Menu
 
 				Sfx sfx;
 
-				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 				{
 					sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
 				}

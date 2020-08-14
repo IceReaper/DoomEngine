@@ -18,7 +18,6 @@ namespace DoomEngine.Doom
 	using Audio;
 	using Common;
 	using Game;
-	using System.Linq;
 
 	public sealed class OpeningSequence
 	{
@@ -184,7 +183,7 @@ namespace DoomEngine.Doom
 				case 5:
 					if (!this.demo.ReadCmd(this.cmds))
 					{
-						if (this.resource.Wad.GetLumpNumber("DEMO4") == -1)
+						if (!DoomApplication.Instance.FileSystem.Exists("DEMO4"))
 						{
 							this.nextStage = 0;
 						}
@@ -225,9 +224,7 @@ namespace DoomEngine.Doom
 
 			if (this.state == OpeningSequenceState.Title && this.count == 1)
 			{
-				if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 				{
 					this.options.Music.StartMusic(Bgm.DM2TTL, false);
 				}
@@ -255,9 +252,7 @@ namespace DoomEngine.Doom
 
 			this.count = 0;
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				this.timer = 35 * 11;
 			}

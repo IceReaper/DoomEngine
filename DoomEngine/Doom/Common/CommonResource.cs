@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -18,11 +18,9 @@ namespace DoomEngine.Doom.Common
 	using Graphics;
 	using System;
 	using System.Runtime.ExceptionServices;
-	using Wad;
 
-	public sealed class CommonResource : IDisposable
+	public sealed class CommonResource
 	{
-		private Wad wad;
 		private Palette palette;
 		private ColorMap colorMap;
 		private TextureLookup textures;
@@ -30,11 +28,10 @@ namespace DoomEngine.Doom.Common
 		private SpriteLookup sprites;
 		private TextureAnimation animation;
 
-		public CommonResource(params string[] wadPaths)
+		public CommonResource()
 		{
 			try
 			{
-				this.wad = new Wad(wadPaths);
 				this.palette = new Palette();
 				this.colorMap = new ColorMap();
 				this.textures = new TextureLookup();
@@ -50,14 +47,8 @@ namespace DoomEngine.Doom.Common
 
 		public void Dispose()
 		{
-			if (this.wad != null)
-			{
-				this.wad.Dispose();
-				this.wad = null;
-			}
 		}
 
-		public Wad Wad => this.wad;
 		public Palette Palette => this.palette;
 		public ColorMap ColorMap => this.colorMap;
 		public TextureLookup Textures => this.textures;

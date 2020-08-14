@@ -21,7 +21,6 @@ namespace DoomEngine.Doom.World
 	using Game;
 	using Map;
 	using Math;
-	using System.Linq;
 	using UserInput;
 
 	public sealed partial class World
@@ -201,9 +200,7 @@ namespace DoomEngine.Doom.World
 				var spawn = true;
 
 				// Do not spawn cool, new monsters if not commercial.
-				if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+				if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 				{
 					switch (mt.Type)
 					{

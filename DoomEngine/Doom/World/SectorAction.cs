@@ -20,7 +20,6 @@ namespace DoomEngine.Doom.World
 	using Map;
 	using Math;
 	using System;
-	using System.Linq;
 
 	public sealed class SectorAction
 	{
@@ -1579,7 +1578,7 @@ namespace DoomEngine.Doom.World
 						}
 
 						// This compatibility fix is based on Chocolate Doom's implementation.
-						if (!DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia") && !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+						if (DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 						{
 							thing.Z = thing.FloorZ;
 						}

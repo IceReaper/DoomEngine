@@ -20,7 +20,6 @@ namespace DoomEngine.Doom.Game
 	using Info;
 	using Intermission;
 	using System;
-	using System.Linq;
 	using World;
 
 	public sealed class DoomGame
@@ -239,9 +238,7 @@ namespace DoomEngine.Doom.Game
 							players[this.options.ConsolePlayer].DidSecret = true;
 						}
 
-						if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-							|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-							|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+						if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 						{
 							switch (this.options.Map)
 							{
@@ -369,9 +366,7 @@ namespace DoomEngine.Doom.Game
 				}
 			}
 
-			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 			{
 				switch (this.options.Map)
 				{
@@ -391,9 +386,7 @@ namespace DoomEngine.Doom.Game
 			}
 
 			if ((this.options.Map == 8)
-				&& (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt")))
+				&& (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt"))
 			{
 				// Victory.
 				this.gameAction = GameAction.Victory;
@@ -402,9 +395,7 @@ namespace DoomEngine.Doom.Game
 			}
 
 			if ((this.options.Map == 9)
-				&& (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt")))
+				&& (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt"))
 
 			{
 				// Exit secret level.
@@ -421,9 +412,7 @@ namespace DoomEngine.Doom.Game
 			imInfo.LastLevel = this.options.Map - 1;
 
 			// IntermissionInfo.Next is 0 biased, unlike GameOptions.Map.
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				if (this.world.SecretExit)
 				{
@@ -502,9 +491,7 @@ namespace DoomEngine.Doom.Game
 			imInfo.MaxSecretCount = this.world.TotalSecrets;
 			imInfo.TotalFrags = 0;
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				imInfo.ParTime = 35 * DoomInfo.ParTimes.Doom2[this.options.Map - 1];
 			}
@@ -554,11 +541,11 @@ namespace DoomEngine.Doom.Game
 		{
 			skill = (GameSkill) Math.Clamp((int) skill, (int) GameSkill.Baby, (int) GameSkill.Nightmare);
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom"))
+			if (DoomApplication.Instance.IWad == "doom")
 			{
 				episode = Math.Clamp(episode, 1, 4);
 			}
-			else if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
+			else if (DoomApplication.Instance.IWad == "doom1")
 			{
 				episode = 1;
 			}
@@ -567,9 +554,7 @@ namespace DoomEngine.Doom.Game
 				episode = Math.Clamp(episode, 1, 3);
 			}
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				map = Math.Clamp(map, 1, 32);
 			}

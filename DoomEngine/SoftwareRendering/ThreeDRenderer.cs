@@ -22,7 +22,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Math;
 	using Doom.World;
 	using System;
-	using System.Linq;
 
 	public sealed class ThreeDRenderer
 	{
@@ -616,9 +615,7 @@ namespace DoomEngine.SoftwareRendering
 			this.borderLeft = Patch.FromWad("BRDR_L");
 			this.borderRight = Patch.FromWad("BRDR_R");
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				this.backFlat = this.flats["GRNROCK"];
 			}

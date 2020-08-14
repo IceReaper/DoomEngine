@@ -125,9 +125,7 @@ namespace DoomEngine.Doom.World
 		{
 			var player = this.world.ConsolePlayer;
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				for (var i = 0; i < (int) WeaponType.Count; i++)
 				{
@@ -143,7 +141,7 @@ namespace DoomEngine.Doom.World
 
 				player.WeaponOwned[(int) WeaponType.Chainsaw] = true;
 
-				if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom1"))
+				if (DoomApplication.Instance.IWad != "doom1")
 				{
 					player.WeaponOwned[(int) WeaponType.Plasma] = true;
 					player.WeaponOwned[(int) WeaponType.Bfg] = true;
@@ -384,9 +382,7 @@ namespace DoomEngine.Doom.World
 
 		private void ChangeLevel(string typed)
 		{
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				int map;
 
@@ -423,9 +419,7 @@ namespace DoomEngine.Doom.World
 		{
 			var options = new GameOptions();
 
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				int map;
 

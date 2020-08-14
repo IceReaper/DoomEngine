@@ -21,7 +21,6 @@ namespace DoomEngine.Doom.World
 	using Info;
 	using Math;
 	using System;
-	using System.Linq;
 
 	public sealed class ItemPickup
 	{
@@ -433,9 +432,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.MEGA:
-					if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-						&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-						&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+					if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 					{
 						return;
 					}

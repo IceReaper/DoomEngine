@@ -28,6 +28,7 @@ namespace DoomEngine
 	using System;
 	using System.Collections.Generic;
 	using System.Drawing;
+	using System.IO;
 	using System.Runtime.ExceptionServices;
 	using UserInput;
 
@@ -36,6 +37,7 @@ namespace DoomEngine
 		public static DoomApplication Instance;
 
 		public VirtualFileSystem FileSystem;
+		public string IWad;
 
 		private Config config;
 
@@ -99,7 +101,7 @@ namespace DoomEngine
 					DeHackEd.ReadFiles(args.deh.Value);
 				}
 
-				this.Resource = new CommonResource(wads);
+				this.Resource = new CommonResource();
 
 				this.renderer = platform.CreateRenderer(this.config, this.window, this.Resource);
 
@@ -170,14 +172,9 @@ namespace DoomEngine
 		{
 			var wadPaths = new List<string>();
 
-			if (args.iwad.Present)
-			{
-				wadPaths.Add(args.iwad.Value);
-			}
-			else
-			{
-				wadPaths.Add(ConfigUtilities.GetDefaultIwadPath());
-			}
+			var iwad = args.iwad.Present ? args.iwad.Value : ConfigUtilities.GetDefaultIwadPath();
+			wadPaths.Add(iwad);
+			this.IWad = Path.GetFileNameWithoutExtension(iwad).ToLower();
 
 			if (args.file.Present)
 			{

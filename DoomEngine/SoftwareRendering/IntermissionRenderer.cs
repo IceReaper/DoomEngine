@@ -20,7 +20,6 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Intermission;
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
 
 	public sealed class IntermissionRenderer
 	{
@@ -165,9 +164,7 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawBackground(Intermission im)
 		{
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				this.DrawPatch("INTERPIC", 0, 0);
 			}
@@ -446,9 +443,7 @@ namespace DoomEngine.SoftwareRendering
 			// Draw animated background.
 			this.DrawBackgroundAnimation(im);
 
-			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 			{
 				if (im.Info.Episode > 2)
 				{
@@ -485,9 +480,7 @@ namespace DoomEngine.SoftwareRendering
 			}
 
 			// Draw next level name.
-			if ((!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-					&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if ((DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 				|| im.Info.NextLevel != 30)
 			{
 				this.DrawEnteringLevelName(im);
@@ -501,9 +494,7 @@ namespace DoomEngine.SoftwareRendering
 
 			string levelName;
 
-			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 			{
 				var e = intermission.Options.Episode - 1;
 				levelName = IntermissionRenderer.doomLevels[e][wbs.LastLevel];
@@ -529,9 +520,7 @@ namespace DoomEngine.SoftwareRendering
 
 			string levelName;
 
-			if (!DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				&& !DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 			{
 				var e = im.Options.Episode - 1;
 				levelName = IntermissionRenderer.doomLevels[e][wbs.NextLevel];
@@ -653,9 +642,7 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawBackgroundAnimation(Intermission im)
 		{
-			if (DoomApplication.Instance.Resource.Wad.Names.Contains("doom2")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("plutonia")
-				|| DoomApplication.Instance.Resource.Wad.Names.Contains("tnt"))
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
 			{
 				return;
 			}
