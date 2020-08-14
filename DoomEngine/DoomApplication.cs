@@ -106,12 +106,12 @@ namespace DoomEngine
 
 				if (!args.nosound.Present && !args.nosfx.Present)
 				{
-					this.sound = platform.CreateSound(this.config, this.Resource.Wad);
+					this.sound = platform.CreateSound(this.config);
 				}
 
 				if (!args.nosound.Present && !args.nomusic.Present)
 				{
-					this.music = platform.CreateMusic(this.config, this.Resource.Wad);
+					this.music = platform.CreateMusic(this.config);
 				}
 
 				this.userInput = platform.CreateUserInput(this.config, this.window, !args.nomouse.Present);

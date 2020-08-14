@@ -18,12 +18,12 @@ namespace DoomEngine.Platform.Desktop
 	using Audio;
 	using Doom.Info;
 	using Doom.Math;
-	using Doom.Wad;
 	using Doom.World;
 	using Platform;
 	using SFML.Audio;
 	using SFML.System;
 	using System;
+	using System.IO;
 	using System.Runtime.ExceptionServices;
 
 	public sealed class SfmlSound : ISound
@@ -54,7 +54,7 @@ namespace DoomEngine.Platform.Desktop
 
 		private DateTime lastUpdate;
 
-		public SfmlSound(Config config, Wad wad)
+		public SfmlSound(Config config)
 		{
 			try
 			{
@@ -70,16 +70,15 @@ namespace DoomEngine.Platform.Desktop
 				for (var i = 0; i < DoomInfo.SfxNames.Length; i++)
 				{
 					var name = "DS" + DoomInfo.SfxNames[i];
-					var lump = wad.GetLumpNumber(name);
 
-					if (lump == -1)
+					if (!DoomApplication.Instance.FileSystem.Exists(name))
 					{
 						continue;
 					}
 
 					int sampleRate;
 					int sampleCount;
-					var samples = SfmlSound.GetSamples(wad, name, out sampleRate, out sampleCount);
+					var samples = SfmlSound.GetSamples(name, out sampleRate, out sampleCount);
 
 					if (samples != null)
 					{
@@ -114,20 +113,22 @@ namespace DoomEngine.Platform.Desktop
 			}
 		}
 
-		private static short[] GetSamples(Wad wad, string name, out int sampleRate, out int sampleCount)
+		private static short[] GetSamples(string name, out int sampleRate, out int sampleCount)
 		{
-			var data = wad.ReadLump(name);
+			var reader = new BinaryReader(DoomApplication.Instance.FileSystem.Read(name));
 
-			sampleRate = BitConverter.ToUInt16(data, 2);
-			sampleCount = BitConverter.ToInt32(data, 4) - 32;
+			reader.BaseStream.Position = 2;
+			sampleRate = reader.ReadUInt16();
+			sampleCount = reader.ReadInt32() - 32;
 
 			if (sampleCount > 0)
 			{
 				var samples = new short[sampleCount];
+				reader.BaseStream.Position = 24;
 
 				for (var t = 0; t < samples.Length; t++)
 				{
-					samples[t] = (short) ((data[24 + t] - 128) << 8);
+					samples[t] = (short) ((reader.ReadByte() - 128) << 8);
 				}
 
 				return samples;

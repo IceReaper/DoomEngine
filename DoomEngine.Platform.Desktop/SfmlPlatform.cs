@@ -1,7 +1,6 @@
 ﻿namespace DoomEngine.Platform.Desktop
 {
 	using Doom.Common;
-	using Doom.Wad;
 	using SFML.Window;
 	using System.IO;
 
@@ -12,18 +11,18 @@
 			return new SfmlRenderer(config, (SfmlWindow) window, resource);
 		}
 
-		public ISound CreateSound(Config config, Wad wad)
+		public ISound CreateSound(Config config)
 		{
-			return new SfmlSound(config, wad);
+			return new SfmlSound(config);
 		}
 
-		public IMusic CreateMusic(Config config, Wad wad)
+		public IMusic CreateMusic(Config config)
 		{
 			var sfPath = "TimGM6mb.sf2";
 
 			if (File.Exists(sfPath))
 			{
-				return new SfmlMusic(config, wad, sfPath);
+				return new SfmlMusic(config, sfPath);
 			}
 			else
 			{

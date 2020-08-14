@@ -16,7 +16,6 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
-	using Game;
 	using Info;
 	using Map;
 	using Math;

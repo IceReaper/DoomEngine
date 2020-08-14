@@ -18,7 +18,6 @@ namespace DoomEngine.Doom.Menu
 	using Audio;
 	using Common;
 	using Event;
-	using Game;
 	using Info;
 	using System;
 	using System.Collections.Generic;

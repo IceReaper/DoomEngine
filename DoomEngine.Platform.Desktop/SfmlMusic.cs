@@ -20,29 +20,27 @@ namespace DoomEngine.Platform.Desktop
 	using AudioSynthesis.Sequencer;
 	using AudioSynthesis.Synthesis;
 	using Doom.Info;
-	using Doom.Wad;
 	using SFML.Audio;
 	using SFML.System;
 	using System;
 	using System.IO;
+	using System.Linq;
 	using System.Runtime.ExceptionServices;
 
 	public sealed class SfmlMusic : IMusic
 	{
 		private Config config;
-		private Wad wad;
 
 		private MusStream stream;
 		private Bgm current;
 
-		public SfmlMusic(Config config, Wad wad, string sfPath)
+		public SfmlMusic(Config config, string sfPath)
 		{
 			try
 			{
 				Console.Write("Initialize music: ");
 
 				this.config = config;
-				this.wad = wad;
 
 				this.stream = new MusStream(this, config, sfPath);
 				this.current = Bgm.NONE;
@@ -64,45 +62,27 @@ namespace DoomEngine.Platform.Desktop
 				return;
 			}
 
-			var lump = "D_" + DoomInfo.BgmNames[(int) bgm];
-			var data = this.wad.ReadLump(lump);
-			var decoder = this.ReadData(data, loop);
+			var decoder = this.ReadData(DoomApplication.Instance.FileSystem.Read("D_" + DoomInfo.BgmNames[(int) bgm]), loop);
 			this.stream.SetDecoder(decoder);
 
 			this.current = bgm;
 		}
 
-		private IDecoder ReadData(byte[] data, bool loop)
+		private IDecoder ReadData(Stream stream, bool loop)
 		{
-			var isMus = true;
+			var reader = new BinaryReader(stream);
 
-			for (var i = 0; i < MusDecoder.MusHeader.Length; i++)
-			{
-				if (data[i] != MusDecoder.MusHeader[i])
-				{
-					isMus = false;
-				}
-			}
+			var isMus = reader.ReadBytes(MusDecoder.MusHeader.Length).SequenceEqual(MusDecoder.MusHeader);
+			reader.BaseStream.Position = 0;
 
 			if (isMus)
-			{
-				return new MusDecoder(data, loop);
-			}
+				return new MusDecoder(reader, loop);
 
-			var isMidi = true;
-
-			for (var i = 0; i < MidiDecoder.MidiHeader.Length; i++)
-			{
-				if (data[i] != MidiDecoder.MidiHeader[i])
-				{
-					isMidi = false;
-				}
-			}
+			var isMidi = reader.ReadBytes(MidiDecoder.MidiHeader.Length).SequenceEqual(MidiDecoder.MidiHeader);
+			reader.BaseStream.Position = 0;
 
 			if (isMidi)
-			{
-				return new MidiDecoder(data, loop);
-			}
+				return new MidiDecoder(reader, loop);
 
 			throw new Exception("Unknown format!");
 		}
@@ -248,7 +228,7 @@ namespace DoomEngine.Platform.Desktop
 
 			public static readonly byte[] MusHeader = new byte[] {(byte) 'M', (byte) 'U', (byte) 'S', 0x1A};
 
-			private byte[] data;
+			private BinaryReader reader;
 			private bool loop;
 
 			private int scoreLength;
@@ -262,26 +242,27 @@ namespace DoomEngine.Platform.Desktop
 			private int eventCount;
 
 			private int[] lastVolume;
-			private int p;
 			private int delay;
 
-			public MusDecoder(byte[] data, bool loop)
+			public MusDecoder(BinaryReader reader, bool loop)
 			{
-				MusDecoder.CheckHeader(data);
+				this.reader = reader;
 
-				this.data = data;
+				reader.BaseStream.Position = 4;
 				this.loop = loop;
 
-				this.scoreLength = BitConverter.ToUInt16(data, 4);
-				this.scoreStart = BitConverter.ToUInt16(data, 6);
-				this.channelCount = BitConverter.ToUInt16(data, 8);
-				this.channelCount2 = BitConverter.ToUInt16(data, 10);
-				this.instrumentCount = BitConverter.ToUInt16(data, 12);
+				this.scoreLength = reader.ReadUInt16();
+				this.scoreStart = reader.ReadUInt16();
+				this.channelCount = reader.ReadUInt16();
+				this.channelCount2 = reader.ReadUInt16();
+				this.instrumentCount = reader.ReadUInt16();
 				this.instruments = new int[this.instrumentCount];
+
+				reader.BaseStream.Position += 2;
 
 				for (var i = 0; i < this.instruments.Length; i++)
 				{
-					this.instruments[i] = BitConverter.ToUInt16(data, 16 + 2 * i);
+					this.instruments[i] = reader.ReadUInt16();
 				}
 
 				this.events = new MusEvent[128];
@@ -296,17 +277,6 @@ namespace DoomEngine.Platform.Desktop
 				this.lastVolume = new int[16];
 
 				this.Reset();
-			}
-
-			private static void CheckHeader(byte[] data)
-			{
-				for (var p = 0; p < MusDecoder.MusHeader.Length; p++)
-				{
-					if (data[p] != MusDecoder.MusHeader[p])
-					{
-						throw new Exception("Invalid format!");
-					}
-				}
 			}
 
 			public void FillBuffer(Synthesizer synthesizer)
@@ -342,7 +312,7 @@ namespace DoomEngine.Platform.Desktop
 					this.lastVolume[i] = 0;
 				}
 
-				this.p = this.scoreStart;
+				this.reader.BaseStream.Position = this.scoreStart;
 
 				this.delay = 0;
 			}
@@ -369,7 +339,7 @@ namespace DoomEngine.Platform.Desktop
 
 				while (true)
 				{
-					var value = this.data[this.p++];
+					var value = this.reader.ReadByte();
 					time = time * 128 + (value & 127);
 
 					if ((value & 128) == 0)
@@ -383,17 +353,16 @@ namespace DoomEngine.Platform.Desktop
 
 			private ReadResult ReadSingleEvent()
 			{
-				var channelNumber = this.data[this.p] & 0xF;
+				var value = this.reader.ReadByte();
+				var channelNumber = value & 0xF;
 
 				if (channelNumber == 15)
 				{
 					channelNumber = 9;
 				}
 
-				var eventType = (this.data[this.p] & 0x70) >> 4;
-				var last = (this.data[this.p] >> 7) != 0;
-
-				this.p++;
+				var eventType = (value & 0x70) >> 4;
+				var last = (value >> 7) != 0;
 
 				var me = this.events[this.eventCount];
 				this.eventCount++;
@@ -404,7 +373,7 @@ namespace DoomEngine.Platform.Desktop
 						me.Type = 0;
 						me.Channel = channelNumber;
 
-						var releaseNote = this.data[this.p++];
+						var releaseNote = this.reader.ReadByte();
 
 						me.Data1 = releaseNote;
 						me.Data2 = 0;
@@ -415,9 +384,9 @@ namespace DoomEngine.Platform.Desktop
 						me.Type = 1;
 						me.Channel = channelNumber;
 
-						var playNote = this.data[this.p++];
+						var playNote = this.reader.ReadByte();
 						var noteNumber = playNote & 127;
-						var noteVolume = (playNote & 128) != 0 ? this.data[this.p++] : -1;
+						var noteVolume = (playNote & 128) != 0 ? this.reader.ReadByte() : -1;
 
 						me.Data1 = noteNumber;
 
@@ -437,7 +406,7 @@ namespace DoomEngine.Platform.Desktop
 						me.Type = 2;
 						me.Channel = channelNumber;
 
-						var pitchWheel = this.data[this.p++];
+						var pitchWheel = this.reader.ReadByte();
 
 						var pw2 = (pitchWheel << 7) / 2;
 						var pw1 = pw2 & 127;
@@ -451,7 +420,7 @@ namespace DoomEngine.Platform.Desktop
 						me.Type = 3;
 						me.Channel = -1;
 
-						var systemEvent = this.data[this.p++];
+						var systemEvent = this.reader.ReadByte();
 						me.Data1 = systemEvent;
 						me.Data2 = 0;
 
@@ -461,8 +430,8 @@ namespace DoomEngine.Platform.Desktop
 						me.Type = 4;
 						me.Channel = channelNumber;
 
-						var controllerNumber = this.data[this.p++];
-						var controllerValue = this.data[this.p++];
+						var controllerNumber = this.reader.ReadByte();
+						var controllerValue = this.reader.ReadByte();
 
 						me.Data1 = controllerNumber;
 						me.Data2 = controllerValue;
@@ -599,9 +568,9 @@ namespace DoomEngine.Platform.Desktop
 
 			private bool loop;
 
-			public MidiDecoder(byte[] data, bool loop)
+			public MidiDecoder(BinaryReader reader, bool loop)
 			{
-				this.midi = new MidiFile(new MemoryStream(data));
+				this.midi = new MidiFile(reader.BaseStream);
 
 				this.loop = loop;
 			}
