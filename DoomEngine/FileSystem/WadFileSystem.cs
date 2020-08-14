@@ -4,11 +4,22 @@
 	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
-	using Utils;
 
 	public class WadFileSystem : IReadableFileSystem
 	{
-		private readonly Dictionary<string, SegmentStream> files = new Dictionary<string, SegmentStream>();
+		private class LumpInfo
+		{
+			public readonly int Position;
+			public readonly int Length;
+
+			public LumpInfo(int position, int length)
+			{
+				this.Position = position;
+				this.Length = length;
+			}
+		}
+		
+		private readonly Dictionary<string, LumpInfo> files = new Dictionary<string, LumpInfo>();
 		private Stream stream;
 
 		public WadFileSystem(Stream stream)
@@ -65,7 +76,7 @@
 
 					// TODO while in theory a same named file with different contents may exist, we rely on loading the first only for now.
 					if (!this.files.ContainsKey(key))
-						this.files.Add(key, new SegmentStream(stream, position, length));
+						this.files.Add(key, new LumpInfo(position, length));
 
 					if (!inMap || name != "BLOCKMAP")
 						continue;
@@ -86,7 +97,13 @@
 
 		public Stream Read(string path)
 		{
-			return this.Exists(path) ? this.files[path] : null;
+			if (!this.Exists(path))
+				return null;
+
+			this.stream.Position = this.files[path].Position;
+			var buffer = new byte[this.files[path].Length];
+			this.stream.Read(buffer, 0, buffer.Length);
+			return new MemoryStream(buffer);
 		}
 
 		public IEnumerable<string> Files()
