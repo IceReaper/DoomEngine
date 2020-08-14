@@ -15,6 +15,11 @@
 			this.fileSystems.Add(new FolderFileSystem(AppDomain.CurrentDomain.BaseDirectory));
 		}
 
+		public void Add(IReadableFileSystem fileSystem)
+		{
+			this.fileSystems.Add(fileSystem);
+		}
+
 		public bool Exists(string path)
 		{
 			return this.fileSystems.Any(fileSystem => fileSystem.Exists(path));
@@ -25,12 +30,12 @@
 			return this.fileSystems.FirstOrDefault(fileSystem => fileSystem.Exists(path))?.Read(path);
 		}
 
-		public IEnumerable<string> Files(string path)
+		public IEnumerable<string> Files()
 		{
 			var files = new List<string>();
 
 			foreach (var fileSystem in this.fileSystems)
-				files.AddRange(fileSystem.Files(path));
+				files.AddRange(fileSystem.Files());
 
 			return files;
 		}
@@ -43,6 +48,11 @@
 		public Stream Write(string path)
 		{
 			return this.fileSystems.OfType<IWritableFileSystem>().FirstOrDefault()?.Write(path);
+		}
+
+		public void Dispose()
+		{
+			this.fileSystems.ForEach(fileSystem => fileSystem.Dispose());
 		}
 	}
 }

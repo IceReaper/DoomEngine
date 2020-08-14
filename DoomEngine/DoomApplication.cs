@@ -36,7 +36,7 @@ namespace DoomEngine
 	{
 		public static DoomApplication Instance;
 
-		public IWritableFileSystem FileSystem;
+		public VirtualFileSystem FileSystem;
 
 		private Config config;
 
@@ -76,7 +76,14 @@ namespace DoomEngine
 		public DoomApplication(IPlatform platform, CommandLineArgs args)
 		{
 			DoomApplication.Instance = this;
+
 			this.FileSystem = new VirtualFileSystem();
+
+			var wads = this.GetWadPaths(args);
+
+			foreach (var wad in wads)
+				this.FileSystem.Add(new WadFileSystem(this.FileSystem.Read(wad)));
+
 			this.config = new Config(platform, "managed-doom.cfg");
 
 			try
@@ -93,7 +100,7 @@ namespace DoomEngine
 					DeHackEd.ReadFiles(args.deh.Value);
 				}
 
-				this.Resource = new CommonResource(this.GetWadPaths(args));
+				this.Resource = new CommonResource(wads);
 
 				this.renderer = platform.CreateRenderer(this.config, this.window, this.Resource);
 

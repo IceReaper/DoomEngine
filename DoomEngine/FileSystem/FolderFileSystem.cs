@@ -23,9 +23,9 @@
 			return File.OpenRead(Path.Combine(this.path, path));
 		}
 
-		public IEnumerable<string> Files(string path)
+		public IEnumerable<string> Files()
 		{
-			return Directory.GetFiles(Path.Combine(this.path, path), "*", SearchOption.AllDirectories)
+			return Directory.GetFiles(this.path, "*", SearchOption.AllDirectories)
 				.Select(file => file.Substring(this.path.Length).Replace('\\', '/').Trim('/'));
 		}
 
@@ -37,6 +37,10 @@
 		public Stream Write(string path)
 		{
 			return File.OpenWrite(Path.Combine(this.path, path));
+		}
+
+		public void Dispose()
+		{
 		}
 	}
 }
