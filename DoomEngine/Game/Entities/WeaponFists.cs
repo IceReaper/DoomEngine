@@ -1,5 +1,6 @@
 namespace DoomEngine.Game.Entities
 {
+	using Audio;
 	using Components;
 	using Doom.World;
 	using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace DoomEngine.Game.Entities
 				new List<Component>
 				{
 					new WeaponComponent(1, MobjState.Punchup, MobjState.Punchdown, MobjState.Punch, MobjState.Punch1, MobjState.Null),
-					new FireMeleeComponent()
+					new FireMeleeComponent(WeaponBehavior.MeleeRange, Sfx.NONE, Sfx.PUNCH, true, false)
 				}
 			)
 		{
