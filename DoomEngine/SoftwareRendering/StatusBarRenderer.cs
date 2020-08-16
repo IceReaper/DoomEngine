@@ -18,7 +18,10 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Game;
 	using Doom.Graphics;
 	using Doom.World;
+	using Game;
+	using Game.Components;
 	using Game.Components.Weapons;
+	using Game.Entities.Ammos;
 	using System.Linq;
 
 	public sealed class StatusBarRenderer
@@ -143,7 +146,7 @@ namespace DoomEngine.SoftwareRendering
 			this.armor.NumberWidget.Y = StatusBarRenderer.armorY;
 			this.armor.Patch = this.patches.TallPercent;
 
-			this.ammo = new NumberWidget[(int) AmmoType.Count];
+			this.ammo = new NumberWidget[4];
 			this.ammo[0] = new NumberWidget();
 			this.ammo[0].Patches = this.patches.ShortNumbers;
 			this.ammo[0].Width = StatusBarRenderer.ammo0Width;
@@ -165,7 +168,7 @@ namespace DoomEngine.SoftwareRendering
 			this.ammo[3].X = StatusBarRenderer.ammo3X;
 			this.ammo[3].Y = StatusBarRenderer.ammo3Y;
 
-			this.maxAmmo = new NumberWidget[(int) AmmoType.Count];
+			this.maxAmmo = new NumberWidget[4];
 			this.maxAmmo[0] = new NumberWidget();
 			this.maxAmmo[0].Patches = this.patches.ShortNumbers;
 			this.maxAmmo[0].Width = StatusBarRenderer.maxAmmo0Width;
@@ -225,19 +228,41 @@ namespace DoomEngine.SoftwareRendering
 				this.screen.DrawPatch(this.patches.Background, 0, this.scale * (200 - StatusBarRenderer.Height), this.scale);
 			}
 
-			var ammoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var requiresAmmoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
-			if (ammoComponent != null)
-				this.DrawNumber(this.ready, player.Ammo[(int) ammoComponent.Info.Ammo]);
+			if (requiresAmmoComponent != null)
+			{
+				var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+					?.Components.OfType<AmmoComponent>()
+					.FirstOrDefault();
+
+				if (ammoComponent != null)
+					this.DrawNumber(this.ready, ammoComponent.Amount);
+			}
 
 			this.DrawPercent(this.health, player.Health);
 			this.DrawPercent(this.armor, player.ArmorPoints);
 
-			for (var i = 0; i < (int) AmmoType.Count; i++)
-			{
-				this.DrawNumber(this.ammo[i], player.Ammo[i]);
-				this.DrawNumber(this.maxAmmo[i], player.MaxAmmo[i]);
-			}
+			var bullets = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoBullets)?.Components.OfType<AmmoComponent>().First();
+			var bulletsInfo = EntityInfo.OfType<AmmoBullets>().ComponentInfos.OfType<AmmoComponentInfo>().First();
+			var shells = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoShells)?.Components.OfType<AmmoComponent>().First();
+			var shellsInfo = EntityInfo.OfType<AmmoShells>().ComponentInfos.OfType<AmmoComponentInfo>().First();
+			var rockets = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoRockets)?.Components.OfType<AmmoComponent>().First();
+			var rocketsInfo = EntityInfo.OfType<AmmoRockets>().ComponentInfos.OfType<AmmoComponentInfo>().First();
+			var cells = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoCells)?.Components.OfType<AmmoComponent>().First();
+			var cellsInfo = EntityInfo.OfType<AmmoCells>().ComponentInfos.OfType<AmmoComponentInfo>().First();
+
+			this.DrawNumber(this.ammo[0], bullets?.Amount ?? 0);
+			this.DrawNumber(this.maxAmmo[0], bulletsInfo.Maximum);
+
+			this.DrawNumber(this.ammo[1], shells?.Amount ?? 0);
+			this.DrawNumber(this.maxAmmo[1], shellsInfo.Maximum);
+
+			this.DrawNumber(this.ammo[2], cells?.Amount ?? 0);
+			this.DrawNumber(this.maxAmmo[2], cellsInfo.Maximum);
+
+			this.DrawNumber(this.ammo[3], rockets?.Amount ?? 0);
+			this.DrawNumber(this.maxAmmo[3], rocketsInfo.Maximum);
 
 			if (player.Mobj.World.Options.Deathmatch == 0)
 			{
@@ -255,7 +280,10 @@ namespace DoomEngine.SoftwareRendering
 				{
 					this.DrawMultIcon(
 						this.weapons[i],
-						player.WeaponOwned.Any(weapon => weapon.Components.OfType<WeaponComponent>().First().Info.Slot - 2 == i) ? 1 : 0
+						player.Inventory.Where(entity => entity.Components.OfType<WeaponComponent>().Any())
+							.Any(entity => entity.Components.OfType<WeaponComponent>().First().Info.Slot - 2 == i)
+							? 1
+							: 0
 					);
 				}
 			}

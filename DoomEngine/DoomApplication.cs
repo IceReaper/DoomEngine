@@ -110,7 +110,7 @@ namespace DoomEngine
 					this.music = platform.CreateMusic(this.config);
 				}
 
-				this.userInput = platform.CreateUserInput(this.config, this.window, !args.nomouse.Present);
+				this.userInput = platform.CreateUserInput(this.config, this.window, args.nomouse.Present);
 
 				this.events = new List<DoomEvent>();
 

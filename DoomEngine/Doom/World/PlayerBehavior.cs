@@ -118,7 +118,16 @@ namespace DoomEngine.Doom.World
 				// The actual changing of the weapon is done when the weapon psprite can do it.
 				// Not in the middle of an attack.
 				var slot = (cmd.Buttons & TicCmdButtons.WeaponMask) >> TicCmdButtons.WeaponShift;
-				var weapons = player.WeaponOwned.Where(weapon => weapon.Components.OfType<WeaponComponent>().First().Info.Slot == slot + 1).ToArray();
+
+				var weapons = player.Inventory.Where(
+						entity =>
+						{
+							var weaponComponent = entity.Components.OfType<WeaponComponent>().FirstOrDefault();
+
+							return weaponComponent != null && weaponComponent.Info.Slot == slot + 1;
+						}
+					)
+					.ToArray();
 
 				if (weapons.Length > 0)
 				{

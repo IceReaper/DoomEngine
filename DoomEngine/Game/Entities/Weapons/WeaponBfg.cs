@@ -1,5 +1,6 @@
 namespace DoomEngine.Game.Entities.Weapons
 {
+	using Ammos;
 	using Components.Weapons;
 	using Doom.World;
 	using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace DoomEngine.Game.Entities.Weapons
 				new List<ComponentInfo>
 				{
 					new WeaponComponentInfo(7, MobjState.Bfgup, MobjState.Bfgdown, MobjState.Bfg, MobjState.Bfg1, MobjState.Bfgflash1),
-					new RequiresAmmoComponentInfo(AmmoType.Cell, 40),
+					new RequiresAmmoComponentInfo(nameof(AmmoCells), 40),
 					new FireProjectileComponentInfo(MobjType.Bfg)
 				}
 			)

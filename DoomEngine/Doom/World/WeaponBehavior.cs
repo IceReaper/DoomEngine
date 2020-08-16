@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
@@ -101,34 +102,38 @@ namespace DoomEngine.Doom.World
 
 		private bool CheckAmmo(Player player)
 		{
-			var ammoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var requiresAmmoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
-			if (ammoComponent == null)
+			if (requiresAmmoComponent == null)
 				return true;
 
-			// Some do not need ammunition anyway.
-			// Return if current ammunition sufficient.
-			if (ammoComponent.Info.Ammo == AmmoType.NoAmmo || player.Ammo[(int) ammoComponent.Info.Ammo] >= ammoComponent.Info.AmmoPerShot)
+			var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+				?.Components.OfType<AmmoComponent>()
+				.FirstOrDefault();
+
+			if (ammoComponent != null && requiresAmmoComponent.Info.AmmoPerShot <= ammoComponent.Amount)
 			{
 				return true;
 			}
 
-			// Out of ammo, pick a weapon to change to.
-			// Preferences are set here.
 			do
 			{
-				player.PendingWeapon = player.WeaponOwned.Where(
+				player.PendingWeapon = player.Inventory.Where(
 							weapon =>
 							{
 								if (weapon == player.ReadyWeapon)
 									return false;
 
-								var ammoComponent = weapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+								var requiresAmmoComponent = weapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
-								if (ammoComponent == null)
+								if (requiresAmmoComponent == null)
 									return false;
 
-								if (player.Ammo[(int) ammoComponent.Info.Ammo] < ammoComponent.Info.AmmoPerShot)
+								var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+									?.Components.OfType<AmmoComponent>()
+									.FirstOrDefault();
+
+								if (ammoComponent == null || ammoComponent.Amount < requiresAmmoComponent.Info.AmmoPerShot)
 									return false;
 
 								return true;
@@ -136,8 +141,7 @@ namespace DoomEngine.Doom.World
 						)
 						.OrderBy(weapon => -weapon.Components.OfType<WeaponComponent>().First().Info.Slot)
 						.FirstOrDefault()
-					?? player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponChainsaw)
-					?? player.WeaponOwned.First(weapon => weapon.Info is WeaponFists);
+					?? player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponChainsaw) ?? player.Inventory.First(weapon => weapon.Info is WeaponFists);
 			}
 			while (player.PendingWeapon == null);
 

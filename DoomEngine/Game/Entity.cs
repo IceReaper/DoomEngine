@@ -7,29 +7,27 @@ namespace DoomEngine.Game
 
 	public abstract class EntityInfo
 	{
-		public readonly IEnumerable<ComponentInfo> Components;
+		public readonly IEnumerable<ComponentInfo> ComponentInfos;
+		public readonly string Name;
 
-		protected EntityInfo(IEnumerable<ComponentInfo> components)
+		protected EntityInfo(IEnumerable<ComponentInfo> componentInfos)
 		{
-			this.Components = components;
+			this.ComponentInfos = componentInfos;
+			this.Name = this.GetType().Name;
 		}
-	}
+		
+		private static readonly Dictionary<string, EntityInfo> entityInfos;
 
-	public sealed class Entity
-	{
-		public static readonly IEnumerable<EntityInfo> EntityInfos;
-
-		static Entity()
+		static EntityInfo()
 		{
-			Entity.EntityInfos = AppDomain.CurrentDomain.GetAssemblies()
+			EntityInfo.entityInfos = AppDomain.CurrentDomain.GetAssemblies()
 				.SelectMany(assembly => assembly.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(EntityInfo))))
-				.Select(type => (EntityInfo) type.GetConstructor(new Type[0])?.Invoke(new object[0]))
-				.ToArray();
+				.ToDictionary(type => type.Name, type => (EntityInfo) type.GetConstructor(new Type[0])?.Invoke(new object[0]));
 		}
 
 		public static Entity Create<T>() where T : EntityInfo
 		{
-			return new Entity(Entity.EntityInfos.First(info => info.GetType() == typeof(T)));
+			return new Entity(EntityInfo.entityInfos.First(info => info.Value.GetType() == typeof(T)).Value);
 		}
 
 		public static Entity Create(EntityInfo info)
@@ -37,18 +35,36 @@ namespace DoomEngine.Game
 			return new Entity(info);
 		}
 
+		public static IEnumerable<EntityInfo> WithComponent<T>() where T : ComponentInfo
+		{
+			return EntityInfo.entityInfos.Values.Where(entityInfo => entityInfo.ComponentInfos.Any(componentInfo => componentInfo.GetType() == typeof(T)));
+		}
+
+		public static EntityInfo OfName(string name)
+		{
+			return EntityInfo.entityInfos.ContainsKey(name) ? EntityInfo.entityInfos[name] : null;
+		}
+
+		public static EntityInfo OfType<T>() where T : EntityInfo
+		{
+			return EntityInfo.entityInfos.Values.FirstOrDefault(entityInfo => entityInfo.GetType() == typeof(T));
+		}
+	}
+
+	public sealed class Entity
+	{
 		public readonly EntityInfo Info;
 		public readonly IEnumerable<Component> Components;
 
-		private Entity(EntityInfo info)
+		public Entity(EntityInfo info)
 		{
 			this.Info = info;
-			this.Components = info.Components.Select(componentInfo => componentInfo.Create(this));
+			this.Components = info.ComponentInfos.Select(componentInfo => componentInfo.Create(this)).ToArray();
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			writer.Write(this.Info.GetType().Name);
+			writer.Write(this.Info.Name);
 
 			foreach (var component in this.Components)
 				component.Serialize(writer);
@@ -56,8 +72,7 @@ namespace DoomEngine.Game
 
 		public static Entity Deserialize(BinaryReader reader)
 		{
-			var type = reader.ReadString();
-			var entity = new Entity(Entity.EntityInfos.First(info => info.GetType().Name == type));
+			var entity = new Entity(EntityInfo.OfName(reader.ReadString()));
 
 			foreach (var component in entity.Components)
 				component.Deserialize(reader);

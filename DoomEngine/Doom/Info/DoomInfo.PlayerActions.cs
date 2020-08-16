@@ -86,7 +86,7 @@ namespace DoomEngine.Doom.Info
 
 			public static void Fire(World world, Player player, PlayerSpriteDef psp)
 			{
-				player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Fire(world, player, psp);
+				player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Fire(world, player);
 			}
 
 			public void BFGsound(World world, Player player, PlayerSpriteDef psp)

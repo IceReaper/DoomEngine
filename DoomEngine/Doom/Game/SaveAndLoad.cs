@@ -469,23 +469,13 @@ namespace DoomEngine.Doom.Game
 					this.writer.Write(player.Frags[i]);
 				}
 
-				this.writer.Write(player.WeaponOwned.Count);
+				this.writer.Write(player.Inventory.Count);
 
-				foreach (var weapon in player.WeaponOwned)
+				foreach (var weapon in player.Inventory)
 					weapon.Serialize(this.writer);
 
-				this.writer.Write(player.ReadyWeapon.Info.GetType().Name);
-				this.writer.Write(player.PendingWeapon.Info.GetType().Name);
-
-				for (var i = 0; i < (int) AmmoType.Count; i++)
-				{
-					this.writer.Write(player.Ammo[i]);
-				}
-
-				for (var i = 0; i < (int) AmmoType.Count; i++)
-				{
-					this.writer.Write(player.MaxAmmo[i]);
-				}
+				this.writer.Write(player.ReadyWeapon.Info.Name);
+				this.writer.Write(player.PendingWeapon.Info.Name);
 
 				this.writer.Write(player.AttackDown ? 1 : 0);
 				this.writer.Write(player.UseDown ? 1 : 0);
@@ -974,23 +964,13 @@ namespace DoomEngine.Doom.Game
 				var numWeapons = this.reader.ReadInt32();
 
 				for (var i = 0; i < numWeapons; i++)
-					player.WeaponOwned.Add(Entity.Deserialize(this.reader));
+					player.Inventory.Add(Entity.Deserialize(this.reader));
 
 				var readyWeapon = this.reader.ReadString();
-				player.ReadyWeapon = player.WeaponOwned.First(weapon => weapon.Info.GetType().Name == readyWeapon);
+				player.ReadyWeapon = player.Inventory.First(weapon => weapon.Info.Name == readyWeapon);
 
 				var pendingWeapon = this.reader.ReadString();
-				player.PendingWeapon = player.WeaponOwned.First(weapon => weapon.Info.GetType().Name == pendingWeapon);
-
-				for (var i = 0; i < (int) AmmoType.Count; i++)
-				{
-					player.Ammo[i] = this.reader.ReadInt32();
-				}
-
-				for (var i = 0; i < (int) AmmoType.Count; i++)
-				{
-					player.MaxAmmo[i] = this.reader.ReadInt32();
-				}
+				player.PendingWeapon = player.Inventory.First(weapon => weapon.Info.Name == pendingWeapon);
 
 				player.AttackDown = this.reader.ReadInt32() != 0;
 				player.UseDown = this.reader.ReadInt32() != 0;

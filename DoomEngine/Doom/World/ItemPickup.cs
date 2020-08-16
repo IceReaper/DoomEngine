@@ -17,7 +17,9 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Weapons;
+	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
 	using Graphics;
@@ -44,84 +46,59 @@ namespace DoomEngine.Doom.World
 		/// <returns>
 		/// False if the ammo can't be picked up at all.
 		/// </returns>
-		public bool GiveAmmo(Player player, AmmoType ammo, int amount)
+		public bool GiveAmmo(Player player, string ammoName, int amount)
 		{
-			if (ammo == AmmoType.NoAmmo)
+			var entityInfo = EntityInfo.OfName(ammoName);
+
+			var entity = player.Inventory.FirstOrDefault(entity => entity.Info == entityInfo);
+			var ammoComponent = entity?.Components.OfType<AmmoComponent>().First();
+
+			if (entity == null)
 			{
-				return false;
+				entity = EntityInfo.Create(entityInfo);
+				ammoComponent = entity.Components.OfType<AmmoComponent>().First();
+				ammoComponent.Amount = 0;
+				player.Inventory.Add(entity);
 			}
 
-			if (ammo < 0 || (int) ammo > (int) AmmoType.Count)
-			{
-				throw new Exception("Bad ammo type: " + ammo);
-			}
-
-			if (player.Ammo[(int) ammo] == player.MaxAmmo[(int) ammo])
-			{
+			if (ammoComponent.Amount == ammoComponent.Info.Maximum)
 				return false;
-			}
 
 			if (amount != 0)
-			{
-				amount *= DoomInfo.AmmoInfos.Clip[(int) ammo];
-			}
+				amount *= ammoComponent.Info.ClipSize;
 			else
-			{
-				amount = DoomInfo.AmmoInfos.Clip[(int) ammo] / 2;
-			}
+				amount = ammoComponent.Info.ClipSize / 2;
 
 			if (this.world.Options.Skill == GameSkill.Baby || this.world.Options.Skill == GameSkill.Nightmare)
-			{
-				// Give double ammo in trainer mode, you'll need in nightmare.
-				amount <<= 1;
-			}
+				amount *= 2;
 
-			var oldammo = player.Ammo[(int) ammo];
-			player.Ammo[(int) ammo] += amount;
+			var oldammo = ammoComponent.Amount;
+			ammoComponent.Amount = Math.Min(ammoComponent.Amount + amount, ammoComponent.Info.Maximum);
 
-			if (player.Ammo[(int) ammo] > player.MaxAmmo[(int) ammo])
-			{
-				player.Ammo[(int) ammo] = player.MaxAmmo[(int) ammo];
-			}
-
-			// If non zero ammo, don't change up weapons, player was lower on purpose.
 			if (oldammo != 0)
-			{
 				return true;
-			}
 
-			// We were down to zero, so select a new weapon.
-			// Preferences are not user selectable.
-			switch (ammo)
+			if (entity.Info is AmmoBullets)
 			{
-				case AmmoType.Clip:
-					if (player.ReadyWeapon.Info is WeaponFists)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
-							?? player.WeaponOwned.First(weapon => weapon.Info is WeaponPistol);
-
-					break;
-
-				case AmmoType.Shell:
-					if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
-							?? player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
-
-					break;
-
-				case AmmoType.Cell:
-					if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
-
-					break;
-
-				case AmmoType.Missile:
-					if (player.ReadyWeapon.Info is WeaponFists)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
-
-					break;
-
-				default:
-					break;
+				if (player.ReadyWeapon.Info is WeaponFists)
+					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
+						?? player.Inventory.First(weapon => weapon.Info is WeaponPistol);
+			}
+			else if (entity.Info is AmmoShells)
+			{
+				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
+					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
+						?? player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
+			}
+			else if (entity.Info is AmmoCells)
+			{
+				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
+					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
+			}
+			else if (entity.Info is AmmoRockets)
+			{
+				if (player.ReadyWeapon.Info is WeaponFists)
+					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
 			}
 
 			return true;
@@ -137,26 +114,26 @@ namespace DoomEngine.Doom.World
 		/// </param>
 		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
-			var weaponType = Entity.EntityInfos.First(entityInfo => entityInfo.GetType().Name == $"Weapon{weaponName}");
-			var weapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info == weaponType);
-			var ammoComponent = weapon?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var entityInfo = EntityInfo.OfName(weaponName);
+			var entity = player.Inventory.FirstOrDefault(entity => entity.Info == entityInfo);
+			var requiresAmmoComponent = entity?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
 			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
 			{
 				// Leave placed weapons forever on net games.
-				if (weapon != null)
+				if (entity != null)
 					return false;
 
-				weapon = Entity.Create(weaponType);
-				ammoComponent = weapon?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+				entity = EntityInfo.Create(entityInfo);
+				requiresAmmoComponent = entity?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
 				player.BonusCount += ItemPickup.bonusAdd;
-				player.WeaponOwned.Add(weapon);
+				player.Inventory.Add(entity);
 
-				if (ammoComponent != null)
-					this.GiveAmmo(player, ammoComponent.Info.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
+				if (requiresAmmoComponent != null)
+					this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
 
-				player.PendingWeapon = weapon;
+				player.PendingWeapon = entity;
 
 				if (player == this.world.ConsolePlayer)
 					this.world.StartSound(player.Mobj, Sfx.WPNUP, SfxType.Misc);
@@ -166,22 +143,22 @@ namespace DoomEngine.Doom.World
 
 			bool gaveWeapon;
 
-			if (weapon != null)
+			if (entity != null)
 			{
 				gaveWeapon = false;
 			}
 			else
 			{
 				gaveWeapon = true;
-				weapon = Entity.Create(weaponType);
-				player.WeaponOwned.Add(weapon);
-				player.PendingWeapon = weapon;
+				entity = EntityInfo.Create(entityInfo);
+				player.Inventory.Add(entity);
+				player.PendingWeapon = entity;
 			}
 
 			var gaveAmmo = false;
 
-			if (ammoComponent != null)
-				gaveAmmo = ammoComponent.Info.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, ammoComponent.Info.Ammo, dropped ? 1 : 2);
+			if (requiresAmmoComponent != null)
+				gaveAmmo = this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, dropped ? 1 : 2);
 
 			return (gaveWeapon || gaveAmmo);
 		}
@@ -551,7 +528,7 @@ namespace DoomEngine.Doom.World
 
 					player.SendMessage(DoomInfo.Strings.GOTBERSERK);
 
-					var fists = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponFists);
+					var fists = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponFists);
 
 					if (fists != null && player.ReadyWeapon != fists)
 					{
@@ -610,14 +587,14 @@ namespace DoomEngine.Doom.World
 				case Sprite.CLIP:
 					if ((special.Flags & MobjFlags.Dropped) != 0)
 					{
-						if (!this.GiveAmmo(player, AmmoType.Clip, 0))
+						if (!this.GiveAmmo(player, nameof(AmmoBullets), 0))
 						{
 							return;
 						}
 					}
 					else
 					{
-						if (!this.GiveAmmo(player, AmmoType.Clip, 1))
+						if (!this.GiveAmmo(player, nameof(AmmoBullets), 1))
 						{
 							return;
 						}
@@ -628,7 +605,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.AMMO:
-					if (!this.GiveAmmo(player, AmmoType.Clip, 5))
+					if (!this.GiveAmmo(player, nameof(AmmoBullets), 5))
 					{
 						return;
 					}
@@ -638,7 +615,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.ROCK:
-					if (!this.GiveAmmo(player, AmmoType.Missile, 1))
+					if (!this.GiveAmmo(player, nameof(AmmoRockets), 1))
 					{
 						return;
 					}
@@ -648,7 +625,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.BROK:
-					if (!this.GiveAmmo(player, AmmoType.Missile, 5))
+					if (!this.GiveAmmo(player, nameof(AmmoRockets), 5))
 					{
 						return;
 					}
@@ -658,7 +635,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.CELL:
-					if (!this.GiveAmmo(player, AmmoType.Cell, 1))
+					if (!this.GiveAmmo(player, nameof(AmmoCells), 1))
 					{
 						return;
 					}
@@ -668,7 +645,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.CELP:
-					if (!this.GiveAmmo(player, AmmoType.Cell, 5))
+					if (!this.GiveAmmo(player, nameof(AmmoCells), 5))
 					{
 						return;
 					}
@@ -678,7 +655,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SHEL:
-					if (!this.GiveAmmo(player, AmmoType.Shell, 1))
+					if (!this.GiveAmmo(player, nameof(AmmoShells), 1))
 					{
 						return;
 					}
@@ -688,7 +665,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SBOX:
-					if (!this.GiveAmmo(player, AmmoType.Shell, 5))
+					if (!this.GiveAmmo(player, nameof(AmmoShells), 5))
 					{
 						return;
 					}
@@ -700,18 +677,17 @@ namespace DoomEngine.Doom.World
 				case Sprite.BPAK:
 					if (!player.Backpack)
 					{
-						for (var i = 0; i < (int) AmmoType.Count; i++)
+						// TODO Re-implement this!
+						/*for (var i = 0; i < (int) AmmoType.Count; i++)
 						{
 							player.MaxAmmo[i] *= 2;
-						}
+						}*/
 
 						player.Backpack = true;
 					}
 
-					for (var i = 0; i < (int) AmmoType.Count; i++)
-					{
-						this.GiveAmmo(player, (AmmoType) i, 1);
-					}
+					foreach (var entityInfo in EntityInfo.WithComponent<AmmoComponentInfo>())
+						this.GiveAmmo(player, entityInfo.Name, 1);
 
 					player.SendMessage(DoomInfo.Strings.GOTBACKPACK);
 
@@ -719,7 +695,7 @@ namespace DoomEngine.Doom.World
 
 				// Weapons.
 				case Sprite.BFUG:
-					if (!this.GiveWeapon(player, "Bfg", false))
+					if (!this.GiveWeapon(player, nameof(WeaponBfg), false))
 					{
 						return;
 					}
@@ -730,7 +706,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.MGUN:
-					if (!this.GiveWeapon(player, "Chaingun", (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, nameof(WeaponChaingun), (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}
@@ -741,7 +717,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.CSAW:
-					if (!this.GiveWeapon(player, "Chainsaw", false))
+					if (!this.GiveWeapon(player, nameof(WeaponChainsaw), false))
 					{
 						return;
 					}
@@ -752,7 +728,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.LAUN:
-					if (!this.GiveWeapon(player, "RocketLauncher", false))
+					if (!this.GiveWeapon(player, nameof(WeaponRocketLauncher), false))
 					{
 						return;
 					}
@@ -763,7 +739,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.PLAS:
-					if (!this.GiveWeapon(player, "PlasmaGun", false))
+					if (!this.GiveWeapon(player, nameof(WeaponPlasmagun), false))
 					{
 						return;
 					}
@@ -774,7 +750,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SHOT:
-					if (!this.GiveWeapon(player, "Shotgun", (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, nameof(WeaponShotgun), (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}
@@ -785,7 +761,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SGN2:
-					if (!this.GiveWeapon(player, "SuperShotgun", (special.Flags & MobjFlags.Dropped) != 0))
+					if (!this.GiveWeapon(player, nameof(WeaponSuperShotgun), (special.Flags & MobjFlags.Dropped) != 0))
 					{
 						return;
 					}

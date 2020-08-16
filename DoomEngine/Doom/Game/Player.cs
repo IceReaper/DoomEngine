@@ -16,11 +16,14 @@
 namespace DoomEngine.Doom.Game
 {
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
+	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
 	using Info;
 	using Math;
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using World;
 
 	public sealed class Player
@@ -70,13 +73,8 @@ namespace DoomEngine.Doom.Game
 		private int[] frags;
 
 		public Entity ReadyWeapon;
-
-		// Is WeanponType.NoChange if not changing.
 		public Entity PendingWeapon;
-
-		public List<Entity> WeaponOwned = new List<Entity>();
-		private int[] ammo;
-		private int[] maxAmmo;
+		public List<Entity> Inventory = new List<Entity>();
 
 		// True if button down last tic.
 		private bool attackDown;
@@ -134,9 +132,6 @@ namespace DoomEngine.Doom.Game
 
 			this.frags = new int[Player.MaxPlayerCount];
 
-			this.ammo = new int[(int) AmmoType.Count];
-			this.maxAmmo = new int[(int) AmmoType.Count];
-
 			this.playerSprites = new PlayerSpriteDef[(int) PlayerSprite.Count];
 
 			for (var i = 0; i < this.playerSprites.Length; i++)
@@ -169,9 +164,7 @@ namespace DoomEngine.Doom.Game
 			this.ReadyWeapon = null;
 			this.PendingWeapon = null;
 
-			this.WeaponOwned.Clear();
-			Array.Clear(this.ammo, 0, this.ammo.Length);
-			Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
+			this.Inventory.Clear();
 
 			this.useDown = false;
 			this.attackDown = false;
@@ -225,24 +218,18 @@ namespace DoomEngine.Doom.Game
 			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
-			this.WeaponOwned.Clear();
-			var fists = Entity.Create<WeaponFists>();
-			var pistol = Entity.Create<WeaponPistol>();
+			this.Inventory.Clear();
+			var fists = EntityInfo.Create<WeaponFists>();
+			var pistol = EntityInfo.Create<WeaponPistol>();
 
-			this.WeaponOwned.Add(fists);
-			this.WeaponOwned.Add(pistol);
+			this.Inventory.Add(fists);
+			this.Inventory.Add(pistol);
 			this.ReadyWeapon = pistol;
 			this.PendingWeapon = pistol;
 
-			Array.Clear(this.ammo, 0, this.ammo.Length);
-			Array.Clear(this.maxAmmo, 0, this.maxAmmo.Length);
-
-			this.ammo[(int) AmmoType.Clip] = 50;
-
-			for (var i = 0; i < (int) AmmoType.Count; i++)
-			{
-				this.maxAmmo[i] = DoomInfo.AmmoInfos.Max[i];
-			}
+			var bullets = EntityInfo.Create<AmmoBullets>();
+			bullets.Components.OfType<AmmoComponent>().First().Amount = 50;
+			this.Inventory.Add(bullets);
 
 			// Don't do anything immediately.
 			this.useDown = true;
@@ -392,16 +379,6 @@ namespace DoomEngine.Doom.Game
 		public int[] Frags
 		{
 			get => this.frags;
-		}
-
-		public int[] Ammo
-		{
-			get => this.ammo;
-		}
-
-		public int[] MaxAmmo
-		{
-			get => this.maxAmmo;
 		}
 
 		public bool AttackDown

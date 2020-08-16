@@ -4,6 +4,13 @@ namespace DoomEngine.Game
 
 	public abstract class ComponentInfo
 	{
+		public readonly string Name;
+
+		protected ComponentInfo()
+		{
+			this.Name = this.GetType().Name;
+		}
+
 		public abstract Component Create(Entity entity);
 	}
 

@@ -40,7 +40,7 @@ namespace DoomEngine.Game.Components.Weapons
 			this.Info = info;
 		}
 
-		public void Fire(World world, Player player, PlayerSpriteDef psp)
+		public void Fire(World world, Player player)
 		{
 			var ammoComponent = this.Entity.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 

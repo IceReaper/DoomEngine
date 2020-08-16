@@ -1,5 +1,6 @@
 namespace DoomEngine.Game.Entities.Weapons
 {
+	using Ammos;
 	using Audio;
 	using Components.Weapons;
 	using Doom.World;
@@ -12,7 +13,7 @@ namespace DoomEngine.Game.Entities.Weapons
 				new List<ComponentInfo>
 				{
 					new WeaponComponentInfo(2, MobjState.Pistolup, MobjState.Pistoldown, MobjState.Pistol, MobjState.Pistol1, MobjState.Pistolflash),
-					new RequiresAmmoComponentInfo(AmmoType.Clip, 1),
+					new RequiresAmmoComponentInfo(nameof(AmmoBullets), 1),
 					new FireHitscanComponentInfo(Sfx.PISTOL, 1, 5, true)
 				}
 			)
