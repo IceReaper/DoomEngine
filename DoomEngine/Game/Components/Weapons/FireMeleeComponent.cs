@@ -1,4 +1,4 @@
-namespace DoomEngine.Game.Components
+namespace DoomEngine.Game.Components.Weapons
 {
 	using Audio;
 	using Doom.Game;
@@ -6,7 +6,7 @@ namespace DoomEngine.Game.Components
 	using Doom.World;
 	using Interfaces;
 
-	public class FireMeleeComponent : Component, INotifyFire
+	public class FireMeleeComponentInfo : ComponentInfo
 	{
 		public readonly Fixed Range;
 		public readonly Sfx MissSound;
@@ -14,7 +14,7 @@ namespace DoomEngine.Game.Components
 		public readonly bool IsFists;
 		public readonly bool IsChainsaw;
 
-		public FireMeleeComponent(Fixed range, Sfx missSound, Sfx hitSound, bool isFists, bool isChainsaw)
+		public FireMeleeComponentInfo(Fixed range, Sfx missSound, Sfx hitSound, bool isFists, bool isChainsaw)
 		{
 			this.Range = range;
 			this.MissSound = missSound;
@@ -23,29 +23,45 @@ namespace DoomEngine.Game.Components
 			this.IsChainsaw = isChainsaw;
 		}
 
+		public override Component Create(Entity entity)
+		{
+			return new FireMeleeComponent(entity, this);
+		}
+	}
+
+	public class FireMeleeComponent : Component, INotifyFire
+	{
+		public readonly FireMeleeComponentInfo Info;
+
+		public FireMeleeComponent(Entity entity, FireMeleeComponentInfo info)
+			: base(entity)
+		{
+			this.Info = info;
+		}
+
 		void INotifyFire.Fire(World world, Player player)
 		{
 			var damage = 2 * (world.Random.Next() % 10 + 1);
 
-			if (this.IsFists && player.Powers[(int) PowerType.Strength] != 0)
+			if (this.Info.IsFists && player.Powers[(int) PowerType.Strength] != 0)
 				damage *= 10;
 
 			var angle = player.Mobj.Angle + new Angle((world.Random.Next() - world.Random.Next()) << 18);
 
-			world.Hitscan.LineAttack(player.Mobj, angle, this.Range, world.Hitscan.AimLineAttack(player.Mobj, angle, this.Range), damage);
+			world.Hitscan.LineAttack(player.Mobj, angle, this.Info.Range, world.Hitscan.AimLineAttack(player.Mobj, angle, this.Info.Range), damage);
 
 			if (world.Hitscan.LineTarget == null)
 			{
-				world.StartSound(player.Mobj, this.MissSound, SfxType.Weapon);
+				world.StartSound(player.Mobj, this.Info.MissSound, SfxType.Weapon);
 
 				return;
 			}
 
-			world.StartSound(player.Mobj, HitSound, SfxType.Weapon);
+			world.StartSound(player.Mobj, this.Info.HitSound, SfxType.Weapon);
 
 			var targetAngle = Geometry.PointToAngle(player.Mobj.X, player.Mobj.Y, world.Hitscan.LineTarget.X, world.Hitscan.LineTarget.Y);
 
-			if (this.IsChainsaw)
+			if (this.Info.IsChainsaw)
 			{
 				if (targetAngle - player.Mobj.Angle > Angle.Ang180)
 				{

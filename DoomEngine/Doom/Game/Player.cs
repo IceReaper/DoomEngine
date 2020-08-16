@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.Game
 {
 	using DoomEngine.Game;
-	using DoomEngine.Game.Entities;
+	using DoomEngine.Game.Entities.Weapons;
 	using Info;
 	using Math;
 	using System;
@@ -226,8 +226,8 @@ namespace DoomEngine.Doom.Game
 			this.backpack = false;
 
 			this.WeaponOwned.Clear();
-			var fists = new WeaponFists();
-			var pistol = new WeaponPistol();
+			var fists = Entity.Create<WeaponFists>();
+			var pistol = Entity.Create<WeaponPistol>();
 
 			this.WeaponOwned.Add(fists);
 			this.WeaponOwned.Add(pistol);

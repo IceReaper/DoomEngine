@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
-	using DoomEngine.Game.Entities;
+	using DoomEngine.Game.Entities.Weapons;
 	using Game;
 	using Info;
 	using Map;
@@ -177,7 +177,7 @@ namespace DoomEngine.Doom.World
 
 			// Some close combat weapons should not inflict thrust and
 			// push the victim out of reach, thus kick away unless using the chainsaw.
-			var notChainsawAttack = source == null || source.Player == null || !(source.Player.ReadyWeapon is WeaponChainsaw);
+			var notChainsawAttack = source == null || source.Player == null || !(source.Player.ReadyWeapon.Info is WeaponChainsaw);
 
 			if (inflictor != null && (target.Flags & MobjFlags.NoClip) == 0 && notChainsawAttack)
 			{

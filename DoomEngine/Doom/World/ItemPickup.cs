@@ -17,8 +17,8 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using DoomEngine.Game;
-	using DoomEngine.Game.Components;
-	using DoomEngine.Game.Entities;
+	using DoomEngine.Game.Components.Weapons;
+	using DoomEngine.Game.Entities.Weapons;
 	using Game;
 	using Graphics;
 	using Info;
@@ -95,28 +95,28 @@ namespace DoomEngine.Doom.World
 			switch (ammo)
 			{
 				case AmmoType.Clip:
-					if (player.ReadyWeapon is WeaponFists)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponChaingun)
-							?? player.WeaponOwned.First(weapon => weapon is WeaponPistol);
+					if (player.ReadyWeapon.Info is WeaponFists)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
+							?? player.WeaponOwned.First(weapon => weapon.Info is WeaponPistol);
 
 					break;
 
 				case AmmoType.Shell:
-					if (player.ReadyWeapon is WeaponFists || player.ReadyWeapon is WeaponPistol)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponShotgun)
-							?? player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponSuperShotgun) ?? player.PendingWeapon;
+					if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
+							?? player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
 
 					break;
 
 				case AmmoType.Cell:
-					if (player.ReadyWeapon is WeaponFists || player.ReadyWeapon is WeaponPistol)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponPlasmagun) ?? player.PendingWeapon;
+					if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
 
 					break;
 
 				case AmmoType.Missile:
-					if (player.ReadyWeapon is WeaponFists)
-						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponRocketLauncher) ?? player.PendingWeapon;
+					if (player.ReadyWeapon.Info is WeaponFists)
+						player.PendingWeapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
 
 					break;
 
@@ -137,9 +137,9 @@ namespace DoomEngine.Doom.World
 		/// </param>
 		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
-			var weaponClass = $"Weapon{weaponName}";
-			var weapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.GetType().Name == weaponClass);
-			var iConsumeAmmo = weapon?.GetComponents<AmmoComponent>().FirstOrDefault();
+			var weaponType = Entity.EntityInfos.First(entityInfo => entityInfo.GetType().Name == $"Weapon{weaponName}");
+			var weapon = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info == weaponType);
+			var ammoComponent = weapon?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
 			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
 			{
@@ -147,14 +147,14 @@ namespace DoomEngine.Doom.World
 				if (weapon != null)
 					return false;
 
-				weapon = Entity.Create(weaponClass);
-				iConsumeAmmo = weapon?.GetComponents<AmmoComponent>().FirstOrDefault();
+				weapon = Entity.Create(weaponType);
+				ammoComponent = weapon?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
 
 				player.BonusCount += ItemPickup.bonusAdd;
 				player.WeaponOwned.Add(weapon);
 
-				if (iConsumeAmmo != null)
-					this.GiveAmmo(player, iConsumeAmmo.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
+				if (ammoComponent != null)
+					this.GiveAmmo(player, ammoComponent.Info.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
 
 				player.PendingWeapon = weapon;
 
@@ -173,15 +173,15 @@ namespace DoomEngine.Doom.World
 			else
 			{
 				gaveWeapon = true;
-				weapon = Entity.Create(weaponClass);
+				weapon = Entity.Create(weaponType);
 				player.WeaponOwned.Add(weapon);
 				player.PendingWeapon = weapon;
 			}
 
 			var gaveAmmo = false;
 
-			if (iConsumeAmmo != null)
-				gaveAmmo = iConsumeAmmo.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, iConsumeAmmo.Ammo, dropped ? 1 : 2);
+			if (ammoComponent != null)
+				gaveAmmo = ammoComponent.Info.Ammo != AmmoType.NoAmmo && this.GiveAmmo(player, ammoComponent.Info.Ammo, dropped ? 1 : 2);
 
 			return (gaveWeapon || gaveAmmo);
 		}
@@ -551,7 +551,7 @@ namespace DoomEngine.Doom.World
 
 					player.SendMessage(DoomInfo.Strings.GOTBERSERK);
 
-					var fists = player.WeaponOwned.FirstOrDefault(weapon => weapon is WeaponFists);
+					var fists = player.WeaponOwned.FirstOrDefault(weapon => weapon.Info is WeaponFists);
 
 					if (fists != null && player.ReadyWeapon != fists)
 					{

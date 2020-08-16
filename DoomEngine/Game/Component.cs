@@ -2,15 +2,25 @@ namespace DoomEngine.Game
 {
 	using System.IO;
 
+	public abstract class ComponentInfo
+	{
+		public abstract Component Create(Entity entity);
+	}
+
 	public abstract class Component
 	{
-		public Entity Entity { get; set; }
+		protected readonly Entity Entity;
 
-		public virtual void Serialize(BinaryWriter binaryWriter)
+		protected Component(Entity entity)
+		{
+			this.Entity = entity;
+		}
+
+		public virtual void Serialize(BinaryWriter writer)
 		{
 		}
 
-		public virtual void Deserialize(BinaryReader binaryReader)
+		public virtual void Deserialize(BinaryReader reader)
 		{
 		}
 	}

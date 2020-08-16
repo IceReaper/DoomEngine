@@ -5,51 +5,64 @@ namespace DoomEngine.Game
 	using System.IO;
 	using System.Linq;
 
-	public abstract class Entity
+	public abstract class EntityInfo
 	{
-		private static readonly Dictionary<string, Type> types;
+		public readonly IEnumerable<ComponentInfo> Components;
+
+		protected EntityInfo(IEnumerable<ComponentInfo> components)
+		{
+			this.Components = components;
+		}
+	}
+
+	public sealed class Entity
+	{
+		public static readonly IEnumerable<EntityInfo> EntityInfos;
 
 		static Entity()
 		{
-			Entity.types = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(assembly => assembly.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Entity))))
-				.ToDictionary(type => type.Name, type => type);
+			Entity.EntityInfos = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(assembly => assembly.GetTypes().Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(EntityInfo))))
+				.Select(type => (EntityInfo) type.GetConstructor(new Type[0])?.Invoke(new object[0]))
+				.ToArray();
 		}
 
-		public static Entity Create(string type)
+		public static Entity Create<T>() where T : EntityInfo
 		{
-			if (!Entity.types.ContainsKey(type))
-				return null;
-
-			return (Entity) Entity.types[type].GetConstructor(new Type[0])?.Invoke(new object[0]);
+			return new Entity(Entity.EntityInfos.First(info => info.GetType() == typeof(T)));
 		}
 
-		private readonly List<Component> components = new List<Component>();
-
-		protected Entity(IEnumerable<Component> components)
+		public static Entity Create(EntityInfo info)
 		{
-			this.components.AddRange(components);
-			this.components.ForEach(c => c.Entity = this);
+			return new Entity(info);
 		}
 
-		public IEnumerable<T> GetComponents<T>()
-		{
-			return this.components.OfType<T>();
-		}
+		public readonly EntityInfo Info;
+		public readonly IEnumerable<Component> Components;
 
-		public bool HasComponents<T>()
+		private Entity(EntityInfo info)
 		{
-			return this.components.OfType<T>().Any();
+			this.Info = info;
+			this.Components = info.Components.Select(componentInfo => componentInfo.Create(this));
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
-			this.components.ForEach(iComponent => iComponent.Serialize(writer));
+			writer.Write(this.Info.GetType().Name);
+
+			foreach (var component in this.Components)
+				component.Serialize(writer);
 		}
 
-		public void Deserialize(BinaryReader reader)
+		public static Entity Deserialize(BinaryReader reader)
 		{
-			this.components.ForEach(iComponent => iComponent.Deserialize(reader));
+			var type = reader.ReadString();
+			var entity = new Entity(Entity.EntityInfos.First(info => info.GetType().Name == type));
+
+			foreach (var component in entity.Components)
+				component.Deserialize(reader);
+
+			return entity;
 		}
 	}
 }

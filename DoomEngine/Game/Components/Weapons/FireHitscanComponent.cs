@@ -1,4 +1,4 @@
-namespace DoomEngine.Game.Components
+namespace DoomEngine.Game.Components.Weapons
 {
 	using Audio;
 	using Doom.Game;
@@ -6,16 +6,14 @@ namespace DoomEngine.Game.Components
 	using Doom.World;
 	using Interfaces;
 
-	public class FireHitscanComponent : Component, INotifyFire
+	public class FireHitscanComponentInfo : ComponentInfo
 	{
 		public readonly Sfx Sound;
 		public readonly int Bullets;
 		public readonly int Spread;
 		public readonly bool FirstShotAccurate;
 
-		private Fixed currentBulletSlope;
-
-		public FireHitscanComponent(Sfx sound, int bullets, int spread, bool firstShotAccurate)
+		public FireHitscanComponentInfo(Sfx sound, int bullets, int spread, bool firstShotAccurate)
 		{
 			this.Sound = sound;
 			this.Bullets = bullets;
@@ -23,21 +21,39 @@ namespace DoomEngine.Game.Components
 			this.FirstShotAccurate = firstShotAccurate;
 		}
 
+		public override Component Create(Entity entity)
+		{
+			return new FireHitscanComponent(entity, this);
+		}
+	}
+
+	public class FireHitscanComponent : Component, INotifyFire
+	{
+		public readonly FireHitscanComponentInfo Info;
+
+		private Fixed currentBulletSlope;
+
+		public FireHitscanComponent(Entity entity, FireHitscanComponentInfo info)
+			: base(entity)
+		{
+			this.Info = info;
+		}
+
 		void INotifyFire.Fire(World world, Player player)
 		{
-			world.StartSound(player.Mobj, this.Sound, SfxType.Weapon);
+			world.StartSound(player.Mobj, this.Info.Sound, SfxType.Weapon);
 			player.Mobj.SetState(MobjState.PlayAtk2);
 
 			this.BulletSlope(world, player.Mobj);
 
-			for (var i = 0; i < this.Bullets; i++)
+			for (var i = 0; i < this.Info.Bullets; i++)
 			{
 				var damage = 5 * (world.Random.Next() % 3 + 1);
 
 				var angle = player.Mobj.Angle;
 
-				if (!this.FirstShotAccurate || player.Refire != 0)
-					angle += Angle.FromDegree((world.Random.Next() - world.Random.Next()) / 255 * this.Spread);
+				if (!this.Info.FirstShotAccurate || player.Refire != 0)
+					angle += Angle.FromDegree((world.Random.Next() - world.Random.Next()) / 255 * this.Info.Spread);
 
 				world.Hitscan.LineAttack(player.Mobj, angle, WeaponBehavior.MissileRange, this.currentBulletSlope, damage);
 			}
