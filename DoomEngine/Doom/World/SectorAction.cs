@@ -1700,7 +1700,7 @@ namespace DoomEngine.Doom.World
 					continue;
 				}
 
-				this.world.LightingChange.SpawnStrobeFlash(sector, StrobeFlash.SlowDark, 0);
+				this.world.LightingChange.SpawnStrobeFlash(sector, StrobeFlash.SlowDark, false);
 			}
 		}
 

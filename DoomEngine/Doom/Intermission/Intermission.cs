@@ -188,7 +188,10 @@ namespace DoomEngine.Doom.Intermission
 
 		private void InitAnimatedBack()
 		{
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				return;
 			}
@@ -230,7 +233,10 @@ namespace DoomEngine.Doom.Intermission
 			if (this.bgCount == 1)
 			{
 				// intermission music
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				if (DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				{
 					this.options.Music.StartMusic(Bgm.DM2INT, true);
 				}
@@ -384,7 +390,10 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SGCOCK);
 
-					if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+					if (DoomApplication.Instance.IWad == "doom2"
+						|| DoomApplication.Instance.IWad == "freedoom2"
+						|| DoomApplication.Instance.IWad == "plutonia"
+						|| DoomApplication.Instance.IWad == "tnt")
 					{
 						this.InitNoState();
 					}
@@ -582,7 +591,10 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SGCOCK);
 
-					if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+					if (DoomApplication.Instance.IWad == "doom2"
+						|| DoomApplication.Instance.IWad == "freedoom2"
+						|| DoomApplication.Instance.IWad == "plutonia"
+						|| DoomApplication.Instance.IWad == "tnt")
 					{
 						this.InitNoState();
 					}
@@ -699,7 +711,10 @@ namespace DoomEngine.Doom.Intermission
 				{
 					this.StartSound(Sfx.SLOP);
 
-					if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+					if (DoomApplication.Instance.IWad == "doom2"
+						|| DoomApplication.Instance.IWad == "freedoom2"
+						|| DoomApplication.Instance.IWad == "plutonia"
+						|| DoomApplication.Instance.IWad == "tnt")
 					{
 						this.InitNoState();
 					}
@@ -745,7 +760,10 @@ namespace DoomEngine.Doom.Intermission
 
 		private void UpdateAnimatedBack()
 		{
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				return;
 			}

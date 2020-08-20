@@ -60,14 +60,14 @@ namespace DoomEngine.Doom.World
 			light.Count = (this.world.Random.Next() & light.MaxTime) + 1;
 		}
 
-		public void SpawnStrobeFlash(Sector sector, int fastOrSlow, int inSync)
+		public void SpawnStrobeFlash(Sector sector, int time, bool inSync)
 		{
 			var strobe = new StrobeFlash(this.world);
 
 			this.world.Thinkers.Add(strobe);
 
 			strobe.Sector = sector;
-			strobe.DarkTime = fastOrSlow;
+			strobe.DarkTime = time;
 			strobe.BrightTime = StrobeFlash.StrobeBright;
 			strobe.MaxLight = sector.LightLevel;
 			strobe.MinLight = this.FindMinSurroundingLight(sector, sector.LightLevel);
@@ -80,13 +80,13 @@ namespace DoomEngine.Doom.World
 			// Nothing special about it during gameplay.
 			sector.Special = 0;
 
-			if (inSync == 0)
+			if (inSync)
 			{
-				strobe.Count = (this.world.Random.Next() & 7) + 1;
+				strobe.Count = 1;
 			}
 			else
 			{
-				strobe.Count = 1;
+				strobe.Count = (this.world.Random.Next() & 7) + 1;
 			}
 		}
 

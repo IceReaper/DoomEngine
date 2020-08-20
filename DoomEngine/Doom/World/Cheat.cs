@@ -156,6 +156,8 @@ namespace DoomEngine.Doom.World
 		{
 			this.GiveWeapons();
 			var player = this.world.ConsolePlayer;
+			player.ArmorType = ItemPickup.IdfaArmorClass;
+			player.ArmorPoints = ItemPickup.IdfaArmor;
 			player.SendMessage(DoomInfo.Strings.STSTR_FAADDED);
 		}
 
@@ -163,6 +165,8 @@ namespace DoomEngine.Doom.World
 		{
 			this.GiveWeapons();
 			var player = this.world.ConsolePlayer;
+			player.ArmorType = ItemPickup.IdkfaArmorClass;
+			player.ArmorPoints = ItemPickup.IdkfaArmor;
 
 			for (var i = 0; i < (int) CardType.Count; i++)
 			{
@@ -184,6 +188,7 @@ namespace DoomEngine.Doom.World
 			else
 			{
 				player.Cheats |= CheatFlags.GodMode;
+				player.Health = Math.Max(ItemPickup.GodModeHealth, player.Health);
 				player.SendMessage(DoomInfo.Strings.STSTR_DQDON);
 			}
 		}
@@ -370,7 +375,10 @@ namespace DoomEngine.Doom.World
 
 		private void ChangeLevel(string typed)
 		{
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				int map;
 
@@ -407,7 +415,10 @@ namespace DoomEngine.Doom.World
 		{
 			var options = new GameOptions();
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				int map;
 

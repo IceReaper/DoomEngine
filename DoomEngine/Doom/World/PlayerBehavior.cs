@@ -628,7 +628,10 @@ namespace DoomEngine.Doom.World
 			// Default death sound.
 			var sound = Sfx.PLDETH;
 
-			if ((DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if ((DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				&& (player.Health < -50))
 			{
 				// If the player dies less than -50% without gibbing.

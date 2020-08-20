@@ -68,7 +68,10 @@ namespace DoomEngine.Doom.Map
 
 				string name;
 
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				if (DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				{
 					name = "MAP" + options.Map.ToString("00");
 				}
@@ -101,7 +104,10 @@ namespace DoomEngine.Doom.Map
 
 				this.skyTexture = this.GetSkyTextureByMapName(name);
 
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				if (DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				{
 					if (DoomApplication.Instance.IWad == "plutonia")
 					{
@@ -263,7 +269,10 @@ namespace DoomEngine.Doom.Map
 		{
 			Bgm bgm;
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				bgm = Bgm.RUNNIN + options.Map - 1;
 			}

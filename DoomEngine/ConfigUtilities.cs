@@ -21,14 +21,12 @@ namespace DoomEngine
 	{
 		public static string GetDefaultIwadPath()
 		{
-			var names = new string[] {"DOOM2.WAD", "PLUTONIA.WAD", "TNT.WAD", "DOOM.WAD", "DOOM1.WAD"};
+			var names = new[] {"DOOM2.WAD", "PLUTONIA.WAD", "TNT.WAD", "DOOM.WAD", "DOOM1.WAD", "FREEDOOM2.WAD", "FREEDOOM1.WAD"};
 
 			foreach (var name in names)
 			{
 				if (DoomApplication.Instance.FileSystem.Exists(name))
-				{
 					return name;
-				}
 			}
 
 			throw new Exception("No IWAD was found!");

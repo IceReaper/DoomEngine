@@ -82,7 +82,7 @@ namespace DoomEngine.Doom.Intermission
 				c6Text = DoomInfo.Strings.C6TEXT;
 			}
 
-			if (DoomApplication.Instance.IWad == "doom" || DoomApplication.Instance.IWad == "doom1")
+			if (DoomApplication.Instance.IWad == "doom" || DoomApplication.Instance.IWad == "freedoom" || DoomApplication.Instance.IWad == "doom1")
 			{
 				options.Music.StartMusic(Bgm.VICTOR, true);
 
@@ -116,7 +116,10 @@ namespace DoomEngine.Doom.Intermission
 						break;
 				}
 			}
-			else if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			else if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				options.Music.StartMusic(Bgm.READ_M, true);
 
@@ -182,7 +185,10 @@ namespace DoomEngine.Doom.Intermission
 			this.updateResult = UpdateResult.None;
 
 			// Check for skipping.
-			if ((DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if ((DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				&& this.count > 50)
 			{
 				int i;
@@ -219,7 +225,10 @@ namespace DoomEngine.Doom.Intermission
 				return this.updateResult;
 			}
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				return this.updateResult;
 			}

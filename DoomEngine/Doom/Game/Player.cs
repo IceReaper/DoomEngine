@@ -30,7 +30,13 @@ namespace DoomEngine.Doom.Game
 	{
 		public static readonly int MaxPlayerCount = 4;
 
-		public static readonly int MaxHealth = 100;
+		public static readonly int MaxHealth = 200;
+		public static readonly int FullHealth = 100;
+
+		public static readonly int MaxArmor = 200;
+
+		public static readonly int InitialBullets = 50;
+
 		public static readonly Fixed NormalViewHeight = Fixed.FromInt(41);
 
 		private static readonly string[] defaultPlayerNames = new string[] {"Green", "Indigo", "Brown", "Red"};
@@ -210,7 +216,7 @@ namespace DoomEngine.Doom.Game
 			this.deltaViewHeight = Fixed.Zero;
 			this.bob = Fixed.Zero;
 
-			this.health = Player.MaxHealth;
+			this.health = Player.FullHealth;
 			this.armorPoints = 0;
 			this.armorType = 0;
 
@@ -228,7 +234,7 @@ namespace DoomEngine.Doom.Game
 			this.PendingWeapon = pistol;
 
 			var bullets = EntityInfo.Create<AmmoBullets>();
-			bullets.Components.OfType<AmmoComponent>().First().Amount = 50;
+			bullets.Components.OfType<AmmoComponent>().First().Amount = Player.InitialBullets;
 			this.Inventory.Add(bullets);
 
 			// Don't do anything immediately.

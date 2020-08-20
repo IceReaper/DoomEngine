@@ -82,7 +82,7 @@ namespace DoomEngine.Doom.Menu
 				new SimpleMenuItem("M_NMARE", 16, 122, 48, 127, null, this.nightmareConfirm)
 			);
 
-			if (DoomApplication.Instance.IWad == "doom")
+			if (DoomApplication.Instance.IWad == "doom" || DoomApplication.Instance.IWad == "freedoom")
 			{
 				this.episodeMenu = new SelectableMenu(
 					this,
@@ -214,7 +214,10 @@ namespace DoomEngine.Doom.Menu
 
 			MenuDef newGameMenu;
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				newGameMenu = this.skillMenu;
 			}

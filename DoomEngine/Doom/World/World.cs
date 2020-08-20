@@ -200,7 +200,10 @@ namespace DoomEngine.Doom.World
 				var spawn = true;
 
 				// Do not spawn cool, new monsters if not commercial.
-				if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
+				if (DoomApplication.Instance.IWad != "doom2"
+					&& DoomApplication.Instance.IWad != "freedoom2"
+					&& DoomApplication.Instance.IWad != "plutonia"
+					&& DoomApplication.Instance.IWad != "tnt")
 				{
 					switch (mt.Type)
 					{

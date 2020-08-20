@@ -224,7 +224,10 @@ namespace DoomEngine.Doom
 
 			if (this.state == OpeningSequenceState.Title && this.count == 1)
 			{
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				if (DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				{
 					this.options.Music.StartMusic(Bgm.DM2TTL, false);
 				}
@@ -252,7 +255,10 @@ namespace DoomEngine.Doom
 
 			this.count = 0;
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				this.timer = 35 * 11;
 			}

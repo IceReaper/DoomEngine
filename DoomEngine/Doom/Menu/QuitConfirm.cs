@@ -53,9 +53,12 @@ namespace DoomEngine.Doom.Menu
 		{
 			IReadOnlyList<DoomString> list;
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
-				if (DoomApplication.Instance.IWad == "doom2")
+				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "freedoom2")
 				{
 					list = DoomInfo.QuitMessages.Doom2;
 				}
@@ -90,7 +93,10 @@ namespace DoomEngine.Doom.Menu
 
 				Sfx sfx;
 
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				if (DoomApplication.Instance.IWad == "doom2"
+					|| DoomApplication.Instance.IWad == "freedoom2"
+					|| DoomApplication.Instance.IWad == "plutonia"
+					|| DoomApplication.Instance.IWad == "tnt")
 				{
 					sfx = QuitConfirm.doom2QuitSoundList[this.random.Next() % QuitConfirm.doom2QuitSoundList.Length];
 				}

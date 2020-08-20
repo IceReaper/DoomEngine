@@ -735,7 +735,7 @@ namespace DoomEngine.Doom.World
 				// The lost soul bounce fix below is based on Chocolate Doom's implementation.
 				//
 
-				var correctLostSoulBounce = DoomApplication.Instance.IWad != "doom2";
+				var correctLostSoulBounce = DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "freedoom2";
 
 				if (correctLostSoulBounce && (thing.Flags & MobjFlags.SkullFly) != 0)
 				{

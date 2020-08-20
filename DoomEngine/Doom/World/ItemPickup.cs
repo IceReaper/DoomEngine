@@ -30,6 +30,16 @@ namespace DoomEngine.Doom.World
 
 	public sealed class ItemPickup
 	{
+		public static int GreenArmorClass { get; set; } = 1;
+		public static int BlueArmorClass { get; set; } = 2;
+		public static int SoulsphereHealth { get; set; } = 100;
+		public static int MegasphereHealth { get; set; } = 200;
+		public static int GodModeHealth { get; set; } = 100;
+		public static int IdfaArmor { get; set; } = 200;
+		public static int IdfaArmorClass { get; set; } = 2;
+		public static int IdkfaArmor { get; set; } = 200;
+		public static int IdkfaArmorClass { get; set; } = 2;
+
 		private World world;
 
 		public ItemPickup(World world)
@@ -171,16 +181,16 @@ namespace DoomEngine.Doom.World
 		/// </returns>
 		private bool GiveHealth(Player player, int amount)
 		{
-			if (player.Health >= Player.MaxHealth)
+			if (player.Health >= Player.FullHealth)
 			{
 				return false;
 			}
 
 			player.Health += amount;
 
-			if (player.Health > Player.MaxHealth)
+			if (player.Health > Player.FullHealth)
 			{
-				player.Health = Player.MaxHealth;
+				player.Health = Player.FullHealth;
 			}
 
 			player.Mobj.Health = player.Health;
@@ -308,7 +318,7 @@ namespace DoomEngine.Doom.World
 			{
 				// Armor.
 				case Sprite.ARM1:
-					if (!this.GiveArmor(player, 1))
+					if (!this.GiveArmor(player, ItemPickup.GreenArmorClass))
 					{
 						return;
 					}
@@ -318,7 +328,7 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.ARM2:
-					if (!this.GiveArmor(player, 2))
+					if (!this.GiveArmor(player, ItemPickup.BlueArmorClass))
 					{
 						return;
 					}
@@ -332,9 +342,9 @@ namespace DoomEngine.Doom.World
 					// Can go over 100%.
 					player.Health++;
 
-					if (player.Health > 200)
+					if (player.Health > Player.MaxHealth)
 					{
-						player.Health = 200;
+						player.Health = Player.MaxHealth;
 					}
 
 					player.Mobj.Health = player.Health;
@@ -346,14 +356,14 @@ namespace DoomEngine.Doom.World
 					// Can go over 100%.
 					player.ArmorPoints++;
 
-					if (player.ArmorPoints > 200)
+					if (player.ArmorPoints > Player.MaxArmor)
 					{
-						player.ArmorPoints = 200;
+						player.ArmorPoints = Player.MaxArmor;
 					}
 
 					if (player.ArmorType == 0)
 					{
-						player.ArmorType = 1;
+						player.ArmorType = ItemPickup.GreenArmorClass;
 					}
 
 					player.SendMessage(DoomInfo.Strings.GOTARMBONUS);
@@ -361,11 +371,11 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SOUL:
-					player.Health += 100;
+					player.Health += ItemPickup.SoulsphereHealth;
 
-					if (player.Health > 200)
+					if (player.Health > Player.MaxHealth)
 					{
-						player.Health = 200;
+						player.Health = Player.MaxHealth;
 					}
 
 					player.Mobj.Health = player.Health;
@@ -375,14 +385,14 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.MEGA:
-					if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
+					if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "freedoom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
 					{
 						return;
 					}
 
-					player.Health = 200;
+					player.Health = ItemPickup.MegasphereHealth;
 					player.Mobj.Health = player.Health;
-					this.GiveArmor(player, 2);
+					this.GiveArmor(player, ItemPickup.BlueArmorClass);
 					player.SendMessage(DoomInfo.Strings.GOTMSPHERE);
 					sound = Sfx.GETPOW;
 

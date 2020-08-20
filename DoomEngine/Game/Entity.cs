@@ -15,7 +15,7 @@ namespace DoomEngine.Game
 			this.ComponentInfos = componentInfos;
 			this.Name = this.GetType().Name;
 		}
-		
+
 		private static readonly Dictionary<string, EntityInfo> entityInfos;
 
 		static EntityInfo()

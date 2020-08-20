@@ -121,17 +121,23 @@ namespace DoomEngine.Platform.Desktop
 			{
 				sampleRate = -1;
 				sampleCount = -1;
+
 				return null;
 			}
 
 			reader.BaseStream.Position = 2;
 			sampleRate = reader.ReadUInt16();
-			sampleCount = reader.ReadInt32() - 32;
+			sampleCount = reader.ReadInt32();
+
+			if (sampleCount >= 32 && SfmlSound.ContainsDmxPadding(reader, sampleCount))
+			{
+				reader.BaseStream.Position += 16;
+				sampleCount -= 32;
+			}
 
 			if (sampleCount > 0)
 			{
 				var samples = new short[sampleCount];
-				reader.BaseStream.Position = 24;
 
 				for (var t = 0; t < samples.Length; t++)
 				{
@@ -144,6 +150,45 @@ namespace DoomEngine.Platform.Desktop
 			{
 				return null;
 			}
+		}
+
+		// Check if the data contains pad bytes.
+		// If the first and last 16 samples are the same,
+		// the data should contain pad bytes.
+		// https://doomwiki.org/wiki/Sound
+		private static bool ContainsDmxPadding(BinaryReader reader, int sampleCount)
+		{
+			var originalPosition = reader.BaseStream.Position;
+
+			var first = reader.ReadByte();
+
+			for (var i = 1; i < 16; i++)
+			{
+				if (reader.ReadByte() == first)
+					continue;
+
+				reader.BaseStream.Position = originalPosition;
+
+				return false;
+			}
+
+			reader.BaseStream.Position = 8 + sampleCount - 16;
+
+			first = reader.ReadByte();
+
+			for (var i = 1; i < 16; i++)
+			{
+				if (reader.ReadByte() == first)
+					continue;
+
+				reader.BaseStream.Position = originalPosition;
+
+				return false;
+			}
+
+			reader.BaseStream.Position = originalPosition;
+
+			return true;
 		}
 
 		private static float GetAmplitude(short[] samples, int sampleRate, int sampleCount)

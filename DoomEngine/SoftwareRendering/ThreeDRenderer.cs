@@ -615,7 +615,10 @@ namespace DoomEngine.SoftwareRendering
 			this.borderLeft = Patch.FromWad("BRDR_L");
 			this.borderRight = Patch.FromWad("BRDR_R");
 
-			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
 			{
 				this.backFlat = this.flats["GRNROCK"];
 			}
