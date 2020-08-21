@@ -189,6 +189,7 @@ namespace DoomEngine.Doom.World
 			{
 				player.Cheats |= CheatFlags.GodMode;
 				player.Health = Math.Max(ItemPickup.GodModeHealth, player.Health);
+                player.Mobj.Health = player.Health;
 				player.SendMessage(DoomInfo.Strings.STSTR_DQDON);
 			}
 		}
