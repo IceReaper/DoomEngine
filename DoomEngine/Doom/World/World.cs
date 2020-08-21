@@ -298,7 +298,7 @@ namespace DoomEngine.Doom.World
 
 			if (e.Key == DoomKey.F12 && e.Type == EventType.KeyDown)
 			{
-				if (this.options.DemoPlayback || this.options.Deathmatch == 0)
+				if (this.options.Deathmatch == 0)
 				{
 					this.ChangeDisplayPlayer();
 				}

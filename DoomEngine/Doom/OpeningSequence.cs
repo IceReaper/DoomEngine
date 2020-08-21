@@ -16,15 +16,11 @@
 namespace DoomEngine.Doom
 {
 	using Audio;
-	using Common;
 	using Game;
 
 	public sealed class OpeningSequence
 	{
-		private CommonResource resource;
-		private GameOptions options;
-
-		private OpeningSequenceState state;
+		private readonly GameOptions options;
 
 		private int currentStage;
 		private int nextStage;
@@ -32,29 +28,17 @@ namespace DoomEngine.Doom
 		private int count;
 		private int timer;
 
-		private TicCmd[] cmds;
-		private Demo demo;
-		private DoomGame game;
-
 		private bool reset;
 
-		public OpeningSequence(CommonResource resource, GameOptions options)
+		public OpeningSequenceState State { get; private set; }
+
+		public OpeningSequence(GameOptions options)
 		{
-			this.resource = resource;
 			this.options = options;
-
-			this.cmds = new TicCmd[Player.MaxPlayerCount];
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				this.cmds[i] = new TicCmd();
-			}
 
 			this.currentStage = 0;
 			this.nextStage = 0;
-
 			this.reset = false;
-
 			this.StartTitleScreen();
 		}
 
@@ -62,12 +46,7 @@ namespace DoomEngine.Doom
 		{
 			this.currentStage = 0;
 			this.nextStage = 0;
-
-			this.demo = null;
-			this.game = null;
-
 			this.reset = true;
-
 			this.StartTitleScreen();
 		}
 
@@ -77,219 +56,59 @@ namespace DoomEngine.Doom
 
 			if (this.nextStage != this.currentStage)
 			{
-				switch (this.nextStage)
-				{
-					case 0:
-						this.StartTitleScreen();
-
-						break;
-
-					case 1:
-						this.StartDemo("DEMO1");
-
-						break;
-
-					case 2:
-						this.StartCreditScreen();
-
-						break;
-
-					case 3:
-						this.StartDemo("DEMO2");
-
-						break;
-
-					case 4:
-						this.StartTitleScreen();
-
-						break;
-
-					case 5:
-						this.StartDemo("DEMO3");
-
-						break;
-
-					case 6:
-						this.StartCreditScreen();
-
-						break;
-
-					case 7:
-						this.StartDemo("DEMO4");
-
-						break;
-				}
+				if (this.nextStage == 0)
+					this.StartTitleScreen();
+				else if (this.nextStage == 1)
+					this.StartCreditScreen();
 
 				this.currentStage = this.nextStage;
 				updateResult = UpdateResult.NeedWipe;
 			}
 
-			switch (this.currentStage)
+			this.count++;
+
+			if (this.count == this.timer)
+				this.nextStage = (this.nextStage + 1) % 2;
+
+			if (this.State == OpeningSequenceState.Title && this.count == 1)
 			{
-				case 0:
-					this.count++;
-
-					if (this.count == this.timer)
-					{
-						this.nextStage = 1;
-					}
-
-					break;
-
-				case 1:
-					if (!this.demo.ReadCmd(this.cmds))
-					{
-						this.nextStage = 2;
-					}
-					else
-					{
-						this.game.Update(this.cmds);
-					}
-
-					break;
-
-				case 2:
-					this.count++;
-
-					if (this.count == this.timer)
-					{
-						this.nextStage = 3;
-					}
-
-					break;
-
-				case 3:
-					if (!this.demo.ReadCmd(this.cmds))
-					{
-						this.nextStage = 4;
-					}
-					else
-					{
-						this.game.Update(this.cmds);
-					}
-
-					break;
-
-				case 4:
-					this.count++;
-
-					if (this.count == this.timer)
-					{
-						this.nextStage = 5;
-					}
-
-					break;
-
-				case 5:
-					if (!this.demo.ReadCmd(this.cmds))
-					{
-						if (!DoomApplication.Instance.FileSystem.Exists("DEMO4"))
-						{
-							this.nextStage = 0;
-						}
-						else
-						{
-							this.nextStage = 6;
-						}
-					}
-					else
-					{
-						this.game.Update(this.cmds);
-					}
-
-					break;
-
-				case 6:
-					this.count++;
-
-					if (this.count == this.timer)
-					{
-						this.nextStage = 7;
-					}
-
-					break;
-
-				case 7:
-					if (!this.demo.ReadCmd(this.cmds))
-					{
-						this.nextStage = 0;
-					}
-					else
-					{
-						this.game.Update(this.cmds);
-					}
-
-					break;
-			}
-
-			if (this.state == OpeningSequenceState.Title && this.count == 1)
-			{
-				if (DoomApplication.Instance.IWad == "doom2"
+				this.options.Music.StartMusic(
+					DoomApplication.Instance.IWad == "doom2"
 					|| DoomApplication.Instance.IWad == "freedoom2"
 					|| DoomApplication.Instance.IWad == "plutonia"
-					|| DoomApplication.Instance.IWad == "tnt")
-				{
-					this.options.Music.StartMusic(Bgm.DM2TTL, false);
-				}
-				else
-				{
-					this.options.Music.StartMusic(Bgm.INTRO, false);
-				}
+					|| DoomApplication.Instance.IWad == "tnt"
+						? Bgm.DM2TTL
+						: Bgm.INTRO,
+					false
+				);
 			}
 
-			if (this.reset)
-			{
-				this.reset = false;
-
-				return UpdateResult.NeedWipe;
-			}
-			else
-			{
+			if (!this.reset)
 				return updateResult;
-			}
+
+			this.reset = false;
+
+			return UpdateResult.NeedWipe;
 		}
 
 		private void StartTitleScreen()
 		{
-			this.state = OpeningSequenceState.Title;
-
+			this.State = OpeningSequenceState.Title;
 			this.count = 0;
 
-			if (DoomApplication.Instance.IWad == "doom2"
+			this.timer = DoomApplication.Instance.IWad == "doom2"
 				|| DoomApplication.Instance.IWad == "freedoom2"
 				|| DoomApplication.Instance.IWad == "plutonia"
-				|| DoomApplication.Instance.IWad == "tnt")
-			{
-				this.timer = 35 * 11;
-			}
-			else
-			{
-				this.timer = 170;
-			}
+				|| DoomApplication.Instance.IWad == "tnt"
+					? 385
+					: 170;
 		}
 
 		private void StartCreditScreen()
 		{
-			this.state = OpeningSequenceState.Credit;
-
+			this.State = OpeningSequenceState.Credit;
 			this.count = 0;
 			this.timer = 200;
 		}
-
-		private void StartDemo(string lump)
-		{
-			this.state = OpeningSequenceState.Demo;
-
-			this.demo = new Demo(DoomApplication.Instance.FileSystem.Read(lump));
-			this.demo.Options.Renderer = this.options.Renderer;
-			this.demo.Options.Sound = this.options.Sound;
-			this.demo.Options.Music = this.options.Music;
-
-			this.game = new DoomGame(this.resource, this.demo.Options);
-			this.game.DeferedInitNew();
-		}
-
-		public OpeningSequenceState State => this.state;
-		public DoomGame DemoGame => this.game;
 	}
 }

@@ -45,11 +45,6 @@ namespace DoomEngine.SoftwareRendering
 
 					break;
 
-				case OpeningSequenceState.Demo:
-					this.parent.RenderGame(sequence.DemoGame);
-
-					break;
-
 				case OpeningSequenceState.Credit:
 					this.screen.DrawPatch(this.cache["CREDIT"], 0, 0, scale);
 

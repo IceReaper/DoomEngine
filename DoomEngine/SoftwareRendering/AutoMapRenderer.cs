@@ -249,7 +249,7 @@ namespace DoomEngine.SoftwareRendering
 			{
 				var player = players[i];
 
-				if (options.Deathmatch != 0 && !options.DemoPlayback && player != consolePlayer)
+				if (options.Deathmatch != 0 && player != consolePlayer)
 				{
 					continue;
 				}

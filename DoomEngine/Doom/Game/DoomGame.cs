@@ -168,13 +168,6 @@ namespace DoomEngine.Doom.Game
 					var cmd = players[i].Cmd;
 					cmd.CopyFrom(cmds[i]);
 
-					/*
-					if (demorecording)
-					{
-						G_WriteDemoTiccmd(cmd);
-					}
-					*/
-
 					// Check for turbo cheats.
 					if (cmd.ForwardMove > GameConst.TurboThreshold && (this.world.LevelTime & 31) == 0 && ((this.world.LevelTime >> 5) & 3) == i)
 					{

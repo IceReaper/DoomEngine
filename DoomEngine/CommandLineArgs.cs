@@ -32,9 +32,6 @@ namespace DoomEngine
 		public readonly Arg respawn;
 		public readonly Arg nomonsters;
 
-		public readonly Arg<string> playdemo;
-		public readonly Arg<string> timedemo;
-
 		public readonly Arg<int> loadgame;
 
 		public readonly Arg nomouse;
@@ -55,9 +52,6 @@ namespace DoomEngine
 			this.fast = new Arg(args.Contains("-fast"));
 			this.respawn = new Arg(args.Contains("-respawn"));
 			this.nomonsters = new Arg(args.Contains("-nomonsters"));
-
-			this.playdemo = CommandLineArgs.GetString(args, "-playdemo");
-			this.timedemo = CommandLineArgs.GetString(args, "-timedemo");
 
 			this.loadgame = CommandLineArgs.GetInt(args, "-loadgame");
 

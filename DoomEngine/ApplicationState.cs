@@ -19,7 +19,6 @@ namespace DoomEngine
 	{
 		None,
 		Opening,
-		DemoPlayback,
 		Game
 	}
 }

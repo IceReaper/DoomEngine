@@ -57,8 +57,6 @@ namespace DoomEngine
 
 		private OpeningSequence opening;
 
-		private DemoPlayback demoPlayback;
-
 		private TicCmd[] cmds;
 		private DoomGame game;
 
@@ -122,7 +120,7 @@ namespace DoomEngine
 
 				this.menu = new DoomMenu(this);
 
-				this.opening = new OpeningSequence(this.Resource, this.options);
+				this.opening = new OpeningSequence(this.options);
 
 				this.cmds = new TicCmd[Player.MaxPlayerCount];
 
@@ -151,10 +149,7 @@ namespace DoomEngine
 				this.window.KeyPressed += this.KeyPressed;
 				this.window.KeyReleased += this.KeyReleased;
 
-				if (!args.timedemo.Present)
-				{
-					this.window.SetFramerateLimit(35);
-				}
+				this.window.SetFramerateLimit(35);
 			}
 			catch (Exception e)
 			{
@@ -227,18 +222,6 @@ namespace DoomEngine
 				this.nextState = ApplicationState.Game;
 				this.game.LoadGame(args.loadgame.Value);
 			}
-
-			if (args.playdemo.Present)
-			{
-				this.nextState = ApplicationState.DemoPlayback;
-				this.demoPlayback = new DemoPlayback(this.Resource, this.options, args.playdemo.Value);
-			}
-
-			if (args.timedemo.Present)
-			{
-				this.nextState = ApplicationState.DemoPlayback;
-				this.demoPlayback = new DemoPlayback(this.Resource, this.options, args.timedemo.Value);
-			}
 		}
 
 		public void Run()
@@ -303,10 +286,6 @@ namespace DoomEngine
 					{
 						continue;
 					}
-				}
-				else if (this.currentState == ApplicationState.DemoPlayback)
-				{
-					this.demoPlayback.DoEvent(e);
 				}
 			}
 
@@ -462,11 +441,6 @@ namespace DoomEngine
 						this.opening.Reset();
 					}
 
-					if (this.nextState != ApplicationState.DemoPlayback)
-					{
-						this.demoPlayback = null;
-					}
-
 					this.currentState = this.nextState;
 				}
 
@@ -490,20 +464,6 @@ namespace DoomEngine
 						if (this.opening.Update() == UpdateResult.NeedWipe)
 						{
 							this.StartWipe();
-						}
-
-						break;
-
-					case ApplicationState.DemoPlayback:
-						var result = this.demoPlayback.Update();
-
-						if (result == UpdateResult.NeedWipe)
-						{
-							this.StartWipe();
-						}
-						else if (result == UpdateResult.Completed)
-						{
-							this.Quit("FPS: " + this.demoPlayback.Fps.ToString("0.0"));
 						}
 
 						break;
@@ -660,7 +620,6 @@ namespace DoomEngine
 
 		public ApplicationState State => this.currentState;
 		public OpeningSequence Opening => this.opening;
-		public DemoPlayback DemoPlayback => this.demoPlayback;
 		public GameOptions Options => this.options;
 		public DoomGame Game => this.game;
 		public DoomMenu Menu => this.menu;

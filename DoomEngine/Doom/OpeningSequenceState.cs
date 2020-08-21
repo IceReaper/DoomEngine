@@ -18,7 +18,6 @@ namespace DoomEngine.Doom
 	public enum OpeningSequenceState
 	{
 		Title,
-		Credit,
-		Demo
+		Credit
 	}
 }

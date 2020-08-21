@@ -28,7 +28,6 @@ namespace DoomEngine.Doom.Game
 		private int map;
 		private GameSkill skill;
 
-		private bool demoPlayback;
 		private bool netGame;
 
 		private int deathmatch;
@@ -59,7 +58,6 @@ namespace DoomEngine.Doom.Game
 			this.map = 1;
 			this.skill = GameSkill.Medium;
 
-			this.demoPlayback = false;
 			this.netGame = false;
 
 			this.deathmatch = 0;
@@ -102,12 +100,6 @@ namespace DoomEngine.Doom.Game
 		{
 			get => this.skill;
 			set => this.skill = value;
-		}
-
-		public bool DemoPlayback
-		{
-			get => this.demoPlayback;
-			set => this.demoPlayback = value;
 		}
 
 		public bool NetGame

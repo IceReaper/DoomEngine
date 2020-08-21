@@ -144,10 +144,6 @@ namespace DoomEngine.Platform.Desktop
 			{
 				this.openingSequence.Render(app.Opening);
 			}
-			else if (app.State == ApplicationState.DemoPlayback)
-			{
-				this.RenderGame(app.DemoPlayback.Game);
-			}
 			else if (app.State == ApplicationState.Game)
 			{
 				this.RenderGame(app.Game);
@@ -226,14 +222,6 @@ namespace DoomEngine.Platform.Desktop
 			if (app.State == ApplicationState.Game && app.Game.State == GameState.Level)
 			{
 				colors = this.palette[SfmlRenderer.GetPaletteNumber(app.Game.World.ConsolePlayer)];
-			}
-			else if (app.State == ApplicationState.Opening && app.Opening.State == OpeningSequenceState.Demo && app.Opening.DemoGame.State == GameState.Level)
-			{
-				colors = this.palette[SfmlRenderer.GetPaletteNumber(app.Opening.DemoGame.World.ConsolePlayer)];
-			}
-			else if (app.State == ApplicationState.DemoPlayback && app.DemoPlayback.Game.State == GameState.Level)
-			{
-				colors = this.palette[SfmlRenderer.GetPaletteNumber(app.DemoPlayback.Game.World.ConsolePlayer)];
 			}
 
 			this.Display(colors);
