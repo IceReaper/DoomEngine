@@ -17,13 +17,12 @@ namespace DoomEngine.Doom.Game
 {
 	using DoomEngine.Game;
 	using DoomEngine.Game.Components;
+	using DoomEngine.Game.Components.Player;
 	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
 	using Info;
 	using Math;
 	using System;
-	using System.Collections.Generic;
-	using System.Linq;
 	using World;
 
 	public sealed class Player
@@ -78,9 +77,9 @@ namespace DoomEngine.Doom.Game
 		// Frags, kills of other players.
 		private int[] frags;
 
+		public Entity Entity;
 		public Entity ReadyWeapon;
 		public Entity PendingWeapon;
-		public List<Entity> Inventory = new List<Entity>();
 
 		// True if button down last tic.
 		private bool attackDown;
@@ -148,6 +147,8 @@ namespace DoomEngine.Doom.Game
 
 		public void Clear()
 		{
+			this.Entity = null;
+
 			this.mobj = null;
 			this.playerState = 0;
 			this.cmd.Clear();
@@ -169,8 +170,6 @@ namespace DoomEngine.Doom.Game
 
 			this.ReadyWeapon = null;
 			this.PendingWeapon = null;
-
-			this.Inventory.Clear();
 
 			this.useDown = false;
 			this.attackDown = false;
@@ -207,6 +206,8 @@ namespace DoomEngine.Doom.Game
 
 		public void Reborn()
 		{
+			this.Entity = EntityInfo.Create<DoomEngine.Game.Entities.Player>();
+
 			this.mobj = null;
 			this.playerState = PlayerState.Live;
 			this.cmd.Clear();
@@ -224,18 +225,18 @@ namespace DoomEngine.Doom.Game
 			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
-			this.Inventory.Clear();
 			var fists = EntityInfo.Create<WeaponFists>();
 			var pistol = EntityInfo.Create<WeaponPistol>();
 
-			this.Inventory.Add(fists);
-			this.Inventory.Add(pistol);
+			var inventory = this.Entity.GetComponent<InventoryComponent>();
+			inventory.Items.Add(fists);
+			inventory.Items.Add(pistol);
 			this.ReadyWeapon = pistol;
 			this.PendingWeapon = pistol;
 
 			var bullets = EntityInfo.Create<AmmoBullets>();
-			bullets.Components.OfType<AmmoComponent>().First().Amount = Player.InitialBullets;
-			this.Inventory.Add(bullets);
+			bullets.GetComponent<AmmoComponent>().Amount = Player.InitialBullets;
+			inventory.Items.Add(bullets);
 
 			// Don't do anything immediately.
 			this.useDown = true;

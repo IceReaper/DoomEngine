@@ -17,7 +17,6 @@ namespace DoomEngine.Platform.Desktop
 {
 	using Doom.Game;
 	using Doom.World;
-	using Platform;
 	using SFML.Graphics;
 	using SFML.System;
 	using SFML.Window;

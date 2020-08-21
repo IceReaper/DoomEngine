@@ -17,7 +17,6 @@ namespace DoomEngine.Doom.Info
 {
 	using DoomEngine.Game.Components.Weapons;
 	using Game;
-	using System.Linq;
 	using World;
 
 	public static partial class DoomInfo
@@ -86,7 +85,7 @@ namespace DoomEngine.Doom.Info
 
 			public static void Fire(World world, Player player, PlayerSpriteDef psp)
 			{
-				player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Fire(world, player);
+				player.ReadyWeapon.GetComponent<WeaponComponent>().Fire(world, player);
 			}
 
 			public void BFGsound(World world, Player player, PlayerSpriteDef psp)

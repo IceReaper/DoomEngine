@@ -18,6 +18,7 @@ namespace DoomEngine.Doom.World
 	using Audio;
 	using DoomEngine.Game;
 	using DoomEngine.Game.Components;
+	using DoomEngine.Game.Components.Player;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
@@ -59,16 +60,17 @@ namespace DoomEngine.Doom.World
 		public bool GiveAmmo(Player player, string ammoName, int amount)
 		{
 			var entityInfo = EntityInfo.OfName(ammoName);
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
-			var entity = player.Inventory.FirstOrDefault(entity => entity.Info == entityInfo);
-			var ammoComponent = entity?.Components.OfType<AmmoComponent>().First();
+			var entity = inventory.Items.FirstOrDefault(entity => entity.Info == entityInfo);
+			var ammoComponent = entity?.GetComponent<AmmoComponent>();
 
 			if (entity == null)
 			{
 				entity = EntityInfo.Create(entityInfo);
-				ammoComponent = entity.Components.OfType<AmmoComponent>().First();
+				ammoComponent = entity.GetComponent<AmmoComponent>();
 				ammoComponent.Amount = 0;
-				player.Inventory.Add(entity);
+				player.Entity.GetComponent<InventoryComponent>().Items.Add(entity);
 			}
 
 			if (ammoComponent.Amount == ammoComponent.Info.Maximum)
@@ -91,24 +93,24 @@ namespace DoomEngine.Doom.World
 			if (entity.Info is AmmoBullets)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists)
-					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
-						?? player.Inventory.First(weapon => weapon.Info is WeaponPistol);
+					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
+						?? inventory.Items.First(weapon => weapon.Info is WeaponPistol);
 			}
 			else if (entity.Info is AmmoShells)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
-					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
-						?? player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
+					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
+						?? inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
 			}
 			else if (entity.Info is AmmoCells)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
-					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
+					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
 			}
 			else if (entity.Info is AmmoRockets)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists)
-					player.PendingWeapon = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
+					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
 			}
 
 			return true;
@@ -125,8 +127,9 @@ namespace DoomEngine.Doom.World
 		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
 			var entityInfo = EntityInfo.OfName(weaponName);
-			var entity = player.Inventory.FirstOrDefault(entity => entity.Info == entityInfo);
-			var requiresAmmoComponent = entity?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
+			var entity = inventory.Items.FirstOrDefault(entity => entity.Info == entityInfo);
+			var requiresAmmoComponent = entity?.GetComponent<RequiresAmmoComponent>();
 
 			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
 			{
@@ -135,10 +138,10 @@ namespace DoomEngine.Doom.World
 					return false;
 
 				entity = EntityInfo.Create(entityInfo);
-				requiresAmmoComponent = entity?.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+				requiresAmmoComponent = entity?.GetComponent<RequiresAmmoComponent>();
 
 				player.BonusCount += ItemPickup.bonusAdd;
-				player.Inventory.Add(entity);
+				inventory.Items.Add(entity);
 
 				if (requiresAmmoComponent != null)
 					this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
@@ -161,7 +164,7 @@ namespace DoomEngine.Doom.World
 			{
 				gaveWeapon = true;
 				entity = EntityInfo.Create(entityInfo);
-				player.Inventory.Add(entity);
+				inventory.Items.Add(entity);
 				player.PendingWeapon = entity;
 			}
 
@@ -385,7 +388,10 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.MEGA:
-					if (DoomApplication.Instance.IWad != "doom2" && DoomApplication.Instance.IWad != "freedoom2" && DoomApplication.Instance.IWad != "plutonia" && DoomApplication.Instance.IWad != "tnt")
+					if (DoomApplication.Instance.IWad != "doom2"
+						&& DoomApplication.Instance.IWad != "freedoom2"
+						&& DoomApplication.Instance.IWad != "plutonia"
+						&& DoomApplication.Instance.IWad != "tnt")
 					{
 						return;
 					}
@@ -538,7 +544,7 @@ namespace DoomEngine.Doom.World
 
 					player.SendMessage(DoomInfo.Strings.GOTBERSERK);
 
-					var fists = player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponFists);
+					var fists = player.Entity.GetComponent<InventoryComponent>().Items.FirstOrDefault(weapon => weapon.Info is WeaponFists);
 
 					if (fists != null && player.ReadyWeapon != fists)
 					{

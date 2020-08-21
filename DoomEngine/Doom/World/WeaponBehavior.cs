@@ -17,6 +17,7 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using DoomEngine.Game.Components;
+	using DoomEngine.Game.Components.Player;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
@@ -69,7 +70,7 @@ namespace DoomEngine.Doom.World
 			{
 				// Change weapon.
 				// Pending weapon should allready be validated.
-				var newState = player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.DownState;
+				var newState = player.ReadyWeapon.GetComponent<WeaponComponent>().Info.DownState;
 				pb.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
 
 				return;
@@ -102,14 +103,14 @@ namespace DoomEngine.Doom.World
 
 		private bool CheckAmmo(Player player)
 		{
-			var requiresAmmoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var requiresAmmoComponent = player.ReadyWeapon.GetComponent<RequiresAmmoComponent>();
 
 			if (requiresAmmoComponent == null)
 				return true;
 
-			var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
-				?.Components.OfType<AmmoComponent>()
-				.FirstOrDefault();
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
+
+			var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)?.GetComponent<AmmoComponent>();
 
 			if (ammoComponent != null && requiresAmmoComponent.Info.AmmoPerShot <= ammoComponent.Amount)
 			{
@@ -118,20 +119,19 @@ namespace DoomEngine.Doom.World
 
 			do
 			{
-				player.PendingWeapon = player.Inventory.Where(
+				player.PendingWeapon = inventory.Items.Where(
 							weapon =>
 							{
 								if (weapon == player.ReadyWeapon)
 									return false;
 
-								var requiresAmmoComponent = weapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+								var requiresAmmoComponent = weapon.GetComponent<RequiresAmmoComponent>();
 
 								if (requiresAmmoComponent == null)
 									return false;
 
-								var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
-									?.Components.OfType<AmmoComponent>()
-									.FirstOrDefault();
+								var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+									?.GetComponent<AmmoComponent>();
 
 								if (ammoComponent == null || ammoComponent.Amount < requiresAmmoComponent.Info.AmmoPerShot)
 									return false;
@@ -139,18 +139,14 @@ namespace DoomEngine.Doom.World
 								return true;
 							}
 						)
-						.OrderBy(weapon => -weapon.Components.OfType<WeaponComponent>().First().Info.Slot)
+						.OrderBy(weapon => -weapon.GetComponent<WeaponComponent>().Info.Slot)
 						.FirstOrDefault()
-					?? player.Inventory.FirstOrDefault(weapon => weapon.Info is WeaponChainsaw) ?? player.Inventory.First(weapon => weapon.Info is WeaponFists);
+					?? inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponChainsaw) ?? inventory.Items.First(weapon => weapon.Info is WeaponFists);
 			}
 			while (player.PendingWeapon == null);
 
 			// Now set appropriate weapon overlay.
-			this.world.PlayerBehavior.SetPlayerSprite(
-				player,
-				PlayerSprite.Weapon,
-				player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.DownState
-			);
+			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.GetComponent<WeaponComponent>().Info.DownState);
 
 			return false;
 		}
@@ -226,7 +222,7 @@ namespace DoomEngine.Doom.World
 
 			player.Mobj.SetState(MobjState.PlayAtk1);
 
-			var newState = player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.AttackState;
+			var newState = player.ReadyWeapon.GetComponent<WeaponComponent>().Info.AttackState;
 			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
 
 			this.NoiseAlert(player.Mobj, player.Mobj);
@@ -280,7 +276,7 @@ namespace DoomEngine.Doom.World
 			psp.Sy = WeaponBehavior.WeaponTop;
 
 			// The weapon has been raised all the way, so change to the ready state.
-			var newState = player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.ReadyState;
+			var newState = player.ReadyWeapon.GetComponent<WeaponComponent>().Info.ReadyState;
 
 			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Weapon, newState);
 		}
@@ -336,11 +332,7 @@ namespace DoomEngine.Doom.World
 		{
 			player.Mobj.SetState(MobjState.PlayAtk2);
 
-			this.world.PlayerBehavior.SetPlayerSprite(
-				player,
-				PlayerSprite.Flash,
-				player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.FlashState
-			);
+			this.world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, player.ReadyWeapon.GetComponent<WeaponComponent>().Info.FlashState);
 		}
 
 		public void A_BFGsound(Player player)

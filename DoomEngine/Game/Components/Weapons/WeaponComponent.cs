@@ -3,7 +3,6 @@ namespace DoomEngine.Game.Components.Weapons
 	using Doom.Game;
 	using Doom.World;
 	using Interfaces;
-	using System.Linq;
 
 	public class WeaponComponentInfo : ComponentInfo
 	{
@@ -42,12 +41,12 @@ namespace DoomEngine.Game.Components.Weapons
 
 		public void Fire(World world, Player player)
 		{
-			var ammoComponent = this.Entity.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var ammoComponent = this.Entity.GetComponent<RequiresAmmoComponent>();
 
-			if (ammoComponent != null && !ammoComponent.TryFire(player))
+			if (ammoComponent != null && !ammoComponent.TryFire(player.Entity))
 				return;
 
-			foreach (var iNotifyFire in this.Entity.Components.OfType<INotifyFire>())
+			foreach (var iNotifyFire in this.Entity.GetComponents<INotifyFire>())
 				iNotifyFire.Fire(world, player);
 
 			world.PlayerBehavior.SetPlayerSprite(player, PlayerSprite.Flash, this.Info.FlashState);

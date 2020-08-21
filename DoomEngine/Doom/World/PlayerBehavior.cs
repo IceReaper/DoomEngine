@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components.Player;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
@@ -119,10 +120,11 @@ namespace DoomEngine.Doom.World
 				// Not in the middle of an attack.
 				var slot = (cmd.Buttons & TicCmdButtons.WeaponMask) >> TicCmdButtons.WeaponShift;
 
-				var weapons = player.Inventory.Where(
+				var weapons = player.Entity.GetComponent<InventoryComponent>()
+					.Items.Where(
 						entity =>
 						{
-							var weaponComponent = entity.Components.OfType<WeaponComponent>().FirstOrDefault();
+							var weaponComponent = entity.GetComponent<WeaponComponent>();
 
 							return weaponComponent != null && weaponComponent.Info.Slot == slot + 1;
 						}
@@ -520,7 +522,7 @@ namespace DoomEngine.Doom.World
 				this.world.StartSound(player.Mobj, Sfx.SAWUP, SfxType.Weapon);
 			}
 
-			var newState = player.PendingWeapon.Components.OfType<WeaponComponent>().First().Info.UpState;
+			var newState = player.PendingWeapon.GetComponent<WeaponComponent>().Info.UpState;
 
 			player.PendingWeapon = null;
 			player.PlayerSprites[(int) PlayerSprite.Weapon].Sy = WeaponBehavior.WeaponBottom;
@@ -613,7 +615,7 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void DropWeapon(Player player)
 		{
-			this.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.Components.OfType<WeaponComponent>().First().Info.DownState);
+			this.SetPlayerSprite(player, PlayerSprite.Weapon, player.ReadyWeapon.GetComponent<WeaponComponent>().Info.DownState);
 		}
 
 		////////////////////////////////////////////////////////////

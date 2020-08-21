@@ -17,6 +17,7 @@ namespace DoomEngine.Doom.World
 {
 	using Common;
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components.Player;
 	using DoomEngine.Game.Components.Weapons;
 	using Game;
 	using Math;
@@ -55,7 +56,11 @@ namespace DoomEngine.Doom.World
 
 			this.oldHealth = -1;
 			this.oldWeaponsOwned.Clear();
-			this.oldWeaponsOwned.AddRange(world.ConsolePlayer.Inventory);
+
+			this.oldWeaponsOwned.AddRange(
+				world.ConsolePlayer.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
+			);
+
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -69,7 +74,11 @@ namespace DoomEngine.Doom.World
 		public void Reset()
 		{
 			this.oldHealth = -1;
-			this.oldWeaponsOwned.AddRange(this.world.ConsolePlayer.Inventory);
+
+			this.oldWeaponsOwned.AddRange(
+				this.world.ConsolePlayer.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
+			);
+
 			this.faceCount = 0;
 			this.faceIndex = 0;
 			this.randomNumber = 0;
@@ -106,8 +115,8 @@ namespace DoomEngine.Doom.World
 					// Picking up bonus.
 					var doEvilGrin = false;
 
-					foreach (var entity in player.Inventory.Where(entity => entity.Components.OfType<WeaponComponent>().Any())
-						.Where(entity => !this.oldWeaponsOwned.Contains(entity)))
+					foreach (var entity in player.Entity.GetComponent<InventoryComponent>()
+						.Items.Where(entity => entity.GetComponent<WeaponComponent>() != null && !this.oldWeaponsOwned.Contains(entity)))
 					{
 						doEvilGrin = true;
 						this.oldWeaponsOwned.Add(entity);

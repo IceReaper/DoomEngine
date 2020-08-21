@@ -7,13 +7,24 @@ namespace DoomEngine.Game
 
 	public abstract class EntityInfo
 	{
-		public readonly IEnumerable<ComponentInfo> ComponentInfos;
+		private readonly IEnumerable<ComponentInfo> componentInfos;
+
 		public readonly string Name;
 
 		protected EntityInfo(IEnumerable<ComponentInfo> componentInfos)
 		{
-			this.ComponentInfos = componentInfos;
+			this.componentInfos = componentInfos;
 			this.Name = this.GetType().Name;
+		}
+
+		public T GetComponentInfo<T>() where T : ComponentInfo
+		{
+			return this.GetComponentInfos<T>().FirstOrDefault();
+		}
+
+		public IEnumerable<T> GetComponentInfos<T>() where T : ComponentInfo
+		{
+			return this.componentInfos.OfType<T>();
 		}
 
 		private static readonly Dictionary<string, EntityInfo> entityInfos;
@@ -27,17 +38,17 @@ namespace DoomEngine.Game
 
 		public static Entity Create<T>() where T : EntityInfo
 		{
-			return new Entity(EntityInfo.entityInfos.First(info => info.Value.GetType() == typeof(T)).Value);
+			return EntityInfo.Create(EntityInfo.entityInfos.First(info => info.Value.GetType() == typeof(T)).Value);
 		}
 
 		public static Entity Create(EntityInfo info)
 		{
-			return new Entity(info);
+			return new Entity(info, entity => info.componentInfos.Select(componentInfo => componentInfo.Create(entity)).ToArray());
 		}
 
 		public static IEnumerable<EntityInfo> WithComponent<T>() where T : ComponentInfo
 		{
-			return EntityInfo.entityInfos.Values.Where(entityInfo => entityInfo.ComponentInfos.Any(componentInfo => componentInfo.GetType() == typeof(T)));
+			return EntityInfo.entityInfos.Values.Where(entityInfo => entityInfo.componentInfos.Any(componentInfo => componentInfo.GetType() == typeof(T)));
 		}
 
 		public static EntityInfo OfName(string name)
@@ -53,31 +64,42 @@ namespace DoomEngine.Game
 
 	public sealed class Entity
 	{
-		public readonly EntityInfo Info;
-		public readonly IEnumerable<Component> Components;
+		private readonly IEnumerable<Component> components;
 
-		public Entity(EntityInfo info)
+		public readonly EntityInfo Info;
+
+		public Entity(EntityInfo info, Func<Entity, Component[]> createComponents)
 		{
 			this.Info = info;
-			this.Components = info.ComponentInfos.Select(componentInfo => componentInfo.Create(this)).ToArray();
+			this.components = createComponents(this);
 		}
 
 		public void Serialize(BinaryWriter writer)
 		{
 			writer.Write(this.Info.Name);
 
-			foreach (var component in this.Components)
+			foreach (var component in this.components)
 				component.Serialize(writer);
 		}
 
 		public static Entity Deserialize(BinaryReader reader)
 		{
-			var entity = new Entity(EntityInfo.OfName(reader.ReadString()));
+			var entity = EntityInfo.Create(EntityInfo.OfName(reader.ReadString()));
 
-			foreach (var component in entity.Components)
+			foreach (var component in entity.components)
 				component.Deserialize(reader);
 
 			return entity;
+		}
+
+		public T GetComponent<T>() where T : Component
+		{
+			return this.GetComponents<T>().FirstOrDefault();
+		}
+
+		public IEnumerable<T> GetComponents<T>()
+		{
+			return this.components.OfType<T>();
 		}
 	}
 }

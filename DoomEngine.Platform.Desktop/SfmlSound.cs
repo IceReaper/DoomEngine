@@ -19,7 +19,6 @@ namespace DoomEngine.Platform.Desktop
 	using Doom.Info;
 	using Doom.Math;
 	using Doom.World;
-	using Platform;
 	using SFML.Audio;
 	using SFML.System;
 	using System;

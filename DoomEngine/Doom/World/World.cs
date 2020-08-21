@@ -101,7 +101,6 @@ namespace DoomEngine.Doom.World
 			this.weaponBehavior = new WeaponBehavior(this);
 			this.monsterBehavior = new MonsterBehavior(this);
 			this.lightingChange = new LightingChange(this);
-			this.statusBar = new StatusBar(this);
 			this.autoMap = new AutoMap(this);
 			this.cheat = new Cheat(this);
 
@@ -123,6 +122,8 @@ namespace DoomEngine.Doom.World
 			this.totalSecrets = 0;
 
 			this.LoadThings();
+			
+			this.statusBar = new StatusBar(this);
 
 			// If deathmatch, randomly spawn the active players.
 			if (options.Deathmatch != 0)

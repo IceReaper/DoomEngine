@@ -217,7 +217,7 @@ namespace DoomEngine.Doom.World
 
 			if (mt.Type - 1 == this.world.Options.ConsolePlayer)
 			{
-				this.world.StatusBar.Reset();
+				this.world.StatusBar?.Reset();
 				this.world.Options.Sound.SetListener(mobj);
 			}
 

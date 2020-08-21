@@ -20,6 +20,7 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.World;
 	using Game;
 	using Game.Components;
+	using Game.Components.Player;
 	using Game.Components.Weapons;
 	using Game.Entities.Ammos;
 	using System.Linq;
@@ -228,13 +229,14 @@ namespace DoomEngine.SoftwareRendering
 				this.screen.DrawPatch(this.patches.Background, 0, this.scale * (200 - StatusBarRenderer.Height), this.scale);
 			}
 
-			var requiresAmmoComponent = player.ReadyWeapon.Components.OfType<RequiresAmmoComponent>().FirstOrDefault();
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
+
+			var requiresAmmoComponent = player.ReadyWeapon.GetComponent<RequiresAmmoComponent>();
 
 			if (requiresAmmoComponent != null)
 			{
-				var ammoComponent = player.Inventory.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
-					?.Components.OfType<AmmoComponent>()
-					.FirstOrDefault();
+				var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+					?.GetComponent<AmmoComponent>();
 
 				if (ammoComponent != null)
 					this.DrawNumber(this.ready, ammoComponent.Amount);
@@ -243,14 +245,14 @@ namespace DoomEngine.SoftwareRendering
 			this.DrawPercent(this.health, player.Health);
 			this.DrawPercent(this.armor, player.ArmorPoints);
 
-			var bullets = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoBullets)?.Components.OfType<AmmoComponent>().First();
-			var bulletsInfo = EntityInfo.OfType<AmmoBullets>().ComponentInfos.OfType<AmmoComponentInfo>().First();
-			var shells = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoShells)?.Components.OfType<AmmoComponent>().First();
-			var shellsInfo = EntityInfo.OfType<AmmoShells>().ComponentInfos.OfType<AmmoComponentInfo>().First();
-			var rockets = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoRockets)?.Components.OfType<AmmoComponent>().First();
-			var rocketsInfo = EntityInfo.OfType<AmmoRockets>().ComponentInfos.OfType<AmmoComponentInfo>().First();
-			var cells = player.Inventory.FirstOrDefault(entity => entity.Info is AmmoCells)?.Components.OfType<AmmoComponent>().First();
-			var cellsInfo = EntityInfo.OfType<AmmoCells>().ComponentInfos.OfType<AmmoComponentInfo>().First();
+			var bullets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoBullets)?.GetComponent<AmmoComponent>();
+			var bulletsInfo = EntityInfo.OfType<AmmoBullets>().GetComponentInfo<AmmoComponentInfo>();
+			var shells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoShells)?.GetComponent<AmmoComponent>();
+			var shellsInfo = EntityInfo.OfType<AmmoShells>().GetComponentInfo<AmmoComponentInfo>();
+			var rockets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoRockets)?.GetComponent<AmmoComponent>();
+			var rocketsInfo = EntityInfo.OfType<AmmoRockets>().GetComponentInfo<AmmoComponentInfo>();
+			var cells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoCells)?.GetComponent<AmmoComponent>();
+			var cellsInfo = EntityInfo.OfType<AmmoCells>().GetComponentInfo<AmmoComponentInfo>();
 
 			this.DrawNumber(this.ammo[0], bullets?.Amount ?? 0);
 			this.DrawNumber(this.maxAmmo[0], bulletsInfo.Maximum);
@@ -280,8 +282,8 @@ namespace DoomEngine.SoftwareRendering
 				{
 					this.DrawMultIcon(
 						this.weapons[i],
-						player.Inventory.Where(entity => entity.Components.OfType<WeaponComponent>().Any())
-							.Any(entity => entity.Components.OfType<WeaponComponent>().First().Info.Slot - 2 == i)
+						inventory.Items.Select(entity => entity.GetComponent<WeaponComponent>())
+							.Any(weaponComponent => weaponComponent != null && weaponComponent.Info.Slot - 2 == i)
 							? 1
 							: 0
 					);

@@ -17,6 +17,7 @@ namespace DoomEngine.Doom.Game
 {
 	using Common;
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components.Player;
 	using Graphics;
 	using Info;
 	using Map;
@@ -469,13 +470,10 @@ namespace DoomEngine.Doom.Game
 					this.writer.Write(player.Frags[i]);
 				}
 
-				this.writer.Write(player.Inventory.Count);
-
-				foreach (var weapon in player.Inventory)
-					weapon.Serialize(this.writer);
+				player.Entity.Serialize(this.writer);
 
 				this.writer.Write(player.ReadyWeapon.Info.Name);
-				this.writer.Write(player.PendingWeapon.Info.Name);
+				this.writer.Write(player.PendingWeapon?.Info.Name ?? "");
 
 				this.writer.Write(player.AttackDown ? 1 : 0);
 				this.writer.Write(player.UseDown ? 1 : 0);
@@ -961,16 +959,17 @@ namespace DoomEngine.Doom.Game
 					player.Frags[i] = this.reader.ReadInt32();
 				}
 
-				var numWeapons = this.reader.ReadInt32();
+				player.Entity = Entity.Deserialize(this.reader);
 
-				for (var i = 0; i < numWeapons; i++)
-					player.Inventory.Add(Entity.Deserialize(this.reader));
+				var inventory = player.Entity.GetComponent<InventoryComponent>();
 
 				var readyWeapon = this.reader.ReadString();
-				player.ReadyWeapon = player.Inventory.First(weapon => weapon.Info.Name == readyWeapon);
+				player.ReadyWeapon = inventory.Items.First(weapon => weapon.Info.Name == readyWeapon);
 
 				var pendingWeapon = this.reader.ReadString();
-				player.PendingWeapon = player.Inventory.First(weapon => weapon.Info.Name == pendingWeapon);
+
+				if (pendingWeapon != "")
+					player.PendingWeapon = inventory.Items.First(weapon => weapon.Info.Name == pendingWeapon);
 
 				player.AttackDown = this.reader.ReadInt32() != 0;
 				player.UseDown = this.reader.ReadInt32() != 0;

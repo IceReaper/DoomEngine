@@ -1,5 +1,7 @@
 namespace DoomEngine.Game.Components
 {
+	using System.IO;
+
 	public class AmmoComponentInfo : ComponentInfo
 	{
 		public readonly int ClipSize;
@@ -28,6 +30,16 @@ namespace DoomEngine.Game.Components
 		{
 			this.Info = info;
 			this.Amount = info.ClipSize;
+		}
+
+		public override void Serialize(BinaryWriter writer)
+		{
+			writer.Write(this.Amount);
+		}
+
+		public override void Deserialize(BinaryReader reader)
+		{
+			this.Amount = reader.ReadInt32();
 		}
 	}
 }

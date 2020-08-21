@@ -1,6 +1,6 @@
 namespace DoomEngine.Game.Components.Weapons
 {
-	using Doom.Game;
+	using Player;
 	using System.Linq;
 
 	public class RequiresAmmoComponentInfo : ComponentInfo
@@ -30,11 +30,11 @@ namespace DoomEngine.Game.Components.Weapons
 			this.Info = info;
 		}
 
-		public bool TryFire(Player player)
+		public bool TryFire(Entity player)
 		{
-			var ammo = player.Inventory.FirstOrDefault(entity => entity.Info.Name == this.Info.Ammo && entity.Components.OfType<AmmoComponent>().Any());
-
-			var component = ammo?.Components.OfType<AmmoComponent>().FirstOrDefault();
+			var inventory = player.GetComponent<InventoryComponent>();
+			var ammo = inventory.Items.FirstOrDefault(entity => entity.Info.Name == this.Info.Ammo && entity.GetComponent<AmmoComponent>() != null);
+			var component = ammo?.GetComponent<AmmoComponent>();
 
 			if (component == null)
 				return false;
@@ -45,7 +45,7 @@ namespace DoomEngine.Game.Components.Weapons
 			component.Amount -= this.Info.AmmoPerShot;
 
 			if (component.Amount == 0)
-				player.Inventory.Remove(ammo);
+				inventory.Items.Remove(ammo);
 
 			return true;
 		}
