@@ -1380,17 +1380,20 @@ namespace DoomEngine.SoftwareRendering
 					angle = new Angle(angle.Data & 0x7FFFFFFF);
 
 					var textureColumn = (rwOffset - Trig.Tan(angle) * rwDistance).ToIntFloor();
-					var source = wallTexture.Composite.Columns[textureColumn & wallWidthMask][0];
+					var source = wallTexture.Composite.Columns[textureColumn & wallWidthMask];
 
-					var lightIndex = rwScale.Data >> ThreeDRenderer.scaleLightShift;
-
-					if (lightIndex >= this.maxScaleLight)
+					if (source.Length > 0)
 					{
-						lightIndex = this.maxScaleLight - 1;
-					}
+						var lightIndex = rwScale.Data >> ThreeDRenderer.scaleLightShift;
 
-					var invScale = new Fixed((int) (0xffffffffu / (uint) rwScale.Data));
-					this.DrawColumn(source, wallLights[lightIndex], x, wy1, wy2, invScale, middleTextureAlt);
+						if (lightIndex >= this.maxScaleLight)
+						{
+							lightIndex = this.maxScaleLight - 1;
+						}
+
+						var invScale = new Fixed((int) (0xffffffffu / (uint) rwScale.Data));
+						this.DrawColumn(source[0], wallLights[lightIndex], x, wy1, wy2, invScale, middleTextureAlt);
+					}
 				}
 
 				if (drawFloor)
