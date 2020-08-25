@@ -19,6 +19,7 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Graphics;
 	using Doom.World;
 	using Game;
+	using Game.Components;
 	using Game.Components.Items;
 	using Game.Components.Weapons;
 	using Game.Entities.Ammos;
@@ -241,7 +242,9 @@ namespace DoomEngine.SoftwareRendering
 					this.DrawNumber(this.ready, itemComponent.Amount);
 			}
 
-			this.DrawPercent(this.health, player.Health);
+			var healthComponent = player.Entity.GetComponent<Health>();
+
+			this.DrawPercent(this.health, healthComponent.Current);
 			this.DrawPercent(this.armor, player.ArmorPoints);
 
 			var bullets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoBullets)?.GetComponent<ItemComponent>();

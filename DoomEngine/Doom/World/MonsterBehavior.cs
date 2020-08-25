@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using Game;
 	using Info;
 	using Map;
@@ -60,8 +61,9 @@ namespace DoomEngine.Doom.World
 				}
 
 				var player = players[actor.LastLook];
+				var healthComponent = player.Entity.GetComponent<Health>();
 
-				if (player.Health <= 0)
+				if (healthComponent.Current <= 0)
 				{
 					// Player is dead.
 					continue;
@@ -1606,7 +1608,9 @@ namespace DoomEngine.Doom.World
 
 			for (i = 0; i < Player.MaxPlayerCount; i++)
 			{
-				if (players[i].InGame && players[i].Health > 0)
+				var healthComponent = players[i].Entity.GetComponent<Health>();
+
+				if (players[i].InGame && healthComponent.Current > 0)
 				{
 					break;
 				}

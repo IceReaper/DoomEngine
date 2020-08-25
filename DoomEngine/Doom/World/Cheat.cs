@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using Event;
@@ -181,8 +182,9 @@ namespace DoomEngine.Doom.World
 			else
 			{
 				player.Cheats |= CheatFlags.GodMode;
-				player.Health = Math.Max(ItemPickup.GodModeHealth, player.Health);
-				player.Mobj.Health = player.Health;
+				var healthComponent = player.Entity.GetComponent<Health>();
+				healthComponent.Current = Math.Max(ItemPickup.GodModeHealth, healthComponent.Current);
+				player.Mobj.Health = healthComponent.Current;
 				player.SendMessage(DoomInfo.Strings.STSTR_DQDON);
 			}
 		}

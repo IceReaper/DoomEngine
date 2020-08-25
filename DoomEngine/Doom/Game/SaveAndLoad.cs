@@ -449,7 +449,6 @@ namespace DoomEngine.Doom.Game
 				this.writer.Write(player.ViewHeight.Data);
 				this.writer.Write(player.DeltaViewHeight.Data);
 				this.writer.Write(player.Bob.Data);
-				this.writer.Write(player.Health);
 				this.writer.Write(player.ArmorPoints);
 				this.writer.Write(player.ArmorType);
 
@@ -938,7 +937,6 @@ namespace DoomEngine.Doom.Game
 				player.ViewHeight = new Fixed(this.reader.ReadInt32());
 				player.DeltaViewHeight = new Fixed(this.reader.ReadInt32());
 				player.Bob = new Fixed(this.reader.ReadInt32());
-				player.Health = this.reader.ReadInt32();
 				player.ArmorPoints = this.reader.ReadInt32();
 				player.ArmorType = this.reader.ReadInt32();
 

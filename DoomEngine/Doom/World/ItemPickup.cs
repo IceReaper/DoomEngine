@@ -17,6 +17,7 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Ammos;
@@ -144,19 +145,17 @@ namespace DoomEngine.Doom.World
 		/// </returns>
 		private bool GiveHealth(Player player, int amount)
 		{
-			if (player.Health >= Player.FullHealth)
-			{
+			var healthComponent = player.Entity.GetComponent<Health>();
+
+			if (healthComponent.Current >= healthComponent.Info.Full)
 				return false;
-			}
 
-			player.Health += amount;
+			healthComponent.Current += amount;
 
-			if (player.Health > Player.FullHealth)
-			{
-				player.Health = Player.FullHealth;
-			}
+			if (healthComponent.Current > healthComponent.Info.Full)
+				healthComponent.Current = healthComponent.Info.Full;
 
-			player.Mobj.Health = player.Health;
+			player.Mobj.Health = healthComponent.Current;
 
 			return true;
 		}
@@ -276,6 +275,8 @@ namespace DoomEngine.Doom.World
 				return;
 			}
 
+			var healthComponent = player.Entity.GetComponent<Health>();
+
 			// Identify by sprite.
 			switch (special.Sprite)
 			{
@@ -302,15 +303,12 @@ namespace DoomEngine.Doom.World
 
 				// Bonus items.
 				case Sprite.BON1:
-					// Can go over 100%.
-					player.Health++;
+					healthComponent.Current++;
 
-					if (player.Health > Player.MaxHealth)
-					{
-						player.Health = Player.MaxHealth;
-					}
+					if (healthComponent.Current > healthComponent.Info.Maximum)
+						healthComponent.Current = healthComponent.Info.Maximum;
 
-					player.Mobj.Health = player.Health;
+					player.Mobj.Health = healthComponent.Current;
 					player.SendMessage(DoomInfo.Strings.GOTHTHBONUS);
 
 					break;
@@ -334,14 +332,12 @@ namespace DoomEngine.Doom.World
 					break;
 
 				case Sprite.SOUL:
-					player.Health += ItemPickup.SoulsphereHealth;
+					healthComponent.Current += ItemPickup.SoulsphereHealth;
 
-					if (player.Health > Player.MaxHealth)
-					{
-						player.Health = Player.MaxHealth;
-					}
+					if (healthComponent.Current > healthComponent.Info.Maximum)
+						healthComponent.Current = healthComponent.Info.Maximum;
 
-					player.Mobj.Health = player.Health;
+					player.Mobj.Health = healthComponent.Current;
 					player.SendMessage(DoomInfo.Strings.GOTSUPER);
 					sound = Sfx.GETPOW;
 
@@ -356,8 +352,8 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					player.Health = ItemPickup.MegasphereHealth;
-					player.Mobj.Health = player.Health;
+					healthComponent.Current = ItemPickup.MegasphereHealth;
+					player.Mobj.Health = healthComponent.Current;
 					this.GiveArmor(player, ItemPickup.BlueArmorClass);
 					player.SendMessage(DoomInfo.Strings.GOTMSPHERE);
 					sound = Sfx.GETPOW;
@@ -473,7 +469,7 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (player.Health < 25)
+					if (healthComponent.Current < 25)
 					{
 						player.SendMessage(DoomInfo.Strings.GOTMEDINEED);
 					}

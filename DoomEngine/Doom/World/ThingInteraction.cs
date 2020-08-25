@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
 	using Info;
@@ -235,12 +236,14 @@ namespace DoomEngine.Doom.World
 					damage -= saved;
 				}
 
-				// Mirror mobj health here for Dave.
-				player.Health -= damage;
+				var healthComponent = player.Entity.GetComponent<Health>();
 
-				if (player.Health < 0)
+				// Mirror mobj health here for Dave.
+				healthComponent.Current -= damage;
+
+				if (healthComponent.Current < 0)
 				{
-					player.Health = 0;
+					healthComponent.Current = 0;
 				}
 
 				player.Attacker = source;

@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using Game;
 	using Info;
 	using Map;
@@ -227,9 +228,11 @@ namespace DoomEngine.Doom.World
 				mobj.Flags |= (MobjFlags) ((mt.Type - 1) << (int) MobjFlags.TransShift);
 			}
 
+			var healthComponent = player.Entity.GetComponent<Health>();
+
 			mobj.Angle = mt.Angle;
 			mobj.Player = player;
-			mobj.Health = player.Health;
+			mobj.Health = healthComponent.Current;
 
 			player.Mobj = mobj;
 			player.PlayerState = PlayerState.Live;

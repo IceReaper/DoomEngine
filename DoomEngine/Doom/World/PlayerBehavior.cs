@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
@@ -414,7 +415,9 @@ namespace DoomEngine.Doom.World
 						ti.DamageMobj(player.Mobj, null, null, 20);
 					}
 
-					if (player.Health <= 10)
+					var healthComponent = player.Entity.GetComponent<Health>();
+
+					if (healthComponent.Current <= 10)
 					{
 						this.world.ExitLevel();
 					}

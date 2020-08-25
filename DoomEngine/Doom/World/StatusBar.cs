@@ -17,6 +17,7 @@ namespace DoomEngine.Doom.World
 {
 	using Common;
 	using DoomEngine.Game;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using Game;
@@ -96,11 +97,12 @@ namespace DoomEngine.Doom.World
 		private void UpdateFace()
 		{
 			var player = this.world.ConsolePlayer;
+			var healthComponent = player.Entity.GetComponent<Health>();
 
 			if (this.priority < 10)
 			{
 				// Dead.
-				if (player.Health == 0)
+				if (healthComponent.Current == 0)
 				{
 					this.priority = 9;
 					this.faceIndex = Face.DeadIndex;
@@ -139,7 +141,7 @@ namespace DoomEngine.Doom.World
 					// Being attacked.
 					this.priority = 7;
 
-					if (player.Health - this.oldHealth > Face.MuchPain)
+					if (healthComponent.Current - this.oldHealth > Face.MuchPain)
 					{
 						this.faceCount = Face.TurnDuration;
 						this.faceIndex = this.CalcPainOffset() + Face.OuchOffset;
@@ -191,7 +193,7 @@ namespace DoomEngine.Doom.World
 				// Getting hurt because of your own damn stupidity.
 				if (player.DamageCount != 0)
 				{
-					if (player.Health - this.oldHealth > Face.MuchPain)
+					if (healthComponent.Current - this.oldHealth > Face.MuchPain)
 					{
 						this.priority = 7;
 						this.faceCount = Face.TurnDuration;
@@ -255,8 +257,9 @@ namespace DoomEngine.Doom.World
 		private int CalcPainOffset()
 		{
 			var player = this.world.Options.Players[this.world.Options.ConsolePlayer];
+			var healthComponent = player.Entity.GetComponent<Health>();
 
-			var health = player.Health > 100 ? 100 : player.Health;
+			var health = healthComponent.Current > 100 ? 100 : healthComponent.Current;
 
 			if (health != this.oldHealth)
 			{

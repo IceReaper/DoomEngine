@@ -16,6 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components;
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
@@ -63,9 +64,11 @@ namespace DoomEngine.Doom.World
 				this.world.StartSound(player.Mobj, Sfx.SAWIDL, SfxType.Weapon);
 			}
 
+			var healthComponent = player.Entity.GetComponent<Health>();
+
 			// Check for weapon change.
 			// If player is dead, put the weapon away.
-			if (player.PendingWeapon != null || player.Health == 0)
+			if (player.PendingWeapon != null || healthComponent.Current == 0)
 			{
 				// Change weapon.
 				// Pending weapon should allready be validated.
@@ -247,10 +250,11 @@ namespace DoomEngine.Doom.World
 			}
 
 			var pb = this.world.PlayerBehavior;
+			var healthComponent = player.Entity.GetComponent<Health>();
 
 			// The old weapon has been lowered off the screen,
 			// so change the weapon and start raising it.
-			if (player.Health == 0)
+			if (healthComponent.Current == 0)
 			{
 				// Player is dead, so keep the weapon off screen.
 				pb.SetPlayerSprite(player, PlayerSprite.Weapon, MobjState.Null);
@@ -282,9 +286,11 @@ namespace DoomEngine.Doom.World
 
 		public void ReFire(Player player)
 		{
+			var healthComponent = player.Entity.GetComponent<Health>();
+
 			// Check for fire.
 			// If a weaponchange is pending, let it go through instead.
-			if ((player.Cmd.Buttons & TicCmdButtons.Attack) != 0 && player.PendingWeapon == null && player.Health != 0)
+			if ((player.Cmd.Buttons & TicCmdButtons.Attack) != 0 && player.PendingWeapon == null && healthComponent.Current != 0)
 			{
 				player.Refire++;
 				this.FireWeapon(player);

@@ -28,9 +28,6 @@ namespace DoomEngine.Doom.Game
 	{
 		public static readonly int MaxPlayerCount = 4;
 
-		public static readonly int MaxHealth = 200;
-		public static readonly int FullHealth = 100;
-
 		public static readonly int MaxArmor = 200;
 
 		public static readonly Fixed NormalViewHeight = Fixed.FromInt(41);
@@ -60,7 +57,6 @@ namespace DoomEngine.Doom.Game
 
 		// This is only used between levels,
 		// mobj.Health is used during levels.
-		private int health;
 		private int armorPoints;
 
 		// Armor type is 0-2.
@@ -155,7 +151,6 @@ namespace DoomEngine.Doom.Game
 			this.deltaViewHeight = Fixed.Zero;
 			this.bob = Fixed.Zero;
 
-			this.health = 0;
 			this.armorPoints = 0;
 			this.armorType = 0;
 
@@ -214,7 +209,6 @@ namespace DoomEngine.Doom.Game
 			this.deltaViewHeight = Fixed.Zero;
 			this.bob = Fixed.Zero;
 
-			this.health = Player.FullHealth;
 			this.armorPoints = 0;
 			this.armorType = 0;
 
@@ -336,12 +330,6 @@ namespace DoomEngine.Doom.Game
 		{
 			get => this.bob;
 			set => this.bob = value;
-		}
-
-		public int Health
-		{
-			get => this.health;
-			set => this.health = value;
 		}
 
 		public int ArmorPoints
