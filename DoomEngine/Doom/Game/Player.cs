@@ -16,8 +16,7 @@
 namespace DoomEngine.Doom.Game
 {
 	using DoomEngine.Game;
-	using DoomEngine.Game.Components;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
 	using Info;
@@ -33,8 +32,6 @@ namespace DoomEngine.Doom.Game
 		public static readonly int FullHealth = 100;
 
 		public static readonly int MaxArmor = 200;
-
-		public static readonly int InitialBullets = 50;
 
 		public static readonly Fixed NormalViewHeight = Fixed.FromInt(41);
 
@@ -225,18 +222,10 @@ namespace DoomEngine.Doom.Game
 			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
-			var fists = EntityInfo.Create<WeaponFists>();
-			var pistol = EntityInfo.Create<WeaponPistol>();
-
 			var inventory = this.Entity.GetComponent<InventoryComponent>();
-			inventory.Items.Add(fists);
-			inventory.Items.Add(pistol);
-			this.ReadyWeapon = pistol;
-			this.PendingWeapon = pistol;
-
-			var bullets = EntityInfo.Create<AmmoBullets>();
-			bullets.GetComponent<AmmoComponent>().Amount = Player.InitialBullets;
-			inventory.Items.Add(bullets);
+			inventory.TryAdd(EntityInfo.Create<WeaponFists>());
+			inventory.TryAdd(this.ReadyWeapon = this.PendingWeapon = EntityInfo.Create<WeaponPistol>());
+			inventory.TryAdd(EntityInfo.Create<AmmoBullets>());
 
 			// Don't do anything immediately.
 			this.useDown = true;

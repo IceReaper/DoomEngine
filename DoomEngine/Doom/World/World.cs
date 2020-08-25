@@ -122,7 +122,7 @@ namespace DoomEngine.Doom.World
 			this.totalSecrets = 0;
 
 			this.LoadThings();
-			
+
 			this.statusBar = new StatusBar(this);
 
 			// If deathmatch, randomly spawn the active players.

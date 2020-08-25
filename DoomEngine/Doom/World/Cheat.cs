@@ -16,8 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using DoomEngine.Game;
-	using DoomEngine.Game.Components;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using Event;
 	using Game;
@@ -130,28 +129,20 @@ namespace DoomEngine.Doom.World
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
 			foreach (var entityInfo in EntityInfo.WithComponent<WeaponComponentInfo>())
-			{
-				if (inventory.Items.All(ownedItem => ownedItem.Info != entityInfo))
-					inventory.Items.Add(EntityInfo.Create(entityInfo));
-			}
+				inventory.TryAdd(EntityInfo.Create(entityInfo));
 
 			player.Backpack = true;
 
 			foreach (var entityInfo in EntityInfo.WithComponent<AmmoComponentInfo>())
+				inventory.TryAdd(EntityInfo.Create(entityInfo));
+
+			foreach (var entity in inventory.Items.Where(item => item.GetComponent<AmmoComponent>() != null))
 			{
-				if (inventory.Items.All(ownedItem => ownedItem.Info != entityInfo))
-					inventory.Items.Add(EntityInfo.Create(entityInfo));
+				var itemComponent = entity.GetComponent<ItemComponent>();
+
+				if (itemComponent != null)
+					itemComponent.Amount = itemComponent.Info.StackSize;
 			}
-
-			inventory.Items.ForEach(
-				entity =>
-				{
-					var ammoComponent = entity.GetComponent<AmmoComponent>();
-
-					if (ammoComponent != null)
-						ammoComponent.Amount = ammoComponent.Info.Maximum;
-				}
-			);
 		}
 
 		private void FullAmmo()

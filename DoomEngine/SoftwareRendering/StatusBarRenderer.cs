@@ -19,8 +19,7 @@ namespace DoomEngine.SoftwareRendering
 	using Doom.Graphics;
 	using Doom.World;
 	using Game;
-	using Game.Components;
-	using Game.Components.Player;
+	using Game.Components.Items;
 	using Game.Components.Weapons;
 	using Game.Entities.Ammos;
 	using System.Linq;
@@ -235,36 +234,36 @@ namespace DoomEngine.SoftwareRendering
 
 			if (requiresAmmoComponent != null)
 			{
-				var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
-					?.GetComponent<AmmoComponent>();
+				var itemComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+					?.GetComponent<ItemComponent>();
 
-				if (ammoComponent != null)
-					this.DrawNumber(this.ready, ammoComponent.Amount);
+				if (itemComponent != null)
+					this.DrawNumber(this.ready, itemComponent.Amount);
 			}
 
 			this.DrawPercent(this.health, player.Health);
 			this.DrawPercent(this.armor, player.ArmorPoints);
 
-			var bullets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoBullets)?.GetComponent<AmmoComponent>();
-			var bulletsInfo = EntityInfo.OfType<AmmoBullets>().GetComponentInfo<AmmoComponentInfo>();
-			var shells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoShells)?.GetComponent<AmmoComponent>();
-			var shellsInfo = EntityInfo.OfType<AmmoShells>().GetComponentInfo<AmmoComponentInfo>();
-			var rockets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoRockets)?.GetComponent<AmmoComponent>();
-			var rocketsInfo = EntityInfo.OfType<AmmoRockets>().GetComponentInfo<AmmoComponentInfo>();
-			var cells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoCells)?.GetComponent<AmmoComponent>();
-			var cellsInfo = EntityInfo.OfType<AmmoCells>().GetComponentInfo<AmmoComponentInfo>();
+			var bullets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoBullets)?.GetComponent<ItemComponent>();
+			var bulletsInfo = EntityInfo.OfType<AmmoBullets>().GetComponentInfo<ItemComponentInfo>();
+			var shells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoShells)?.GetComponent<ItemComponent>();
+			var shellsInfo = EntityInfo.OfType<AmmoShells>().GetComponentInfo<ItemComponentInfo>();
+			var rockets = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoRockets)?.GetComponent<ItemComponent>();
+			var rocketsInfo = EntityInfo.OfType<AmmoRockets>().GetComponentInfo<ItemComponentInfo>();
+			var cells = inventory.Items.FirstOrDefault(entity => entity.Info is AmmoCells)?.GetComponent<ItemComponent>();
+			var cellsInfo = EntityInfo.OfType<AmmoCells>().GetComponentInfo<ItemComponentInfo>();
 
 			this.DrawNumber(this.ammo[0], bullets?.Amount ?? 0);
-			this.DrawNumber(this.maxAmmo[0], bulletsInfo.Maximum);
+			this.DrawNumber(this.maxAmmo[0], bulletsInfo.StackSize);
 
 			this.DrawNumber(this.ammo[1], shells?.Amount ?? 0);
-			this.DrawNumber(this.maxAmmo[1], shellsInfo.Maximum);
+			this.DrawNumber(this.maxAmmo[1], shellsInfo.StackSize);
 
 			this.DrawNumber(this.ammo[2], cells?.Amount ?? 0);
-			this.DrawNumber(this.maxAmmo[2], cellsInfo.Maximum);
+			this.DrawNumber(this.maxAmmo[2], cellsInfo.StackSize);
 
 			this.DrawNumber(this.ammo[3], rockets?.Amount ?? 0);
-			this.DrawNumber(this.maxAmmo[3], rocketsInfo.Maximum);
+			this.DrawNumber(this.maxAmmo[3], rocketsInfo.StackSize);
 
 			if (player.Mobj.World.Options.Deathmatch == 0)
 			{

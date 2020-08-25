@@ -17,8 +17,7 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using DoomEngine.Game;
-	using DoomEngine.Game.Components;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
@@ -59,55 +58,42 @@ namespace DoomEngine.Doom.World
 		/// </returns>
 		public bool GiveAmmo(Player player, string ammoName, int amount)
 		{
-			var entityInfo = EntityInfo.OfName(ammoName);
-			var inventory = player.Entity.GetComponent<InventoryComponent>();
-
-			var entity = inventory.Items.FirstOrDefault(entity => entity.Info == entityInfo);
-			var ammoComponent = entity?.GetComponent<AmmoComponent>();
-
-			if (entity == null)
-			{
-				entity = EntityInfo.Create(entityInfo);
-				ammoComponent = entity.GetComponent<AmmoComponent>();
-				ammoComponent.Amount = 0;
-				player.Entity.GetComponent<InventoryComponent>().Items.Add(entity);
-			}
-
-			if (ammoComponent.Amount == ammoComponent.Info.Maximum)
-				return false;
+			var ammoEntity = EntityInfo.Create(EntityInfo.OfName(ammoName));
+			var itemComponent = ammoEntity.GetComponent<ItemComponent>();
 
 			if (amount != 0)
-				amount *= ammoComponent.Info.ClipSize;
+				amount *= itemComponent.Info.InitialAmount;
 			else
-				amount = ammoComponent.Info.ClipSize / 2;
+				amount = itemComponent.Info.InitialAmount / 2;
 
 			if (this.world.Options.Skill == GameSkill.Baby || this.world.Options.Skill == GameSkill.Nightmare)
 				amount *= 2;
 
-			var oldammo = ammoComponent.Amount;
-			ammoComponent.Amount = Math.Min(ammoComponent.Amount + amount, ammoComponent.Info.Maximum);
+			itemComponent.Amount = amount;
 
-			if (oldammo != 0)
-				return true;
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
-			if (entity.Info is AmmoBullets)
+			if (!inventory.TryAdd(ammoEntity))
+				return false;
+
+			if (ammoEntity.Info is AmmoBullets)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists)
 					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponChaingun)
 						?? inventory.Items.First(weapon => weapon.Info is WeaponPistol);
 			}
-			else if (entity.Info is AmmoShells)
+			else if (ammoEntity.Info is AmmoShells)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
 					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponShotgun)
 						?? inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponSuperShotgun) ?? player.PendingWeapon;
 			}
-			else if (entity.Info is AmmoCells)
+			else if (ammoEntity.Info is AmmoCells)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists || player.ReadyWeapon.Info is WeaponPistol)
 					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponPlasmagun) ?? player.PendingWeapon;
 			}
-			else if (entity.Info is AmmoRockets)
+			else if (ammoEntity.Info is AmmoRockets)
 			{
 				if (player.ReadyWeapon.Info is WeaponFists)
 					player.PendingWeapon = inventory.Items.FirstOrDefault(weapon => weapon.Info is WeaponRocketLauncher) ?? player.PendingWeapon;
@@ -126,54 +112,28 @@ namespace DoomEngine.Doom.World
 		/// </param>
 		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
-			var entityInfo = EntityInfo.OfName(weaponName);
+			var weaponEntity = EntityInfo.Create(EntityInfo.OfName(weaponName));
+			var requiresAmmoComponent = weaponEntity.GetComponent<RequiresAmmoComponent>();
+
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
-			var entity = inventory.Items.FirstOrDefault(entity => entity.Info == entityInfo);
-			var requiresAmmoComponent = entity?.GetComponent<RequiresAmmoComponent>();
+			var gaveWeapon = inventory.TryAdd(weaponEntity);
+			var gaveAmmo = requiresAmmoComponent != null && this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, dropped ? 1 : 2);
 
-			if (this.world.Options.NetGame && (this.world.Options.Deathmatch != 2) && !dropped)
-			{
-				// Leave placed weapons forever on net games.
-				if (entity != null)
-					return false;
+			if (gaveWeapon)
+				player.PendingWeapon = weaponEntity;
 
-				entity = EntityInfo.Create(entityInfo);
-				requiresAmmoComponent = entity?.GetComponent<RequiresAmmoComponent>();
+			if (!this.world.Options.NetGame || this.world.Options.Deathmatch == 2 || dropped)
+				return gaveWeapon || gaveAmmo;
 
-				player.BonusCount += ItemPickup.bonusAdd;
-				inventory.Items.Add(entity);
-
-				if (requiresAmmoComponent != null)
-					this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, this.world.Options.Deathmatch != 0 ? 5 : 2);
-
-				player.PendingWeapon = entity;
-
-				if (player == this.world.ConsolePlayer)
-					this.world.StartSound(player.Mobj, Sfx.WPNUP, SfxType.Misc);
-
+			if (!gaveWeapon && !gaveAmmo)
 				return false;
-			}
 
-			bool gaveWeapon;
+			player.BonusCount += ItemPickup.bonusAdd;
 
-			if (entity != null)
-			{
-				gaveWeapon = false;
-			}
-			else
-			{
-				gaveWeapon = true;
-				entity = EntityInfo.Create(entityInfo);
-				inventory.Items.Add(entity);
-				player.PendingWeapon = entity;
-			}
+			if (player == this.world.ConsolePlayer)
+				this.world.StartSound(player.Mobj, Sfx.WPNUP, SfxType.Misc);
 
-			var gaveAmmo = false;
-
-			if (requiresAmmoComponent != null)
-				gaveAmmo = this.GiveAmmo(player, requiresAmmoComponent.Info.Ammo, dropped ? 1 : 2);
-
-			return (gaveWeapon || gaveAmmo);
+			return false;
 		}
 
 		/// <summary>

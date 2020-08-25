@@ -16,7 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;

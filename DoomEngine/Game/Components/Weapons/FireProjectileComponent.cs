@@ -21,17 +21,17 @@ namespace DoomEngine.Game.Components.Weapons
 
 	public class FireProjectileComponent : Component, INotifyFire
 	{
-		public readonly FireProjectileComponentInfo Info;
+		private readonly FireProjectileComponentInfo info;
 
 		public FireProjectileComponent(Entity entity, FireProjectileComponentInfo info)
 			: base(entity)
 		{
-			this.Info = info;
+			this.info = info;
 		}
 
 		void INotifyFire.Fire(World world, Player player)
 		{
-			world.ThingAllocation.SpawnPlayerMissile(player.Mobj, this.Info.Projectile);
+			world.ThingAllocation.SpawnPlayerMissile(player.Mobj, this.info.Projectile);
 		}
 	}
 }

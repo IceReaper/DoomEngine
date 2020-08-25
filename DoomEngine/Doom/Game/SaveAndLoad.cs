@@ -17,7 +17,7 @@ namespace DoomEngine.Doom.Game
 {
 	using Common;
 	using DoomEngine.Game;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using Graphics;
 	using Info;
 	using Map;

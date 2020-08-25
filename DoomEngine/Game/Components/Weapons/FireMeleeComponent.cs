@@ -31,37 +31,37 @@ namespace DoomEngine.Game.Components.Weapons
 
 	public class FireMeleeComponent : Component, INotifyFire
 	{
-		public readonly FireMeleeComponentInfo Info;
+		private readonly FireMeleeComponentInfo info;
 
 		public FireMeleeComponent(Entity entity, FireMeleeComponentInfo info)
 			: base(entity)
 		{
-			this.Info = info;
+			this.info = info;
 		}
 
 		void INotifyFire.Fire(World world, Player player)
 		{
 			var damage = 2 * (world.Random.Next() % 10 + 1);
 
-			if (this.Info.IsFists && player.Powers[(int) PowerType.Strength] != 0)
+			if (this.info.IsFists && player.Powers[(int) PowerType.Strength] != 0)
 				damage *= 10;
 
 			var angle = player.Mobj.Angle + new Angle((world.Random.Next() - world.Random.Next()) << 18);
 
-			world.Hitscan.LineAttack(player.Mobj, angle, this.Info.Range, world.Hitscan.AimLineAttack(player.Mobj, angle, this.Info.Range), damage);
+			world.Hitscan.LineAttack(player.Mobj, angle, this.info.Range, world.Hitscan.AimLineAttack(player.Mobj, angle, this.info.Range), damage);
 
 			if (world.Hitscan.LineTarget == null)
 			{
-				world.StartSound(player.Mobj, this.Info.MissSound, SfxType.Weapon);
+				world.StartSound(player.Mobj, this.info.MissSound, SfxType.Weapon);
 
 				return;
 			}
 
-			world.StartSound(player.Mobj, this.Info.HitSound, SfxType.Weapon);
+			world.StartSound(player.Mobj, this.info.HitSound, SfxType.Weapon);
 
 			var targetAngle = Geometry.PointToAngle(player.Mobj.X, player.Mobj.Y, world.Hitscan.LineTarget.X, world.Hitscan.LineTarget.Y);
 
-			if (this.Info.IsChainsaw)
+			if (this.info.IsChainsaw)
 			{
 				if (targetAngle - player.Mobj.Angle > Angle.Ang180)
 				{

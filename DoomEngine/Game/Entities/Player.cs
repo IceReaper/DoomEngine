@@ -1,6 +1,6 @@
 namespace DoomEngine.Game.Entities
 {
-	using Components.Player;
+	using Components.Items;
 	using System.Collections.Generic;
 
 	public class Player : EntityInfo

@@ -15,7 +15,6 @@
 
 namespace DoomEngine.Platform.Desktop
 {
-	using Doom;
 	using Doom.Common;
 	using Doom.Game;
 	using Doom.Graphics;

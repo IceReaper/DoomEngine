@@ -16,8 +16,7 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
-	using DoomEngine.Game.Components;
-	using DoomEngine.Game.Components.Player;
+	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
@@ -110,9 +109,9 @@ namespace DoomEngine.Doom.World
 
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
-			var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)?.GetComponent<AmmoComponent>();
+			var itemComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)?.GetComponent<ItemComponent>();
 
-			if (ammoComponent != null && requiresAmmoComponent.Info.AmmoPerShot <= ammoComponent.Amount)
+			if (itemComponent != null && requiresAmmoComponent.Info.AmmoPerShot <= itemComponent.Amount)
 			{
 				return true;
 			}
@@ -130,10 +129,10 @@ namespace DoomEngine.Doom.World
 								if (requiresAmmoComponent == null)
 									return false;
 
-								var ammoComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
-									?.GetComponent<AmmoComponent>();
+								var itemComponent = inventory.Items.FirstOrDefault(entity => entity.Info.Name == requiresAmmoComponent.Info.Ammo)
+									?.GetComponent<ItemComponent>();
 
-								if (ammoComponent == null || ammoComponent.Amount < requiresAmmoComponent.Info.AmmoPerShot)
+								if (itemComponent == null || itemComponent.Amount < requiresAmmoComponent.Info.AmmoPerShot)
 									return false;
 
 								return true;

@@ -1,12 +1,13 @@
 namespace DoomEngine.Game.Entities.Ammos
 {
-	using Components;
+	using Components.Items;
+	using Components.Weapons;
 	using System.Collections.Generic;
 
 	public class AmmoShells : EntityInfo
 	{
 		public AmmoShells()
-			: base(new List<ComponentInfo> {new AmmoComponentInfo(4, 50)})
+			: base(new List<ComponentInfo> {new ItemComponentInfo(false, 50, 4), new AmmoComponentInfo()})
 		{
 		}
 	}

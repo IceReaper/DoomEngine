@@ -1,12 +1,13 @@
 namespace DoomEngine.Game.Entities.Ammos
 {
-	using Components;
+	using Components.Items;
+	using Components.Weapons;
 	using System.Collections.Generic;
 
 	public class AmmoBullets : EntityInfo
 	{
 		public AmmoBullets()
-			: base(new List<ComponentInfo> {new AmmoComponentInfo(10, 200)})
+			: base(new List<ComponentInfo> {new ItemComponentInfo(false, 200, 10), new AmmoComponentInfo()})
 		{
 		}
 	}

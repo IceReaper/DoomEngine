@@ -29,31 +29,31 @@ namespace DoomEngine.Game.Components.Weapons
 
 	public class FireHitscanComponent : Component, INotifyFire
 	{
-		public readonly FireHitscanComponentInfo Info;
+		private readonly FireHitscanComponentInfo info;
 
 		private Fixed currentBulletSlope;
 
 		public FireHitscanComponent(Entity entity, FireHitscanComponentInfo info)
 			: base(entity)
 		{
-			this.Info = info;
+			this.info = info;
 		}
 
 		void INotifyFire.Fire(World world, Player player)
 		{
-			world.StartSound(player.Mobj, this.Info.Sound, SfxType.Weapon);
+			world.StartSound(player.Mobj, this.info.Sound, SfxType.Weapon);
 			player.Mobj.SetState(MobjState.PlayAtk2);
 
 			this.BulletSlope(world, player.Mobj);
 
-			for (var i = 0; i < this.Info.Bullets; i++)
+			for (var i = 0; i < this.info.Bullets; i++)
 			{
 				var damage = 5 * (world.Random.Next() % 3 + 1);
 
 				var angle = player.Mobj.Angle;
 
-				if (!this.Info.FirstShotAccurate || player.Refire != 0)
-					angle += Angle.FromDegree((world.Random.Next() - world.Random.Next()) / 255 * this.Info.Spread);
+				if (!this.info.FirstShotAccurate || player.Refire != 0)
+					angle += Angle.FromDegree((world.Random.Next() - world.Random.Next()) / 255 * this.info.Spread);
 
 				world.Hitscan.LineAttack(player.Mobj, angle, WeaponBehavior.MissileRange, this.currentBulletSlope, damage);
 			}
