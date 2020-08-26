@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -46,7 +46,7 @@ namespace DoomEngine.Doom.World
 
 		private void InitSpawnMapThing()
 		{
-			this.playerStarts = new MapThing[Player.MaxPlayerCount];
+			this.playerStarts = new MapThing[4];
 			this.deathmatchStarts = new List<MapThing>();
 		}
 
@@ -81,10 +81,8 @@ namespace DoomEngine.Doom.World
 				// Save spots for respawning in network games.
 				this.playerStarts[playerNumber] = mt;
 
-				if (this.world.Options.Deathmatch == 0)
-				{
+				if (playerNumber == 0)
 					this.SpawnPlayer(mt);
-				}
 
 				return;
 			}
@@ -95,7 +93,7 @@ namespace DoomEngine.Doom.World
 			}
 
 			// Check for apropriate skill level.
-			if (!this.world.Options.NetGame && ((int) mt.Flags & 16) != 0)
+			if (((int) mt.Flags & 16) != 0)
 			{
 				return;
 			}
@@ -134,12 +132,6 @@ namespace DoomEngine.Doom.World
 			if (i == DoomInfo.MobjInfos.Length)
 			{
 				throw new Exception("Unknown type!");
-			}
-
-			// Don't spawn keycards and players in deathmatch.
-			if (this.world.Options.Deathmatch != 0 && (DoomInfo.MobjInfos[i].Flags & MobjFlags.NotDeathmatch) != 0)
-			{
-				return;
 			}
 
 			// Don't spawn any monsters if -nomonsters.
@@ -195,20 +187,12 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void SpawnPlayer(MapThing mt)
 		{
-			var players = this.world.Options.Players;
+			var player = this.world.Options.Player;
 			var playerNumber = mt.Type - 1;
-
-			// Not playing?
-			if (!players[playerNumber].InGame)
-			{
-				return;
-			}
-
-			var player = players[playerNumber];
 
 			if (player.PlayerState == PlayerState.Reborn)
 			{
-				players[playerNumber].Reborn();
+				player.Reborn();
 			}
 
 			var x = mt.X;
@@ -216,7 +200,7 @@ namespace DoomEngine.Doom.World
 			var z = Mobj.OnFloorZ;
 			var mobj = this.SpawnMobj(x, y, z, MobjType.Player);
 
-			if (mt.Type - 1 == this.world.Options.ConsolePlayer)
+			if (mt.Type - 1 == 0)
 			{
 				this.world.StatusBar?.Reset();
 				this.world.Options.Sound.SetListener(mobj);
@@ -247,15 +231,6 @@ namespace DoomEngine.Doom.World
 
 			// Setup gun psprite.
 			this.world.PlayerBehavior.SetupPlayerSprites(player);
-
-			// Give all cards in death match mode.
-			if (this.world.Options.Deathmatch != 0)
-			{
-				for (var i = 0; i < (int) CardType.Count; i++)
-				{
-					player.Cards[i] = true;
-				}
-			}
 		}
 
 		public IReadOnlyList<MapThing> PlayerStarts => this.playerStarts;
@@ -288,7 +263,7 @@ namespace DoomEngine.Doom.World
 				mobj.ReactionTime = info.ReactionTime;
 			}
 
-			mobj.LastLook = this.world.Random.Next() % Player.MaxPlayerCount;
+			mobj.LastLook = 0;
 
 			// Do not set the state with P_SetMobjState,
 			// because action routines can not be called yet.
@@ -517,19 +492,16 @@ namespace DoomEngine.Doom.World
 		/// Returns false if the player cannot be respawned at the given
 		/// mapthing spot because something is occupying it.
 		/// </summary>
-		public bool CheckSpot(int playernum, MapThing mthing)
+		public bool CheckSpot(MapThing mthing)
 		{
-			var players = this.world.Options.Players;
+			var player = this.world.Options.Player;
 
-			if (players[playernum].Mobj == null)
+			if (player.Mobj == null)
 			{
 				// First spawn of level, before corpses.
-				for (var i = 0; i < playernum; i++)
+				if (player.Mobj.X == mthing.X && player.Mobj.Y == mthing.Y)
 				{
-					if (players[i].Mobj.X == mthing.X && players[i].Mobj.Y == mthing.Y)
-					{
-						return false;
-					}
+					return false;
 				}
 
 				return true;
@@ -538,7 +510,7 @@ namespace DoomEngine.Doom.World
 			var x = mthing.X;
 			var y = mthing.Y;
 
-			if (!this.world.ThingMovement.CheckPosition(players[playernum].Mobj, x, y))
+			if (!this.world.ThingMovement.CheckPosition(player.Mobj, x, y))
 			{
 				return false;
 			}
@@ -549,7 +521,7 @@ namespace DoomEngine.Doom.World
 				this.RemoveMobj(this.bodyQue[this.bodyQueSlot % ThingAllocation.bodyQueSize]);
 			}
 
-			this.bodyQue[this.bodyQueSlot % ThingAllocation.bodyQueSize] = players[playernum].Mobj;
+			this.bodyQue[this.bodyQueSlot % ThingAllocation.bodyQueSize] = player.Mobj;
 			this.bodyQueSlot++;
 
 			// Spawn a teleport fog.
@@ -615,38 +587,6 @@ namespace DoomEngine.Doom.World
 			return true;
 		}
 
-		/// <summary>
-		/// Spawns a player at one of the random death match spots.
-		/// Called at level load and each death.
-		/// </summary>
-		public void DeathMatchSpawnPlayer(int playerNumber)
-		{
-			var selections = this.deathmatchStarts.Count;
-
-			if (selections < 4)
-			{
-				throw new Exception("Only " + selections + " deathmatch spots, 4 required");
-			}
-
-			var random = this.world.Random;
-
-			for (var j = 0; j < 20; j++)
-			{
-				var i = random.Next() % selections;
-
-				if (this.CheckSpot(playerNumber, this.deathmatchStarts[i]))
-				{
-					this.deathmatchStarts[i].Type = playerNumber + 1;
-					this.SpawnPlayer(this.deathmatchStarts[i]);
-
-					return;
-				}
-			}
-
-			// No good spot, so the player will probably get stuck .
-			this.SpawnPlayer(this.playerStarts[playerNumber]);
-		}
-
 		////////////////////////////////////////////////////////////
 		// Item respawn
 		////////////////////////////////////////////////////////////
@@ -663,70 +603,6 @@ namespace DoomEngine.Doom.World
 			this.itemRespawnTime = new int[ThingAllocation.itemQueSize];
 			this.itemQueHead = 0;
 			this.itemQueTail = 0;
-		}
-
-		/// <summary>
-		/// Respawn items if the game mode is altdeath.
-		/// </summary>
-		public void RespawnSpecials()
-		{
-			// Only respawn items in deathmatch.
-			if (this.world.Options.Deathmatch != 2)
-			{
-				return;
-			}
-
-			// Nothing left to respawn?
-			if (this.itemQueHead == this.itemQueTail)
-			{
-				return;
-			}
-
-			// Wait at least 30 seconds.
-			if (this.world.LevelTime - this.itemRespawnTime[this.itemQueTail] < 30 * 35)
-			{
-				return;
-			}
-
-			var mthing = this.itemRespawnQue[this.itemQueTail];
-
-			var x = mthing.X;
-			var y = mthing.Y;
-
-			// Spawn a teleport fog at the new spot.
-			var ss = Geometry.PointInSubsector(x, y, this.world.Map);
-			var mo = this.SpawnMobj(x, y, ss.Sector.FloorHeight, MobjType.Ifog);
-			this.world.StartSound(mo, Sfx.ITMBK, SfxType.Misc);
-
-			int i;
-
-			// Find which type to spawn.
-			for (i = 0; i < DoomInfo.MobjInfos.Length; i++)
-			{
-				if (mthing.Type == DoomInfo.MobjInfos[i].DoomEdNum)
-				{
-					break;
-				}
-			}
-
-			// Spawn it.
-			Fixed z;
-
-			if ((DoomInfo.MobjInfos[i].Flags & MobjFlags.SpawnCeiling) != 0)
-			{
-				z = Mobj.OnCeilingZ;
-			}
-			else
-			{
-				z = Mobj.OnFloorZ;
-			}
-
-			mo = this.SpawnMobj(x, y, z, (MobjType) i);
-			mo.SpawnPoint = mthing;
-			mo.Angle = mthing.Angle;
-
-			// Pull it from the que.
-			this.itemQueTail = (this.itemQueTail + 1) & (ThingAllocation.itemQueSize - 1);
 		}
 	}
 }

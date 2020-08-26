@@ -59,7 +59,7 @@ namespace DoomEngine.Doom.World
 			this.oldWeaponsOwned.Clear();
 
 			this.oldWeaponsOwned.AddRange(
-				world.ConsolePlayer.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
+				world.Options.Player.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
 			);
 
 			this.faceCount = 0;
@@ -77,7 +77,7 @@ namespace DoomEngine.Doom.World
 			this.oldHealth = -1;
 
 			this.oldWeaponsOwned.AddRange(
-				this.world.ConsolePlayer.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
+				this.world.Options.Player.Entity.GetComponent<InventoryComponent>().Items.Where(item => item.GetComponent<WeaponComponent>() != null)
 			);
 
 			this.faceCount = 0;
@@ -96,7 +96,7 @@ namespace DoomEngine.Doom.World
 
 		private void UpdateFace()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			var healthComponent = player.Entity.GetComponent<Health>();
 
 			if (this.priority < 10)
@@ -256,7 +256,7 @@ namespace DoomEngine.Doom.World
 
 		private int CalcPainOffset()
 		{
-			var player = this.world.Options.Players[this.world.Options.ConsolePlayer];
+			var player = this.world.Options.Player;
 			var healthComponent = player.Entity.GetComponent<Health>();
 
 			var health = healthComponent.Current > 100 ? 100 : healthComponent.Current;

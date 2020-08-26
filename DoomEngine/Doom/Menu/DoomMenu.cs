@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -312,7 +312,7 @@ namespace DoomEngine.Doom.Menu
 				this.current.Update();
 			}
 
-			if (this.active && !this.app.Options.NetGame)
+			if (this.active)
 			{
 				this.app.PauseGame();
 			}
@@ -332,11 +332,7 @@ namespace DoomEngine.Doom.Menu
 		public void Close()
 		{
 			this.active = false;
-
-			if (!this.app.Options.NetGame)
-			{
-				this.app.ResumeGame();
-			}
+			this.app.ResumeGame();
 		}
 
 		public void StartSound(Sfx sfx)

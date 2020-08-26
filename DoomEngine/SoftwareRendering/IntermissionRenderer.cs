@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -15,7 +15,6 @@
 
 namespace DoomEngine.SoftwareRendering
 {
-	using Doom.Game;
 	using Doom.Graphics;
 	using Doom.Intermission;
 	using System;
@@ -37,19 +36,7 @@ namespace DoomEngine.SoftwareRendering
 		private static readonly int ngStatsY = 50;
 		private static readonly int ngSpacingX = 64;
 
-		// DEATHMATCH STUFF
-		private static readonly int dmMatrixX = 42;
-		private static readonly int dmMatrixY = 68;
-		private static readonly int dmSpacingX = 40;
-		private static readonly int dmTotalsX = 269;
-		private static readonly int dmKillersX = 10;
-		private static readonly int dmKillersY = 100;
-		private static readonly int dmVictimsX = 5;
-		private static readonly int dmVictimsY = 50;
-
 		private static readonly string[] mapPictures = new string[] {"WIMAP0", "WIMAP1", "WIMAP2"};
-
-		private static readonly string[] playerBoxes = new string[] {"STPB0", "STPB1", "STPB2", "STPB3"};
 
 		private static readonly string[] youAreHere = new string[] {"WIURH0", "WIURH1"};
 
@@ -135,18 +122,7 @@ namespace DoomEngine.SoftwareRendering
 			switch (im.State)
 			{
 				case IntermissionState.StatCount:
-					if (im.Options.Deathmatch != 0)
-					{
-						this.DrawDeathmatchStats(im);
-					}
-					else if (im.Options.NetGame)
-					{
-						this.DrawNetGameStats(im);
-					}
-					else
-					{
-						this.DrawSinglePlayerStats(im);
-					}
+					this.DrawSinglePlayerStats(im);
 
 					break;
 
@@ -205,7 +181,7 @@ namespace DoomEngine.SoftwareRendering
 				IntermissionRenderer.spStatsY
 			);
 
-			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY, im.KillCount[0]);
+			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY, im.KillCount);
 
 			this.DrawPatch(
 				"WIOSTI", // ITEMS
@@ -213,7 +189,7 @@ namespace DoomEngine.SoftwareRendering
 				IntermissionRenderer.spStatsY + lineHeight
 			);
 
-			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY + lineHeight, im.ItemCount[0]);
+			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY + lineHeight, im.ItemCount);
 
 			this.DrawPatch(
 				"WISCRT2", // SECRET
@@ -221,7 +197,7 @@ namespace DoomEngine.SoftwareRendering
 				IntermissionRenderer.spStatsY + 2 * lineHeight
 			);
 
-			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY + 2 * lineHeight, im.SecretCount[0]);
+			this.DrawPercent(320 - IntermissionRenderer.spStatsX, IntermissionRenderer.spStatsY + 2 * lineHeight, im.SecretCount);
 
 			this.DrawPatch(
 				"WITIME", // TIME
@@ -240,197 +216,6 @@ namespace DoomEngine.SoftwareRendering
 				);
 
 				this.DrawTime(320 - IntermissionRenderer.spTimeX, IntermissionRenderer.spTimeY, im.ParCount);
-			}
-		}
-
-		private void DrawNetGameStats(Intermission im)
-		{
-			this.DrawBackground(im);
-
-			// Draw animated background.
-			this.DrawBackgroundAnimation(im);
-
-			// Draw level name.
-			this.DrawFinishedLevelName(im);
-
-			var ngStatsX = 32 + this.GetWidth("STFST01") / 2;
-
-			if (!im.DoFrags)
-			{
-				ngStatsX += 32;
-			}
-
-			// Draw stat titles (top line).
-			this.DrawPatch(
-				"WIOSTK", // KILLS
-				ngStatsX + IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTK"),
-				IntermissionRenderer.ngStatsY
-			);
-
-			this.DrawPatch(
-				"WIOSTI", // ITEMS
-				ngStatsX + 2 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTI"),
-				IntermissionRenderer.ngStatsY
-			);
-
-			this.DrawPatch(
-				"WIOSTS", // SCRT
-				ngStatsX + 3 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIOSTS"),
-				IntermissionRenderer.ngStatsY
-			);
-
-			if (im.DoFrags)
-			{
-				this.DrawPatch(
-					"WIFRGS", // FRAGS
-					ngStatsX + 4 * IntermissionRenderer.ngSpacingX - this.GetWidth("WIFRGS"),
-					IntermissionRenderer.ngStatsY
-				);
-			}
-
-			// Draw stats.
-			var y = IntermissionRenderer.ngStatsY + this.GetHeight("WIOSTK");
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				if (!im.Options.Players[i].InGame)
-				{
-					continue;
-				}
-
-				var x = ngStatsX;
-
-				this.DrawPatch(IntermissionRenderer.playerBoxes[i], x - this.GetWidth(IntermissionRenderer.playerBoxes[i]), y);
-
-				if (i == im.Options.ConsolePlayer)
-				{
-					this.DrawPatch(
-						"STFST01", // Player face
-						x - this.GetWidth(IntermissionRenderer.playerBoxes[i]),
-						y
-					);
-				}
-
-				x += IntermissionRenderer.ngSpacingX;
-
-				this.DrawPercent(x - this.percent.Width, y + 10, im.KillCount[i]);
-				x += IntermissionRenderer.ngSpacingX;
-
-				this.DrawPercent(x - this.percent.Width, y + 10, im.ItemCount[i]);
-				x += IntermissionRenderer.ngSpacingX;
-
-				this.DrawPercent(x - this.percent.Width, y + 10, im.SecretCount[i]);
-				x += IntermissionRenderer.ngSpacingX;
-
-				if (im.DoFrags)
-				{
-					this.DrawNumber(x, y + 10, im.FragCount[i], -1);
-				}
-
-				y += IntermissionRenderer.spacingY;
-			}
-		}
-
-		private void DrawDeathmatchStats(Intermission im)
-		{
-			this.DrawBackground(im);
-
-			// Draw animated background.
-			this.DrawBackgroundAnimation(im);
-
-			// Draw level name.
-			this.DrawFinishedLevelName(im);
-
-			// Draw stat titles (top line).
-			this.DrawPatch(
-				"WIMSTT", // TOTAL
-				IntermissionRenderer.dmTotalsX - this.GetWidth("WIMSTT") / 2,
-				IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY + 10
-			);
-
-			this.DrawPatch(
-				"WIKILRS", // KILLERS
-				IntermissionRenderer.dmKillersX,
-				IntermissionRenderer.dmKillersY
-			);
-
-			this.DrawPatch(
-				"WIVCTMS", // VICTIMS
-				IntermissionRenderer.dmVictimsX,
-				IntermissionRenderer.dmVictimsY
-			);
-
-			// Draw player boxes.
-			var x = IntermissionRenderer.dmMatrixX + IntermissionRenderer.dmSpacingX;
-			var y = IntermissionRenderer.dmMatrixY;
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				if (im.Options.Players[i].InGame)
-				{
-					this.DrawPatch(
-						IntermissionRenderer.playerBoxes[i],
-						x - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
-						IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY
-					);
-
-					this.DrawPatch(
-						IntermissionRenderer.playerBoxes[i],
-						IntermissionRenderer.dmMatrixX - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
-						y
-					);
-
-					if (i == im.Options.ConsolePlayer)
-					{
-						this.DrawPatch(
-							"STFDEAD0", // Player face (dead)
-							x - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
-							IntermissionRenderer.dmMatrixY - IntermissionRenderer.spacingY
-						);
-
-						this.DrawPatch(
-							"STFST01", // Player face
-							IntermissionRenderer.dmMatrixX - this.GetWidth(IntermissionRenderer.playerBoxes[i]) / 2,
-							y
-						);
-					}
-				}
-				else
-				{
-					// V_DrawPatch(x-SHORT(bp[i]->width)/2,
-					//   DM_MATRIXY - WI_SPACINGY, FB, bp[i]);
-					// V_DrawPatch(DM_MATRIXX-SHORT(bp[i]->width)/2,
-					//   y, FB, bp[i]);
-				}
-
-				x += IntermissionRenderer.dmSpacingX;
-				y += IntermissionRenderer.spacingY;
-			}
-
-			// Draw stats.
-			y = IntermissionRenderer.dmMatrixY + 10;
-			var w = this.numbers[0].Width;
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				x = IntermissionRenderer.dmMatrixX + IntermissionRenderer.dmSpacingX;
-
-				if (im.Options.Players[i].InGame)
-				{
-					for (var j = 0; j < Player.MaxPlayerCount; j++)
-					{
-						if (im.Options.Players[j].InGame)
-						{
-							this.DrawNumber(x + w, y, im.DeathmatchFrags[i][j], 2);
-						}
-
-						x += IntermissionRenderer.dmSpacingX;
-					}
-
-					this.DrawNumber(IntermissionRenderer.dmTotalsX + w, y, im.DeathmatchTotals[i], 2);
-				}
-
-				y += IntermissionRenderer.spacingY;
 			}
 		}
 

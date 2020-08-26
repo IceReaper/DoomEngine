@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -191,18 +191,7 @@ namespace DoomEngine.Doom.Intermission
 					|| DoomApplication.Instance.IWad == "tnt")
 				&& this.count > 50)
 			{
-				int i;
-
-				// Go on to the next level.
-				for (i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					if (this.options.Players[i].Cmd.Buttons != 0)
-					{
-						break;
-					}
-				}
-
-				if (i < Player.MaxPlayerCount && this.stage != 2)
+				if (this.options.Player.Cmd.Buttons != 0 && this.stage != 2)
 				{
 					if (this.options.Map == 30)
 					{

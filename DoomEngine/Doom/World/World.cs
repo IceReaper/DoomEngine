@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -62,8 +62,6 @@ namespace DoomEngine.Doom.World
 
 		private int validCount;
 
-		private int displayPlayer;
-
 		public World(CommonResource resorces, GameOptions options)
 			: this(resorces, options, null)
 		{
@@ -104,18 +102,14 @@ namespace DoomEngine.Doom.World
 			this.autoMap = new AutoMap(this);
 			this.cheat = new Cheat(this);
 
-			options.IntermissionInfo.TotalFrags = 0;
 			options.IntermissionInfo.ParTime = 180;
 
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				options.Players[i].KillCount = 0;
-				options.Players[i].SecretCount = 0;
-				options.Players[i].ItemCount = 0;
-			}
+			options.Player.KillCount = 0;
+			options.Player.SecretCount = 0;
+			options.Player.ItemCount = 0;
 
 			// Initial height of view will be set by player think.
-			options.Players[options.ConsolePlayer].ViewZ = Fixed.Epsilon;
+			options.Player.ViewZ = Fixed.Epsilon;
 
 			this.totalKills = 0;
 			this.totalItems = 0;
@@ -124,19 +118,6 @@ namespace DoomEngine.Doom.World
 			this.LoadThings();
 
 			this.statusBar = new StatusBar(this);
-
-			// If deathmatch, randomly spawn the active players.
-			if (options.Deathmatch != 0)
-			{
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					if (options.Players[i].InGame)
-					{
-						options.Players[i].Mobj = null;
-						this.thingAllocation.DeathMatchSpawnPlayer(i);
-					}
-				}
-			}
 
 			this.specials.SpawnSpecials();
 
@@ -147,26 +128,17 @@ namespace DoomEngine.Doom.World
 
 			this.validCount = 0;
 
-			this.displayPlayer = options.ConsolePlayer;
-
 			options.Music.StartMusic(Map.GetMapBgm(options), true);
 		}
 
 		public UpdateResult Update()
 		{
-			var players = this.options.Players;
+			var player = this.options.Player;
 
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				if (players[i].InGame)
-				{
-					this.playerBehavior.PlayerThink(players[i]);
-				}
-			}
+			this.playerBehavior.PlayerThink(player);
 
 			this.thinkers.Run();
 			this.specials.Update();
-			this.thingAllocation.RespawnSpecials();
 
 			this.statusBar.Update();
 			this.autoMap.Update();
@@ -269,7 +241,7 @@ namespace DoomEngine.Doom.World
 
 		public bool DoEvent(DoomEvent e)
 		{
-			if (!this.options.NetGame && this.options.Skill != GameSkill.Nightmare)
+			if (this.options.Skill != GameSkill.Nightmare)
 			{
 				this.cheat.DoEvent(e);
 			}
@@ -298,25 +270,10 @@ namespace DoomEngine.Doom.World
 
 			if (e.Key == DoomKey.F12 && e.Type == EventType.KeyDown)
 			{
-				if (this.options.Deathmatch == 0)
-				{
-					this.ChangeDisplayPlayer();
-				}
-
 				return true;
 			}
 
 			return false;
-		}
-
-		public void ChangeDisplayPlayer()
-		{
-			this.displayPlayer++;
-
-			if (this.displayPlayer == Player.MaxPlayerCount || !this.options.Players[this.displayPlayer].InGame)
-			{
-				this.displayPlayer = 0;
-			}
 		}
 
 		public GameOptions Options => this.options;
@@ -386,8 +343,6 @@ namespace DoomEngine.Doom.World
 
 		public bool SecretExit => this.secretExit;
 
-		public Player ConsolePlayer => this.options.Players[this.options.ConsolePlayer];
-		public Player DisplayPlayer => this.options.Players[this.displayPlayer];
-		public bool FirstTicIsNotYetDone => this.ConsolePlayer.ViewZ == Fixed.Epsilon;
+		public bool FirstTicIsNotYetDone => this.options.Player.ViewZ == Fixed.Epsilon;
 	}
 }

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -57,7 +57,7 @@ namespace DoomEngine
 
 		private OpeningSequence opening;
 
-		private TicCmd[] cmds;
+		private TicCmd cmd;
 		private DoomGame game;
 
 		private WipeEffect wipe;
@@ -122,12 +122,7 @@ namespace DoomEngine
 
 				this.opening = new OpeningSequence(this.options);
 
-				this.cmds = new TicCmd[Player.MaxPlayerCount];
-
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					this.cmds[i] = new TicCmd();
-				}
+				this.cmd = new TicCmd();
 
 				this.game = new DoomGame(this.Resource, this.options);
 
@@ -190,16 +185,6 @@ namespace DoomEngine
 			if (args.skill.Present)
 			{
 				this.options.Skill = (GameSkill) (args.skill.Value - 1);
-			}
-
-			if (args.deathmatch.Present)
-			{
-				this.options.Deathmatch = 1;
-			}
-
-			if (args.altdeath.Present)
-			{
-				this.options.Deathmatch = 2;
 			}
 
 			if (args.fast.Present)
@@ -349,7 +334,7 @@ namespace DoomEngine
 							msg = DoomInfo.Strings.MSGOFF;
 						}
 
-						this.game.World.ConsolePlayer.SendMessage(msg);
+						this.game.World.Options.Player.SendMessage(msg);
 					}
 
 					this.menu.StartSound(Sfx.SWTCHN);
@@ -390,7 +375,7 @@ namespace DoomEngine
 							msg = "Gamma correction level " + gcl;
 						}
 
-						this.game.World.ConsolePlayer.SendMessage(msg);
+						this.game.World.Options.Player.SendMessage(msg);
 					}
 
 					return true;
@@ -469,15 +454,15 @@ namespace DoomEngine
 						break;
 
 					case ApplicationState.Game:
-						this.userInput.BuildTicCmd(this.cmds[this.options.ConsolePlayer]);
+						this.userInput.BuildTicCmd(this.cmd);
 
 						if (this.sendPause)
 						{
 							this.sendPause = false;
-							this.cmds[this.options.ConsolePlayer].Buttons |= (byte) (TicCmdButtons.Special | TicCmdButtons.Pause);
+							this.cmd.Buttons |= (byte) (TicCmdButtons.Special | TicCmdButtons.Pause);
 						}
 
-						if (this.game.Update(this.cmds) == UpdateResult.NeedWipe)
+						if (this.game.Update(this.cmd) == UpdateResult.NeedWipe)
 						{
 							this.StartWipe();
 						}

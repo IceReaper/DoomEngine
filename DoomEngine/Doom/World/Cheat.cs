@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -126,7 +126,7 @@ namespace DoomEngine.Doom.World
 
 		private void GiveWeapons()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
 			foreach (var entityInfo in EntityInfo.WithComponent<WeaponComponentInfo>())
@@ -149,7 +149,7 @@ namespace DoomEngine.Doom.World
 		private void FullAmmo()
 		{
 			this.GiveWeapons();
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			player.ArmorType = ItemPickup.IdfaArmorClass;
 			player.ArmorPoints = ItemPickup.IdfaArmor;
 			player.SendMessage(DoomInfo.Strings.STSTR_FAADDED);
@@ -158,7 +158,7 @@ namespace DoomEngine.Doom.World
 		private void FullAmmoAndKeys()
 		{
 			this.GiveWeapons();
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			player.ArmorType = ItemPickup.IdkfaArmorClass;
 			player.ArmorPoints = ItemPickup.IdkfaArmor;
 
@@ -172,7 +172,7 @@ namespace DoomEngine.Doom.World
 
 		private void GodMode()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if ((player.Cheats & CheatFlags.GodMode) != 0)
 			{
@@ -191,7 +191,7 @@ namespace DoomEngine.Doom.World
 
 		private void NoClip()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if ((player.Cheats & CheatFlags.NoClip) != 0)
 			{
@@ -212,7 +212,7 @@ namespace DoomEngine.Doom.World
 
 		private void ShowPowerUpList()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			player.SendMessage(DoomInfo.Strings.STSTR_BEHOLD);
 		}
 
@@ -254,7 +254,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleInvulnerability()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.Invulnerability] > 0)
 			{
@@ -270,7 +270,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleStrength()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.Strength] != 0)
 			{
@@ -286,7 +286,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleInvisibility()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.Invisibility] > 0)
 			{
@@ -304,7 +304,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleIronFeet()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.IronFeet] > 0)
 			{
@@ -320,7 +320,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleAllMap()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.AllMap] != 0)
 			{
@@ -336,7 +336,7 @@ namespace DoomEngine.Doom.World
 
 		private void ToggleInfrared()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 
 			if (player.Powers[(int) PowerType.Infrared] > 0)
 			{
@@ -352,7 +352,7 @@ namespace DoomEngine.Doom.World
 
 		private void KillMonsters()
 		{
-			var player = this.world.ConsolePlayer;
+			var player = this.world.Options.Player;
 			var count = 0;
 
 			foreach (var thinker in this.world.Thinkers)
@@ -446,7 +446,7 @@ namespace DoomEngine.Doom.World
 			}
 
 			this.world.Options.Music.StartMusic(Map.GetMapBgm(options), true);
-			this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.STSTR_MUS);
+			this.world.Options.Player.SendMessage(DoomInfo.Strings.STSTR_MUS);
 		}
 	}
 }

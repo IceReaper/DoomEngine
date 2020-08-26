@@ -123,18 +123,7 @@ namespace DoomEngine.Doom.World
 			if (gaveWeapon)
 				player.PendingWeapon = weaponEntity;
 
-			if (!this.world.Options.NetGame || this.world.Options.Deathmatch == 2 || dropped)
-				return gaveWeapon || gaveAmmo;
-
-			if (!gaveWeapon && !gaveAmmo)
-				return false;
-
-			player.BonusCount += ItemPickup.bonusAdd;
-
-			if (player == this.world.ConsolePlayer)
-				this.world.StartSound(player.Mobj, Sfx.WPNUP, SfxType.Misc);
-
-			return false;
+			return gaveWeapon || gaveAmmo;
 		}
 
 		/// <summary>
@@ -370,12 +359,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.BlueCard);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				case Sprite.YKEY:
 					if (!player.Cards[(int) CardType.YellowCard])
@@ -385,12 +369,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.YellowCard);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				case Sprite.RKEY:
 					if (!player.Cards[(int) CardType.RedCard])
@@ -400,12 +379,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.RedCard);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				case Sprite.BSKU:
 					if (!player.Cards[(int) CardType.BlueSkull])
@@ -415,12 +389,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.BlueSkull);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				case Sprite.YSKU:
 					if (!player.Cards[(int) CardType.YellowSkull])
@@ -430,12 +399,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.YellowSkull);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				case Sprite.RSKU:
 					if (!player.Cards[(int) CardType.RedSkull])
@@ -445,12 +409,7 @@ namespace DoomEngine.Doom.World
 
 					this.GiveCard(player, CardType.RedSkull);
 
-					if (!this.world.Options.NetGame)
-					{
-						break;
-					}
-
-					return;
+					break;
 
 				// Medikits, heals.
 				case Sprite.STIM:
@@ -756,10 +715,7 @@ namespace DoomEngine.Doom.World
 
 			player.BonusCount += ItemPickup.bonusAdd;
 
-			if (player == this.world.ConsolePlayer)
-			{
-				this.world.StartSound(player.Mobj, sound, SfxType.Misc);
-			}
+			this.world.StartSound(player.Mobj, sound, SfxType.Misc);
 		}
 	}
 }

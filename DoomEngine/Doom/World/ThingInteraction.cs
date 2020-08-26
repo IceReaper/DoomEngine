@@ -57,33 +57,23 @@ namespace DoomEngine.Doom.World
 				{
 					source.Player.KillCount++;
 				}
-
-				if (target.Player != null)
-				{
-					source.Player.Frags[target.Player.Number]++;
-				}
 			}
-			else if (!this.world.Options.NetGame && (target.Flags & MobjFlags.CountKill) != 0)
+			else if ((target.Flags & MobjFlags.CountKill) != 0)
 			{
 				// Count all monster deaths, even those caused by other monsters.
-				this.world.Options.Players[0].KillCount++;
+				this.world.Options.Player.KillCount++;
 			}
 
 			if (target.Player != null)
 			{
 				// Count environment kills against you.
-				if (source == null)
-				{
-					target.Player.Frags[target.Player.Number]++;
-				}
-
 				target.Flags &= ~MobjFlags.Solid;
 				target.Player.PlayerState = PlayerState.Dead;
 				this.world.PlayerBehavior.DropWeapon(target.Player);
 
 				var am = this.world.AutoMap;
 
-				if (target.Player.Number == this.world.Options.ConsolePlayer && am.Visible)
+				if (am.Visible)
 				{
 					// Don't die in auto map, switch view prior to dying.
 					am.Close();

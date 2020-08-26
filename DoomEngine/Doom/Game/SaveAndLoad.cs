@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -113,11 +113,6 @@ namespace DoomEngine.Doom.Game
 				this.writer.Write((byte) options.Episode);
 				this.writer.Write((byte) options.Map);
 
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					this.writer.Write(options.Players[i].InGame ? (byte) 1 : (byte) 0);
-				}
-
 				this.writer.Write((byte) (game.World.LevelTime >> 16));
 				this.writer.Write((byte) (game.World.LevelTime >> 8));
 				this.writer.Write((byte) (game.World.LevelTime));
@@ -142,19 +137,9 @@ namespace DoomEngine.Doom.Game
 
 			private void ArchivePlayers(World world)
 			{
-				var players = world.Options.Players;
-
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					if (!players[i].InGame)
-					{
-						continue;
-					}
-
-					this.PadPointer();
-
-					this.ArchivePlayer(players[i]);
-				}
+				var player = world.Options.Player;
+				this.PadPointer();
+				this.ArchivePlayer(player);
 			}
 
 			private void ArchiveWorld(World world)
@@ -226,7 +211,7 @@ namespace DoomEngine.Doom.Game
 						}
 						else
 						{
-							this.writer.Write(mobj.Player.Number + 1);
+							this.writer.Write(1);
 						}
 
 						this.writer.Write(mobj.LastLook);
@@ -464,11 +449,6 @@ namespace DoomEngine.Doom.Game
 
 				this.writer.Write(player.Backpack ? 1 : 0);
 
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					this.writer.Write(player.Frags[i]);
-				}
-
 				player.Entity.Serialize(this.writer);
 
 				this.writer.Write(player.ReadyWeapon.Info.Name);
@@ -588,11 +568,6 @@ namespace DoomEngine.Doom.Game
 				options.Episode = this.reader.ReadByte();
 				options.Map = this.reader.ReadByte();
 
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					options.Players[i].InGame = this.reader.ReadByte() != 0;
-				}
-
 				game.InitNew(options.Skill, options.Episode, options.Map);
 
 				var a = this.reader.ReadByte();
@@ -615,7 +590,7 @@ namespace DoomEngine.Doom.Game
 
 				game.World.LevelTime = levelTime;
 
-				options.Sound.SetListener(game.World.ConsolePlayer.Mobj);
+				options.Sound.SetListener(game.World.Options.Player.Mobj);
 			}
 
 			private void PadPointer()
@@ -635,19 +610,10 @@ namespace DoomEngine.Doom.Game
 
 			private void UnArchivePlayers(World world)
 			{
-				var players = world.Options.Players;
+				var player = world.Options.Player;
 
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					if (!players[i].InGame)
-					{
-						continue;
-					}
-
-					this.PadPointer();
-
-					this.UnArchivePlayer(players[i]);
-				}
+				this.PadPointer();
+				this.UnArchivePlayer(player);
 			}
 
 			private void UnArchiveWorld(World world)
@@ -735,7 +701,7 @@ namespace DoomEngine.Doom.Game
 
 							if (playerNumber != 0)
 							{
-								mobj.Player = world.Options.Players[playerNumber - 1];
+								mobj.Player = world.Options.Player;
 								mobj.Player.Mobj = mobj;
 							}
 
@@ -951,11 +917,6 @@ namespace DoomEngine.Doom.Game
 				}
 
 				player.Backpack = this.reader.ReadInt32() != 0;
-
-				for (var i = 0; i < Player.MaxPlayerCount; i++)
-				{
-					player.Frags[i] = this.reader.ReadInt32();
-				}
 
 				player.Entity = Entity.Deserialize(this.reader);
 

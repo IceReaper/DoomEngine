@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -164,7 +164,7 @@ namespace DoomEngine.Doom.World
 
 			if (this.follow)
 			{
-				var player = this.world.ConsolePlayer.Mobj;
+				var player = this.world.Options.Player.Mobj;
 				this.viewX = player.X;
 				this.viewY = player.Y;
 			}
@@ -258,11 +258,11 @@ namespace DoomEngine.Doom.World
 
 					if (this.follow)
 					{
-						this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWON);
+						this.world.Options.Player.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWON);
 					}
 					else
 					{
-						this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWOFF);
+						this.world.Options.Player.SendMessage(DoomInfo.Strings.AMSTR_FOLLOWOFF);
 					}
 
 					return true;
@@ -288,7 +288,7 @@ namespace DoomEngine.Doom.World
 						this.nextMarkNumber = 0;
 					}
 
-					this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKEDSPOT);
+					this.world.Options.Player.SendMessage(DoomInfo.Strings.AMSTR_MARKEDSPOT);
 
 					return true;
 				}
@@ -299,7 +299,7 @@ namespace DoomEngine.Doom.World
 				{
 					this.marks.Clear();
 					this.nextMarkNumber = 0;
-					this.world.ConsolePlayer.SendMessage(DoomInfo.Strings.AMSTR_MARKSCLEARED);
+					this.world.Options.Player.SendMessage(DoomInfo.Strings.AMSTR_MARKSCLEARED);
 
 					return true;
 				}

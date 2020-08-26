@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -26,8 +26,6 @@ namespace DoomEngine
 		public readonly Arg<Tuple<int, int>> warp;
 		public readonly Arg<int> skill;
 
-		public readonly Arg deathmatch;
-		public readonly Arg altdeath;
 		public readonly Arg fast;
 		public readonly Arg respawn;
 		public readonly Arg nomonsters;
@@ -47,8 +45,6 @@ namespace DoomEngine
 			this.warp = CommandLineArgs.Check_warp(args);
 			this.skill = CommandLineArgs.GetInt(args, "-skill");
 
-			this.deathmatch = new Arg(args.Contains("-deathmatch"));
-			this.altdeath = new Arg(args.Contains("-altdeath"));
 			this.fast = new Arg(args.Contains("-fast"));
 			this.respawn = new Arg(args.Contains("-respawn"));
 			this.nomonsters = new Arg(args.Contains("-nomonsters"));

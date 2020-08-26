@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -170,8 +170,8 @@ namespace DoomEngine.Platform.Desktop
 		{
 			if (game.State == GameState.Level)
 			{
-				var consolePlayer = game.World.ConsolePlayer;
-				var displayPlayer = game.World.DisplayPlayer;
+				var consolePlayer = game.World.Options.Player;
+				var displayPlayer = game.World.Options.Player;
 
 				if (game.World.AutoMap.Visible)
 				{
@@ -220,7 +220,7 @@ namespace DoomEngine.Platform.Desktop
 
 			if (app.State == ApplicationState.Game && app.Game.State == GameState.Level)
 			{
-				colors = this.palette[SfmlRenderer.GetPaletteNumber(app.Game.World.ConsolePlayer)];
+				colors = this.palette[SfmlRenderer.GetPaletteNumber(app.Game.World.Options.Player)];
 			}
 
 			this.Display(colors);

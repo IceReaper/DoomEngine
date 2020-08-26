@@ -26,17 +26,9 @@ namespace DoomEngine.Doom.Game
 
 	public sealed class Player
 	{
-		public static readonly int MaxPlayerCount = 4;
-
 		public static readonly int MaxArmor = 200;
 
 		public static readonly Fixed NormalViewHeight = Fixed.FromInt(41);
-
-		private static readonly string[] defaultPlayerNames = new string[] {"Green", "Indigo", "Brown", "Red"};
-
-		private int number;
-		private string name;
-		private bool inGame;
 
 		private Mobj mobj;
 		private PlayerState playerState;
@@ -66,9 +58,6 @@ namespace DoomEngine.Doom.Game
 		private int[] powers;
 		private bool[] cards;
 		private bool backpack;
-
-		// Frags, kills of other players.
-		private int[] frags;
 
 		public Entity Entity;
 		public Entity ReadyWeapon;
@@ -117,18 +106,12 @@ namespace DoomEngine.Doom.Game
 		// True if secret level has been done.
 		private bool didSecret;
 
-		public Player(int number)
+		public Player()
 		{
-			this.number = number;
-
-			this.name = Player.defaultPlayerNames[number];
-
 			this.cmd = new TicCmd();
 
 			this.powers = new int[(int) PowerType.Count];
 			this.cards = new bool[(int) CardType.Count];
-
-			this.frags = new int[Player.MaxPlayerCount];
 
 			this.playerSprites = new PlayerSpriteDef[(int) PlayerSprite.Count];
 
@@ -157,8 +140,6 @@ namespace DoomEngine.Doom.Game
 			Array.Clear(this.powers, 0, this.powers.Length);
 			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
-
-			Array.Clear(this.frags, 0, this.frags.Length);
 
 			this.ReadyWeapon = null;
 			this.PendingWeapon = null;
@@ -281,16 +262,6 @@ namespace DoomEngine.Doom.Game
 			this.messageTime = 4 * GameConst.TicRate;
 		}
 
-		public int Number => this.number;
-
-		public string Name => this.name;
-
-		public bool InGame
-		{
-			get => this.inGame;
-			set => this.inGame = value;
-		}
-
 		public Mobj Mobj
 		{
 			get => this.mobj;
@@ -358,11 +329,6 @@ namespace DoomEngine.Doom.Game
 		{
 			get => this.backpack;
 			set => this.backpack = value;
-		}
-
-		public int[] Frags
-		{
-			get => this.frags;
 		}
 
 		public bool AttackDown

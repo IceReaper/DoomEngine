@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -233,46 +233,7 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawPlayers(World world)
 		{
-			var options = world.Options;
-			var players = options.Players;
-			var consolePlayer = world.ConsolePlayer;
-			var am = world.AutoMap;
-
-			if (!options.NetGame)
-			{
-				this.DrawCharacter(consolePlayer.Mobj, AutoMapRenderer.playerArrow, AutoMapRenderer.white);
-
-				return;
-			}
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				var player = players[i];
-
-				if (options.Deathmatch != 0 && player != consolePlayer)
-				{
-					continue;
-				}
-
-				if (!player.InGame)
-				{
-					continue;
-				}
-
-				int color;
-
-				if (player.Powers[(int) PowerType.Invisibility] > 0)
-				{
-					// Close to black.
-					color = 246;
-				}
-				else
-				{
-					color = AutoMapRenderer.playerColors[i];
-				}
-
-				this.DrawCharacter(player.Mobj, AutoMapRenderer.playerArrow, color);
-			}
+			this.DrawCharacter(world.Options.Player.Mobj, AutoMapRenderer.playerArrow, AutoMapRenderer.white);
 		}
 
 		private void DrawThings(World world)

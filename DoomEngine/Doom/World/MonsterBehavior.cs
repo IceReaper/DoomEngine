@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -42,25 +42,19 @@ namespace DoomEngine.Doom.World
 
 		private bool LookForPlayers(Mobj actor, bool allAround)
 		{
-			var players = this.world.Options.Players;
+			var player = this.world.Options.Player;
 
 			var count = 0;
 			var stop = (actor.LastLook - 1) & 3;
 
 			for (;; actor.LastLook = (actor.LastLook + 1) & 3)
 			{
-				if (!players[actor.LastLook].InGame)
-				{
-					continue;
-				}
-
 				if (count++ == 2 || actor.LastLook == stop)
 				{
 					// Done looking.
 					return false;
 				}
 
-				var player = players[actor.LastLook];
 				var healthComponent = player.Entity.GetComponent<Health>();
 
 				if (healthComponent.Current <= 0)
@@ -626,16 +620,6 @@ namespace DoomEngine.Doom.World
 			}
 
 			noMissile:
-
-			// Possibly choose another target.
-			if (this.world.Options.NetGame && actor.Threshold == 0 && !this.world.VisibilityCheck.CheckSight(actor, actor.Target))
-			{
-				if (this.LookForPlayers(actor, true))
-				{
-					// Got a new target.
-					return;
-				}
-			}
 
 			// Chase towards player.
 			if (--actor.MoveCount < 0 || !this.Move(actor))
@@ -1603,20 +1587,10 @@ namespace DoomEngine.Doom.World
 			}
 
 			// Make sure there is a player alive for victory.
-			var players = this.world.Options.Players;
-			int i;
+			var player = this.world.Options.Player;
+			var healthComponent = player.Entity.GetComponent<Health>();
 
-			for (i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				var healthComponent = players[i].Entity.GetComponent<Health>();
-
-				if (players[i].InGame && healthComponent.Current > 0)
-				{
-					break;
-				}
-			}
-
-			if (i == Player.MaxPlayerCount)
+			if (healthComponent.Current == 0)
 			{
 				// No one left alive, so do not end game.
 				return;

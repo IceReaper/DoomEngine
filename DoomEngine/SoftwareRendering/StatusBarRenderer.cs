@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -115,8 +115,6 @@ namespace DoomEngine.SoftwareRendering
 
 		private MultIconWidget[] weapons;
 
-		private NumberWidget frags;
-
 		private MultIconWidget[] keys;
 
 		public StatusBarRenderer(DrawScreen screen)
@@ -201,12 +199,6 @@ namespace DoomEngine.SoftwareRendering
 				this.weapons[i].Patches = this.patches.Arms[i];
 			}
 
-			this.frags = new NumberWidget();
-			this.frags.Patches = this.patches.TallNumbers;
-			this.frags.Width = StatusBarRenderer.fragsWidth;
-			this.frags.X = StatusBarRenderer.fragsX;
-			this.frags.Y = StatusBarRenderer.fragsY;
-
 			this.keys = new MultIconWidget[3];
 			this.keys[0] = new MultIconWidget();
 			this.keys[0].X = StatusBarRenderer.key0X;
@@ -268,53 +260,29 @@ namespace DoomEngine.SoftwareRendering
 			this.DrawNumber(this.ammo[3], rockets?.Amount ?? 0);
 			this.DrawNumber(this.maxAmmo[3], rocketsInfo.StackSize);
 
-			if (player.Mobj.World.Options.Deathmatch == 0)
+			if (drawBackground)
 			{
-				if (drawBackground)
-				{
-					this.screen.DrawPatch(
-						this.patches.ArmsBackground,
-						this.scale * StatusBarRenderer.armsBackgroundX,
-						this.scale * StatusBarRenderer.armsBackgroundY,
-						this.scale
-					);
-				}
-
-				for (var i = 0; i < this.weapons.Length; i++)
-				{
-					this.DrawMultIcon(
-						this.weapons[i],
-						inventory.Items.Select(entity => entity.GetComponent<WeaponComponent>())
-							.Any(weaponComponent => weaponComponent != null && weaponComponent.Info.Slot - 2 == i)
-							? 1
-							: 0
-					);
-				}
+				this.screen.DrawPatch(
+					this.patches.ArmsBackground,
+					this.scale * StatusBarRenderer.armsBackgroundX,
+					this.scale * StatusBarRenderer.armsBackgroundY,
+					this.scale
+				);
 			}
-			else
+
+			for (var i = 0; i < this.weapons.Length; i++)
 			{
-				var sum = 0;
-
-				for (var i = 0; i < player.Frags.Length; i++)
-				{
-					sum += player.Frags[i];
-				}
-
-				this.DrawNumber(this.frags, sum);
+				this.DrawMultIcon(
+					this.weapons[i],
+					inventory.Items.Select(entity => entity.GetComponent<WeaponComponent>())
+						.Any(weaponComponent => weaponComponent != null && weaponComponent.Info.Slot - 2 == i)
+						? 1
+						: 0
+				);
 			}
 
 			if (drawBackground)
 			{
-				if (player.Mobj.World.Options.NetGame)
-				{
-					this.screen.DrawPatch(
-						this.patches.FaceBackground[player.Number],
-						this.scale * StatusBarRenderer.faceBackgroundX,
-						this.scale * StatusBarRenderer.faceBackgroundY,
-						this.scale
-					);
-				}
-
 				this.screen.DrawPatch(
 					this.patches.Faces[player.Mobj.World.StatusBar.FaceIndex],
 					this.scale * StatusBarRenderer.faceX,
@@ -435,7 +403,7 @@ namespace DoomEngine.SoftwareRendering
 			public Patch[] Keys;
 			public Patch ArmsBackground;
 			public Patch[][] Arms;
-			public Patch[] FaceBackground;
+			public Patch FaceBackground;
 			public Patch[] Faces;
 
 			public Patches()
@@ -472,12 +440,7 @@ namespace DoomEngine.SoftwareRendering
 					this.Arms[i][1] = this.ShortNumbers[num];
 				}
 
-				this.FaceBackground = new Patch[Player.MaxPlayerCount];
-
-				for (var i = 0; i < this.FaceBackground.Length; i++)
-				{
-					this.FaceBackground[i] = Patch.FromWad("STFB" + i);
-				}
+				this.FaceBackground = Patch.FromWad("STFB0");
 
 				this.Faces = new Patch[StatusBar.Face.FaceCount];
 				var faceCount = 0;

@@ -21,16 +21,12 @@ namespace DoomEngine.Doom.Game
 
 	public sealed class GameOptions
 	{
-		private Player[] players;
-		private int consolePlayer;
+		private Player player;
 
 		private int episode;
 		private int map;
 		private GameSkill skill;
 
-		private bool netGame;
-
-		private int deathmatch;
 		private bool fastMonsters;
 		private bool respawnMonsters;
 		private bool noMonsters;
@@ -44,23 +40,12 @@ namespace DoomEngine.Doom.Game
 
 		public GameOptions()
 		{
-			this.players = new Player[Player.MaxPlayerCount];
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				this.players[i] = new Player(i);
-			}
-
-			this.players[0].InGame = true;
-			this.consolePlayer = 0;
+			this.player = new Player();
 
 			this.episode = 1;
 			this.map = 1;
 			this.skill = GameSkill.Medium;
 
-			this.netGame = false;
-
-			this.deathmatch = 0;
 			this.fastMonsters = false;
 			this.respawnMonsters = false;
 			this.noMonsters = false;
@@ -73,15 +58,9 @@ namespace DoomEngine.Doom.Game
 			this.userInput = NullUserInput.GetInstance();
 		}
 
-		public Player[] Players
+		public Player Player
 		{
-			get => this.players;
-		}
-
-		public int ConsolePlayer
-		{
-			get => this.consolePlayer;
-			set => this.consolePlayer = value;
+			get => this.player;
 		}
 
 		public int Episode
@@ -100,18 +79,6 @@ namespace DoomEngine.Doom.Game
 		{
 			get => this.skill;
 			set => this.skill = value;
-		}
-
-		public bool NetGame
-		{
-			get => this.netGame;
-			set => this.netGame = value;
-		}
-
-		public int Deathmatch
-		{
-			get => this.deathmatch;
-			set => this.deathmatch = value;
 		}
 
 		public bool FastMonsters

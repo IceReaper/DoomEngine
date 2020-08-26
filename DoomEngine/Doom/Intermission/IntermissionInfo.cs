@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -15,7 +15,6 @@
 
 namespace DoomEngine.Doom.Intermission
 {
-	using Game;
 	using System;
 
 	public class IntermissionInfo
@@ -33,21 +32,15 @@ namespace DoomEngine.Doom.Intermission
 		private int maxKillCount;
 		private int maxItemCount;
 		private int maxSecretCount;
-		private int totalFrags;
 
 		// The par time.
 		private int parTime;
 
-		private PlayerScores[] players;
+		private PlayerScores player;
 
 		public IntermissionInfo()
 		{
-			this.players = new PlayerScores[Player.MaxPlayerCount];
-
-			for (var i = 0; i < Player.MaxPlayerCount; i++)
-			{
-				this.players[i] = new PlayerScores();
-			}
+			this.player = new PlayerScores();
 		}
 
 		public int Episode
@@ -92,21 +85,15 @@ namespace DoomEngine.Doom.Intermission
 			set => this.maxSecretCount = value;
 		}
 
-		public int TotalFrags
-		{
-			get => Math.Max(this.totalFrags, 1);
-			set => this.totalFrags = value;
-		}
-
 		public int ParTime
 		{
 			get => this.parTime;
 			set => this.parTime = value;
 		}
 
-		public PlayerScores[] Players
+		public PlayerScores Player
 		{
-			get => this.players;
+			get => this.player;
 		}
 	}
 }
