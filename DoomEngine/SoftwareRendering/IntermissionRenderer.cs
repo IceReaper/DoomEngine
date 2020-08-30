@@ -24,17 +24,12 @@ namespace DoomEngine.SoftwareRendering
 	{
 		// GLOBAL LOCATIONS
 		private static readonly int titleY = 2;
-		private static readonly int spacingY = 33;
 
 		// SINGPLE-PLAYER STUFF
 		private static readonly int spStatsX = 50;
 		private static readonly int spStatsY = 50;
 		private static readonly int spTimeX = 16;
 		private static readonly int spTimeY = 200 - 32;
-
-		// NET GAME STUFF
-		private static readonly int ngStatsY = 50;
-		private static readonly int ngSpacingX = 64;
 
 		private static readonly string[] mapPictures = new string[] {"WIMAP0", "WIMAP1", "WIMAP2"};
 

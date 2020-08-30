@@ -42,12 +42,10 @@ namespace DoomEngine.Doom.World
 		////////////////////////////////////////////////////////////
 
 		private MapThing[] playerStarts;
-		private List<MapThing> deathmatchStarts;
 
 		private void InitSpawnMapThing()
 		{
 			this.playerStarts = new MapThing[4];
-			this.deathmatchStarts = new List<MapThing>();
 		}
 
 		/// <summary>
@@ -55,16 +53,9 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void SpawnMapThing(MapThing mt)
 		{
-			// Count deathmatch start positions.
+			// old deathmatch start positions.
 			if (mt.Type == 11)
-			{
-				if (this.deathmatchStarts.Count < 10)
-				{
-					this.deathmatchStarts.Add(mt);
-				}
-
 				return;
-			}
 
 			// Check for players specially.
 			if (mt.Type <= 4)
@@ -84,11 +75,6 @@ namespace DoomEngine.Doom.World
 				if (playerNumber == 0)
 					this.SpawnPlayer(mt);
 
-				return;
-			}
-
-			if (mt.Type == 11 || mt.Type <= 4)
-			{
 				return;
 			}
 
@@ -133,6 +119,8 @@ namespace DoomEngine.Doom.World
 			{
 				throw new Exception("Unknown type!");
 			}
+			
+			Console.WriteLine($"THING {DoomInfo.MobjInfos[i].Name} @ {mt.X},{mt.Y}");
 
 			// Don't spawn any monsters if -nomonsters.
 			if (this.world.Options.NoMonsters && (i == (int) MobjType.Skull || (DoomInfo.MobjInfos[i].Flags & MobjFlags.CountKill) != 0))
@@ -236,7 +224,6 @@ namespace DoomEngine.Doom.World
 		}
 
 		public IReadOnlyList<MapThing> PlayerStarts => this.playerStarts;
-		public IReadOnlyList<MapThing> DeathmatchStarts => this.deathmatchStarts;
 
 		////////////////////////////////////////////////////////////
 		// Thing spawn functions for the middle of a game

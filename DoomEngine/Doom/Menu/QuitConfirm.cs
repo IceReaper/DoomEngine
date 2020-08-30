@@ -53,24 +53,12 @@ namespace DoomEngine.Doom.Menu
 		{
 			IReadOnlyList<DoomString> list;
 
-			if (DoomApplication.Instance.IWad == "doom2"
-				|| DoomApplication.Instance.IWad == "freedoom2"
-				|| DoomApplication.Instance.IWad == "plutonia"
-				|| DoomApplication.Instance.IWad == "tnt")
-			{
-				if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "freedoom2")
-				{
-					list = DoomInfo.QuitMessages.Doom2;
-				}
-				else
-				{
-					list = DoomInfo.QuitMessages.FinalDoom;
-				}
-			}
+			if (DoomApplication.Instance.IWad == "doom2" || DoomApplication.Instance.IWad == "freedoom2")
+				list = DoomInfo.QuitMessages.Doom2;
+			else if (DoomApplication.Instance.IWad == "plutonia" || DoomApplication.Instance.IWad == "tnt")
+				list = DoomInfo.QuitMessages.FinalDoom;
 			else
-			{
 				list = DoomInfo.QuitMessages.Doom;
-			}
 
 			this.text = (list[this.random.Next() % list.Count] + "\n\n" + DoomInfo.Strings.PRESSYN).Split('\n');
 		}

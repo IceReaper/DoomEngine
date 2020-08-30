@@ -46,11 +46,6 @@ namespace DoomEngine.SoftwareRendering
 		private static readonly int armsSpaceX = 12;
 		private static readonly int armsSpaceY = 10;
 
-		// Frags pos.
-		private static readonly int fragsWidth = 2;
-		private static readonly int fragsX = 138;
-		private static readonly int fragsY = 171;
-
 		// Armor number pos.
 		private static readonly int armorX = 221;
 		private static readonly int armorY = 171;
@@ -97,8 +92,6 @@ namespace DoomEngine.SoftwareRendering
 
 		private static readonly int faceX = 143;
 		private static readonly int faceY = 168;
-		private static readonly int faceBackgroundX = 143;
-		private static readonly int faceBackgroundY = 169;
 
 		private DrawScreen screen;
 

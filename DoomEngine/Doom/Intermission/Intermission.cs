@@ -42,8 +42,6 @@ namespace DoomEngine.Doom.Intermission
 
 		private int spState;
 
-		private int ngState;
-
 		private DoomRandom random;
 		private Animation[] animations;
 		private bool showYouAreHere;

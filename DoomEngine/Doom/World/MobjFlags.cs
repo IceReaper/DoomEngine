@@ -20,6 +20,8 @@ namespace DoomEngine.Doom.World
 	[Flags]
 	public enum MobjFlags
 	{
+		Null = 0,
+
 		// Call P_SpecialThing when touched.
 		Special = 1,
 

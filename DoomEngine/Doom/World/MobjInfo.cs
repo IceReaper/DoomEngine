@@ -20,6 +20,7 @@ namespace DoomEngine.Doom.World
 
 	public sealed class MobjInfo
 	{
+		public readonly string Name;
 		private int doomEdNum;
 		private MobjState spawnState;
 		private int spawnHealth;
@@ -45,6 +46,7 @@ namespace DoomEngine.Doom.World
 		private MobjState raiseState;
 
 		public MobjInfo(
+			string name,
 			int doomEdNum,
 			MobjState spawnState,
 			int spawnHealth,
@@ -70,6 +72,7 @@ namespace DoomEngine.Doom.World
 			MobjState raiseState
 		)
 		{
+			this.Name = name;
 			this.doomEdNum = doomEdNum;
 			this.spawnState = spawnState;
 			this.spawnHealth = spawnHealth;
