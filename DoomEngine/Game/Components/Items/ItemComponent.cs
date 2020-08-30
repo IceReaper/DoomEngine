@@ -1,5 +1,6 @@
 namespace DoomEngine.Game.Components.Items
 {
+	using Doom.World;
 	using System.IO;
 
 	public class ItemComponentInfo : ComponentInfo
@@ -39,7 +40,7 @@ namespace DoomEngine.Game.Components.Items
 			writer.Write(this.Amount);
 		}
 
-		public override void Deserialize(BinaryReader reader)
+		public override void Deserialize(World world, BinaryReader reader)
 		{
 			this.Amount = reader.ReadInt32();
 		}

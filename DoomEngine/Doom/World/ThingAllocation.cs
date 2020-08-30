@@ -187,12 +187,14 @@ namespace DoomEngine.Doom.World
 		/// </summary>
 		public void SpawnPlayer(MapThing mt)
 		{
+			// TODO spawn player entity
+
 			var player = this.world.Options.Player;
 			var playerNumber = mt.Type - 1;
 
 			if (player.PlayerState == PlayerState.Reborn)
 			{
-				player.Reborn();
+				player.Reborn(this.world);
 			}
 
 			var x = mt.X;

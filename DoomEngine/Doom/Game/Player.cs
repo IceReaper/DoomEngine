@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (C) 1993-1996 Id Software, Inc.
 // Copyright (C) 2019-2020 Nobuaki Tanaka
 //
@@ -121,8 +121,9 @@ namespace DoomEngine.Doom.Game
 			}
 		}
 
-		public void Clear()
+		public void Clear(World world)
 		{
+			world.Entities.Remove(this.Entity);
 			this.Entity = null;
 
 			this.mobj = null;
@@ -177,9 +178,9 @@ namespace DoomEngine.Doom.Game
 			this.didSecret = false;
 		}
 
-		public void Reborn()
+		public void Reborn(World world)
 		{
-			this.Entity = EntityInfo.Create<DoomEngine.Game.Entities.Player>();
+			world.Entities.Add(this.Entity = EntityInfo.Create<DoomEngine.Game.Entities.Player>(world));
 
 			this.mobj = null;
 			this.playerState = PlayerState.Live;
@@ -198,9 +199,9 @@ namespace DoomEngine.Doom.Game
 			this.backpack = false;
 
 			var inventory = this.Entity.GetComponent<InventoryComponent>();
-			inventory.TryAdd(EntityInfo.Create<WeaponFists>());
-			inventory.TryAdd(this.ReadyWeapon = this.PendingWeapon = EntityInfo.Create<WeaponPistol>());
-			inventory.TryAdd(EntityInfo.Create<AmmoBullets>());
+			inventory.TryAdd(EntityInfo.Create<WeaponFists>(world));
+			inventory.TryAdd(this.ReadyWeapon = this.PendingWeapon = EntityInfo.Create<WeaponPistol>(world));
+			inventory.TryAdd(EntityInfo.Create<AmmoBullets>(world));
 
 			// Don't do anything immediately.
 			this.useDown = true;

@@ -113,9 +113,11 @@ namespace DoomEngine.Doom.Game
 				this.writer.Write((byte) options.Episode);
 				this.writer.Write((byte) options.Map);
 
-				this.writer.Write((byte) (game.World.LevelTime >> 16));
-				this.writer.Write((byte) (game.World.LevelTime >> 8));
-				this.writer.Write((byte) (game.World.LevelTime));
+				this.writer.Write(game.World.LevelTime);
+
+				game.World.WorldEntity.Serialize(this.writer);
+				this.writer.Write(game.World.Entities.Count);
+				game.World.Entities.ForEach(entity => entity.Serialize(this.writer));
 
 				this.ArchivePlayers(game.World);
 				this.ArchiveWorld(game.World);
@@ -449,8 +451,6 @@ namespace DoomEngine.Doom.Game
 
 				this.writer.Write(player.Backpack ? 1 : 0);
 
-				player.Entity.Serialize(this.writer);
-
 				this.writer.Write(player.ReadyWeapon.Info.Name);
 				this.writer.Write(player.PendingWeapon?.Info.Name ?? "");
 
@@ -570,10 +570,14 @@ namespace DoomEngine.Doom.Game
 
 				game.InitNew(options.Skill, options.Episode, options.Map);
 
-				var a = this.reader.ReadByte();
-				var b = this.reader.ReadByte();
-				var c = this.reader.ReadByte();
-				var levelTime = (a << 16) + (b << 8) + c;
+				var levelTime = this.reader.ReadInt32();
+
+				game.World.WorldEntity = Entity.Deserialize(game.World, this.reader);
+
+				var numEntities = this.reader.ReadInt32();
+
+				for (var i = 0; i < numEntities; i++)
+					game.World.Entities.Add(Entity.Deserialize(game.World, this.reader));
 
 				this.UnArchivePlayers(game.World);
 				this.UnArchiveWorld(game.World);
@@ -613,7 +617,7 @@ namespace DoomEngine.Doom.Game
 				var player = world.Options.Player;
 
 				this.PadPointer();
-				this.UnArchivePlayer(player);
+				this.UnArchivePlayer(world, player);
 			}
 
 			private void UnArchiveWorld(World world)
@@ -892,9 +896,9 @@ namespace DoomEngine.Doom.Game
 				}
 			}
 
-			private void UnArchivePlayer(Player player)
+			private void UnArchivePlayer(World world, Player player)
 			{
-				player.Clear();
+				player.Clear(world);
 
 				this.reader.BaseStream.Position += 4;
 				player.PlayerState = (PlayerState) this.reader.ReadInt32();
@@ -918,7 +922,7 @@ namespace DoomEngine.Doom.Game
 
 				player.Backpack = this.reader.ReadInt32() != 0;
 
-				player.Entity = Entity.Deserialize(this.reader);
+				player.Entity = world.Entities.First(entity => entity.Info is DoomEngine.Game.Entities.Player);
 
 				var inventory = player.Entity.GetComponent<InventoryComponent>();
 

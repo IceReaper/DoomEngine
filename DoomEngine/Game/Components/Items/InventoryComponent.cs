@@ -1,5 +1,6 @@
 namespace DoomEngine.Game.Components.Items
 {
+	using Doom.World;
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
@@ -94,12 +95,12 @@ namespace DoomEngine.Game.Components.Items
 			this.items.ForEach(item => item.Serialize(writer));
 		}
 
-		public override void Deserialize(BinaryReader reader)
+		public override void Deserialize(World world, BinaryReader reader)
 		{
 			var numItems = reader.ReadInt32();
 
 			for (var i = 0; i < numItems; i++)
-				this.items.Add(Entity.Deserialize(reader));
+				this.items.Add(Entity.Deserialize(world, reader));
 		}
 	}
 }

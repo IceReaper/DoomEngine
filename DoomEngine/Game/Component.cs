@@ -1,5 +1,6 @@
 namespace DoomEngine.Game
 {
+	using Doom.World;
 	using System.IO;
 
 	public abstract class ComponentInfo
@@ -27,7 +28,7 @@ namespace DoomEngine.Game
 		{
 		}
 
-		public virtual void Deserialize(BinaryReader reader)
+		public virtual void Deserialize(World world, BinaryReader reader)
 		{
 		}
 	}

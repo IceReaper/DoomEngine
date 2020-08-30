@@ -1,5 +1,7 @@
 namespace DoomEngine.Game
 {
+	using Doom.World;
+	using Interfaces;
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
@@ -36,14 +38,14 @@ namespace DoomEngine.Game
 				.ToDictionary(type => type.Name, type => (EntityInfo) type.GetConstructor(new Type[0])?.Invoke(new object[0]));
 		}
 
-		public static Entity Create<T>() where T : EntityInfo
+		public static Entity Create<T>(World world) where T : EntityInfo
 		{
-			return EntityInfo.Create(EntityInfo.entityInfos.First(info => info.Value.GetType() == typeof(T)).Value);
+			return EntityInfo.Create(world, EntityInfo.entityInfos.First(info => info.Value.GetType() == typeof(T)).Value);
 		}
 
-		public static Entity Create(EntityInfo info)
+		public static Entity Create(World world, EntityInfo info)
 		{
-			return new Entity(info, entity => info.componentInfos.Select(componentInfo => componentInfo.Create(entity)).ToArray());
+			return new Entity(info, world, entity => info.componentInfos.Select(componentInfo => componentInfo.Create(entity)).ToArray());
 		}
 
 		public static IEnumerable<EntityInfo> WithComponent<T>() where T : ComponentInfo
@@ -67,10 +69,12 @@ namespace DoomEngine.Game
 		private readonly IEnumerable<Component> components;
 
 		public readonly EntityInfo Info;
+		public readonly World World;
 
-		public Entity(EntityInfo info, Func<Entity, Component[]> createComponents)
+		public Entity(EntityInfo info, World world, Func<Entity, Component[]> createComponents)
 		{
 			this.Info = info;
+			this.World = world;
 			this.components = createComponents(this);
 		}
 
@@ -82,12 +86,12 @@ namespace DoomEngine.Game
 				component.Serialize(writer);
 		}
 
-		public static Entity Deserialize(BinaryReader reader)
+		public static Entity Deserialize(World world, BinaryReader reader)
 		{
-			var entity = EntityInfo.Create(EntityInfo.OfName(reader.ReadString()));
+			var entity = EntityInfo.Create(world, EntityInfo.OfName(reader.ReadString()));
 
 			foreach (var component in entity.components)
-				component.Deserialize(reader);
+				component.Deserialize(world, reader);
 
 			return entity;
 		}
@@ -100,6 +104,12 @@ namespace DoomEngine.Game
 		public IEnumerable<T> GetComponents<T>()
 		{
 			return this.components.OfType<T>();
+		}
+
+		public void Update()
+		{
+			foreach (var component in this.GetComponents<IUpdate>())
+				component.Update();
 		}
 	}
 }

@@ -17,13 +17,16 @@ namespace DoomEngine.Doom.World
 {
 	using Audio;
 	using Common;
+	using DoomEngine.Game;
 	using Event;
 	using Game;
 	using Map;
 	using Math;
+	using System.Collections.Generic;
+	using System.Linq;
 	using UserInput;
 
-	public sealed partial class World
+	public sealed class World
 	{
 		private GameOptions options;
 		private DoomGame game;
@@ -62,27 +65,18 @@ namespace DoomEngine.Doom.World
 
 		private int validCount;
 
-		public World(CommonResource resorces, GameOptions options)
-			: this(resorces, options, null)
-		{
-		}
+		public Entity WorldEntity;
+		public readonly List<Entity> Entities = new List<Entity>();
 
 		public World(CommonResource resorces, GameOptions options, DoomGame game)
 		{
+			this.WorldEntity = EntityInfo.Create(this, EntityInfo.OfType<DoomEngine.Game.Entities.World>());
+
 			this.options = options;
 			this.game = game;
-
-			if (game != null)
-			{
-				this.random = game.Random;
-			}
-			else
-			{
-				this.random = new DoomRandom();
-			}
+			this.random = game != null ? game.Random : new DoomRandom();
 
 			this.map = new Map(resorces, this);
-
 			this.thinkers = new Thinkers(this);
 			this.specials = new Specials(this);
 			this.thingAllocation = new ThingAllocation(this);
@@ -133,9 +127,7 @@ namespace DoomEngine.Doom.World
 
 		public UpdateResult Update()
 		{
-			var player = this.options.Player;
-
-			this.playerBehavior.PlayerThink(player);
+			this.playerBehavior.PlayerThink(this.options.Player);
 
 			this.thinkers.Run();
 			this.specials.Update();
@@ -145,23 +137,20 @@ namespace DoomEngine.Doom.World
 
 			this.levelTime++;
 
-			if (this.completed)
-			{
-				return UpdateResult.Completed;
-			}
-			else
-			{
-				if (this.doneFirstTic)
-				{
-					return UpdateResult.None;
-				}
-				else
-				{
-					this.doneFirstTic = true;
+			this.WorldEntity.Update();
 
-					return UpdateResult.NeedWipe;
-				}
-			}
+			foreach (var entity in this.Entities.ToArray())
+				entity.Update();
+
+			if (this.completed)
+				return UpdateResult.Completed;
+
+			if (this.doneFirstTic)
+				return UpdateResult.None;
+
+			this.doneFirstTic = true;
+
+			return UpdateResult.NeedWipe;
 		}
 
 		private void LoadThings()

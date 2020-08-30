@@ -130,12 +130,12 @@ namespace DoomEngine.Doom.World
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
 
 			foreach (var entityInfo in EntityInfo.WithComponent<WeaponComponentInfo>())
-				inventory.TryAdd(EntityInfo.Create(entityInfo));
+				inventory.TryAdd(EntityInfo.Create(this.world, entityInfo));
 
 			player.Backpack = true;
 
 			foreach (var entityInfo in EntityInfo.WithComponent<AmmoComponentInfo>())
-				inventory.TryAdd(EntityInfo.Create(entityInfo));
+				inventory.TryAdd(EntityInfo.Create(this.world, entityInfo));
 
 			foreach (var entity in inventory.Items.Where(item => item.GetComponent<AmmoComponent>() != null))
 			{

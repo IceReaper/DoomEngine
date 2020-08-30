@@ -59,7 +59,7 @@ namespace DoomEngine.Doom.World
 		/// </returns>
 		public bool GiveAmmo(Player player, string ammoName, int amount)
 		{
-			var ammoEntity = EntityInfo.Create(EntityInfo.OfName(ammoName));
+			var ammoEntity = EntityInfo.Create(this.world, EntityInfo.OfName(ammoName));
 			var itemComponent = ammoEntity.GetComponent<ItemComponent>();
 
 			if (amount != 0)
@@ -113,7 +113,7 @@ namespace DoomEngine.Doom.World
 		/// </param>
 		public bool GiveWeapon(Player player, string weaponName, bool dropped)
 		{
-			var weaponEntity = EntityInfo.Create(EntityInfo.OfName(weaponName));
+			var weaponEntity = EntityInfo.Create(this.world, EntityInfo.OfName(weaponName));
 			var requiresAmmoComponent = weaponEntity.GetComponent<RequiresAmmoComponent>();
 
 			var inventory = player.Entity.GetComponent<InventoryComponent>();
