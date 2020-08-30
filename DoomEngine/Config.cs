@@ -49,6 +49,7 @@ namespace DoomEngine
 
 		public int audio_soundvolume;
 		public int audio_musicvolume;
+		public bool audio_randompitch;
 
 		// Default settings.
 		public Config(IPlatform platform)
@@ -80,6 +81,7 @@ namespace DoomEngine
 
 			this.audio_soundvolume = 8;
 			this.audio_musicvolume = 8;
+			this.audio_randompitch = false;
 		}
 
 		public Config(IPlatform platform, string path)
@@ -130,6 +132,7 @@ namespace DoomEngine
 
 				this.audio_soundvolume = Config.GetInt(dic, nameof(this.audio_soundvolume), this.audio_soundvolume);
 				this.audio_musicvolume = Config.GetInt(dic, nameof(this.audio_musicvolume), this.audio_musicvolume);
+				this.audio_randompitch = Config.GetBool(dic, nameof(this.audio_randompitch), this.audio_randompitch);
 
 				Console.WriteLine("OK");
 			}
@@ -170,6 +173,7 @@ namespace DoomEngine
 
 					writer.WriteLine(nameof(this.audio_soundvolume) + " = " + this.audio_soundvolume);
 					writer.WriteLine(nameof(this.audio_musicvolume) + " = " + this.audio_musicvolume);
+					writer.WriteLine(nameof(this.audio_randompitch) + " = " + Config.BoolToString(this.audio_randompitch));
 				}
 			}
 			catch

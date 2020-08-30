@@ -16,6 +16,7 @@
 namespace DoomEngine.Platform.Desktop
 {
 	using Audio;
+	using Doom.Common;
 	using Doom.Info;
 	using Doom.Math;
 	using Doom.World;
@@ -41,6 +42,8 @@ namespace DoomEngine.Platform.Desktop
 		private SoundBuffer[] buffers;
 		private float[] amplitudes;
 
+		private DoomRandom random;
+
 		private Sound[] channels;
 		private ChannelInfo[] infos;
 
@@ -65,6 +68,11 @@ namespace DoomEngine.Platform.Desktop
 
 				this.buffers = new SoundBuffer[DoomInfo.SfxNames.Length];
 				this.amplitudes = new float[DoomInfo.SfxNames.Length];
+
+				if (config.audio_randompitch)
+				{
+					this.random = new DoomRandom();
+				}
 
 				for (var i = 0; i < DoomInfo.SfxNames.Length; i++)
 				{
@@ -272,6 +280,7 @@ namespace DoomEngine.Platform.Desktop
 
 					channel.SoundBuffer = this.buffers[(int) info.Reserved];
 					this.SetParam(channel, info);
+					channel.Pitch = this.GetPitch(info.Type);
 					channel.Play();
 					info.Playing = info.Reserved;
 					info.Reserved = Sfx.NONE;
@@ -409,6 +418,8 @@ namespace DoomEngine.Platform.Desktop
 
 		public void Reset()
 		{
+			this.random?.Clear();
+
 			for (var i = 0; i < this.infos.Length; i++)
 			{
 				this.channels[i].Stop();
@@ -495,6 +506,17 @@ namespace DoomEngine.Platform.Desktop
 			{
 				return Math.Max((SfmlSound.clipDist - dist) / SfmlSound.attenuator, 0F);
 			}
+		}
+
+		private float GetPitch(SfxType type)
+		{
+			if (this.random == null)
+				return 1.0F;
+
+			if (type == SfxType.Voice)
+				return 1.0F + 0.1F * (this.random.Next() - 128) / 128;
+
+			return 1.0F + 0.05F * (this.random.Next() - 128) / 128;
 		}
 
 		public void Dispose()

@@ -16,6 +16,7 @@
 namespace DoomEngine
 {
 	using System;
+	using System.IO;
 	using System.Linq;
 
 	public sealed class CommandLineArgs
@@ -59,11 +60,20 @@ namespace DoomEngine
 
 		private static Arg<string[]> Check_file(string[] args)
 		{
-			var values = CommandLineArgs.GetValues(args, "-file");
-
-			if (values.Length >= 1)
+			// PWAD file paths can be specified without "-file" option for drag & drop support.
+			if (args.Length > 0 && args.All(arg => arg.FirstOrDefault() != '-'))
 			{
-				return new Arg<string[]>(values);
+				var values = args.Where(arg => Path.GetExtension(arg).ToLower() == ".wad").ToArray();
+
+				if (values.Length >= 1)
+					return new Arg<string[]>(values);
+			}
+			else
+			{
+				var values = GetValues(args, "-file");
+
+				if (values.Length >= 1)
+					return new Arg<string[]>(values);
 			}
 
 			return new Arg<string[]>();
