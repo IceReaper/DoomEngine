@@ -78,7 +78,11 @@ namespace DoomEngine.Doom.World
 
 				var dist = this.currentRange * intercept.Frac;
 
-				if (line.FrontSector.FloorHeight != line.BackSector.FloorHeight)
+				// The null check of the backsector below is necessary to avoid crash
+				// in certain PWADs, which contain two-sided lines with no backsector.
+				// These are imported from Chocolate Doom.
+
+				if (line.BackSector == null || line.FrontSector.FloorHeight != line.BackSector.FloorHeight)
 				{
 					var slope = (mc.OpenBottom - this.currentShooterZ) / dist;
 
@@ -88,7 +92,7 @@ namespace DoomEngine.Doom.World
 					}
 				}
 
-				if (line.FrontSector.CeilingHeight != line.BackSector.CeilingHeight)
+				if (line.BackSector == null || line.FrontSector.CeilingHeight != line.BackSector.CeilingHeight)
 				{
 					var slope = (mc.OpenTop - this.currentShooterZ) / dist;
 
@@ -190,23 +194,47 @@ namespace DoomEngine.Doom.World
 
 				var dist = this.currentRange * intercept.Frac;
 
-				if (line.FrontSector.FloorHeight != line.BackSector.FloorHeight)
+				// Similar to AimTraverse, the code below is imported from Chocolate Doom.
+				if (line.BackSector == null)
 				{
-					var slope = (mc.OpenBottom - this.currentShooterZ) / dist;
-
-					if (slope > this.currentAimSlope)
 					{
-						goto hitLine;
+						var slope = (mc.OpenBottom - this.currentShooterZ) / dist;
+
+						if (slope > this.currentAimSlope)
+						{
+							goto hitLine;
+						}
+					}
+
+					{
+						var slope = (mc.OpenTop - this.currentShooterZ) / dist;
+
+						if (slope < this.currentAimSlope)
+						{
+							goto hitLine;
+						}
 					}
 				}
-
-				if (line.FrontSector.CeilingHeight != line.BackSector.CeilingHeight)
+				else
 				{
-					var slope = (mc.OpenTop - this.currentShooterZ) / dist;
-
-					if (slope < this.currentAimSlope)
+					if (line.FrontSector.FloorHeight != line.BackSector.FloorHeight)
 					{
-						goto hitLine;
+						var slope = (mc.OpenBottom - this.currentShooterZ) / dist;
+
+						if (slope > this.currentAimSlope)
+						{
+							goto hitLine;
+						}
+					}
+
+					if (line.FrontSector.CeilingHeight != line.BackSector.CeilingHeight)
+					{
+						var slope = (mc.OpenTop - this.currentShooterZ) / dist;
+
+						if (slope < this.currentAimSlope)
+						{
+							goto hitLine;
+						}
 					}
 				}
 

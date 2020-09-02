@@ -15,6 +15,7 @@
 
 namespace DoomEngine.Doom.Map
 {
+	using System;
 	using System.IO;
 
 	public sealed class Reject
@@ -24,6 +25,15 @@ namespace DoomEngine.Doom.Map
 
 		private Reject(byte[] data, int sectorCount)
 		{
+			// If the reject table is too small, expand it to avoid crash.
+			// https://doomwiki.org/wiki/Reject#Reject_Overflow
+			var expectedLength = (sectorCount * sectorCount + 7) / 8;
+
+			if (data.Length < expectedLength)
+			{
+				Array.Resize(ref data, expectedLength);
+			}
+
 			this.data = data;
 			this.sectorCount = sectorCount;
 		}

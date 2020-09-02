@@ -513,10 +513,14 @@ namespace DoomEngine.Platform.Desktop
 			if (this.random == null)
 				return 1.0F;
 
-			if (type == SfxType.Voice)
-				return 1.0F + 0.1F * (this.random.Next() - 128) / 128;
+			if (type == SfxType.Misc)
+				return 1.0F;
 
-			return 1.0F + 0.05F * (this.random.Next() - 128) / 128;
+			if (type == SfxType.Voice)
+				return 1.0F + 0.075F * (this.random.Next() - 128) / 128;
+
+			return 1.0F + 0.025F * (this.random.Next() - 128) / 128;
+
 		}
 
 		public void Dispose()

@@ -81,7 +81,7 @@ namespace DoomEngine
 
 			this.audio_soundvolume = 8;
 			this.audio_musicvolume = 8;
-			this.audio_randompitch = false;
+			this.audio_randompitch = true;
 		}
 
 		public Config(IPlatform platform, string path)
