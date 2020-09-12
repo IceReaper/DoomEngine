@@ -21,9 +21,26 @@ namespace DoomEngine.Doom.Menu
 
 	public sealed class HelpScreen : MenuDef
 	{
+		private int pageCount;
+
+		private int page;
+
 		public HelpScreen(DoomMenu menu)
 			: base(menu)
 		{
+			if (DoomApplication.Instance.IWad == "doom1")
+			{
+				this.pageCount = 2;
+			}
+			else
+			{
+				this.pageCount = 1;
+			}
+		}
+
+		public override void Open()
+		{
+			this.page = this.pageCount - 1;
 		}
 
 		public override bool DoEvent(DoomEvent e)
@@ -31,6 +48,18 @@ namespace DoomEngine.Doom.Menu
 			if (e.Type != EventType.KeyDown)
 			{
 				return true;
+			}
+
+			if (e.Key == DoomKey.Enter || e.Key == DoomKey.Space || e.Key == DoomKey.LControl || e.Key == DoomKey.RControl)
+			{
+				this.page--;
+
+				if (this.page == -1)
+				{
+					this.Menu.Close();
+				}
+
+				this.Menu.StartSound(Sfx.PISTOL);
 			}
 
 			if (e.Key == DoomKey.Escape)
@@ -41,5 +70,7 @@ namespace DoomEngine.Doom.Menu
 
 			return true;
 		}
+
+		public int Page => this.page;
 	}
 }

@@ -212,43 +212,60 @@ namespace DoomEngine.Doom.Menu
 				new TextBoxMenuItem(48, 129, 72, 141)
 			);
 
-			MenuDef newGameMenu;
+			this.help = new HelpScreen(this);
 
 			if (DoomApplication.Instance.IWad == "doom2"
 				|| DoomApplication.Instance.IWad == "freedoom2"
 				|| DoomApplication.Instance.IWad == "plutonia"
 				|| DoomApplication.Instance.IWad == "tnt")
 			{
-				newGameMenu = this.skillMenu;
+				this.main = new SelectableMenu(
+					this,
+					"M_DOOM",
+					94,
+					2,
+					0,
+					new SimpleMenuItem("M_NGAME", 65, 67, 97, 72, null, this.skillMenu),
+					new SimpleMenuItem("M_OPTION", 65, 83, 97, 88, null, this.optionMenu),
+					new SimpleMenuItem("M_LOADG", 65, 99, 97, 104, null, this.load),
+					new SimpleMenuItem(
+						"M_SAVEG",
+						65,
+						115,
+						97,
+						120,
+						null,
+						this.save,
+						() => !(app.State == ApplicationState.Game && app.Game.State != GameState.Level)
+					),
+					new SimpleMenuItem("M_QUITG", 65, 131, 97, 136, null, this.quitConfirm)
+				);
 			}
 			else
 			{
-				newGameMenu = this.episodeMenu;
+				this.main = new SelectableMenu(
+					this,
+					"M_DOOM",
+					94,
+					2,
+					0,
+					new SimpleMenuItem("M_NGAME", 65, 59, 97, 64, null, this.episodeMenu),
+					new SimpleMenuItem("M_OPTION", 65, 75, 97, 80, null, this.optionMenu),
+					new SimpleMenuItem("M_LOADG", 65, 91, 97, 96, null, this.load),
+					new SimpleMenuItem(
+						"M_SAVEG",
+						65,
+						107,
+						97,
+						112,
+						null,
+						this.save,
+						() => !(app.State == ApplicationState.Game && app.Game.State != GameState.Level)
+					),
+					new SimpleMenuItem("M_RDTHIS", 65, 123, 97, 128, null, this.help),
+					new SimpleMenuItem("M_QUITG", 65, 139, 97, 144, null, this.quitConfirm)
+				);
 			}
-
-			this.main = new SelectableMenu(
-				this,
-				"M_DOOM",
-				94,
-				2,
-				0,
-				new SimpleMenuItem("M_NGAME", 65, 67, 97, 72, null, newGameMenu),
-				new SimpleMenuItem("M_OPTION", 65, 83, 97, 88, null, this.optionMenu),
-				new SimpleMenuItem("M_LOADG", 65, 99, 97, 104, null, this.load),
-				new SimpleMenuItem(
-					"M_SAVEG",
-					65,
-					115,
-					97,
-					120,
-					null,
-					this.save,
-					() => !(app.State == ApplicationState.Game && app.Game.State != GameState.Level)
-				),
-				new SimpleMenuItem("M_QUITG", 65, 131, 97, 136, null, this.quitConfirm)
-			);
-
-			this.help = new HelpScreen(this);
 
 			this.current = this.main;
 			this.active = false;

@@ -257,10 +257,29 @@ namespace DoomEngine.SoftwareRendering
 
 		private void DrawHelp(HelpScreen help)
 		{
-			this.DrawMenuPatch("HELP", 0, 0);
-
 			var skull = help.Menu.Tics / 8 % 2 == 0 ? "M_SKULL1" : "M_SKULL2";
-			this.DrawMenuPatch(skull, 298, 160);
+
+			if (DoomApplication.Instance.IWad == "doom2"
+				|| DoomApplication.Instance.IWad == "freedoom2"
+				|| DoomApplication.Instance.IWad == "plutonia"
+				|| DoomApplication.Instance.IWad == "tnt")
+			{
+				this.DrawMenuPatch("HELP", 0, 0);
+				this.DrawMenuPatch(skull, 298, 160);
+			}
+			else
+			{
+				if (help.Page == 0)
+				{
+					this.DrawMenuPatch("HELP1", 0, 0);
+					this.DrawMenuPatch(skull, 298, 170);
+				}
+				else
+				{
+					this.DrawMenuPatch("HELP2", 0, 0);
+					this.DrawMenuPatch(skull, 248, 180);
+				}
+			}
 		}
 	}
 }

@@ -280,7 +280,7 @@ namespace DoomEngine.Platform.Desktop
 
 					channel.SoundBuffer = this.buffers[(int) info.Reserved];
 					this.SetParam(channel, info);
-					channel.Pitch = this.GetPitch(info.Type);
+					channel.Pitch = this.GetPitch(info.Type, info.Reserved);
 					channel.Play();
 					info.Playing = info.Reserved;
 					info.Reserved = Sfx.NONE;
@@ -508,12 +508,12 @@ namespace DoomEngine.Platform.Desktop
 			}
 		}
 
-		private float GetPitch(SfxType type)
+		private float GetPitch(SfxType type, Sfx sfx)
 		{
 			if (this.random == null)
 				return 1.0F;
 
-			if (type == SfxType.Misc)
+			if (sfx == Sfx.ITEMUP || sfx == Sfx.TINK || sfx == Sfx.RADIO)
 				return 1.0F;
 
 			if (type == SfxType.Voice)
