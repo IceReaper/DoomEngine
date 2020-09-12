@@ -19,6 +19,7 @@ namespace DoomEngine.Doom.Game
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Entities.Ammos;
 	using DoomEngine.Game.Entities.Weapons;
+	using DoomEngine.Game.Interfaces;
 	using Info;
 	using Math;
 	using System;
@@ -56,7 +57,6 @@ namespace DoomEngine.Doom.Game
 
 		// Power ups. invinc and invis are tic counters.
 		private int[] powers;
-		private bool[] cards;
 		private bool backpack;
 
 		public Entity Entity;
@@ -111,7 +111,6 @@ namespace DoomEngine.Doom.Game
 			this.cmd = new TicCmd();
 
 			this.powers = new int[(int) PowerType.Count];
-			this.cards = new bool[(int) CardType.Count];
 
 			this.playerSprites = new PlayerSpriteDef[(int) PlayerSprite.Count];
 
@@ -139,7 +138,6 @@ namespace DoomEngine.Doom.Game
 			this.armorType = 0;
 
 			Array.Clear(this.powers, 0, this.powers.Length);
-			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
 			this.ReadyWeapon = null;
@@ -195,7 +193,6 @@ namespace DoomEngine.Doom.Game
 			this.armorType = 0;
 
 			Array.Clear(this.powers, 0, this.powers.Length);
-			Array.Clear(this.cards, 0, this.cards.Length);
 			this.backpack = false;
 
 			var inventory = this.Entity.GetComponent<InventoryComponent>();
@@ -236,7 +233,9 @@ namespace DoomEngine.Doom.Game
 		public void FinishLevel()
 		{
 			Array.Clear(this.powers, 0, this.powers.Length);
-			Array.Clear(this.cards, 0, this.cards.Length);
+
+			foreach (var notifyLevelChange in this.Entity.GetComponents<INotifyLevelChange>())
+				notifyLevelChange.LevelChange();
 
 			// Cancel invisibility.
 			this.mobj.Flags &= ~MobjFlags.Shadow;
@@ -319,11 +318,6 @@ namespace DoomEngine.Doom.Game
 		public int[] Powers
 		{
 			get => this.powers;
-		}
-
-		public bool[] Cards
-		{
-			get => this.cards;
 		}
 
 		public bool Backpack

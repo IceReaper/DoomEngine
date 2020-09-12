@@ -21,6 +21,7 @@ namespace DoomEngine.Doom.World
 	using DoomEngine.Game.Components.Items;
 	using DoomEngine.Game.Components.Weapons;
 	using DoomEngine.Game.Entities.Ammos;
+	using DoomEngine.Game.Entities.Keys;
 	using DoomEngine.Game.Entities.Weapons;
 	using Game;
 	using Graphics;
@@ -169,20 +170,6 @@ namespace DoomEngine.Doom.World
 			player.ArmorPoints = hits;
 
 			return true;
-		}
-
-		/// <summary>
-		/// Give the card to the player.
-		/// </summary>
-		private void GiveCard(Player player, CardType card)
-		{
-			if (player.Cards[(int) card])
-			{
-				return;
-			}
-
-			player.BonusCount = ItemPickup.bonusAdd;
-			player.Cards[(int) card] = true;
 		}
 
 		/// <summary>
@@ -352,62 +339,38 @@ namespace DoomEngine.Doom.World
 				// Cards.
 				// Leave cards for everyone.
 				case Sprite.BKEY:
-					if (!player.Cards[(int) CardType.BlueCard])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<BlueCard>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTBLUECARD);
-					}
-
-					this.GiveCard(player, CardType.BlueCard);
 
 					break;
 
 				case Sprite.YKEY:
-					if (!player.Cards[(int) CardType.YellowCard])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<YellowCard>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTYELWCARD);
-					}
-
-					this.GiveCard(player, CardType.YellowCard);
 
 					break;
 
 				case Sprite.RKEY:
-					if (!player.Cards[(int) CardType.RedCard])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<RedCard>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTREDCARD);
-					}
-
-					this.GiveCard(player, CardType.RedCard);
 
 					break;
 
 				case Sprite.BSKU:
-					if (!player.Cards[(int) CardType.BlueSkull])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<BlueSkull>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTBLUESKUL);
-					}
-
-					this.GiveCard(player, CardType.BlueSkull);
 
 					break;
 
 				case Sprite.YSKU:
-					if (!player.Cards[(int) CardType.YellowSkull])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<YellowSkull>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTYELWSKUL);
-					}
-
-					this.GiveCard(player, CardType.YellowSkull);
 
 					break;
 
 				case Sprite.RSKU:
-					if (!player.Cards[(int) CardType.RedSkull])
-					{
+					if (player.Entity.GetComponent<InventoryComponent>().TryAdd(EntityInfo.Create<RedSkull>(this.world)))
 						player.SendMessage(DoomInfo.Strings.GOTREDSKULL);
-					}
-
-					this.GiveCard(player, CardType.RedSkull);
 
 					break;
 

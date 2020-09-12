@@ -162,10 +162,10 @@ namespace DoomEngine.Doom.World
 			player.ArmorType = ItemPickup.IdkfaArmorClass;
 			player.ArmorPoints = ItemPickup.IdkfaArmor;
 
-			for (var i = 0; i < (int) CardType.Count; i++)
-			{
-				player.Cards[i] = true;
-			}
+			var inventory = player.Entity.GetComponent<InventoryComponent>();
+
+			foreach (var entityInfo in EntityInfo.WithComponent<KeyComponentInfo>())
+				inventory.TryAdd(EntityInfo.Create(this.world, entityInfo));
 
 			player.SendMessage(DoomInfo.Strings.STSTR_KFAADDED);
 		}

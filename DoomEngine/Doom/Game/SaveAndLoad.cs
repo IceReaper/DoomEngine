@@ -444,11 +444,6 @@ namespace DoomEngine.Doom.Game
 					this.writer.Write(player.Powers[i]);
 				}
 
-				for (var i = 0; i < (int) PowerType.Count; i++)
-				{
-					this.writer.Write(player.Cards[i] ? 1 : 0);
-				}
-
 				this.writer.Write(player.Backpack ? 1 : 0);
 
 				this.writer.Write(player.ReadyWeapon.Info.Name);
@@ -899,6 +894,7 @@ namespace DoomEngine.Doom.Game
 			private void UnArchivePlayer(World world, Player player)
 			{
 				player.Clear(world);
+				player.Reborn(world);
 
 				this.reader.BaseStream.Position += 4;
 				player.PlayerState = (PlayerState) this.reader.ReadInt32();
@@ -913,11 +909,6 @@ namespace DoomEngine.Doom.Game
 				for (var i = 0; i < (int) PowerType.Count; i++)
 				{
 					player.Powers[i] = this.reader.ReadInt32();
-				}
-
-				for (var i = 0; i < (int) PowerType.Count; i++)
-				{
-					player.Cards[i] = this.reader.ReadInt32() != 0;
 				}
 
 				player.Backpack = this.reader.ReadInt32() != 0;

@@ -119,7 +119,7 @@ namespace DoomEngine.Doom.World
 			{
 				throw new Exception("Unknown type!");
 			}
-			
+
 			Console.WriteLine($"THING {DoomInfo.MobjInfos[i].Name} @ {mt.X},{mt.Y}");
 
 			// Don't spawn any monsters if -nomonsters.

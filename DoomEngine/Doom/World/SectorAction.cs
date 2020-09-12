@@ -16,10 +16,13 @@
 namespace DoomEngine.Doom.World
 {
 	using Audio;
+	using DoomEngine.Game.Components.Items;
+	using DoomEngine.Game.Entities.Keys;
 	using Info;
 	using Map;
 	using Math;
 	using System;
+	using System.Linq;
 
 	public sealed class SectorAction
 	{
@@ -456,6 +459,7 @@ namespace DoomEngine.Doom.World
 		{
 			//	Check for locks.
 			var player = thing.Player;
+			var inventory = player?.Entity.GetComponent<InventoryComponent>();
 
 			switch ((int) line.Special)
 			{
@@ -467,7 +471,7 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int) CardType.BlueCard] && !player.Cards[(int) CardType.BlueSkull])
+					if (!inventory.Items.Any(item => item.Info is BlueCard || item.Info is BlueSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
@@ -485,7 +489,7 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int) CardType.YellowCard] && !player.Cards[(int) CardType.YellowSkull])
+					if (!inventory.Items.Any(item => item.Info is YellowCard || item.Info is YellowSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
@@ -503,7 +507,7 @@ namespace DoomEngine.Doom.World
 						return;
 					}
 
-					if (!player.Cards[(int) CardType.RedCard] && !player.Cards[(int) CardType.RedSkull])
+					if (!inventory.Items.Any(item => item.Info is RedCard || item.Info is RedSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDK);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
@@ -715,6 +719,7 @@ namespace DoomEngine.Doom.World
 		public bool DoLockedDoor(LineDef line, VerticalDoorType type, Mobj thing)
 		{
 			var player = thing.Player;
+			var inventory = player?.Entity.GetComponent<InventoryComponent>();
 
 			if (player == null)
 			{
@@ -731,7 +736,7 @@ namespace DoomEngine.Doom.World
 						return false;
 					}
 
-					if (!player.Cards[(int) CardType.BlueCard] && !player.Cards[(int) CardType.BlueSkull])
+					if (!inventory.Items.Any(item => item.Info is BlueCard || item.Info is BlueSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_BLUEO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
@@ -749,7 +754,7 @@ namespace DoomEngine.Doom.World
 						return false;
 					}
 
-					if (!player.Cards[(int) CardType.RedCard] && !player.Cards[(int) CardType.RedSkull])
+					if (!inventory.Items.Any(item => item.Info is RedCard || item.Info is RedSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_REDO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);
@@ -767,7 +772,7 @@ namespace DoomEngine.Doom.World
 						return false;
 					}
 
-					if (!player.Cards[(int) CardType.YellowCard] && !player.Cards[(int) CardType.YellowSkull])
+					if (!inventory.Items.Any(item => item.Info is YellowCard || item.Info is YellowSkull))
 					{
 						player.SendMessage(DoomInfo.Strings.PD_YELLOWO);
 						this.world.StartSound(player.Mobj, Sfx.OOF, SfxType.Voice);

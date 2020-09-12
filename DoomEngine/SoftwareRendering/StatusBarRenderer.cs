@@ -23,6 +23,7 @@ namespace DoomEngine.SoftwareRendering
 	using Game.Components.Items;
 	using Game.Components.Weapons;
 	using Game.Entities.Ammos;
+	using Game.Entities.Keys;
 	using System.Linq;
 
 	public sealed class StatusBarRenderer
@@ -284,16 +285,20 @@ namespace DoomEngine.SoftwareRendering
 				);
 			}
 
-			for (var i = 0; i < 3; i++)
+			foreach (var item in player.Entity.GetComponent<InventoryComponent>().Items)
 			{
-				if (player.Cards[i + 3])
-				{
-					this.DrawMultIcon(this.keys[i], i + 3);
-				}
-				else if (player.Cards[i])
-				{
-					this.DrawMultIcon(this.keys[i], i);
-				}
+				if (item.Info is BlueCard)
+					this.DrawMultIcon(this.keys[0], 0);
+				else if (item.Info is YellowCard)
+					this.DrawMultIcon(this.keys[1], 1);
+				else if (item.Info is RedCard)
+					this.DrawMultIcon(this.keys[2], 2);
+				else if (item.Info is BlueSkull)
+					this.DrawMultIcon(this.keys[0], 3);
+				else if (item.Info is YellowSkull)
+					this.DrawMultIcon(this.keys[1], 4);
+				else if (item.Info is RedSkull)
+					this.DrawMultIcon(this.keys[2], 5);
 			}
 		}
 
@@ -415,7 +420,7 @@ namespace DoomEngine.SoftwareRendering
 				this.TallMinus = Patch.FromWad("STTMINUS");
 				this.TallPercent = Patch.FromWad("STTPRCNT");
 
-				this.Keys = new Patch[(int) CardType.Count];
+				this.Keys = new Patch[6];
 
 				for (var i = 0; i < this.Keys.Length; i++)
 				{

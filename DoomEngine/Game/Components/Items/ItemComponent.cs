@@ -1,7 +1,8 @@
 namespace DoomEngine.Game.Components.Items
 {
-	using Doom.World;
+	using Entities;
 	using System.IO;
+	using World = Doom.World.World;
 
 	public class ItemComponentInfo : ComponentInfo
 	{
@@ -27,6 +28,7 @@ namespace DoomEngine.Game.Components.Items
 		public readonly ItemComponentInfo Info;
 
 		public int Amount;
+		public InventoryComponent Inventory;
 
 		public ItemComponent(Entity entity, ItemComponentInfo info)
 			: base(entity)

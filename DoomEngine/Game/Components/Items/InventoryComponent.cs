@@ -1,6 +1,7 @@
 namespace DoomEngine.Game.Components.Items
 {
 	using Doom.World;
+	using Interfaces;
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
@@ -14,7 +15,7 @@ namespace DoomEngine.Game.Components.Items
 		}
 	}
 
-	public class InventoryComponent : Component
+	public class InventoryComponent : Component, INotifyLevelChange
 	{
 		private readonly List<Entity> items = new List<Entity>();
 
@@ -59,6 +60,7 @@ namespace DoomEngine.Game.Components.Items
 				return anyAdded;
 
 			this.items.Add(item);
+			itemComponent.Inventory = this;
 
 			return true;
 		}
@@ -80,7 +82,10 @@ namespace DoomEngine.Game.Components.Items
 				amount -= consume;
 
 				if (itemComponent.Amount == 0)
+				{
+					itemComponent.Inventory = null;
 					this.items.Remove(ownedItem);
+				}
 
 				if (amount == 0)
 					break;
@@ -101,6 +106,12 @@ namespace DoomEngine.Game.Components.Items
 
 			for (var i = 0; i < numItems; i++)
 				this.items.Add(Entity.Deserialize(world, reader));
+		}
+
+		public void LevelChange()
+		{
+			foreach (var notifyLevelChange in this.items.SelectMany(item => item.GetComponents<INotifyLevelChange>()).ToArray())
+				notifyLevelChange.LevelChange();
 		}
 	}
 }
