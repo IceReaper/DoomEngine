@@ -1,5 +1,8 @@
 namespace DoomEngine.Game.Components
 {
+	using Doom.World;
+	using System.IO;
+
 	public class HealthInfo : ComponentInfo
 	{
 		public readonly int Full;
@@ -28,6 +31,16 @@ namespace DoomEngine.Game.Components
 		{
 			this.Info = info;
 			this.Current = info.Full;
+		}
+
+		public override void Serialize(BinaryWriter writer)
+		{
+			writer.Write(this.Current);
+		}
+
+		public override void Deserialize(World world, BinaryReader reader)
+		{
+			this.Current = reader.ReadInt32();
 		}
 	}
 }
